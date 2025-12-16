@@ -93,16 +93,13 @@
             transform: rotate(-45deg);
         }
 
-        h1.header-title {
-            font-family: 'New Rocker', cursive;
-            font-size: 4.5rem;
-            text-align: center;
-            margin: 10px 0 30px -30px;
-            color: #000;
-            text-transform: uppercase;
-            letter-spacing: -2px;
-            transform: rotate(-5deg);
-            text-shadow: 2px 2px 0px #555;
+        /* --- CSS UNTUK LOGO GAMBAR --- */
+        .header-logo {
+            display: block;
+            margin: 10px auto 30px auto;
+            width: auto;
+            max-width: 90%; /* Batasi lebar agar tidak keluar kertas */
+            transform: rotate(-5deg); /* Rotasi agar konsisten dengan gaya sebelumnya */
             position: relative;
             z-index: 2;
         }
@@ -177,7 +174,6 @@
         .metal-hand { bottom: 140px; left: 60px; width: 65px; transform: rotate(-25deg); stroke: #222; stroke-width: 2.5; }
 
         @media (max-width: 600px) {
-            h1.header-title { font-size: 3.5rem; }
             a { font-size: 1.1rem; }
             .paper { padding-left: 45px; }
             /* Adjust footer mobile juga */
@@ -192,7 +188,7 @@
         <div class="tape tape-top"></div>
         <div class="tape tape-corner"></div>
 
-        <h1 class="header-title">Setlist</h1>
+        <img src="setlist_logo.png" alt="Setlist Logo" class="header-logo">
         
         <svg class="doodle skull" viewBox="0 0 100 100">
             <path d="M20,40 Q20,10 50,10 Q80,10 80,40 Q80,60 70,70 L70,85 Q70,90 60,90 L40,90 Q30,90 30,85 L30,70 Q20,60 20,40 Z" />
