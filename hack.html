@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRITICAL FAILURE - SYSTEM BREACH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --danger-red: #ff003c;
+            --hacker-green: #00ff41;
+            --bg-dark: #050505;
+        }
+
+        body, html {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        /* --- Terminal Interface --- */
+        #terminal-interface {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 1;
+            transition: opacity 0.3s;
+        }
+
+        .terminal-box {
+            width: 90%;
+            max-width: 650px;
+            border: 1px solid rgba(255, 0, 60, 0.3);
+            background: rgba(10, 10, 10, 0.95);
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255, 0, 60, 0.2);
+        }
+
+        .glitch {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--danger-red);
+            position: relative;
+            animation: text-glitch 500ms infinite;
+        }
+
+        @keyframes text-glitch {
+            0% { text-shadow: 2px 0 0 red, -2px 0 0 cyan; }
+            50% { text-shadow: -2px 0 0 red, 2px 0 0 cyan; }
+            100% { text-shadow: 2px 0 0 red, -2px 0 0 cyan; }
+        }
+
+        .sub-text {
+            color: #ccc;
+            margin: 20px 0;
+            border-left: 3px solid var(--danger-red);
+            padding-left: 15px;
+            text-transform: none;
+        }
+
+        .data-log {
+            font-size: 0.85rem;
+            color: var(--hacker-green);
+            background: rgba(0, 255, 65, 0.05);
+            padding: 15px;
+            height: 120px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+        .progress-fill {
+            height: 10px;
+            background: var(--danger-red);
+            width: 0%;
+            transition: width 0.1s;
+            box-shadow: 0 0 15px var(--danger-red);
+        }
+
+        /* --- Full Screen Glitch Effect (ARIE96S) --- */
+        #jumpscare-container {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000;
+            z-index: 9999;
+            overflow: hidden;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Tulisan yang memenuhi layar */
+        .glitch-wall {
+            position: absolute;
+            width: 150%;
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 0.9;
+            word-break: break-all;
+            opacity: 0.8;
+            color: #fff;
+            text-align: center;
+            user-select: none;
+            animation: scroll-glitch 0.2s infinite linear;
+        }
+
+        @keyframes scroll-glitch {
+            0% { transform: translateY(0) skew(10deg); color: #fff; }
+            20% { transform: translateY(-5%) skew(-10deg); color: var(--danger-red); }
+            40% { transform: translateY(-10%) scale(1.1); color: #00ffff; }
+            60% { transform: translateY(-15%) skew(20deg); color: #fff; }
+            80% { transform: translateY(-20%) scale(0.9); color: var(--hacker-green); }
+            100% { transform: translateY(-25%); }
+        }
+
+        .overlay-text {
+            position: relative;
+            z-index: 10000;
+            font-size: 6rem;
+            background: black;
+            color: white;
+            padding: 10px 30px;
+            border: 5px solid white;
+            box-shadow: 0 0 50px red;
+            animation: shake 0.1s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(5px, 5px); }
+            50% { transform: translate(-5px, -5px); }
+            100% { transform: translate(5px, -5px); }
+        }
+
+        /* Trigger State */
+        .trigger-jumpscare #terminal-interface { opacity: 0; }
+        .trigger-jumpscare #jumpscare-container { display: flex; }
+    </style>
+</head>
+<body>
+
+    <div id="terminal-interface">
+        <div class="terminal-box">
+            <div class="glitch">SYSTEM COMPROMISED</div>
+            <div class="sub-text">
+                DATA EXFILTRATION IN PROGRESS...<br>
+                <span style="color: var(--danger-red); font-weight: bold;">ALL ASSETS ARE BEING MONITORED.</span>
+            </div>
+            <div class="data-log" id="log">
+                [SYS] BOOTING EXPLOIT...<br>
+            </div>
+            <div style="margin-top:20px">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                    <span>DOWNLOADING...</span>
+                    <span id="percent">0%</span>
+                </div>
+                <div style="background: #222; width: 100%; height: 10px; margin-top: 5px;">
+                    <div class="progress-fill" id="fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="jumpscare-container">
+        <div class="glitch-wall" id="wall">
+            </div>
+        <div class="overlay-text">ARIE96S</div>
+    </div>
+
+    <script>
+        const logEntries = [
+            "[OK] SCRAPING COOKIES", "[OK] BYPASSING 2FA", 
+            "[OK] STEALING BANKING DATA", "[OK] UPLOADING TO CLOUD",
+            "[OK] DELETING SYSTEM32", "[FATAL ERROR] OVERLOAD"
+        ];
+
+        let p = 0;
+        let l = 0;
+        const fill = document.getElementById('fill');
+        const percent = document.getElementById('percent');
+        const logBox = document.getElementById('log');
+        const wall = document.getElementById('wall');
+
+        // Buat tulisan memenuhi layar
+        wall.innerText = "ARIE96S ERROR ".repeat(500);
+
+        function startHacking() {
+            if (p <= 100) {
+                fill.style.width = p + "%";
+                percent.innerText = p + "%";
+                
+                if (p % 15 === 0 && l < logEntries.length) {
+                    logBox.innerHTML += logEntries[l] + "<br>";
+                    l++;
+                }
+                
+                if (p === 100) {
+                    setTimeout(() => {
+                        document.body.classList.add('trigger-jumpscare');
+                    }, 300);
+                }
+                p++;
+                setTimeout(startHacking, 40); 
+            }
+        }
+
+        window.onload = startHacking;
+    </script>
+</body>
+</html>
