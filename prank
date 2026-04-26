@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fakir WiFi - Limited Access</title>
+    <style>
+        /* Tema Grunge & Poor */
+        body {
+            background-color: #1a1a1a;
+            background-image: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+            color: #d9d9d9;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+        }
+
+        h1 {
+            color: #ff4d4d;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-top: 50px;
+            text-shadow: 2px 2px #000;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+            margin-top: 30px;
+        }
+
+        /* Animasi Muncul Lembut & Mendekat */
+        .image-card {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1.5s ease-out;
+            width: 100%;
+            border: 5px solid #333;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            filter: sepia(30%) contrast(1.2);
+        }
+
+        .image-card.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .caption {
+            background: #222;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border-top: 2px solid #444;
+        }
+
+        /* Signature */
+        .signature {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0.5;
+            font-size: 14px;
+            color: #fff;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .fake-error {
+            color: #ff0000;
+            font-size: 0.8em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CONNECTION ERROR!</h1>
+    <p class="fake-error">Searching for free signals... (Found: 3 Animals in Suits)</p>
+
+    <div class="container">
+        <div class="image-card" id="img1">
+            <img src="89757.png" alt="Fakir Wifi Monkey 1">
+            <div class="caption">"LO MAU WIFI GRATISAN?"</div>
+        </div>
+
+        <div class="image-card" id="img2">
+            <img src="89758.png" alt="Fakir Wifi Monkey and Pig">
+            <div class="caption">"SAMA KITA JUGA LAGI NYARI!"</div>
+        </div>
+
+        <div class="image-card" id="img3">
+            <img src="89759.png" alt="Fakir Wifi Trio">
+            <div class="caption">"SINI BERGABUNG SAMA PAGUYUBAN FAKIR"</div>
+        </div>
+    </div>
+
+    <div class="signature">Prank by @arie96s</div>
+
+    <script>
+        // Script untuk memunculkan gambar satu persatu saat scroll atau delay
+        const cards = document.querySelectorAll('.image-card');
+        
+        const showImage = (index) => {
+            if(index < cards.length) {
+                setTimeout(() => {
+                    cards[index].classList.add('show');
+                    showImage(index + 1);
+                }, 1000); // Jeda 1 detik antar gambar
+            }
+        };
+
+        // Mulai animasi saat halaman dimuat
+        window.onload = () => {
+            showImage(0);
+        };
+    </script>
+
+</body>
+</html>
