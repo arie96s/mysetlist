@@ -3,23 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Error - 404 Broken</title>
+    <title>Koneksi WiFi Gratis</title>
     <style>
+        /* Menggunakan font Sans-Serif modern */
         body {
-            background-color: #0a0a0a;
+            background-color: #ffffff;
             margin: 0;
             padding: 0;
             overflow: hidden;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            color: #000;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Mode Error - dipicu lewat JS */
+        body.system-failure {
+            background-color: #0a0a0a;
             color: #ff0000;
         }
 
-        /* Efek latar belakang berkedip/glitch */
+        /* Scan Area - Tampilan awal yang menipu */
+        .wifi-label {
+            text-align: center;
+            z-index: 20;
+            transition: opacity 0.5s;
+        }
+
+        .barcode {
+            width: 200px;
+            height: 100px;
+            background: linear-gradient(90deg, 
+                #000 5%, transparent 5%, 
+                transparent 10%, #000 10%, 
+                #000 12%, transparent 12%,
+                #000 15%, #000 20%,
+                transparent 20%, transparent 22%,
+                #000 22%, #000 25%,
+                transparent 25%, transparent 30%,
+                #000 30%, #000 32%
+            );
+            background-size: 30px 100%;
+            margin: 20px auto;
+            border: 2px solid #000;
+            padding: 5px;
+        }
+
         .overlay {
             position: fixed;
             top: 0;
@@ -28,19 +61,20 @@
             height: 100%;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 0, 0, 0.1),
-                rgba(0, 0, 0, 0.1) 1px,
+                rgba(0, 0, 0, 0.05),
+                rgba(0, 0, 0, 0.05) 1px,
                 transparent 1px,
                 transparent 2px
             );
             pointer-events: none;
             z-index: 10;
+            display: none; /* Muncul saat error */
         }
 
         .container {
             position: relative;
             width: 100%;
-            height: 80vh;
+            height: 60vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -48,50 +82,55 @@
 
         .prank-img {
             position: absolute;
-            max-width: 80%;
-            max-height: 80%;
+            max-width: 85%;
+            max-height: 85%;
             border: 5px solid #333;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            box-shadow: 0 0 30px rgba(255,0,0,0.4);
             opacity: 0;
-            transform: scale(0.5); /* Mulai dari jauh */
-            transition: all 2.5s ease-out; /* Pergerakan lembut */
+            transform: scale(0.2) rotate(-10deg);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Kelas untuk memicu animasi */
         .show {
             opacity: 1;
-            transform: scale(1.1); /* Mendekat melampaui ukuran normal */
+            transform: scale(1.1) rotate(0deg);
+        }
+
+        .error-text {
+            display: none;
+            font-weight: 900;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            animation: blink 0.2s infinite;
         }
 
         .signature {
             position: fixed;
             bottom: 20px;
-            opacity: 0.5;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            color: #ffffff;
-            z-index: 5;
-        }
-
-        .error-text {
-            position: absolute;
-            top: 10%;
-            font-weight: bold;
-            animation: blink 0.5s infinite;
+            opacity: 0.3;
+            font-size: 0.8rem;
+            color: inherit;
         }
 
         @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
+            0% { opacity: 1; color: #ff0000; }
+            50% { opacity: 0; color: #ffffff; }
+            100% { opacity: 1; color: #ff0000; }
         }
     </style>
 </head>
 <body>
 
-    <div class="overlay"></div>
+    <div class="overlay" id="overlay"></div>
     
-    <div class="error-text">CRITICAL SYSTEM FAILURE: FAKIR WIFI DETECTED</div>
+    <div class="wifi-label" id="wifiLabel">
+        <h1 style="margin-bottom: 0;">FREE HIGH-SPEED WIFI</h1>
+        <div class="barcode"></div>
+        <p>Scanning for nearby networks...</p>
+    </div>
+
+    <div class="error-text" id="errorMsg">CRITICAL SYSTEM FAILURE: FAKIR WIFI DETECTED</div>
 
     <div class="container">
         <img id="img1" class="prank-img" src="1777228358999.webp" alt="Prank 1">
@@ -103,40 +142,45 @@
 
     <script>
         window.onload = function() {
+            const wifiLabel = document.getElementById('wifiLabel');
+            const errorMsg = document.getElementById('errorMsg');
+            const overlay = document.getElementById('overlay');
             const images = [
                 document.getElementById('img1'),
                 document.getElementById('img2'),
                 document.getElementById('img3')
             ];
 
-            let currentIndex = 0;
+            function startPrank() {
+                // 1. Hilangkan label WiFi
+                wifiLabel.style.display = 'none';
+                
+                // 2. Aktifkan mode visual "rusak"
+                document.body.classList.add('system-failure');
+                errorMsg.style.display = 'block';
+                overlay.style.display = 'block';
 
-            function showNextImage() {
-                if (currentIndex < images.length) {
-                    // Sembunyikan gambar sebelumnya jika ada
-                    if (currentIndex > 0) {
-                        images[currentIndex - 1].style.opacity = "0";
+                // 3. Jalankan sequence gambar
+                let currentIndex = 0;
+                function showNextImage() {
+                    if (currentIndex < images.length) {
+                        if (currentIndex > 0) images[currentIndex - 1].style.opacity = "0";
+                        images[currentIndex].classList.add('show');
+                        currentIndex++;
+                        setTimeout(showNextImage, 2500);
+                    } else {
+                        setTimeout(() => {
+                            images.forEach(img => img.classList.remove('show'));
+                            currentIndex = 0;
+                            showNextImage();
+                        }, 3000);
                     }
-                    
-                    // Tampilkan gambar saat ini dengan animasi mendekat
-                    images[currentIndex].classList.add('show');
-                    
-                    currentIndex++;
-                    
-                    // Atur jeda waktu antar gambar (3 detik)
-                    setTimeout(showNextImage, 3000);
-                } else {
-                    // Opsional: Loop kembali ke awal
-                    setTimeout(() => {
-                        images.forEach(img => img.classList.remove('show'));
-                        currentIndex = 0;
-                        showNextImage();
-                    }, 4000);
                 }
+                showNextImage();
             }
 
-            // Memulai sequence setelah 1 detik
-            setTimeout(showNextImage, 1000);
+            // Prank dimulai otomatis setelah 3 detik "loading" palsu
+            setTimeout(startPrank, 3000);
         };
     </script>
 </body>
