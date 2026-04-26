@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koneksi WiFi Gratis</title>
+    <title>Koneksi WiFi Gratis - IndiHome</title>
     <style>
         /* Menggunakan font Sans-Serif modern */
         body {
-            background-color: #ffffff;
+            /* Warna latar belakang disesuaikan dengan tema IndiHome (Biru) */
+            background: radial-gradient(circle, #2086c5 0%, #05599e 100%);
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -17,40 +18,33 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            color: #000;
+            color: #ffffff; /* Teks putih agar kontras dengan biru */
             transition: background-color 0.5s ease;
         }
 
         /* Mode Error - dipicu lewat JS */
         body.system-failure {
-            background-color: #0a0a0a;
+            background: #0a0a0a;
             color: #ff0000;
         }
 
-        /* Scan Area - Tampilan awal yang menipu */
+        /* Scan Area */
         .wifi-label {
             text-align: center;
             z-index: 20;
             transition: opacity 0.5s;
+            max-width: 90%;
         }
 
-        .barcode {
-            width: 200px;
-            height: 100px;
-            background: linear-gradient(90deg, 
-                #000 5%, transparent 5%, 
-                transparent 10%, #000 10%, 
-                #000 12%, transparent 12%,
-                #000 15%, #000 20%,
-                transparent 20%, transparent 22%,
-                #000 22%, #000 25%,
-                transparent 25%, transparent 30%,
-                #000 30%, #000 32%
-            );
-            background-size: 30px 100%;
+        /* Mengganti barcode lama dengan gambar yang diupload */
+        .barcode-img {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             margin: 20px auto;
-            border: 2px solid #000;
-            padding: 5px;
+            display: block;
         }
 
         .overlay {
@@ -61,14 +55,14 @@
             height: 100%;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 0, 0, 0.05),
-                rgba(0, 0, 0, 0.05) 1px,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
                 transparent 1px,
                 transparent 2px
             );
             pointer-events: none;
             z-index: 10;
-            display: none; /* Muncul saat error */
+            display: none; 
         }
 
         .container {
@@ -99,7 +93,9 @@
         .error-text {
             display: none;
             font-weight: 900;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
+            text-align: center;
+            padding: 0 20px;
             text-transform: uppercase;
             letter-spacing: 4px;
             animation: blink 0.2s infinite;
@@ -108,7 +104,7 @@
         .signature {
             position: fixed;
             bottom: 20px;
-            opacity: 0.3;
+            opacity: 0.5;
             font-size: 0.8rem;
             color: inherit;
         }
@@ -125,9 +121,8 @@
     <div class="overlay" id="overlay"></div>
     
     <div class="wifi-label" id="wifiLabel">
-        <h1 style="margin-bottom: 0;">FREE HIGH-SPEED WIFI</h1>
-        <div class="barcode"></div>
-        <p>Scanning for nearby networks...</p>
+        <img src="89770.png" alt="Scan Barcode IndiHome" class="barcode-img">
+        <p style="font-weight: 500; letter-spacing: 1px;">Mencari koneksi internet stabil...</p>
     </div>
 
     <div class="error-text" id="errorMsg">CRITICAL SYSTEM FAILURE: FAKIR WIFI DETECTED</div>
@@ -169,6 +164,7 @@
                         currentIndex++;
                         setTimeout(showNextImage, 2500);
                     } else {
+                        // Loop kembali ke awal setelah semua gambar muncul
                         setTimeout(() => {
                             images.forEach(img => img.classList.remove('show'));
                             currentIndex = 0;
@@ -179,7 +175,7 @@
                 showNextImage();
             }
 
-            // Prank dimulai otomatis setelah 3 detik "loading" palsu
+            // Prank dimulai otomatis setelah 3 detik
             setTimeout(startPrank, 3000);
         };
     </script>
