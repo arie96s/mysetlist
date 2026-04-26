@@ -3,132 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fakir WiFi - Limited Access</title>
+    <title>Sistem Error - 404 Broken</title>
     <style>
-        /* Tema Grunge & Poor */
         body {
-            background-color: #1a1a1a;
-            background-image: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
-            color: #d9d9d9;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #0a0a0a;
             margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: hidden;
-            padding-bottom: 100px;
+            justify-content: center;
+            height: 100vh;
+            color: #ff0000;
         }
 
-        h1 {
-            color: #ff4d4d;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            margin-top: 50px;
-            text-shadow: 2px 2px #000;
-            text-align: center;
+        /* Efek latar belakang berkedip/glitch */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 10;
         }
 
         .container {
-            width: 90%;
-            max-width: 800px;
+            position: relative;
+            width: 100%;
+            height: 80vh;
             display: flex;
-            flex-direction: column;
-            gap: 50px;
-            margin-top: 30px;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Animasi Muncul Lembut & Mendekat */
-        .image-card {
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 1.5s ease-out;
-            width: 100%;
+        .prank-img {
+            position: absolute;
+            max-width: 80%;
+            max-height: 80%;
             border: 5px solid #333;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            filter: sepia(30%) contrast(1.2);
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            opacity: 0;
+            transform: scale(0.5); /* Mulai dari jauh */
+            transition: all 2.5s ease-out; /* Pergerakan lembut */
         }
 
-        .image-card.show {
+        /* Kelas untuk memicu animasi */
+        .show {
             opacity: 1;
-            transform: scale(1);
+            transform: scale(1.1); /* Mendekat melampaui ukuran normal */
         }
 
-        img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .caption {
-            background: #222;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-            border-top: 2px solid #444;
-        }
-
-        /* Signature */
         .signature {
             position: fixed;
             bottom: 20px;
-            right: 20px;
             opacity: 0.5;
-            font-size: 14px;
-            color: #fff;
-            background: rgba(0,0,0,0.5);
-            padding: 5px 10px;
-            border-radius: 5px;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: #ffffff;
+            z-index: 5;
         }
 
-        .fake-error {
-            color: #ff0000;
-            font-size: 0.8em;
-            margin-bottom: 20px;
+        .error-text {
+            position: absolute;
+            top: 10%;
+            font-weight: bold;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <h1>CONNECTION ERROR!</h1>
-    <p class="fake-error">Searching for free signals... (Found: 3 Animals in Suits)</p>
+    <div class="overlay"></div>
+    
+    <div class="error-text">CRITICAL SYSTEM FAILURE: FAKIR WIFI DETECTED</div>
 
     <div class="container">
-        <div class="image-card" id="img1">
-            <img src="mysetlist/1777228358999.webp" alt="Fakir Wifi Monkey 1">
-            <div class="caption">"LO MAU WIFI GRATISAN?"</div>
-        </div>
-
-        <div class="image-card" id="img2">
-            <img src="mysetlist/1777228422026.webp" alt="Fakir Wifi Monkey and Pig">
-            <div class="caption">"SAMA KITA JUGA LAGI NYARI!"</div>
-        </div>
-
-        <div class="image-card" id="img3">
-            <img src="mysetlist/1777228472727.webp" alt="Fakir Wifi Trio">
-            <div class="caption">"SINI BERGABUNG SAMA PAGUYUBAN FAKIR"</div>
-        </div>
+        <img id="img1" class="prank-img" src="mysetlist/1777228358999.webp" alt="Prank 1">
+        <img id="img2" class="prank-img" src="mysetlist/1777228422026.webp" alt="Prank 2">
+        <img id="img3" class="prank-img" src="mysetlist/1777228472727.webp" alt="Prank 3">
     </div>
 
-    <div class="signature">@arie96s</div>
+    <div class="signature">Prank by @arie96s</div>
 
     <script>
-        // Script untuk memunculkan gambar satu persatu saat scroll atau delay
-        const cards = document.querySelectorAll('.image-card');
-        
-        const showImage = (index) => {
-            if(index < cards.length) {
-                setTimeout(() => {
-                    cards[index].classList.add('show');
-                    showImage(index + 1);
-                }, 1000); // Jeda 1 detik antar gambar
-            }
-        };
+        window.onload = function() {
+            const images = [
+                document.getElementById('img1'),
+                document.getElementById('img2'),
+                document.getElementById('img3')
+            ];
 
-        // Mulai animasi saat halaman dimuat
-        window.onload = () => {
-            showImage(0);
+            let currentIndex = 0;
+
+            function showNextImage() {
+                if (currentIndex < images.length) {
+                    // Sembunyikan gambar sebelumnya jika ada
+                    if (currentIndex > 0) {
+                        images[currentIndex - 1].style.opacity = "0";
+                    }
+                    
+                    // Tampilkan gambar saat ini dengan animasi mendekat
+                    images[currentIndex].classList.add('show');
+                    
+                    currentIndex++;
+                    
+                    // Atur jeda waktu antar gambar (3 detik)
+                    setTimeout(showNextImage, 3000);
+                } else {
+                    // Opsional: Loop kembali ke awal
+                    setTimeout(() => {
+                        images.forEach(img => img.classList.remove('show'));
+                        currentIndex = 0;
+                        showNextImage();
+                    }, 4000);
+                }
+            }
+
+            // Memulai sequence setelah 1 detik
+            setTimeout(showNextImage, 1000);
         };
     </script>
-
 </body>
 </html>
