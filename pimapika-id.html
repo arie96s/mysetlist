@@ -89,12 +89,38 @@
     padding: 20px 28px;
   }
   .logo-area { display:flex; align-items:center; gap:14px; }
+  
+  /* LOGO ICON 1:1 WITH RETRO GRADIENT & WHITE TEXT */
   .logo-icon {
-    width:48px; height:48px; border-radius:14px;
-    background: linear-gradient(135deg, #2563eb, #0ea5e9);
-    display:flex; align-items:center; justify-content:center;
-    font-size:22px; box-shadow: 0 4px 16px rgba(37,99,235,0.4);
+    width: 56px; 
+    height: 56px; 
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ff0055 0%, #7c3aed 50%, #091e3a 100%);
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(255, 0, 85, 0.35), inset 0 1px 1px rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.2);
     animation: logoFloat 3s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .logo-icon .main-txt {
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    line-height: 1;
+  }
+  .logo-icon .sub-txt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: -0.2px;
+    line-height: 1;
+    margin-top: 3px;
   }
   @keyframes logoFloat {
     0%,100% { transform: translateY(0); }
@@ -216,7 +242,7 @@
   .bank-card .bank-pct { font-size:11px; color:var(--text-secondary); }
   .bank-card .bank-amt { font-size:16px; font-weight:700; font-family:'JetBrains Mono',monospace; margin-top:6px; }
   .bank-card .bank-purpose { font-size:11px; color:var(--text-muted); margin-top:3px; font-style:italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bank-del { position:absolute; top:10px; right:10px; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:14px; transition:all 0.2s; padding:3px; border-radius:6px; }
+  .bank-del { position:absolute; top:10px; right:10px; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:14px; transition:all 0.2s; padding:3px; border-radius:6px; flex-shrink: 0; }
   .bank-del:hover { color:#f87171; background:rgba(239,68,68,0.15); }
 
   .bank-bca { background:linear-gradient(135deg,rgba(0,87,161,0.35),rgba(0,120,220,0.2)); border-color:rgba(0,120,220,0.3)!important; }
@@ -357,13 +383,16 @@
 
 <div class="app">
 
-  <!-- HEADER -->
+  <!-- HEADER WITH RETRO LOGO ICON (1:1) -->
   <div class="header glass">
     <div class="logo-area">
-      <div class="logo-icon">💎</div>
+      <div class="logo-icon">
+        <span class="main-txt">PMPK</span>
+        <span class="sub-txt">PIMAPIKA</span>
+      </div>
       <div class="logo-text">
         <div class="logo-name">PIMAPIKA.ID</div>
-        <div class="logo-tag">Manajemen Keuangan Cerdas</div>
+        <div class="logo-tag">Pitih Masuak Pitih Kalua</div>
       </div>
     </div>
     <div class="header-date" id="headerDate"></div>
@@ -542,8 +571,8 @@
             <input class="glass-input" id="bankPurpose" placeholder="Dana darurat, Liburan, Operasional...">
           </div>
           <div class="input-group">
-            <label class="input-label">Alokasi (%)</label>
-            <input class="glass-input" id="bankPct" placeholder="10" type="number" min="1" max="100">
+            <label class="input-label">Jumlah Alokasi (Rp)</label>
+            <input class="glass-input" id="bankAmtInput" placeholder="0" type="number" min="0">
           </div>
           <div class="input-group">
             <label class="input-label">Prioritas</label>
@@ -557,9 +586,9 @@
           <button class="btn btn-primary" onclick="addBank()" style="width:100%">➕ Tambah Alokasi</button>
 
           <div class="alloc-progress" style="margin-top:20px;">
-            <div class="prog-label"><span>Total Alokasi</span><span id="totalAllocPct">0%</span></div>
+            <div class="prog-label"><span>Total Dialokasikan</span><span id="totalAllocValueText">Rp 0</span></div>
             <div class="prog-bar"><div class="prog-fill prog-ok" id="totalAllocBar" style="width:0%"></div></div>
-            <div style="font-size:11px; color:var(--text-muted); margin-top:6px;" id="allocHint">Ideal: 100% teralokasi</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:6px;" id="allocHint">Sisa sisa pemasukan yang tersedia</div>
           </div>
         </div>
         <div>
@@ -587,7 +616,7 @@
       </div>
 
       <div class="glass" style="padding:20px;margin-bottom:20px;">
-        <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>🏦</span>Rencana Alokasi Bank</div>
+        <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>🏦</span>Rencana Alokasi Bank (Terhitung Persen)</div>
         <div id="bankSplitDetail"></div>
       </div>
 
@@ -748,20 +777,31 @@ function addBank() {
   let name = document.getElementById('bankName').value;
   if(name==='custom') name = document.getElementById('bankCustomName').value.trim();
   const purpose = document.getElementById('bankPurpose').value.trim();
-  const pct = parseFloat(document.getElementById('bankPct').value);
+  const amt = parseFloat(document.getElementById('bankAmtInput').value);
   const priority = document.getElementById('bankPriority').value;
+  
+  const pInc = state.incomes.filter(i=>i.period===state.period);
+  const totalInc = pInc.reduce((s,i)=>s+i.amt,0);
+
   if(!name) { toast('Pilih atau ketik nama bank!','error'); return; }
-  if(!pct||pct<=0||pct>100) { toast('Persentase harus 1-100!','error'); return; }
-  const totalPct = state.banks.reduce((s,b)=>s+b.pct,0);
-  if(totalPct+pct>100) { toast(`Total alokasi tidak bisa melebihi 100%! Sisa: ${100-totalPct}%`,'error'); return; }
-  state.banks.push({ id:Date.now(), name, purpose, pct, priority, period:state.period });
+  if(!amt||amt<=0) { toast('Masukkan nominal uang alokasi yang valid!','error'); return; }
+  if(totalInc === 0) { toast('Tambahkan total pemasukan terlebih dahulu pada periode ini!','error'); return; }
+
+  const pBanks = state.banks.filter(b=>b.period===state.period);
+  const currentAllocatedAmt = pBanks.reduce((s,b)=>s+b.amt,0);
+  if(currentAllocatedAmt + amt > totalInc) { 
+    toast(`Nominal melebihi sisa pemasukan! Sisa tersedia: ${fmt(totalInc - currentAllocatedAmt)}`,'error'); 
+    return; 
+  }
+
+  state.banks.push({ id:Date.now(), name, purpose, amt, priority, period:state.period });
   document.getElementById('bankPurpose').value='';
-  document.getElementById('bankPct').value='';
+  document.getElementById('bankAmtInput').value='';
   document.getElementById('bankCustomName').value='';
   document.getElementById('bankName').value='BCA';
   document.getElementById('bankCustomGroup').style.display='none';
   saveState(); render();
-  toast(`Alokasi ${name} (${pct}%) ditambah`,'success');
+  toast(`Alokasi ${name} sebesar ${fmt(amt)} ditambah`,'success');
 }
 
 function deleteBank(id) {
@@ -774,11 +814,14 @@ function deleteBank(id) {
 function render() {
   const pInc = state.incomes.filter(i=>i.period===state.period);
   const pExp = state.expenses.filter(i=>i.period===state.period);
+  const pBanks = state.banks.filter(b=>b.period===state.period);
+
   const totalInc = pInc.reduce((s,i)=>s+i.amt,0);
   const totalExp = pExp.reduce((s,i)=>s+i.amt,0);
   const balance = totalInc - totalExp;
-  const totalAllocAmt = state.banks.reduce((s,b)=>s+(totalInc*b.pct/100),0);
-  const totalAllocPct = state.banks.reduce((s,b)=>s+b.pct,0);
+  const totalAllocAmt = pBanks.reduce((s,b)=>s+b.amt,0);
+  
+  const totalAllocPct = totalInc > 0 ? (totalAllocAmt / totalInc * 100) : 0;
 
   // Summary
   document.getElementById('sumIncome').textContent = fmtShort(totalInc);
@@ -789,7 +832,7 @@ function render() {
   document.getElementById('sumBalance').style.color = balance>=0?'#34d399':'#f87171';
   document.getElementById('sumBalanceStatus').textContent = balance>=0?'✅ Surplus':'⚠️ Defisit';
   document.getElementById('sumAllocated').textContent = fmtShort(totalAllocAmt);
-  document.getElementById('sumAllocatedPct').textContent = `${totalAllocPct}% dari pemasukan`;
+  document.getElementById('sumAllocatedPct').textContent = `${totalAllocPct.toFixed(1)}% dari pemasukan`;
 
   // Income list
   const incList = document.getElementById('incList');
@@ -829,28 +872,30 @@ function render() {
 
   // Bank grid
   const bankGrid = document.getElementById('bankGrid');
-  document.getElementById('bankBadge').textContent = state.banks.length;
-  if(state.banks.length===0) {
+  document.getElementById('bankBadge').textContent = pBanks.length;
+  if(pBanks.length===0) {
     bankGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏦</div>Belum ada alokasi bank</div>';
   } else {
-    bankGrid.innerHTML = state.banks.map(b=>`
+    bankGrid.innerHTML = pBanks.map(b=>`
       <div class="glass bank-card ${getBankClass(b.name)}">
         <button class="bank-del" onclick="deleteBank(${b.id})">✕</button>
         <div class="bank-logo">${getBankEmoji(b.name)}</div>
         <div class="bank-name">${b.name}</div>
-        <div class="bank-pct">${b.pct}% · ${getPriorityBadge(b.priority)}</div>
-        <div class="bank-amt">${fmtShort(totalInc*b.pct/100)}</div>
+        <div class="bank-pct">${getPriorityBadge(b.priority)}</div>
+        <div class="bank-amt">${fmtShort(b.amt)}</div>
         <div class="bank-purpose">${b.purpose||'—'}</div>
       </div>`).join('');
   }
 
   // Alloc progress
   const bar = document.getElementById('totalAllocBar');
-  const pctEl = document.getElementById('totalAllocPct');
-  pctEl.textContent = totalAllocPct+'%';
+  const valueEl = document.getElementById('totalAllocValueText');
+  valueEl.textContent = fmtShort(totalAllocAmt) + ` / ` + fmtShort(totalInc);
   bar.style.width = Math.min(totalAllocPct,100)+'%';
-  bar.className = 'prog-fill '+(totalAllocPct>100?'prog-over':totalAllocPct>=80?'prog-ok':'prog-warn');
-  document.getElementById('allocHint').textContent = totalAllocPct>=100?'✅ Semua teralokasi':totalAllocPct>=50?`⚠️ Sisa ${100-totalAllocPct}% belum dialokasikan`:`📌 Tambahkan alokasi (${100-totalAllocPct}% tersisa)`;
+  bar.className = 'prog-fill '+(totalAllocPct>100?'prog-over':totalAllocPct(99.9)?'prog-ok':'prog-warn');
+  
+  const restValue = totalInc - totalAllocAmt;
+  document.getElementById('allocHint').textContent = restValue <= 0 ? '✅ Semua pemasukan teralokasi murni' : `📌 Sisa ${fmt(restValue)} tersedia untuk alokasi bank`;
 
   // Ringkasan period label
   const rp = document.getElementById('ringkasanPeriod');
@@ -860,6 +905,7 @@ function render() {
 function renderRingkasan() {
   const pInc = state.incomes.filter(i=>i.period===state.period);
   const pExp = state.expenses.filter(i=>i.period===state.period);
+  const pBanks = state.banks.filter(b=>b.period===state.period);
   const totalInc = pInc.reduce((s,i)=>s+i.amt,0);
 
   // Top income by cat
@@ -886,10 +932,12 @@ function renderRingkasan() {
       <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#f87171;">-${fmtShort(amt)}</span>
     </div>`).join('');
 
-  // Bank detail
+  // Bank detail dengan perhitungan persentase otomatis saat ringkasan dibuka
   const bsd = document.getElementById('bankSplitDetail');
-  if(!state.banks.length) { bsd.innerHTML='<div style="color:var(--text-muted);font-size:13px;">Belum ada alokasi bank</div>'; }
-  else bsd.innerHTML = state.banks.map(b=>`
+  if(!pBanks.length) { bsd.innerHTML='<div style="color:var(--text-muted);font-size:13px;">Belum ada alokasi bank</div>'; }
+  else bsd.innerHTML = pBanks.map(b=>{
+    const calculatedPct = totalInc > 0 ? (b.amt / totalInc * 100) : 0;
+    return `
     <div class="split-rule">
       <div style="display:flex;align-items:center;gap:10px;">
         <span style="font-size:20px;">${getBankEmoji(b.name)}</span>
@@ -899,10 +947,11 @@ function renderRingkasan() {
         </div>
       </div>
       <div style="text-align:right;">
-        <div class="split-pct-badge">${b.pct}%</div>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#60a5fa;margin-top:4px;">${fmt(totalInc*b.pct/100)}</div>
+        <div class="split-pct-badge">${calculatedPct.toFixed(1)}%</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#60a5fa;margin-top:4px;">${fmt(b.amt)}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   // Notes
   document.getElementById('globalNotes').value = state.notes;
@@ -975,25 +1024,24 @@ function downloadPDF() {
 
   const pInc = state.incomes.filter(i=>i.period===state.period);
   const pExp = state.expenses.filter(i=>i.period===state.period);
+  const pBanks = state.banks.filter(b=>b.period===state.period);
+
   const totalInc = pInc.reduce((s,i)=>s+i.amt,0);
   const totalExp = pExp.reduce((s,i)=>s+i.amt,0);
   const balance = totalInc - totalExp;
+  const totalAllocAmt = pBanks.reduce((s,b)=>s+b.amt,0);
   const year = new Date().getFullYear();
 
-  // Bersihkan background ke putih total (Hitam Putih)
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, W, H, 'F');
-
-  // Setup font standar struk & warna text utama (Hitam Murni)
   doc.setTextColor(0, 0, 0);
   
-  // Fungsi pembatas garis putus-putus khas struk belanja
   function drawDashedLine(yPos) {
     doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.2);
     doc.setLineDashPattern([2, 2], 0);
     doc.line(15, yPos, W-15, yPos);
-    doc.setLineDashPattern([], 0); // Reset ke garis normal
+    doc.setLineDashPattern([], 0);
   }
 
   // ── HEADER STRUK ──
@@ -1003,7 +1051,7 @@ function downloadPDF() {
 
   doc.setFont('courier', 'normal');
   doc.setFontSize(9);
-  doc.text('MANAJEMEN KEUANGAN CERDAS', W/2, 23, { align: 'center' });
+  doc.text('PITIH MASUAK PITIH KALUA', W/2, 23, { align: 'center' });
   
   let y = 28;
   drawDashedLine(y);
@@ -1025,7 +1073,6 @@ function downloadPDF() {
   drawDashedLine(y);
   y += 8;
 
-  // Helper fungsi cek overflow halaman baru
   function checkPageOverflow(neededSpace) {
     if (y + neededSpace > H - 20) {
       doc.addPage();
@@ -1060,7 +1107,6 @@ function downloadPDF() {
       doc.setFont('courier', 'normal');
       doc.setFontSize(9);
       
-      // Menggabungkan nama dan kategori teks bersih tanpa emoji
       const descLine = `${item.name.substring(0, 25)} (${getCatLabelPlain(item.cat)})`;
       doc.text(descLine, 15, y);
       doc.text(formatDate(item.date), 135, y);
@@ -1120,7 +1166,7 @@ function downloadPDF() {
   }
 
   // ── BAGIAN DISTRIBUSI ALOKASI BANK ──
-  if(state.banks.length > 0) {
+  if(pBanks.length > 0) {
     checkPageOverflow(15);
     doc.setFont('courier', 'bold');
     doc.setFontSize(11);
@@ -1131,13 +1177,13 @@ function downloadPDF() {
     doc.setFontSize(9);
     doc.text('BANK / DOMPET (TUJUAN)', 15, y);
     doc.text('PRIORITAS', 110, y);
-    doc.text('ALOKASI', 150, y);
+    doc.text('PERSEN', 150, y);
     doc.text('NOMINAL', W-15, y, { align: 'right' });
     y += 4;
     drawDashedLine(y);
     y += 5;
 
-    state.banks.forEach((b) => {
+    pBanks.forEach((b) => {
       checkPageOverflow(10);
       doc.setFont('courier', 'normal');
       doc.setFontSize(9);
@@ -1145,24 +1191,26 @@ function downloadPDF() {
       const bankLabel = `${b.name} - ${b.purpose || 'Umum'}`;
       doc.text(bankLabel.substring(0, 32), 15, y);
       doc.text(b.priority.toUpperCase(), 110, y);
-      doc.text(`${b.pct}%`, 150, y);
+      
+      const calculatedPct = totalInc > 0 ? (b.amt / totalInc * 100) : 0;
+      doc.text(`${calculatedPct.toFixed(1)}%`, 150, y);
       
       doc.setFont('courier', 'bold');
-      doc.text(fmt(totalInc * b.pct / 100), W-15, y, { align: 'right' });
+      doc.text(fmt(b.amt), W-15, y, { align: 'right' });
       y += 5;
     });
 
-    const totalAllocPct = state.banks.reduce((s,b)=>s+b.pct,0);
+    const totalAllocPct = totalInc > 0 ? (totalAllocAmt / totalInc * 100) : 0;
     y += 2;
     drawDashedLine(y);
     y += 5;
     doc.setFont('courier', 'bold');
-    doc.text(`TOTAL ALOKASI (${totalAllocPct}%)`, 15, y);
-    doc.text(fmt(totalInc * totalAllocPct / 100), W-15, y, { align: 'right' });
+    doc.text(`TOTAL ALOKASI BANK (${totalAllocPct.toFixed(1)}%)`, 15, y);
+    doc.text(fmt(totalAllocAmt), W-15, y, { align: 'right' });
     y += 12;
   }
 
-  // ── REKAPITULASI AKHIR (TOTAL BALANCE STRUK) ──
+  // ── REKAPITULASI AKHIR ──
   checkPageOverflow(35);
   drawDashedLine(y);
   y += 6;
@@ -1194,7 +1242,6 @@ function downloadPDF() {
   drawDashedLine(y);
   y += 8;
 
-  // ── CATATAN STRUK ──
   if(state.notes && state.notes.trim()) {
     checkPageOverflow(20);
     doc.setFont('courier', 'bold');
@@ -1209,7 +1256,6 @@ function downloadPDF() {
     y += 6;
   }
 
-  // ── FOOTER STRUK ──
   checkPageOverflow(15);
   doc.setFont('courier', 'normal');
   doc.setFontSize(9);
@@ -1218,15 +1264,9 @@ function downloadPDF() {
   doc.setFontSize(8);
   doc.text('SIMPAN STRUK INI SEBAGAI BUKTI FISIK LAPORAN RESMI', W/2, y, { align: 'center' });
 
-  // ── SIMPAN BERKAS ──
   const filename = `STRUK_PIMAPIKA_${state.period.toUpperCase()}_${year}.pdf`;
   doc.save(filename);
   toast(`PDF Berhasil Diunduh: ${filename}`, 'success');
-}
-
-function getCatLabelPlain(cat) {
-  const map = {gaji:'Gaji',usaha:'Usaha',investasi:'Investasi',freelance:'Freelance',bonus:'Bonus',lainnya:'Lainnya',makan:'Makan & Minum',tagihan:'Tagihan',transport:'Transportasi',belanja:'Belanja',hiburan:'Hiburan',kesehatan:'Kesehatan',pendidikan:'Pendidikan',tabungan:'Tabungan'};
-  return map[cat]||cat;
 }
 
 // Initial render
