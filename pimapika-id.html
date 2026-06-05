@@ -80,7 +80,7 @@
     transition:transform 0.3s var(--spring),box-shadow 0.3s ease,background 0.3s ease,border 0.3s ease;
   }
   .glass:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.3); }
-  .glass-card { padding:28px; }
+  .glass-card { padding:28px; overflow:hidden; }
 
   .header { display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding:20px 28px; }
   .logo-area { display:flex;align-items:center;gap:14px; }
@@ -119,11 +119,15 @@
   body.light-mode .sum-saved { background:rgba(139,92,246,0.1); }
 
   .two-col { display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px; }
+  /* FIX: prevent columns from overflowing */
+  .two-col > div { min-width:0; overflow:hidden; }
+  
   .sec-title { font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:16px;display:flex;align-items:center;gap:8px; }
   .sec-title span { font-size:18px; }
   .sec-badge { font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--input-bg);color:var(--text-secondary);margin-left:4px; }
 
-  .input-group { margin-bottom:14px; }
+  /* FIX: input-group never overflows its column */
+  .input-group { margin-bottom:14px; width:100%; min-width:0; }
   .input-label { font-size:12px;color:var(--text-secondary);margin-bottom:6px;display:block;font-weight:500;letter-spacing:0.5px; }
 
   /* ── CURRENCY INPUT WRAPPER ── */
@@ -131,6 +135,8 @@
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
+    min-width: 0;
   }
   .currency-prefix {
     position: absolute;
@@ -151,10 +157,99 @@
     letter-spacing: 0.5px;
   }
 
-  .glass-input { width:100%;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text-primary);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:all 0.25s var(--spring); }
+  /* FIX: glass-input never overflows */
+  .glass-input {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding:12px 16px;
+    border-radius:14px;
+    background:var(--input-bg);
+    border:1px solid var(--input-border);
+    color:var(--text-primary);
+    font-family:'Outfit',sans-serif;
+    font-size:14px;
+    outline:none;
+    transition:all 0.25s var(--spring);
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+  }
   .glass-input::placeholder { color:var(--text-muted); }
   .glass-input:focus { background:var(--glass-white);border-color:rgba(37,99,235,0.7);box-shadow:0 0 0 3px rgba(37,99,235,0.2);transform:scale(1.01); }
   select.glass-input option { background:var(--bg-grad1);color:var(--text-primary); }
+
+  /* ── NATIVE DATE INPUT STYLING ── */
+  input[type="date"].glass-input {
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color-scheme: dark;
+  }
+  body.light-mode input[type="date"].glass-input {
+    color-scheme: light;
+  }
+  input[type="date"].glass-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  body.light-mode input[type="date"].glass-input::-webkit-calendar-picker-indicator {
+    filter: none;
+    opacity: 0.6;
+  }
+
+  /* ── CUSTOM DATE INPUT (header only) ── */
+  .date-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+  }
+  .date-row .glass-input {
+    flex: 1;
+    min-width: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .date-row .glass-input::placeholder {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    letter-spacing: normal;
+  }
+  .date-today-btn {
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--text-secondary);
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s var(--spring);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .date-today-btn:hover {
+    background: var(--card-hover-bg);
+    color: var(--text-primary);
+    transform: scale(1.04);
+  }
+  .date-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: block;
+  }
+  .date-error {
+    font-size: 10px;
+    color: #f87171;
+    margin-top: 4px;
+    display: none;
+  }
 
   .btn { padding:12px 22px;border-radius:14px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;font-size:14px;transition:all 0.25s var(--spring);white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px; }
   .btn:active { transform:scale(0.96)!important; }
@@ -173,12 +268,20 @@
   .tx-list::-webkit-scrollbar { width:4px; }
   .tx-list::-webkit-scrollbar-track { background:transparent; }
   .tx-list::-webkit-scrollbar-thumb { background:var(--text-muted);border-radius:10px; }
-  .tx-item { display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);transition:all 0.2s var(--spring);animation:slideIn 0.3s var(--spring);gap:10px; }
+  .tx-item {
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;border-radius:14px;
+    background:var(--input-bg);border:1px solid var(--input-border);
+    transition:all 0.2s var(--spring);animation:slideIn 0.3s var(--spring);
+    gap:10px;
+    /* FIX: prevent overflow */
+    min-width:0; overflow:hidden;
+  }
   .tx-item:hover { background:var(--card-hover-bg);transform:translateX(3px); }
-  .tx-info { flex:1;min-width:0; }
-  .tx-name { font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-  .tx-meta { font-size:11px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-  .tx-amount { font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;margin-right:4px;white-space:nowrap; }
+  .tx-info { flex:1;min-width:0; overflow:hidden; }
+  .tx-name { font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%; }
+  .tx-meta { font-size:11px;color:var(--text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%; }
+  .tx-amount { font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;white-space:nowrap; }
   .tx-amount.inc { color:#34d399; }
   .tx-amount.exp { color:#f87171; }
   .tx-del { background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;transition:all 0.2s;padding:4px;border-radius:8px;flex-shrink:0; }
@@ -255,7 +358,155 @@
   @keyframes slideIn { from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);} }
   @keyframes popIn { from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)} }
 
-  @media(max-width:768px) { .two-col{grid-template-columns:1fr;gap:32px;} .glass-card{padding:20px;} }
+  /* ── INTRO SCREEN ── */
+  #introScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #0f172a;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  #introScreen.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .intro-logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: introZoomIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .intro-logo-img {
+    width: 130px;
+    height: 130px;
+    border-radius: 32px;
+    object-fit: cover;
+    box-shadow: 0 0 80px rgba(37,99,235,0.5), 0 0 40px rgba(14,165,233,0.3);
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+  .intro-logo-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, #fff, #93c5fd, #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: introFadeUp 0.5s 0.2s ease both;
+  }
+  .intro-logo-tag {
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    animation: introFadeUp 0.5s 0.35s ease both;
+    margin-top: -12px;
+  }
+  .intro-dots {
+    display: flex;
+    gap: 8px;
+    margin-top: 40px;
+    animation: introFadeUp 0.4s 0.5s ease both;
+  }
+  .intro-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    animation: dotPulse 1.2s ease-in-out infinite;
+  }
+  .intro-dot:nth-child(2) { animation-delay: 0.2s; }
+  .intro-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes introZoomIn {
+    from { opacity:0; transform: scale(0.4); }
+    to   { opacity:1; transform: scale(1); }
+  }
+  @keyframes introFadeUp {
+    from { opacity:0; transform: translateY(12px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes dotPulse {
+    0%,100% { background: rgba(255,255,255,0.2); transform: scale(1); }
+    50%      { background: rgba(99,179,237,0.9); transform: scale(1.4); }
+  }
+  /* shrink animation fired by JS */
+  .intro-logo-wrap.shrink {
+    animation: introShrink 0.55s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+  @keyframes introShrink {
+    from { transform: scale(1) translateY(0); opacity: 1; }
+    to   { transform: scale(0.08) translateY(-340px); opacity: 0; }
+  }
+
+  /* ── HEADER DATE EDITABLE ── */
+  .header-date-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    cursor: pointer;
+  }
+  .header-date-display {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .header-date-wrap:hover .header-date-display { color: var(--text-primary); }
+  .header-date-edit-hint {
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  /* inline date input in header */
+  .header-date-input-row {
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+  .header-date-input-row.open { display: flex; }
+  .header-date-input-row input {
+    background: var(--input-bg);
+    border: 1px solid rgba(37,99,235,0.6);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 6px 10px;
+    width: 120px;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+  }
+  .header-date-input-row button {
+    background: linear-gradient(135deg,#2563eb,#0ea5e9);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+  }
+  .header-date-input-row .btn-cancel-date {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-secondary);
+  }
+
+  @media(max-width:768px) {
+    .two-col{grid-template-columns:1fr;gap:32px;}
+    .glass-card{padding:20px;}
+  }
   @media(max-width:600px) {
     .app{padding:16px 12px 60px;}
     .header{flex-direction:column;gap:16px;align-items:center;text-align:center;padding:20px;margin-bottom:24px;}
@@ -266,10 +517,28 @@
     .bank-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
     .pdf-bar{flex-direction:column;width:100%;gap:12px;}
     .pdf-bar .btn{width:100%;}
+    /* FIX: mobile input jangan keluar layar */
+    .glass-input { font-size:16px; } /* prevent iOS zoom */
+    .two-col { gap:20px; }
+    .date-row .glass-input { font-size:14px; }
   }
 </style>
 </head>
 <body>
+
+<!-- ── INTRO SCREEN ── -->
+<div id="introScreen">
+  <div class="intro-logo-wrap" id="introLogoWrap">
+    <img src="PMPK.png" alt="PIMAPIKA Logo" class="intro-logo-img">
+    <div class="intro-logo-name">PIMAPIKA.ID</div>
+    <div class="intro-logo-tag">Pitih Masuak Pitih Kalua</div>
+    <div class="intro-dots">
+      <div class="intro-dot"></div>
+      <div class="intro-dot"></div>
+      <div class="intro-dot"></div>
+    </div>
+  </div>
+</div>
 
 <div class="bg-orbs">
   <div class="orb orb-1"></div>
@@ -290,7 +559,18 @@
       </div>
     </div>
     <div class="header-actions">
-      <div class="header-date" id="headerDate"></div>
+      <!-- Editable header date -->
+      <div class="header-date-wrap" onclick="openHeaderDateEdit()" title="Klik untuk ubah tanggal">
+        <div class="header-date-display" id="headerDate"></div>
+        <div class="header-date-edit-hint">✏️ ubah tanggal</div>
+      </div>
+      <!-- Inline edit row (hidden by default) -->
+      <div class="header-date-input-row" id="headerDateEditRow">
+        <input type="text" id="headerDateInput" placeholder="DD/MM/YYYY" maxlength="10"
+          inputmode="numeric" oninput="handleDateInput(this)" autocomplete="off">
+        <button onclick="confirmHeaderDate()">✓</button>
+        <button class="btn-cancel-date" onclick="cancelHeaderDateEdit()">✕</button>
+      </div>
       <button class="btn-setting" onclick="openSettingModal()" title="Pengaturan">⚙️</button>
     </div>
   </div>
@@ -352,7 +632,7 @@
           <div class="sec-title"><span>💚</span> Tambah Pemasukan</div>
           <div class="input-group">
             <label class="input-label">Sumber Pemasukan</label>
-            <input class="glass-input" id="incName" placeholder="Gaji, Usaha, Freelance, dll..." type="text">
+            <input class="glass-input" id="incName" placeholder="Gaji, Usaha, Freelance, dll..." type="text" autocomplete="off">
           </div>
           <div class="input-group">
             <label class="input-label">Kategori</label>
@@ -378,7 +658,7 @@
           </div>
           <div class="input-group">
             <label class="input-label">Catatan (opsional)</label>
-            <input class="glass-input" id="incNote" placeholder="Catatan tambahan..." type="text">
+            <input class="glass-input" id="incNote" placeholder="Catatan tambahan..." type="text" autocomplete="off">
           </div>
           <button class="btn btn-success" onclick="addIncome()" style="width:100%">➕ Tambah Pemasukan</button>
         </div>
@@ -387,7 +667,6 @@
           <div class="tx-list" id="incList">
             <div class="empty-state"><div class="empty-icon">📭</div>Belum ada pemasukan</div>
           </div>
-          <div class="cat-tags" id="incCatTags"></div>
         </div>
       </div>
     </div>
@@ -399,7 +678,7 @@
           <div class="sec-title"><span>🔴</span> Tambah Pengeluaran</div>
           <div class="input-group">
             <label class="input-label">Keterangan</label>
-            <input class="glass-input" id="expName" placeholder="Makan, Tagihan, Transport, dll..." type="text">
+            <input class="glass-input" id="expName" placeholder="Makan, Tagihan, Transport, dll..." type="text" autocomplete="off">
           </div>
           <div class="input-group">
             <label class="input-label">Kategori</label>
@@ -428,7 +707,7 @@
           </div>
           <div class="input-group">
             <label class="input-label">Catatan (opsional)</label>
-            <input class="glass-input" id="expNote" placeholder="Catatan tambahan..." type="text">
+            <input class="glass-input" id="expNote" placeholder="Catatan tambahan..." type="text" autocomplete="off">
           </div>
           <button class="btn btn-danger" onclick="addExpense()" style="width:100%">➕ Tambah Pengeluaran</button>
         </div>
@@ -437,7 +716,6 @@
           <div class="tx-list" id="expList">
             <div class="empty-state"><div class="empty-icon">📭</div>Belum ada pengeluaran</div>
           </div>
-          <div class="cat-tags" id="expCatTags"></div>
         </div>
       </div>
     </div>
@@ -568,6 +846,7 @@
         <p><strong>1. Pemasukan:</strong> Catat semua aliran uang masuk berdasarkan kategori seperti Gaji, Usaha, atau Freelance.</p>
         <p><strong>2. Pengeluaran:</strong> Masukkan pengeluaran rutin aktif Anda (seperti Makan, Tagihan, Transportasi).</p>
         <p><strong>3. Alokasi Bank:</strong> Pemindahan internal uang sisa pemasukan ke rekening/e-wallet khusus.</p>
+        <p><strong>4. Tanggal:</strong> Ketik manual format DD/MM/YYYY atau tekan tombol "Hari ini" untuk isi otomatis.</p>
       </div>
     </div>
     <div class="setting-collapse" style="margin-bottom:24px;">
@@ -575,9 +854,10 @@
         <span>ℹ️ Tentang Aplikasi</span><span>▼</span>
       </div>
       <div class="collapse-body" id="aboutCollapse">
-        <p><strong>Nama Aplikasi:</strong> PIMAPIKA.ID v2.1.1</p>
+        <p><strong>Nama Aplikasi:</strong> PIMAPIKA.ID v2.3.0</p>
         <p><strong>Filosofi:</strong> <em>Pitih Masuak Pitih Kalua</em></p>
         <p><strong>Developer:</strong> @arie96s</p>
+        <p><strong>Perubahan v2.3.0:</strong> Intro screen logo, tanggal header bisa diedit</p>
       </div>
     </div>
     <div style="display:flex;">
@@ -588,7 +868,7 @@
 
 <script>
 // ===== STATE =====
-let state = { period:'Januari', incomes:[], expenses:[], banks:[], notes:'', darkMode:true };
+let state = { period:'Januari', incomes:[], expenses:[], banks:[], notes:'', darkMode:true, headerDate:'' };
 
 function loadState() {
   const saved = localStorage.getItem('pimapika_state');
@@ -597,59 +877,164 @@ function loadState() {
 function saveState() { localStorage.setItem('pimapika_state', JSON.stringify(state)); }
 
 // ===== CURRENCY INPUT FORMATTER =====
-// Mengubah angka input menjadi format dengan titik ribuan (1.000.000)
 function formatCurrencyInput(el) {
-  // Simpan posisi kursor agar tidak lompat
   const cursorPos = el.selectionStart;
   const prevLen = el.value.length;
-
-  // Ambil hanya digit
   let raw = el.value.replace(/\D/g, '');
-
-  // Batasi maksimal 15 digit (999 Triliun)
   if(raw.length > 15) raw = raw.slice(0, 15);
-
-  // Format dengan titik ribuan
   const formatted = raw ? Number(raw).toLocaleString('id-ID') : '';
   el.value = formatted;
-
-  // Kembalikan posisi kursor secara proporsional
   const newLen = el.value.length;
   const diff = newLen - prevLen;
   const newCursor = cursorPos + diff;
   try { el.setSelectionRange(newCursor, newCursor); } catch(e){}
 }
 
-// Ambil nilai numerik dari input yang sudah diformat
 function getCurrencyValue(id) {
   const raw = document.getElementById(id).value.replace(/\./g, '').replace(/,/g, '');
   return parseFloat(raw) || 0;
 }
 
-// Reset nilai input currency
 function clearCurrencyInput(id) {
   document.getElementById(id).value = '';
 }
 
+// ===== CUSTOM DATE INPUT =====
+// Format: DD/MM/YYYY — auto-insert slash saat ketik
+function handleDateInput(el) {
+  let v = el.value.replace(/\D/g, ''); // ambil digit saja
+  if(v.length > 8) v = v.slice(0,8);
+  let result = '';
+  if(v.length >= 1) result = v.slice(0,2);
+  if(v.length >= 3) result += '/' + v.slice(2,4);
+  if(v.length >= 5) result += '/' + v.slice(4,8);
+  el.value = result;
+  // validasi jika sudah 10 karakter
+  const errId = el.id + 'Err';
+  const errEl = document.getElementById(errId);
+  if(errEl) {
+    if(result.length === 10) {
+      const valid = isValidDate(result);
+      errEl.style.display = valid ? 'none' : 'block';
+      el.style.borderColor = valid ? '' : 'rgba(239,68,68,0.7)';
+    } else {
+      errEl.style.display = 'none';
+      el.style.borderColor = '';
+    }
+  }
+}
+
+function isValidDate(str) {
+  // DD/MM/YYYY
+  if(!/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return false;
+  const [dd,mm,yyyy] = str.split('/').map(Number);
+  if(mm < 1 || mm > 12) return false;
+  if(dd < 1 || dd > 31) return false;
+  const d = new Date(yyyy, mm-1, dd);
+  return d.getFullYear()===yyyy && d.getMonth()===mm-1 && d.getDate()===dd;
+}
+
+// Konversi DD/MM/YYYY → YYYY-MM-DD untuk internal storage
+function parseDisplayDate(str) {
+  if(!str || str.length < 10) return '';
+  const parts = str.split('/');
+  if(parts.length !== 3) return '';
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
+
+// Konversi YYYY-MM-DD → DD/MM/YYYY untuk tampil di input
+function toDisplayDate(isoStr) {
+  if(!isoStr) return '';
+  const parts = isoStr.split('-');
+  if(parts.length !== 3) return isoStr;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function setTodayDate(inputId) {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2,'0');
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const yyyy = today.getFullYear();
+  document.getElementById(inputId).value = `${dd}/${mm}/${yyyy}`;
+  // reset error style
+  const errEl = document.getElementById(inputId + 'Err');
+  if(errEl) errEl.style.display = 'none';
+  document.getElementById(inputId).style.borderColor = '';
+}
+
 // ===== INIT =====
 loadState();
-document.getElementById('headerDate').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('incDate').value = today;
-document.getElementById('expDate').value = today;
+// ── Intro screen ──
+(function(){
+  const intro = document.getElementById('introScreen');
+  const wrap  = document.getElementById('introLogoWrap');
+  // After 2.2s start shrink, then hide overlay at 2.75s
+  setTimeout(() => {
+    wrap.classList.add('shrink');
+  }, 2200);
+  setTimeout(() => {
+    intro.classList.add('hide');
+    setTimeout(() => { intro.style.display = 'none'; }, 500);
+  }, 2700);
+})();
+
+// ── Header date state (custom, separate from system clock) ──
+// Store as ISO string YYYY-MM-DD, default = today
+if(!state.headerDate) {
+  const t = new Date();
+  state.headerDate = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+function renderHeaderDate() {
+  const [y,m,d] = state.headerDate.split('-');
+  const dateObj = new Date(+y, +m-1, +d);
+  document.getElementById('headerDate').textContent =
+    dateObj.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+renderHeaderDate();
+
+function openHeaderDateEdit() {
+  const [y,m,d] = state.headerDate.split('-');
+  document.getElementById('headerDateInput').value = `${d}/${m}/${y}`;
+  document.querySelector('.header-date-wrap').style.display = 'none';
+  document.getElementById('headerDateEditRow').classList.add('open');
+  setTimeout(() => document.getElementById('headerDateInput').focus(), 50);
+}
+function cancelHeaderDateEdit() {
+  document.getElementById('headerDateEditRow').classList.remove('open');
+  document.querySelector('.header-date-wrap').style.display = '';
+}
+function confirmHeaderDate() {
+  const val = document.getElementById('headerDateInput').value.trim();
+  if(!isValidDate(val)) { toast('Format tanggal tidak valid (DD/MM/YYYY)!','error'); return; }
+  const iso = parseDisplayDate(val);
+  state.headerDate = iso;
+  saveState();
+  renderHeaderDate();
+  cancelHeaderDateEdit();
+  toast('Tanggal header diperbarui ✓','success');
+}
+// Enter key on header date input
+document.getElementById('headerDateInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') confirmHeaderDate();
+  if(e.key === 'Escape') cancelHeaderDateEdit();
+});
+
+// Set tanggal hari ini ke native date input
+const _today = new Date().toISOString().split('T')[0];
+document.getElementById('incDate').value = _today;
+document.getElementById('expDate').value = _today;
 
 document.getElementById('bankName').addEventListener('change', function(){
   document.getElementById('bankCustomGroup').style.display = this.value==='custom' ? 'block' : 'none';
 });
 
-// Apply dark/light mode on load
 if(state.darkMode === false) {
   document.body.classList.add('light-mode');
   document.getElementById('darkModeToggle').checked = false;
 }
 
-// Set active period button
 (function(){
   const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const curMonth = months[new Date().getMonth()];
@@ -700,6 +1085,7 @@ function addIncome() {
   const note = document.getElementById('incNote').value.trim();
   if(!name) { toast('Masukkan nama pemasukan!','error'); return; }
   if(!amt||amt<=0) { toast('Masukkan jumlah yang valid!','error'); return; }
+  if(!date) { toast('Pilih tanggal terlebih dahulu!','error'); return; }
   state.incomes.push({ id:Date.now(), name, cat, amt, date, note, period:state.period });
   document.getElementById('incName').value = '';
   clearCurrencyInput('incAmt');
@@ -723,6 +1109,7 @@ function addExpense() {
   const note = document.getElementById('expNote').value.trim();
   if(!name) { toast('Masukkan keterangan pengeluaran!','error'); return; }
   if(!amt||amt<=0) { toast('Masukkan jumlah yang valid!','error'); return; }
+  if(!date) { toast('Pilih tanggal terlebih dahulu!','error'); return; }
   state.expenses.push({ id:Date.now(), name, cat, amt, date, note, period:state.period });
   document.getElementById('expName').value = '';
   clearCurrencyInput('expAmt');
@@ -787,7 +1174,6 @@ function render() {
   const balance       = totalInc - totalExp - totalAllocAmt;
   const totalAllocPct = totalInc > 0 ? (totalAllocAmt / totalInc * 100) : 0;
 
-  // Summary cards
   document.getElementById('sumIncome').textContent = fmtShort(totalInc);
   document.getElementById('sumIncomeCount').textContent = pInc.length + ' transaksi';
   document.getElementById('sumExpense').textContent = fmtShort(totalExp);
@@ -798,7 +1184,6 @@ function render() {
   document.getElementById('sumAllocated').textContent = fmtShort(totalAllocAmt);
   document.getElementById('sumAllocatedPct').textContent = totalAllocPct.toFixed(1) + '% dari pemasukan';
 
-  // Income list
   const incList = document.getElementById('incList');
   document.getElementById('incBadge').textContent = pInc.length;
   if(!pInc.length) {
@@ -815,7 +1200,6 @@ function render() {
       </div>`).join('');
   }
 
-  // Expense list
   const expList = document.getElementById('expList');
   document.getElementById('expBadge').textContent = pExp.length;
   if(!pExp.length) {
@@ -832,7 +1216,6 @@ function render() {
       </div>`).join('');
   }
 
-  // Bank grid
   const bankGrid = document.getElementById('bankGrid');
   document.getElementById('bankBadge').textContent = pBanks.length;
   if(!pBanks.length) {
@@ -849,7 +1232,6 @@ function render() {
       </div>`).join('');
   }
 
-  // Alloc progress bar
   const bar = document.getElementById('totalAllocBar');
   document.getElementById('totalAllocValueText').textContent = fmtShort(totalAllocAmt) + ' / ' + fmtShort(totalInc);
   bar.style.width = Math.min(totalAllocPct, 100) + '%';
@@ -870,7 +1252,6 @@ function renderRingkasan() {
   const pBanks = state.banks.filter(b => b.period===state.period);
   const totalInc = pInc.reduce((s,i) => s+i.amt, 0);
 
-  // Top income by cat
   const incByCat = {};
   pInc.forEach(i => { incByCat[i.cat] = (incByCat[i.cat]||0) + i.amt; });
   const topIncEl = document.getElementById('topIncome');
@@ -883,7 +1264,6 @@ function renderRingkasan() {
         </div>`).join('')
     : '<div style="color:var(--text-muted);font-size:13px;">Belum ada data</div>';
 
-  // Top expense by cat
   const expByCat = {};
   pExp.forEach(i => { expByCat[i.cat] = (expByCat[i.cat]||0) + i.amt; });
   const topExpEl = document.getElementById('topExpense');
@@ -896,7 +1276,6 @@ function renderRingkasan() {
         </div>`).join('')
     : '<div style="color:var(--text-muted);font-size:13px;">Belum ada data</div>';
 
-  // Bank split detail
   const bsd = document.getElementById('bankSplitDetail');
   bsd.innerHTML = pBanks.length
     ? pBanks.map(b => {
@@ -918,18 +1297,15 @@ function renderRingkasan() {
       }).join('')
     : '<div style="color:var(--text-muted);font-size:13px;">Belum ada alokasi bank</div>';
 
-  // Notes
   const notesEl = document.getElementById('globalNotes');
   notesEl.value = state.notes;
   notesEl.oninput = function(){ state.notes = this.value; saveState(); };
 }
 
 // ===== MODAL CONTROLS =====
-// Reset modal — nama fungsi dipisah agar tidak bentrok
 function resetAll()       { document.getElementById('resetModal').classList.add('open'); }
 function closeResetModal(){ document.getElementById('resetModal').classList.remove('open'); }
 
-// ===== FIX: confirmReset sekarang benar-benar membersihkan data =====
 function confirmReset() {
   state.incomes  = [];
   state.expenses = [];
@@ -938,7 +1314,6 @@ function confirmReset() {
   saveState();
   closeResetModal();
   render();
-  // Refresh tab ringkasan kalau sedang terbuka
   const ringkasanTab = document.getElementById('tab-ringkasan');
   if(ringkasanTab && ringkasanTab.classList.contains('active')) renderRingkasan();
   toast('Semua data telah direset ✓', 'info');
@@ -947,7 +1322,6 @@ function confirmReset() {
 function openSettingModal()  { document.getElementById('settingModal').classList.add('open'); }
 function closeSettingModal() { document.getElementById('settingModal').classList.remove('open'); }
 
-// Tutup modal kalau klik overlay (bukan konten)
 document.getElementById('resetModal').addEventListener('click', function(e){
   if(e.target === this) closeResetModal();
 });
@@ -1002,7 +1376,18 @@ function getPriorityBadge(p) {
 }
 function formatDate(d) {
   if(!d) return '—';
-  return new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+  // Handle both ISO (YYYY-MM-DD) and DD/MM/YYYY formats in storage
+  let dateObj;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    const [y,m,day] = d.split('-');
+    dateObj = new Date(+y, +m-1, +day);
+  } else if(/^\d{2}\/\d{2}\/\d{4}$/.test(d)) {
+    const [day,m,y] = d.split('/');
+    dateObj = new Date(+y, +m-1, +day);
+  } else {
+    return d;
+  }
+  return dateObj.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
 }
 
 // ===== TOAST =====
