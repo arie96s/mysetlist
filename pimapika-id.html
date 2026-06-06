@@ -86,12 +86,45 @@
   .btn-setting:hover{background:var(--input-bg);transform:rotate(45deg);}
 
   /* ── PERIOD BAR ── */
-  .period-bar{display:flex;gap:10px;margin-bottom:28px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;}
+  .period-bar{display:flex;gap:8px;margin-bottom:28px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
   .period-bar::-webkit-scrollbar{display:none;}
-  .period-btn{padding:10px 20px;border-radius:50px;border:1px solid var(--glass-border);background:rgba(255,255,255,.08);color:var(--text-secondary);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .25s var(--spring);backdrop-filter:blur(10px);flex-shrink:0;}
+  .period-btn{
+    padding:10px 20px;border-radius:50px;
+    border:1px solid var(--glass-border);
+    background:rgba(255,255,255,.07);
+    color:var(--text-secondary);
+    font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
+    cursor:pointer;
+    transition:
+      background 0.3s cubic-bezier(0.34,1.56,0.64,1),
+      color 0.25s ease,
+      border-color 0.25s ease,
+      transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
+      box-shadow 0.3s ease;
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    flex-shrink:0;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+  }
   body.light-mode .period-btn{background:rgba(0,0,0,.05);}
-  .period-btn:hover{background:var(--card-hover-bg);color:var(--text-primary);}
-  .period-btn.active{background:linear-gradient(135deg,#2563eb,#0ea5e9);border-color:transparent;color:#fff;box-shadow:0 4px 16px rgba(37,99,235,.35);transform:scale(1.04);}
+  .period-btn:hover{background:var(--card-hover-bg);color:var(--text-primary);transform:translateY(-1px);}
+  .period-btn:active{transform:scale(0.93)!important;}
+  .period-btn.active{
+    background:linear-gradient(
+      145deg,
+      rgba(37,99,235,0.9),
+      rgba(14,165,233,0.8)
+    );
+    border-color:rgba(37,99,235,.5);
+    color:#fff;
+    box-shadow:
+      0 4px 20px rgba(37,99,235,.4),
+      0 1px 0 rgba(255,255,255,0.3) inset;
+    transform:scale(1.06) translateY(-1px);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+  }
 
   /* ── SUMMARY GRID ── */
   .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
@@ -186,13 +219,185 @@
   .bank-dana{background:linear-gradient(135deg,rgba(0,100,200,.3),rgba(0,140,255,.15));border-color:rgba(0,140,255,.3)!important;}
   .bank-custom{background:linear-gradient(135deg,rgba(100,100,100,.3),rgba(150,150,150,.15));border-color:rgba(150,150,150,.3)!important;}
 
-  /* ── TABS ── */
-  .tab-bar{display:flex;gap:4px;background:var(--input-bg);border-radius:16px;padding:4px;margin-bottom:24px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  /* ── TABS — Liquid Glass Apple Sliding Capsule ── */
+  .tab-bar{
+    position:relative;
+    display:flex;
+    gap:0;
+    background:rgba(255,255,255,0.07);
+    border-radius:18px;
+    padding:4px;
+    margin-bottom:24px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    border:1px solid rgba(255,255,255,0.12);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 24px rgba(0,0,0,0.12);
+    scroll-behavior:smooth;
+  }
+  body.light-mode .tab-bar{
+    background:rgba(0,0,0,0.05);
+    border-color:rgba(0,0,0,0.08);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 24px rgba(0,0,0,0.06);
+  }
   .tab-bar::-webkit-scrollbar{display:none;}
-  .tab-btn{flex:1;padding:12px 14px;border:none;background:none;color:var(--text-secondary);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:12px;transition:all .25s var(--spring);white-space:nowrap;flex-shrink:0;}
-  .tab-btn.active{background:var(--glass-white);color:var(--text-primary);box-shadow:0 2px 10px rgba(0,0,0,.15);}
-  .tab-content{display:none;}
-  .tab-content.active{display:block;animation:fadeIn .25s ease;}
+
+  /* The gliding capsule indicator */
+  .tab-indicator{
+    position:absolute;
+    top:4px;
+    left:4px;
+    height:calc(100% - 8px);
+    border-radius:13px;
+    /* Liquid Glass core */
+    background:linear-gradient(
+      145deg,
+      rgba(255,255,255,0.38) 0%,
+      rgba(255,255,255,0.18) 40%,
+      rgba(255,255,255,0.10) 60%,
+      rgba(255,255,255,0.22) 100%
+    );
+    backdrop-filter:blur(28px) saturate(200%);
+    -webkit-backdrop-filter:blur(28px) saturate(200%);
+    border:1px solid rgba(255,255,255,0.45);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.18),
+      0 0 0 0.5px rgba(255,255,255,0.2) inset,
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 -1px 0 rgba(255,255,255,0.08) inset;
+    /* Apple spring easing */
+    transition:
+      left 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      width 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      opacity 0.2s ease;
+    pointer-events:none;
+    z-index:0;
+    /* Liquid shimmer pseudo */
+    overflow:hidden;
+  }
+  body.light-mode .tab-indicator{
+    background:linear-gradient(
+      145deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(255,255,255,0.75) 40%,
+      rgba(255,255,255,0.60) 60%,
+      rgba(255,255,255,0.85) 100%
+    );
+    border-color:rgba(255,255,255,0.9);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.10),
+      0 0 0 0.5px rgba(255,255,255,0.5) inset,
+      0 1px 0 rgba(255,255,255,1) inset;
+  }
+  /* Liquid shimmer overlay via pseudo */
+  .tab-indicator::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background:linear-gradient(
+      105deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.35) 45%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.35) 55%,
+      rgba(255,255,255,0) 100%
+    );
+    opacity:0;
+    transition:opacity 0.6s ease;
+    pointer-events:none;
+  }
+  .tab-indicator.shimmer::after{
+    animation:liquidShimmer 0.55s ease forwards;
+  }
+  @keyframes liquidShimmer{
+    0%{opacity:0;transform:translateX(-100%);}
+    40%{opacity:1;}
+    100%{opacity:0;transform:translateX(100%);}
+  }
+
+  /* Squish / stretch keyframe for the capsule */
+  @keyframes capsuleSquishLeft{
+    0%{transform:scaleX(1) scaleY(1);}
+    20%{transform:scaleX(1.08) scaleY(0.92);}
+    55%{transform:scaleX(0.96) scaleY(1.04);}
+    75%{transform:scaleX(1.02) scaleY(0.98);}
+    100%{transform:scaleX(1) scaleY(1);}
+  }
+  @keyframes capsuleSquishRight{
+    0%{transform:scaleX(1) scaleY(1);}
+    20%{transform:scaleX(1.08) scaleY(0.92);}
+    55%{transform:scaleX(0.96) scaleY(1.04);}
+    75%{transform:scaleX(1.02) scaleY(0.98);}
+    100%{transform:scaleX(1) scaleY(1);}
+  }
+  .tab-indicator.squish{
+    animation:capsuleSquishRight 0.48s cubic-bezier(0.34,1.56,0.64,1);
+    transform-origin:center center;
+  }
+
+  .tab-btn{
+    position:relative;
+    z-index:1;
+    flex:1;
+    padding:11px 14px;
+    border:none;
+    background:none;
+    color:var(--text-secondary);
+    font-family:'Outfit',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    border-radius:13px;
+    transition:color 0.3s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    white-space:nowrap;
+    flex-shrink:0;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tab-btn:active{
+    transform:scale(0.93);
+  }
+  .tab-btn.active{
+    color:var(--text-primary);
+    font-weight:700;
+    text-shadow:0 0 20px rgba(255,255,255,0.4);
+  }
+  body.light-mode .tab-btn.active{
+    text-shadow:none;
+  }
+
+  /* Ripple on tap */
+  .tab-btn .tab-ripple{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.3);
+    transform:scale(0);
+    animation:tabRipple 0.5s linear;
+    pointer-events:none;
+  }
+  @keyframes tabRipple{
+    to{transform:scale(4);opacity:0;}
+  }
+
+  /* Tab content transitions */
+  .tab-content{display:none;opacity:0;}
+  .tab-content.active{
+    display:block;
+    animation:tabSlideIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  .tab-content.slide-out{
+    animation:tabSlideOut 0.2s ease forwards;
+  }
+  @keyframes tabSlideIn{
+    from{opacity:0;transform:translateY(6px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes tabSlideOut{
+    from{opacity:1;transform:translateY(0);}
+    to{opacity:0;transform:translateY(-4px);}
+  }
 
   /* ── PROGRESS BARS ── */
   .split-rule{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--input-bg);margin-bottom:8px;transition:all .2s;gap:8px;}
@@ -454,7 +659,8 @@
 
   <!-- ── MAIN CARD ── -->
   <div class="glass glass-card" style="margin-bottom:20px;">
-    <div class="tab-bar">
+    <div class="tab-bar" id="mainTabBar">
+      <div class="tab-indicator" id="tabIndicator"></div>
       <button class="tab-btn active" onclick="switchTab('pemasukan',this)">💚 Pemasukan</button>
       <button class="tab-btn" onclick="switchTab('pengeluaran',this)">🔴 Pengeluaran</button>
       <button class="tab-btn" onclick="switchTab('alokasi',this)">🏦 Alokasi Bank</button>
@@ -1029,6 +1235,9 @@ if(state.darkMode===false){
 
 render();
 
+// Init tab indicator after DOM ready
+requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ initTabIndicator(); }); });
+
 // ─── PERIOD ───
 function setPeriod(p){
   state.period=p;
@@ -1044,22 +1253,118 @@ function setPeriod(p){
   if(document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
 }
 
-// ─── TABS ───
-function switchTab(t,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-  document.getElementById('tab-'+t).classList.add('active');
-  if(btn) btn.classList.add('active');
+// ─── TABS — Liquid Glass Sliding Capsule ───
+let _tabPrevIndex = 0;
+
+function updateTabIndicator(activeBtn, skipAnim){
+  const bar = document.getElementById('mainTabBar');
+  const ind = document.getElementById('tabIndicator');
+  if(!bar || !ind || !activeBtn) return;
+
+  const barRect = bar.getBoundingClientRect();
+  const btnRect = activeBtn.getBoundingClientRect();
+  const scrollLeft = bar.scrollLeft;
+
+  const left = btnRect.left - barRect.left + scrollLeft;
+  const width = btnRect.width;
+
+  if(skipAnim){
+    ind.style.transition = 'none';
+    ind.style.left = left + 'px';
+    ind.style.width = width + 'px';
+    // Force reflow
+    ind.offsetHeight;
+    ind.style.transition = '';
+  } else {
+    ind.style.left = left + 'px';
+    ind.style.width = width + 'px';
+
+    // Squish + shimmer = liquid feel
+    ind.classList.remove('squish','shimmer');
+    void ind.offsetWidth; // reflow
+    ind.classList.add('squish');
+    setTimeout(()=>{
+      ind.classList.add('shimmer');
+      setTimeout(()=>ind.classList.remove('shimmer','squish'), 600);
+    }, 80);
+  }
+
+  // Auto-scroll tab into view smoothly
+  const scrollTarget = left - (bar.clientWidth / 2 - width / 2);
+  bar.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
+}
+
+function addTabRipple(btn, e){
+  const ripple = document.createElement('span');
+  ripple.className = 'tab-ripple';
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.cssText = `width:${size}px;height:${size}px;left:${(e.clientX||rect.left+rect.width/2) - rect.left - size/2}px;top:${(e.clientY||rect.top+rect.height/2) - rect.top - size/2}px;`;
+  btn.appendChild(ripple);
+  setTimeout(()=>ripple.remove(), 500);
+}
+
+function switchTab(t, btn, e){
+  const allBtns = document.querySelectorAll('.tab-btn');
+  const allContents = document.querySelectorAll('.tab-content');
+
+  // Ripple effect
+  if(btn && e) addTabRipple(btn, e);
+
+  allBtns.forEach(b => b.classList.remove('active'));
+  allContents.forEach(c => {
+    if(c.classList.contains('active')){
+      c.classList.remove('active');
+    }
+  });
+
+  const target = document.getElementById('tab-'+t);
+  if(target){
+    // Small delay to let slide-out finish
+    requestAnimationFrame(()=>{
+      target.classList.add('active');
+    });
+  }
+
+  if(btn){
+    btn.classList.add('active');
+    updateTabIndicator(btn, false);
+  }
+
   if(t==='ringkasan') renderRingkasan();
   if(t==='budget') renderBudget();
   if(t==='analitik') renderAnalitik();
 }
+
 function switchTabByName(t){
-  const btns=document.querySelectorAll('.tab-btn');
-  let found=null;
-  btns.forEach(b=>{ if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+t+"'")) found=b; });
-  switchTab(t,found);
+  const btns = document.querySelectorAll('.tab-btn');
+  let found = null;
+  btns.forEach(b=>{
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+t+"'")) found = b;
+  });
+  switchTab(t, found, null);
 }
+
+// Init indicator on load & resize
+function initTabIndicator(){
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if(activeBtn) updateTabIndicator(activeBtn, true);
+}
+
+// Update onclick attributes to pass event
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function(e){
+      // indicator already handled by switchTab via onclick, just pass event for ripple
+      addTabRipple(this, e);
+    });
+  });
+  initTabIndicator();
+});
+window.addEventListener('resize', ()=>{
+  const activeBtn = document.querySelector('.tab-btn.active');
+  if(activeBtn) updateTabIndicator(activeBtn, true);
+});
 
 // ─── FORMAT ───
 function fmt(n){ return 'Rp '+Math.abs(n).toLocaleString('id-ID'); }
