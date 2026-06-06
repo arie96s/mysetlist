@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PIMAPIKA.ID v2.5.0 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v2.7.0 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --glass-white: rgba(255,255,255,0.18);
@@ -546,6 +547,450 @@
   .bill-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;transition:all .2s;padding:3px;border-radius:6px;flex-shrink:0;}
   .bill-del:hover{color:#f87171;background:rgba(239,68,68,.1);}
 
+
+  /* ══════════ v2.6.0 NEW STYLES ══════════ */
+
+  /* ── FITUR 1: RECURRING TOGGLE ── */
+  .recurring-toggle-wrap{margin-top:10px;padding:12px 14px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);display:flex;flex-direction:column;gap:10px;}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;}
+  .toggle-label{font-size:13px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:7px;}
+  .freq-select-wrap{display:none;}
+  .freq-select-wrap.show{display:block;}
+  .recurring-icon{font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(14,165,233,.2);color:#38bdf8;font-weight:700;margin-left:4px;vertical-align:middle;}
+
+  /* ── FITUR 2: DATA MANAGEMENT ── */
+  .data-mgmt-area{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .btn-data{padding:10px 16px;border-radius:13px;border:1px solid var(--glass-border);background:var(--glass-white);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:var(--text-primary);font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .25s var(--spring);display:flex;align-items:center;gap:7px;flex:1;justify-content:center;min-width:120px;}
+  .btn-data:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 24px rgba(0,0,0,.2);}
+  .btn-data:active{transform:scale(.96);}
+  .btn-json-exp{background:linear-gradient(135deg,rgba(16,185,129,.3),rgba(5,150,105,.15));border-color:rgba(16,185,129,.35)!important;}
+  .btn-json-imp{background:linear-gradient(135deg,rgba(37,99,235,.3),rgba(14,165,233,.15));border-color:rgba(37,99,235,.35)!important;}
+  .btn-csv-exp{background:linear-gradient(135deg,rgba(245,158,11,.3),rgba(217,119,6,.15));border-color:rgba(245,158,11,.35)!important;}
+
+  /* ── FITUR 3: ACHIEVEMENTS ── */
+  .achievement-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:16px;}
+  .badge-card{padding:20px;border-radius:20px;text-align:center;transition:all .35s var(--spring);position:relative;overflow:hidden;cursor:default;}
+  .badge-card.locked{background:var(--input-bg);border:1px solid var(--input-border);filter:saturate(0.1);opacity:0.6;}
+  .badge-card.unlocked{background:var(--glass-white);border:1px solid var(--glass-border);filter:none;opacity:1;box-shadow:0 4px 20px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.25);}
+  .badge-card.unlocked .badge-icon{animation:badgeBounce .6s var(--spring);}
+  .badge-icon{font-size:36px;margin-bottom:10px;display:block;}
+  .badge-name{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:4px;}
+  .badge-desc{font-size:11px;color:var(--text-secondary);line-height:1.5;}
+  .badge-card.unlocked::before{content:'✅ UNLOCKED';position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;padding:2px 6px;border-radius:5px;background:rgba(16,185,129,.25);color:#34d399;letter-spacing:.5px;}
+  .badge-card.locked::before{content:'🔒 LOCKED';position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--input-bg);color:var(--text-muted);letter-spacing:.5px;}
+  @keyframes badgeBounce{0%{transform:scale(.5) rotate(-20deg);}60%{transform:scale(1.2) rotate(5deg);}100%{transform:scale(1) rotate(0);}}
+
+  /* Achievement unlock modal */
+  .achieve-modal{position:fixed;inset:0;z-index:9990;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);}
+  .achieve-modal.open{display:flex;animation:fadeIn .25s ease;}
+  .achieve-box{text-align:center;padding:40px 32px;max-width:380px;width:90%;animation:achievePopIn .5s var(--spring);}
+  @keyframes achievePopIn{0%{transform:scale(.3) rotate(-15deg);opacity:0;}60%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+  .achieve-icon{font-size:72px;display:block;margin-bottom:16px;animation:achieveIconFloat 2s ease-in-out infinite;}
+  @keyframes achieveIconFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+  .achieve-title{font-size:24px;font-weight:800;margin-bottom:8px;}
+  .achieve-sub{font-size:14px;color:var(--text-secondary);margin-bottom:24px;}
+  /* Confetti */
+  .confetti-container{position:fixed;inset:0;pointer-events:none;z-index:9995;overflow:hidden;}
+  .confetti-piece{position:absolute;width:10px;height:10px;top:-20px;opacity:0;animation:confettiFall linear forwards;}
+  @keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0);}100%{opacity:0;transform:translateY(100vh) rotate(720deg);}}
+
+  /* ── FITUR 4: GOLD PORTFOLIO ── */
+  .gold-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
+  .gold-stat-card{padding:18px;border-radius:18px;text-align:center;background:linear-gradient(135deg,rgba(245,158,11,.25),rgba(217,119,6,.15));border:1px solid rgba(245,158,11,.35);}
+  .gold-stat-val{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#fbbf24;}
+  .gold-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+  .gold-list{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;padding-right:4px;}
+  .gold-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);gap:10px;animation:slideIn .3s var(--spring);}
+  .gold-item:hover{background:var(--card-hover-bg);}
+  .gold-info{flex:1;min-width:0;}
+  .gold-name{font-size:14px;font-weight:600;}
+  .gold-meta{font-size:11px;color:var(--text-secondary);margin-top:2px;}
+  .gold-weight{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#fbbf24;flex-shrink:0;}
+  .gold-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;transition:all .2s;padding:3px;border-radius:6px;}
+  .gold-del:hover{color:#f87171;background:rgba(239,68,68,.1);}
+  .gold-price-note{font-size:11px;color:var(--text-muted);padding:10px 14px;border-radius:10px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);margin-top:12px;}
+
+  /* ── FITUR 5: INTERACTIVE BAR CHART TOOLTIP ── */
+  .chart-tooltip-glass{position:fixed;display:none;pointer-events:none;z-index:500;padding:10px 14px;border-radius:13px;backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);background:rgba(15,23,42,.88);border:1px solid rgba(255,255,255,.25);box-shadow:0 8px 32px rgba(0,0,0,.35);min-width:140px;animation:tooltipIn .18s var(--spring);}
+  @keyframes tooltipIn{from{opacity:0;transform:scale(.88) translateY(4px);}to{opacity:1;transform:scale(1) translateY(0);}}
+  .chart-tooltip-month{font-size:11px;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+  .chart-tooltip-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-secondary);margin-bottom:3px;}
+  .chart-tooltip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .chart-tooltip-val{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text-primary);margin-left:auto;}
+
+  /* Interactive donut center counter-up */
+  .donut-center-animated{transition:all .3s ease;}
+  @keyframes counterFlash{0%{transform:scale(1.3);opacity:.7;}100%{transform:scale(1);opacity:1;}}
+  .counter-flash{animation:counterFlash .35s var(--spring);}
+
+  /* ══════════ v2.7.0 NEW STYLES ══════════ */
+
+  /* ── FITUR 6: PRIVACY SHADOW ── */
+  .privacy-active .sum-val,
+  .privacy-active .tx-amount {
+    filter: blur(8px);
+    user-select: none;
+    transition: filter .35s ease;
+  }
+  .privacy-active .sum-val:hover,
+  .privacy-active .tx-amount:hover {
+    filter: blur(0);
+  }
+  .btn-privacy {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background .2s, transform .2s;
+    position: relative;
+  }
+  .btn-privacy:hover { background: var(--input-bg); transform: scale(1.1); }
+  .btn-privacy.active { color: #f59e0b; }
+  .btn-privacy.active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 14px rgba(245,158,11,.45);
+    animation: privacyPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes privacyPulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+  /* ── FITUR 7: INLINE MATH EVALUATOR ── */
+  .math-hint {
+    font-size: 11px;
+    color: #38bdf8;
+    margin-top: 4px;
+    min-height: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    transition: opacity .2s;
+    padding: 0 2px;
+  }
+  .math-hint.has-result {
+    background: rgba(14,165,233,.12);
+    border: 1px solid rgba(14,165,233,.25);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+
+  /* ── FITUR 8: MULTI-WORKSPACE (Liquid Glass Tab Style) ── */
+  .workspace-bar {
+    position: relative;
+    display: flex;
+    gap: 0;
+    background: rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 4px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 24px rgba(0,0,0,0.12);
+    scroll-behavior: smooth;
+    align-items: center;
+  }
+  body.light-mode .workspace-bar {
+    background: rgba(0,0,0,0.05);
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .workspace-bar::-webkit-scrollbar { display: none; }
+
+  /* Gliding liquid-glass capsule for workspace */
+  .ws-indicator {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    height: calc(100% - 8px);
+    border-radius: 13px;
+    background: linear-gradient(
+      145deg,
+      rgba(255,255,255,0.38) 0%,
+      rgba(255,255,255,0.18) 40%,
+      rgba(255,255,255,0.10) 60%,
+      rgba(255,255,255,0.22) 100%
+    );
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.18),
+      0 0 0 0.5px rgba(255,255,255,0.2) inset,
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 -1px 0 rgba(255,255,255,0.08) inset;
+    transition:
+      left 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      width 0.42s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  body.light-mode .ws-indicator {
+    background: linear-gradient(
+      145deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(255,255,255,0.75) 40%,
+      rgba(255,255,255,0.60) 60%,
+      rgba(255,255,255,0.85) 100%
+    );
+    border-color: rgba(255,255,255,0.9);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.10), 0 1px 0 rgba(255,255,255,1) inset;
+  }
+  /* Shimmer sweep */
+  .ws-indicator::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      105deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.35) 45%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.35) 55%,
+      rgba(255,255,255,0) 100%
+    );
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ws-indicator.ws-shimmer::after {
+    animation: liquidShimmer 0.55s ease forwards;
+  }
+  .ws-indicator.ws-squish {
+    animation: capsuleSquishRight 0.48s cubic-bezier(0.34,1.56,0.64,1);
+    transform-origin: center center;
+  }
+
+  /* Workspace buttons — identical feel to .tab-btn */
+  .workspace-btn {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    padding: 11px 16px;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 13px;
+    transition: color 0.3s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .workspace-btn:active { transform: scale(0.93); }
+  .workspace-btn.active {
+    color: var(--text-primary);
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(255,255,255,0.4);
+  }
+  body.light-mode .workspace-btn.active { text-shadow: none; }
+
+  /* Ripple for workspace btn */
+  .workspace-btn .ws-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: scale(0);
+    animation: tabRipple 0.5s linear;
+    pointer-events: none;
+  }
+
+  /* Add button — stays outside the capsule system */
+  .workspace-btn-add {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1.5px dashed rgba(255,255,255,0.25);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.22s var(--spring);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    margin-right: 2px;
+  }
+  .workspace-btn-add:hover {
+    color: var(--text-primary);
+    border-color: rgba(255,255,255,0.5);
+    background: var(--input-bg);
+    transform: scale(1.1) rotate(90deg);
+  }
+  .workspace-btn-add:active { transform: scale(0.9); }
+
+  /* Transaction count badge */
+  .workspace-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.85);
+    margin-left: 5px;
+    vertical-align: middle;
+    line-height: 1.4;
+  }
+  .workspace-btn.active .workspace-badge {
+    background: rgba(255,255,255,0.3);
+    color: #fff;
+  }
+
+  /* ── FITUR KAMERA: OCR STRUK ── */
+  .btn-camera {
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(14,165,233,.4);
+    background: rgba(14,165,233,.12);
+    color: #38bdf8;
+    font-size: 17px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .25s var(--spring);
+    flex-shrink: 0;
+  }
+  .btn-camera:hover { background: rgba(14,165,233,.25); transform: scale(1.08); box-shadow: 0 0 14px rgba(14,165,233,.35); }
+  .btn-camera:active { transform: scale(.94); }
+
+  /* Camera Modal */
+  .camera-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  .camera-modal-overlay.open { display: flex; animation: fadeIn .25s ease; }
+  .camera-modal-box {
+    width: min(480px, 95vw);
+    border-radius: 28px;
+    padding: 28px;
+    background: rgba(15,23,42,.9);
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 24px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    animation: cameraModalIn .4s var(--spring);
+  }
+  @keyframes cameraModalIn {
+    from { transform: scale(.85) translateY(30px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .camera-modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .camera-viewport {
+    width: 100%;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #000;
+    aspect-ratio: 4/3;
+    position: relative;
+    border: 2px solid rgba(14,165,233,.3);
+    box-shadow: 0 0 30px rgba(14,165,233,.15);
+  }
+  .camera-viewport video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .camera-viewport::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 3px,
+      rgba(14,165,233,.04) 3px, rgba(14,165,233,.04) 4px
+    );
+    pointer-events: none;
+    border-radius: 18px;
+  }
+  .camera-scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+    box-shadow: 0 0 8px #38bdf8;
+    animation: scanMove 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes scanMove { 0%,100%{top:10%;opacity:.8;} 50%{top:85%;opacity:1;} }
+  .camera-corner {
+    position: absolute;
+    width: 24px; height: 24px;
+    border-color: #38bdf8;
+    border-style: solid;
+    pointer-events: none;
+  }
+  .camera-corner.tl { top:10px;left:10px;border-width:2px 0 0 2px;border-radius:4px 0 0 0; }
+  .camera-corner.tr { top:10px;right:10px;border-width:2px 2px 0 0;border-radius:0 4px 0 0; }
+  .camera-corner.bl { bottom:10px;left:10px;border-width:0 0 2px 2px;border-radius:0 0 0 4px; }
+  .camera-corner.br { bottom:10px;right:10px;border-width:0 2px 2px 0;border-radius:0 0 4px 0; }
+  .camera-btn-row { display:flex;gap:10px;margin-top:16px; }
+  .thumbnail-preview {
+    display: none;
+    width: 64px; height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid rgba(14,165,233,.5);
+    box-shadow: 0 3px 12px rgba(14,165,233,.3);
+  }
+  .skeleton-box {
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--input-bg) 25%, rgba(255,255,255,.08) 50%, var(--input-bg) 75%);
+    background-size: 200% 100%;
+    animation: shimmerSkeleton 1.2s infinite;
+  }
+  @keyframes shimmerSkeleton { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+  .ocr-loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15,23,42,.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    gap: 14px;
+    animation: fadeIn .2s ease;
+  }
+  .ocr-loading-text { font-size:13px;color:#38bdf8;font-weight:700;letter-spacing:.5px; }
+  .ocr-skel-row { display:flex;flex-direction:column;gap:8px;width:70%; }
+  .ocr-skel-line { height:10px;border-radius:5px; }
+
   @media(max-width:768px){
     .two-col{grid-template-columns:1fr;gap:28px;}
     .glass-card{padding:20px;}
@@ -603,6 +1048,7 @@
         <div class="header-date-display" id="headerDate"></div>
         <input type="date" class="header-date-input" id="headerDatePicker" onchange="onHeaderDatePick(this)">
       </div>
+      <button class="btn-privacy" id="btnPrivacy" onclick="togglePrivacy()" title="Mode Privasi (sembunyikan nominal)">👁️</button>
       <button class="btn-setting" onclick="openSettingModal()" title="Pengaturan">⚙️</button>
     </div>
   </div>
@@ -621,6 +1067,15 @@
     <button class="period-btn" onclick="setPeriod('Oktober')">Okt</button>
     <button class="period-btn" onclick="setPeriod('November')">Nov</button>
     <button class="period-btn" onclick="setPeriod('Desember')">Des</button>
+  </div>
+
+  <!-- ── WORKSPACE BAR (FITUR 8) ── -->
+  <div class="workspace-bar" id="workspaceBar">
+    <div class="ws-indicator" id="wsIndicator"></div>
+    <button class="workspace-btn active" id="ws-Personal" onclick="switchWorkspace('Personal', this, event)">👤 Personal</button>
+    <button class="workspace-btn" id="ws-Bisnis" onclick="switchWorkspace('Bisnis', this, event)" style="display:none;">💼 Bisnis</button>
+    <button class="workspace-btn" id="ws-Keluarga" onclick="switchWorkspace('Keluarga', this, event)" style="display:none;">👨‍👩‍👧 Keluarga</button>
+    <button class="workspace-btn-add" onclick="addWorkspace()" title="Tambah workspace baru">＋</button>
   </div>
 
   <!-- ── SUMMARY GRID ── -->
@@ -669,6 +1124,7 @@
       <button class="tab-btn" onclick="switchTab('target',this)">🎯 Target</button>
       <button class="tab-btn" onclick="switchTab('tagihan',this)">🔔 Tagihan</button>
       <button class="tab-btn" onclick="switchTab('ringkasan',this)">📋 Ringkasan</button>
+      <button class="tab-btn" onclick="switchTab('emas',this)">🪙 Aset Emas</button>
     </div>
 
     <!-- ══ TAB PEMASUKAN ══ -->
@@ -692,11 +1148,12 @@
             </select>
           </div>
           <div class="input-group">
-            <label class="input-label">Jumlah (Rp)</label>
+            <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Bisa pakai rumus: 1500000+250000</span></label>
             <div class="currency-wrapper">
               <span class="currency-prefix">Rp</span>
-              <input class="glass-input" id="incAmt" placeholder="0" type="text" inputmode="numeric" oninput="formatCurrencyInput(this)">
+              <input class="glass-input" id="incAmt" placeholder="0" type="text" inputmode="numeric" oninput="handleMathInput(this,'incMathHint')">
             </div>
+            <div class="math-hint" id="incMathHint"></div>
           </div>
           <div class="input-group">
             <label class="input-label">Tanggal</label>
@@ -706,7 +1163,26 @@
             <label class="input-label">Catatan (opsional)</label>
             <input class="glass-input" id="incNote" placeholder="Catatan tambahan..." type="text" autocomplete="off">
           </div>
-          <button class="btn btn-success" onclick="addIncome()" style="width:100%">➕ Tambah Pemasukan</button>
+          <div class="recurring-toggle-wrap" id="incRecurringWrap">
+            <div class="toggle-row">
+              <div class="toggle-label">🔁 Ulangi Transaksi Ini
+                <label class="switch" style="margin-left:8px;">
+                  <input type="checkbox" id="incRecurring" onchange="toggleRecurringInc()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="freq-select-wrap" id="incFreqWrap">
+              <label class="input-label">Frekuensi Pengulangan</label>
+              <select class="glass-input" id="incFreq">
+                <option value="harian">📅 Harian</option>
+                <option value="mingguan">📆 Mingguan</option>
+                <option value="bulanan" selected>📋 Bulanan</option>
+                <option value="tahunan">🗓️ Tahunan</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-success" onclick="addIncome()" style="width:100%;margin-top:12px;">➕ Tambah Pemasukan</button>
         </div>
         <div>
           <div class="sec-title"><span>📋</span> Riwayat Pemasukan <span class="sec-badge" id="incBadge">0</span></div>
@@ -724,7 +1200,7 @@
     <div id="tab-pengeluaran" class="tab-content">
       <div class="two-col">
         <div>
-          <div class="sec-title"><span>🔴</span> Tambah Pengeluaran</div>
+          <div class="sec-title"><span>🔴</span> Tambah Pengeluaran <button class="btn-camera" onclick="openCameraModal()" title="Scan Struk (Smart OCR)">📷</button></div>
           <div class="input-group">
             <label class="input-label">Keterangan</label>
             <input class="glass-input" id="expName" placeholder="Makan, Tagihan, Transport, dll..." type="text" autocomplete="off">
@@ -744,11 +1220,12 @@
             </select>
           </div>
           <div class="input-group">
-            <label class="input-label">Jumlah (Rp)</label>
+            <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Bisa pakai rumus: 20000+15000</span></label>
             <div class="currency-wrapper">
               <span class="currency-prefix">Rp</span>
-              <input class="glass-input" id="expAmt" placeholder="0" type="text" inputmode="numeric" oninput="formatCurrencyInput(this)">
+              <input class="glass-input" id="expAmt" placeholder="0" type="text" inputmode="numeric" oninput="handleMathInput(this,'expMathHint')">
             </div>
+            <div class="math-hint" id="expMathHint"></div>
           </div>
           <div class="input-group">
             <label class="input-label">Tanggal</label>
@@ -758,7 +1235,26 @@
             <label class="input-label">Catatan (opsional)</label>
             <input class="glass-input" id="expNote" placeholder="Catatan tambahan..." type="text" autocomplete="off">
           </div>
-          <button class="btn btn-danger" onclick="addExpense()" style="width:100%">➕ Tambah Pengeluaran</button>
+          <div class="recurring-toggle-wrap" id="expRecurringWrap">
+            <div class="toggle-row">
+              <div class="toggle-label">🔁 Ulangi Transaksi Ini
+                <label class="switch" style="margin-left:8px;">
+                  <input type="checkbox" id="expRecurring" onchange="toggleRecurringExp()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="freq-select-wrap" id="expFreqWrap">
+              <label class="input-label">Frekuensi Pengulangan</label>
+              <select class="glass-input" id="expFreq">
+                <option value="harian">📅 Harian</option>
+                <option value="mingguan">📆 Mingguan</option>
+                <option value="bulanan" selected>📋 Bulanan</option>
+                <option value="tahunan">🗓️ Tahunan</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-danger" onclick="addExpense()" style="width:100%;margin-top:12px;">➕ Tambah Pengeluaran</button>
         </div>
         <div>
           <div class="sec-title"><span>📋</span> Riwayat Pengeluaran <span class="sec-badge" id="expBadge">0</span></div>
@@ -963,6 +1459,19 @@
         <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>📝</span>Catatan</div>
         <textarea class="glass-input" id="globalNotes" placeholder="Tambahkan catatan, target, atau rencana keuangan Anda di sini..." style="width:100%;min-height:80px;resize:vertical;"></textarea>
       </div>
+      <!-- Data Management Area (Fitur 2) -->
+      <div class="glass" style="padding:20px;margin-bottom:20px;">
+        <div class="sec-title" style="margin-bottom:4px;font-size:13px;"><span>💾</span>Manajemen Data</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Backup & restore data, atau ekspor ke Excel.</div>
+        <div class="data-mgmt-area">
+          <button class="btn-data btn-json-exp" onclick="exportJSON()">📥 Ekspor Data (.json)</button>
+          <label class="btn-data btn-json-imp" style="cursor:pointer;" title="Impor backup .json">
+            📤 Impor Data (.json)
+            <input type="file" accept=".json" style="display:none;" onchange="importJSON(this)">
+          </label>
+          <button class="btn-data btn-csv-exp" onclick="exportCSV()">📊 Ekspor ke Excel (.csv)</button>
+        </div>
+      </div>
       <div class="pdf-bar">
         <button class="btn btn-pdf" onclick="downloadPDF()">📄 Download Laporan PDF</button>
         <button class="btn btn-glass" onclick="resetAll()">🔄 Reset Semua Data</button>
@@ -1064,8 +1573,89 @@
       </div>
     </div>
 
+
+    <!-- ══ TAB ASET EMAS (Fitur 4) ══ -->
+    <div id="tab-emas" class="tab-content">
+      <div class="two-col">
+        <!-- Form tambah emas -->
+        <div>
+          <div class="sec-title"><span>🪙</span> Tambah Aset Emas</div>
+          <div class="input-group">
+            <label class="input-label">Nama / Keterangan</label>
+            <input class="glass-input" id="goldName" placeholder="Beli LM Antam 1gr, Top-up Pegadaian..." type="text" autocomplete="off">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Berat Emas (Gram)</label>
+            <input class="glass-input" id="goldWeight" placeholder="0.5" type="number" step="0.001" min="0">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Total Harga Beli (Rp)</label>
+            <div class="currency-wrapper">
+              <span class="currency-prefix">Rp</span>
+              <input class="glass-input" id="goldBuyPrice" placeholder="0" type="text" inputmode="numeric" oninput="formatCurrencyInput(this)">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Tanggal Beli</label>
+            <input class="glass-input" id="goldDate" type="date">
+          </div>
+          <button class="btn btn-amber" onclick="addGold()" style="width:100%">🪙 Tambah Aset Emas</button>
+          <div class="gold-price-note">
+            💡 <b>Harga Emas Referensi:</b> Rp <span id="goldRefPriceDisplay">1.550.000</span>/gram
+            <br>Nilai aset dihitung dari harga referensi ini.
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+              <span style="font-size:11px;color:var(--text-muted);">Update harga:</span>
+              <div class="currency-wrapper" style="flex:1;max-width:160px;">
+                <span class="currency-prefix" style="font-size:11px;left:8px;">Rp</span>
+                <input class="glass-input" id="goldRefPriceInput" placeholder="1.550.000" type="text" inputmode="numeric" oninput="formatCurrencyInput(this)" style="padding:6px 8px 6px 28px;font-size:12px;font-family:'JetBrains Mono',monospace;">
+              </div>
+              <button class="btn btn-glass" onclick="updateGoldRefPrice()" style="padding:6px 10px;font-size:11px;">✓</button>
+            </div>
+          </div>
+        </div>
+        <!-- Ringkasan portofolio emas -->
+        <div>
+          <div class="sec-title"><span>📊</span> Portofolio Emas</div>
+          <div class="gold-summary-grid" id="goldSummaryGrid">
+            <div class="gold-stat-card">
+              <div class="gold-stat-val" id="goldTotalGram">0 g</div>
+              <div class="gold-stat-label">Total Gram</div>
+            </div>
+            <div class="gold-stat-card">
+              <div class="gold-stat-val" id="goldAvgPrice">Rp 0</div>
+              <div class="gold-stat-label">Rata-rata Beli/gram</div>
+            </div>
+            <div class="gold-stat-card">
+              <div class="gold-stat-val" id="goldCurrentVal">Rp 0</div>
+              <div class="gold-stat-label">Estimasi Nilai Kini</div>
+            </div>
+            <div class="gold-stat-card">
+              <div class="gold-stat-val" id="goldPnL">+Rp 0</div>
+              <div class="gold-stat-label">Unrealized P&L</div>
+            </div>
+          </div>
+          <div class="sec-title" style="font-size:13px;margin-bottom:8px;"><span>📋</span> Riwayat Beli</div>
+          <div class="gold-list" id="goldList">
+            <div class="empty-state"><div class="empty-icon">🪙</div>Belum ada aset emas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- end main card -->
 </div><!-- end .app -->
+
+
+<!-- ══ ACHIEVEMENT MODAL (Fitur 3) ══ -->
+<div class="achieve-modal" id="achieveModal" onclick="closeAchieveModal()">
+  <div class="glass glass-card achieve-box" onclick="event.stopPropagation()">
+    <span class="achieve-icon" id="achieveIcon">🥇</span>
+    <div class="achieve-title" id="achieveTitle">Achievement Unlocked!</div>
+    <div class="achieve-sub" id="achieveSub">Deskripsi pencapaian</div>
+    <button class="btn btn-primary" onclick="closeAchieveModal()" style="width:100%;">🎉 Keren!</button>
+  </div>
+</div>
+<div class="confetti-container" id="confettiContainer"></div>
 
 <div class="toast-container" id="toastContainer"></div>
 
@@ -1123,10 +1713,10 @@
         <span>ℹ️ Tentang Aplikasi</span><span>▼</span>
       </div>
       <div class="collapse-body" id="aboutCollapse">
-        <p><b>Nama Aplikasi:</b> PIMAPIKA.ID v2.5.0</p>
+        <p><b>Nama Aplikasi:</b> PIMAPIKA.ID v2.7.0</p>
         <p><b>Filosofi:</b> <em>Pitih Masuak Pitih Kalua</em></p>
         <p><b>Developer:</b> @arie96s</p>
-        <p><b>Fitur v2.5.0:</b> Target Tabungan, Pencarian Transaksi, Tagihan Rutin, Komparasi Bulan, Catatan Cepat per Transaksi</p>
+        <p><b>Fitur v2.7.0:</b> Privacy Shadow, Inline Math Evaluator, Multi-Workspace, Pemindai Struk Smart (Mock OCR)</p>
       </div>
     </div>
 
@@ -1134,20 +1724,114 @@
   </div>
 </div>
 
+<!-- ══ CAMERA MODAL (Fitur Pemindai Struk) ══ -->
+<div class="camera-modal-overlay" id="cameraModal">
+  <div class="camera-modal-box">
+    <div class="camera-modal-title">
+      <span>📷</span> Pemindai Struk Smart
+      <button onclick="closeCameraModal()" style="margin-left:auto;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;padding:4px;border-radius:8px;" title="Tutup">✕</button>
+    </div>
+
+    <!-- Viewport kamera -->
+    <div class="camera-viewport" id="cameraViewport">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <div class="camera-scan-line"></div>
+      <div class="camera-corner tl"></div>
+      <div class="camera-corner tr"></div>
+      <div class="camera-corner bl"></div>
+      <div class="camera-corner br"></div>
+    </div>
+
+    <!-- Thumbnail + preview hasil -->
+    <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+      <img id="ocrThumbnail" class="thumbnail-preview" alt="Struk">
+      <div id="ocrStatus" style="font-size:12px;color:var(--text-secondary);flex:1;"></div>
+    </div>
+
+    <!-- Tombol aksi -->
+    <div class="camera-btn-row">
+      <button class="btn btn-primary" id="btnCapture" onclick="captureFrame()" style="flex:1;">
+        📸 Tangkap Gambar
+      </button>
+      <button class="btn btn-glass" onclick="switchCamera()" title="Ganti kamera depan/belakang" style="padding:12px 14px;">🔄</button>
+      <button class="btn btn-glass" onclick="closeCameraModal()" style="flex:1;">Tutup</button>
+    </div>
+
+    <p style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:10px;line-height:1.5;">
+      📌 Simulasi OCR • Arahkan kamera ke struk belanjaan lalu tap "Tangkap Gambar"
+    </p>
+  </div>
+</div>
+<!-- hidden canvas untuk capture frame -->
+<canvas id="cameraCanvas" style="display:none;"></canvas>
+
 <!-- ══════════════════════════ SCRIPT ══════════════════════════ -->
 <script>
 // ─── STATE ───
 let state = {
   period:'Januari', incomes:[], expenses:[], banks:[],
   budgets:[], notes:'', darkMode:true, headerDate:'',
-  targets:[], bills:[]
+  targets:[], bills:[],
+  goldPortfolio:[], goldRefPrice:1550000,
+  achievements:{masterSaver:false, emergencyReady:false, budgetWarden:false, goldAccumulator:false},
+  lastOpenDate:'',
+  // v2.7.0
+  activeWorkspace: 'Personal',
+  workspaces: ['Personal'],
+  privacyMode: false,
+  workspaceData: {
+    Personal: { incomes:[], expenses:[], banks:[], budgets:[], notes:'' },
+    Bisnis: { incomes:[], expenses:[], banks:[], budgets:[], notes:'' },
+    Keluarga: { incomes:[], expenses:[], banks:[], budgets:[], notes:'' }
+  }
 };
 
 function loadState(){
   const s = localStorage.getItem('pimapika_state');
   if(s) try{ state = {...state,...JSON.parse(s)}; }catch(e){}
+  // Ensure new fields exist for older saves
+  if(!state.goldPortfolio) state.goldPortfolio=[];
+  if(!state.goldRefPrice) state.goldRefPrice=1550000;
+  if(!state.achievements) state.achievements={masterSaver:false,emergencyReady:false,budgetWarden:false,goldAccumulator:false};
+  if(!state.lastOpenDate) state.lastOpenDate='';
+  // v2.7.0 fields
+  if(!state.activeWorkspace) state.activeWorkspace='Personal';
+  if(!state.workspaces) state.workspaces=['Personal'];
+  if(!state.privacyMode) state.privacyMode=false;
+  if(!state.workspaceData) state.workspaceData={
+    Personal:{incomes:[],expenses:[],banks:[],budgets:[],notes:''},
+    Bisnis:{incomes:[],expenses:[],banks:[],budgets:[],notes:''},
+    Keluarga:{incomes:[],expenses:[],banks:[],budgets:[],notes:''}
+  };
+  // Migrate old single-workspace data into Personal workspace (first load)
+  if(state.incomes && state.incomes.length > 0 && state.workspaceData.Personal.incomes.length === 0){
+    state.workspaceData.Personal.incomes = state.incomes;
+    state.workspaceData.Personal.expenses = state.expenses;
+    state.workspaceData.Personal.banks = state.banks;
+    state.workspaceData.Personal.budgets = state.budgets;
+    state.workspaceData.Personal.notes = state.notes || '';
+  }
+  // Always use workspaceData as source of truth
+  const ws = state.activeWorkspace;
+  if(!state.workspaceData[ws]) state.workspaceData[ws]={incomes:[],expenses:[],banks:[],budgets:[],notes:''};
+  state.incomes = state.workspaceData[ws].incomes;
+  state.expenses = state.workspaceData[ws].expenses;
+  state.banks = state.workspaceData[ws].banks;
+  state.budgets = state.workspaceData[ws].budgets || [];
+  state.notes = state.workspaceData[ws].notes || '';
 }
-function saveState(){ localStorage.setItem('pimapika_state', JSON.stringify(state)); }
+function saveState(){
+  // Sync active workspace arrays back to workspaceData before saving
+  const ws = state.activeWorkspace || 'Personal';
+  if(!state.workspaceData) state.workspaceData={};
+  if(!state.workspaceData[ws]) state.workspaceData[ws]={incomes:[],expenses:[],banks:[],budgets:[],notes:''};
+  state.workspaceData[ws].incomes = state.incomes;
+  state.workspaceData[ws].expenses = state.expenses;
+  state.workspaceData[ws].banks = state.banks;
+  state.workspaceData[ws].budgets = state.budgets;
+  state.workspaceData[ws].notes = state.notes || '';
+  localStorage.setItem('pimapika_state', JSON.stringify(state));
+}
 
 // ─── CURRENCY ───
 function formatCurrencyInput(el){
@@ -1223,6 +1907,16 @@ if(state.darkMode===false){
   document.getElementById('darkModeToggle').checked=false;
 }
 
+// Init privacy mode
+if(state.privacyMode) {
+  document.body.classList.add('privacy-active');
+  const pb = document.getElementById('btnPrivacy');
+  if(pb) { pb.textContent='🙈'; pb.classList.add('active'); }
+}
+
+// Init workspaces
+renderWorkspaceBar();
+
 // Period init
 (function(){
   const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
@@ -1251,6 +1945,7 @@ function setPeriod(p){
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
   if(document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
   if(document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
+  if(document.getElementById('tab-emas').classList.contains('active')) renderGold();
 }
 
 // ─── TABS — Liquid Glass Sliding Capsule ───
@@ -1334,6 +2029,7 @@ function switchTab(t, btn, e){
   if(t==='ringkasan') renderRingkasan();
   if(t==='budget') renderBudget();
   if(t==='analitik') renderAnalitik();
+  if(t==='emas') renderGold();
 }
 
 function switchTabByName(t){
@@ -1393,10 +2089,14 @@ function addIncome(){
   if(!name){ toast('Masukkan nama pemasukan!','error'); return; }
   if(!amt||amt<=0){ toast('Masukkan jumlah yang valid!','error'); return; }
   if(!date){ toast('Pilih tanggal!','error'); return; }
-  state.incomes.push({id:Date.now(),name,cat,amt,date,note,period:state.period});
+  const incIsRec=document.getElementById('incRecurring').checked;
+  const incFreq=incIsRec?document.getElementById('incFreq').value:'';
+  state.incomes.push({id:Date.now(),name,cat,amt,date,note,period:state.period,isRecurring:incIsRec,frequency:incFreq});
   document.getElementById('incName').value='';
   clearCurrencyInput('incAmt');
   document.getElementById('incNote').value='';
+  document.getElementById('incRecurring').checked=false;
+  document.getElementById('incFreqWrap').classList.remove('show');
   saveState(); render();
   toast(`Pemasukan ditambah: ${fmt(amt)}`,'success');
 }
@@ -1416,10 +2116,14 @@ function addExpense(){
   if(!name){ toast('Masukkan keterangan!','error'); return; }
   if(!amt||amt<=0){ toast('Masukkan jumlah yang valid!','error'); return; }
   if(!date){ toast('Pilih tanggal!','error'); return; }
-  state.expenses.push({id:Date.now(),name,cat,amt,date,note,period:state.period});
+  const expIsRec=document.getElementById('expRecurring').checked;
+  const expFreqVal=expIsRec?document.getElementById('expFreq').value:'';
+  state.expenses.push({id:Date.now(),name,cat,amt,date,note,period:state.period,isRecurring:expIsRec,frequency:expFreqVal});
   document.getElementById('expName').value='';
   clearCurrencyInput('expAmt');
   document.getElementById('expNote').value='';
+  document.getElementById('expRecurring').checked=false;
+  document.getElementById('expFreqWrap').classList.remove('show');
   saveState(); render();
   toast(`Pengeluaran ditambah: ${fmt(amt)}`,'success');
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
@@ -1740,6 +2444,8 @@ function render(){
   // Refresh active tabs
   if(document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
+  if(document.getElementById('tab-emas').classList.contains('active')) renderGold();
+  checkAchievements();
 }
 
 // ─── RINGKASAN ───
@@ -1973,7 +2679,7 @@ function renderIncome(){
     ? filtered.slice().reverse().map(i=>`
       <div class="tx-item">
         <div class="tx-info">
-          <div class="tx-name">${i.name}</div>
+          <div class="tx-name">${i.name}${i.isRecurring?'<span class="recurring-icon">🔁 '+i.frequency+'</span>':''}</div>
           <div class="tx-meta">${getCatLabel(i.cat)} · ${formatDate(i.date)}${i.note?' · <em>'+i.note+'</em>':''}</div>
         </div>
         <div class="tx-amount inc">${fmt(i.amt)}</div>
@@ -1991,7 +2697,7 @@ function renderExpense(){
     ? filtered.slice().reverse().map(i=>`
       <div class="tx-item">
         <div class="tx-info">
-          <div class="tx-name">${i.name}</div>
+          <div class="tx-name">${i.name}${i.isRecurring?'<span class="recurring-icon">🔁 '+i.frequency+'</span>':''}</div>
           <div class="tx-meta">${getCatLabel(i.cat)} · ${formatDate(i.date)}${i.note?' · <em>'+i.note+'</em>':''}</div>
         </div>
         <div class="tx-amount exp">-${fmt(i.amt)}</div>
@@ -2190,6 +2896,1211 @@ function renderMonthComparison(){
       </div>
     </div>`;
 }
+
+// ══════════════════════════════════════════════════════════
+// ─── PIMAPIKA v2.6.0 NEW FEATURES JAVASCRIPT ───
+// ══════════════════════════════════════════════════════════
+
+// ─── FITUR 1: REKURENSI OTOMATIS ─────────────────────────
+
+/**
+ * Toggle recurring frequency dropdown untuk Pemasukan
+ */
+function toggleRecurringInc() {
+  const checked = document.getElementById('incRecurring').checked;
+  document.getElementById('incFreqWrap').classList.toggle('show', checked);
+}
+
+/**
+ * Toggle recurring frequency dropdown untuk Pengeluaran
+ */
+function toggleRecurringExp() {
+  const checked = document.getElementById('expRecurring').checked;
+  document.getElementById('expFreqWrap').classList.toggle('show', checked);
+}
+
+/**
+ * Cron-job simulasi: dijalankan saat app init.
+ * Cek apakah ada transaksi berulang yang jatuh tempo berdasarkan
+ * frekuensi dan tanggal terakhir app dibuka.
+ */
+function processRecurringTransactions() {
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+  const todayStr = todayDate.toISOString().split('T')[0];
+
+  // Jika sudah diproses hari ini, skip
+  if (state.lastOpenDate === todayStr) return;
+
+  const lastOpen = state.lastOpenDate ? new Date(state.lastOpenDate) : null;
+  lastOpen && lastOpen.setHours(0, 0, 0, 0);
+
+  let newTxCount = 0;
+
+  // Helper: cek apakah transaksi jatuh tempo
+  function isDue(tx, srcDate) {
+    if (!lastOpen) return false;
+    if (!srcDate) return false;
+    const orig = new Date(srcDate);
+    orig.setHours(0, 0, 0, 0);
+    let next = new Date(orig);
+    const freq = tx.frequency;
+    // Maju next dari orig sampai > lastOpen
+    while (next <= lastOpen) {
+      if (freq === 'harian') next.setDate(next.getDate() + 1);
+      else if (freq === 'mingguan') next.setDate(next.getDate() + 7);
+      else if (freq === 'bulanan') next.setMonth(next.getMonth() + 1);
+      else if (freq === 'tahunan') next.setFullYear(next.getFullYear() + 1);
+      else break;
+    }
+    return next <= todayDate;
+  }
+
+  // Bulan aktif saat ini
+  const MONTHS_ALL = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const curMonthName = MONTHS_ALL[todayDate.getMonth()];
+
+  // Proses recurring incomes
+  const recIncomes = state.incomes.filter(i => i.isRecurring && i.frequency);
+  recIncomes.forEach(orig => {
+    if (isDue(orig, orig.date)) {
+      // Cek belum duplikat di bulan/periode ini
+      const alreadyDup = state.incomes.some(i =>
+        i.recurringParentId === orig.id &&
+        i.period === curMonthName
+      );
+      if (!alreadyDup) {
+        state.incomes.push({
+          id: Date.now() + Math.random(),
+          name: orig.name,
+          cat: orig.cat,
+          amt: orig.amt,
+          date: todayStr,
+          note: `[Auto 🔁 ${orig.frequency}]`,
+          period: curMonthName,
+          isRecurring: false,
+          recurringParentId: orig.id
+        });
+        newTxCount++;
+      }
+    }
+  });
+
+  // Proses recurring expenses
+  const recExpenses = state.expenses.filter(e => e.isRecurring && e.frequency);
+  recExpenses.forEach(orig => {
+    if (isDue(orig, orig.date)) {
+      const alreadyDup = state.expenses.some(e =>
+        e.recurringParentId === orig.id &&
+        e.period === curMonthName
+      );
+      if (!alreadyDup) {
+        state.expenses.push({
+          id: Date.now() + Math.random(),
+          name: orig.name,
+          cat: orig.cat,
+          amt: orig.amt,
+          date: todayStr,
+          note: `[Auto 🔁 ${orig.frequency}]`,
+          period: curMonthName,
+          isRecurring: false,
+          recurringParentId: orig.id
+        });
+        newTxCount++;
+      }
+    }
+  });
+
+  state.lastOpenDate = todayStr;
+  if (newTxCount > 0) {
+    saveState();
+    render();
+    toast(`🔁 ${newTxCount} transaksi berulang otomatis ditambahkan!`, 'success');
+  } else {
+    saveState(); // simpan lastOpenDate
+  }
+}
+
+// ─── FITUR 2: BACKUP DATA (.json) & EKSPOR EXCEL (.csv) ──
+
+/**
+ * Ekspor seluruh state ke file .json untuk backup
+ */
+function exportJSON() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `pimapika_backup_${today}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📥 Backup JSON berhasil diunduh!', 'success');
+}
+
+/**
+ * Impor state dari file .json dan timpa data localStorage
+ */
+function importJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      // Validasi minimal: harus punya field incomes & expenses
+      if (!imported.incomes || !imported.expenses) {
+        toast('❌ Format file tidak valid!', 'error');
+        return;
+      }
+      // Merge fields
+      state = { ...state, ...imported };
+      saveState();
+      render();
+      if (document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
+      if (document.getElementById('tab-budget').classList.contains('active')) renderBudget();
+      if (document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
+      toast('📤 Data berhasil diimpor! ✅', 'success');
+    } catch (err) {
+      toast('❌ File rusak atau bukan format JSON yang valid!', 'error');
+    }
+  };
+  reader.readAsText(file);
+  // Reset input agar bisa impor file sama lagi
+  input.value = '';
+}
+
+/**
+ * Ekspor riwayat transaksi periode aktif ke format CSV (Excel-compatible)
+ */
+function exportCSV() {
+  const pInc = state.incomes.filter(i => i.period === state.period);
+  const pExp = state.expenses.filter(e => e.period === state.period);
+
+  let rows = [];
+  // Header
+  rows.push(['PIMAPIKA.ID - Laporan Keuangan', state.period, new Date().getFullYear()]);
+  rows.push([]);
+  rows.push(['Tipe', 'Nama/Keterangan', 'Kategori', 'Jumlah (Rp)', 'Tanggal', 'Catatan', 'Berulang']);
+
+  pInc.forEach(i => {
+    rows.push(['Pemasukan', i.name, getCatLabelPlain(i.cat), i.amt, i.date, i.note || '', i.isRecurring ? 'Ya - ' + i.frequency : 'Tidak']);
+  });
+  pExp.forEach(e => {
+    rows.push(['Pengeluaran', e.name, getCatLabelPlain(e.cat), e.amt, e.date, e.note || '', e.isRecurring ? 'Ya - ' + e.frequency : 'Tidak']);
+  });
+
+  rows.push([]);
+  const totalInc = pInc.reduce((s, i) => s + i.amt, 0);
+  const totalExp = pExp.reduce((s, e) => s + e.amt, 0);
+  rows.push(['', '', 'TOTAL PEMASUKAN', totalInc, '', '', '']);
+  rows.push(['', '', 'TOTAL PENGELUARAN', totalExp, '', '', '']);
+  rows.push(['', '', 'SALDO BERSIH', totalInc - totalExp, '', '', '']);
+
+  // Convert to CSV string with BOM for Excel UTF-8 compatibility
+  const csv = '\uFEFF' + rows.map(r =>
+    r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+  ).join('\r\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `pimapika_${state.period.toLowerCase()}_${today}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📊 File CSV siap dibuka di Excel!', 'success');
+}
+
+// ─── FITUR 3: GAMIFIKASI ACHIEVEMENTS ────────────────────
+
+const BADGE_DEFS = [
+  {
+    id: 'masterSaver',
+    icon: '🥇',
+    name: 'Master Saver',
+    desc: 'Saving Rate > 30% di periode ini',
+    color: '#f59e0b'
+  },
+  {
+    id: 'emergencyReady',
+    icon: '🛡️',
+    name: 'Emergency Ready',
+    desc: 'Target Dana Darurat mencapai 100%',
+    color: '#3b82f6'
+  },
+  {
+    id: 'budgetWarden',
+    icon: '🙅',
+    name: 'Budget Warden',
+    desc: 'Tidak ada anggaran yang OVER di akhir bulan',
+    color: '#10b981'
+  },
+  {
+    id: 'goldAccumulator',
+    icon: '🪙',
+    name: 'Gold Accumulator',
+    desc: 'Memiliki portofolio emas > 0 gram',
+    color: '#d97706'
+  }
+];
+
+/**
+ * Cek kondisi state dan unlock achievement yang memenuhi syarat.
+ * Dipanggil setiap kali render() berjalan.
+ */
+function checkAchievements() {
+  const grid = document.getElementById('achievementGrid');
+  if (!grid) return;
+
+  if (!state.achievements) {
+    state.achievements = {masterSaver:false, emergencyReady:false, budgetWarden:false, goldAccumulator:false};
+  }
+
+  const pInc = state.incomes.filter(i => i.period === state.period);
+  const pExp = state.expenses.filter(e => e.period === state.period);
+  const pBanks = state.banks.filter(b => b.period === state.period);
+  const totalInc = pInc.reduce((s, i) => s + i.amt, 0);
+  const totalExp = pExp.reduce((s, e) => s + e.amt, 0);
+  const totalAlloc = pBanks.reduce((s, b) => s + b.amt, 0);
+  const savingRate = totalInc > 0 ? (totalInc - totalExp - totalAlloc) / totalInc * 100 : 0;
+
+  const newUnlocks = [];
+
+  // 1. Master Saver: saving rate > 30%
+  if (!state.achievements.masterSaver && savingRate > 30) {
+    state.achievements.masterSaver = true;
+    newUnlocks.push('masterSaver');
+  }
+
+  // 2. Emergency Ready: target dengan nama mengandung "darurat" atau "emergency" dan pct 100%
+  if (!state.achievements.emergencyReady && state.targets) {
+    const emTarget = state.targets.find(t =>
+      (t.name.toLowerCase().includes('darurat') || t.name.toLowerCase().includes('emergency')) &&
+      t.goal > 0 && (t.saved || 0) >= t.goal
+    );
+    if (emTarget) {
+      state.achievements.emergencyReady = true;
+      newUnlocks.push('emergencyReady');
+    }
+  }
+
+  // 3. Budget Warden: semua budget ada, tidak ada yang OVER
+  if (!state.achievements.budgetWarden) {
+    const pBudgets = state.budgets.filter(b => b.period === state.period);
+    if (pBudgets.length > 0) {
+      const allOk = pBudgets.every(b => {
+        const spent = pExp.filter(e => e.cat === b.cat).reduce((s, e) => s + e.amt, 0);
+        return spent <= b.limit;
+      });
+      if (allOk) {
+        state.achievements.budgetWarden = true;
+        newUnlocks.push('budgetWarden');
+      }
+    }
+  }
+
+  // 4. Gold Accumulator: punya emas > 0 gram
+  if (!state.achievements.goldAccumulator) {
+    const totalGram = (state.goldPortfolio || []).reduce((s, g) => s + (g.weight || 0), 0);
+    if (totalGram > 0) {
+      state.achievements.goldAccumulator = true;
+      newUnlocks.push('goldAccumulator');
+    }
+  }
+
+  if (newUnlocks.length > 0) saveState();
+
+  // Render badge grid
+  grid.innerHTML = BADGE_DEFS.map(def => {
+    const unlocked = state.achievements[def.id] || false;
+    return `<div class="badge-card ${unlocked ? 'unlocked' : 'locked'}" style="${unlocked ? 'border-color:' + def.color + '44;box-shadow:0 0 20px ' + def.color + '22;' : ''}">
+      <span class="badge-icon">${def.icon}</span>
+      <div class="badge-name">${def.name}</div>
+      <div class="badge-desc">${def.desc}</div>
+    </div>`;
+  }).join('');
+
+  // Animasi popup untuk unlock baru
+  if (newUnlocks.length > 0) {
+    const def = BADGE_DEFS.find(d => d.id === newUnlocks[0]);
+    if (def) setTimeout(() => showAchievementPopup(def), 400);
+  }
+}
+
+/**
+ * Tampilkan modal pop-up achievement dengan animasi konfeti CSS
+ */
+function showAchievementPopup(def) {
+  document.getElementById('achieveIcon').textContent = def.icon;
+  document.getElementById('achieveTitle').textContent = '🎉 ' + def.name + '!';
+  document.getElementById('achieveSub').textContent = def.desc;
+  document.getElementById('achieveModal').classList.add('open');
+  spawnConfetti();
+}
+
+function closeAchieveModal() {
+  document.getElementById('achieveModal').classList.remove('open');
+  document.getElementById('confettiContainer').innerHTML = '';
+}
+
+/**
+ * Spawn konfeti CSS berbasis pure JS tanpa library
+ */
+function spawnConfetti() {
+  const container = document.getElementById('confettiContainer');
+  container.innerHTML = '';
+  const COLORS = ['#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+  const SHAPES = ['circle', 'square', 'rect'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const size = 8 + Math.random() * 10;
+    const left = Math.random() * 100;
+    const duration = 1.5 + Math.random() * 2;
+    const delay = Math.random() * 0.8;
+    el.style.cssText = `
+      left:${left}%;
+      width:${shape === 'rect' ? size * 2 : size}px;
+      height:${size}px;
+      background:${color};
+      border-radius:${shape === 'circle' ? '50%' : shape === 'square' ? '2px' : '1px'};
+      animation-duration:${duration}s;
+      animation-delay:${delay}s;
+    `;
+    container.appendChild(el);
+  }
+  // Auto clear
+  setTimeout(() => { container.innerHTML = ''; }, 4000);
+}
+
+// ─── FITUR 4: GOLD PORTFOLIO ──────────────────────────────
+
+/**
+ * Tambah aset emas baru dan sinkronkan sebagai pengeluaran tabungan
+ */
+function addGold() {
+  const name = document.getElementById('goldName').value.trim();
+  const weight = parseFloat(document.getElementById('goldWeight').value) || 0;
+  const buyPrice = getCurrencyValue('goldBuyPrice');
+  const date = document.getElementById('goldDate').value;
+
+  if (!name) { toast('Masukkan nama transaksi emas!', 'error'); return; }
+  if (weight <= 0) { toast('Masukkan berat yang valid!', 'error'); return; }
+  if (buyPrice <= 0) { toast('Masukkan harga beli yang valid!', 'error'); return; }
+  if (!date) { toast('Pilih tanggal!', 'error'); return; }
+
+  if (!state.goldPortfolio) state.goldPortfolio = [];
+
+  const goldId = Date.now();
+  state.goldPortfolio.push({ id: goldId, name, weight, buyPrice, date });
+
+  // Sinkronkan sebagai pengeluaran tabungan di periode aktif
+  state.expenses.push({
+    id: goldId + 1,
+    name: `🪙 Beli Emas: ${name} (${weight}g)`,
+    cat: 'tabungan',
+    amt: buyPrice,
+    date,
+    note: `Investasi Emas ${weight}g @ Rp${Math.round(buyPrice/weight).toLocaleString('id-ID')}/g`,
+    period: state.period,
+    isRecurring: false,
+    goldRef: goldId // referensi ke gold portfolio
+  });
+
+  // Reset form
+  document.getElementById('goldName').value = '';
+  document.getElementById('goldWeight').value = '';
+  clearCurrencyInput('goldBuyPrice');
+
+  saveState();
+  render();
+  renderGold();
+  toast(`🪙 ${weight}g emas ditambahkan ke portofolio!`, 'success');
+}
+
+/**
+ * Hapus aset emas dan pengeluaran terkait
+ */
+function deleteGold(id) {
+  state.goldPortfolio = state.goldPortfolio.filter(g => g.id !== id);
+  // Hapus expense yang terkait
+  state.expenses = state.expenses.filter(e => e.goldRef !== id);
+  saveState();
+  render();
+  renderGold();
+  toast('Aset emas dihapus', 'info');
+}
+
+/**
+ * Update harga referensi emas
+ */
+function updateGoldRefPrice() {
+  const raw = document.getElementById('goldRefPriceInput').value.replace(/\./g, '').replace(/,/g, '');
+  const val = parseFloat(raw) || 0;
+  if (val <= 0) { toast('Masukkan harga referensi yang valid!', 'error'); return; }
+  state.goldRefPrice = val;
+  clearCurrencyInput('goldRefPriceInput');
+  saveState();
+  renderGold();
+  toast(`💰 Harga referensi emas diperbarui: ${fmt(val)}/g`, 'success');
+}
+
+/**
+ * Render tampilan portofolio emas
+ */
+function renderGold() {
+  if (!state.goldPortfolio) state.goldPortfolio = [];
+  if (!state.goldRefPrice) state.goldRefPrice = 1550000;
+
+  const refPrice = state.goldRefPrice;
+  document.getElementById('goldRefPriceDisplay').textContent = refPrice.toLocaleString('id-ID');
+
+  const totalGram = state.goldPortfolio.reduce((s, g) => s + g.weight, 0);
+  const totalBuy = state.goldPortfolio.reduce((s, g) => s + g.buyPrice, 0);
+  const avgPrice = totalGram > 0 ? totalBuy / totalGram : 0;
+  const currentVal = totalGram * refPrice;
+  const pnl = currentVal - totalBuy;
+
+  document.getElementById('goldTotalGram').textContent = totalGram.toFixed(3) + ' g';
+  document.getElementById('goldAvgPrice').textContent = fmtShort(Math.round(avgPrice));
+  document.getElementById('goldCurrentVal').textContent = fmtShort(Math.round(currentVal));
+  const pnlEl = document.getElementById('goldPnL');
+  pnlEl.textContent = (pnl >= 0 ? '+' : '') + fmtShort(Math.round(pnl));
+  pnlEl.style.color = pnl >= 0 ? '#34d399' : '#f87171';
+
+  const list = document.getElementById('goldList');
+  if (!state.goldPortfolio.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🪙</div>Belum ada aset emas</div>';
+    return;
+  }
+
+  list.innerHTML = [...state.goldPortfolio].reverse().map(g => {
+    const pricePerGram = g.weight > 0 ? Math.round(g.buyPrice / g.weight) : 0;
+    const curVal = g.weight * refPrice;
+    const gPnl = curVal - g.buyPrice;
+    return `<div class="gold-item">
+      <div class="gold-info">
+        <div class="gold-name">${g.name}</div>
+        <div class="gold-meta">Beli: ${fmtShort(g.buyPrice)} · ${pricePerGram.toLocaleString('id-ID')}/g · ${formatDate(g.date)}</div>
+        <div class="gold-meta" style="color:${gPnl>=0?'#34d399':'#f87171'};">Nilai kini: ${fmtShort(Math.round(curVal))} (${gPnl>=0?'+':''}${fmtShort(Math.round(gPnl))})</div>
+      </div>
+      <div class="gold-weight">${g.weight.toFixed(3)}g</div>
+      <button class="gold-del" onclick="deleteGold(${g.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ─── FITUR 5: INTERACTIVE CHARTS ─────────────────────────
+
+// Global Chart.js instances
+let barChartInstance = null;
+let donutChartInstance = null;
+
+/**
+ * Chart tooltip glassmorphism element (shared)
+ */
+function getOrCreateTooltip() {
+  let tip = document.getElementById('chartTooltipGlass');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.id = 'chartTooltipGlass';
+    tip.className = 'chart-tooltip-glass';
+    document.body.appendChild(tip);
+  }
+  return tip;
+}
+
+/**
+ * Render Bar Chart interaktif menggunakan Chart.js
+ * Menggantikan renderBarChart() lama dengan versi interaktif
+ */
+function renderBarChart() {
+  const el = document.getElementById('barChart12');
+  if (!el) return;
+
+  // Kumpulkan data 12 bulan
+  const incData = MONTHS.map(m => state.incomes.filter(i => i.period === m).reduce((s, i) => s + i.amt, 0));
+  const expData = MONTHS.map(m => state.expenses.filter(e => e.period === m).reduce((s, e) => s + e.amt, 0));
+  const labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+  // Ganti static HTML dengan canvas jika belum ada
+  if (!el.querySelector('canvas')) {
+    el.innerHTML = '<canvas id="barChartCanvas" style="width:100%;height:130px;"></canvas>';
+    el.style.height = '130px';
+  }
+  const canvas = document.getElementById('barChartCanvas');
+  if (!canvas) return;
+
+  // Destroy existing instance
+  if (barChartInstance) { barChartInstance.destroy(); barChartInstance = null; }
+
+  const isDark = state.darkMode !== false;
+  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+  const tickColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+
+  barChartInstance = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Pemasukan',
+          data: incData,
+          backgroundColor: 'rgba(16,185,129,0.75)',
+          hoverBackgroundColor: 'rgba(52,211,153,0.95)',
+          borderRadius: 5,
+          borderSkipped: false
+        },
+        {
+          label: 'Pengeluaran',
+          data: expData,
+          backgroundColor: 'rgba(239,68,68,0.7)',
+          hoverBackgroundColor: 'rgba(248,113,113,0.95)',
+          borderRadius: 5,
+          borderSkipped: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600, easing: 'easeOutQuart' },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: false,
+          external: function(context) {
+            const { chart, tooltip } = context;
+            const tip = getOrCreateTooltip();
+
+            if (tooltip.opacity === 0) {
+              tip.style.display = 'none';
+              return;
+            }
+
+            const month = MONTHS[tooltip.dataPoints[0].dataIndex];
+            const incVal = incData[tooltip.dataPoints[0].dataIndex];
+            const expVal = expData[tooltip.dataPoints[0].dataIndex];
+
+            tip.innerHTML = `
+              <div class="chart-tooltip-month">${month}</div>
+              <div class="chart-tooltip-row">
+                <div class="chart-tooltip-dot" style="background:#10b981;"></div>
+                <span>Pemasukan</span>
+                <span class="chart-tooltip-val" style="color:#34d399;">${fmtShort(incVal)}</span>
+              </div>
+              <div class="chart-tooltip-row">
+                <div class="chart-tooltip-dot" style="background:#ef4444;"></div>
+                <span>Pengeluaran</span>
+                <span class="chart-tooltip-val" style="color:#f87171;">${fmtShort(expVal)}</span>
+              </div>
+              <div class="chart-tooltip-row" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:4px;margin-top:2px;">
+                <span style="color:rgba(255,255,255,0.5);">Selisih</span>
+                <span class="chart-tooltip-val" style="color:${incVal-expVal>=0?'#34d399':'#f87171'};">${fmtShort(incVal-expVal)}</span>
+              </div>`;
+
+            tip.style.display = 'block';
+            const rect = chart.canvas.getBoundingClientRect();
+            tip.style.left = rect.left + window.scrollX + tooltip.caretX + 12 + 'px';
+            tip.style.top = rect.top + window.scrollY + tooltip.caretY - 20 + 'px';
+
+            // Highlight active month bar in period bar
+            // Dim inactive bars
+            chart.data.datasets.forEach((ds, di) => {
+              const bgArray = MONTHS.map((_, mi) => {
+                if (mi === tooltip.dataPoints[0].dataIndex) {
+                  return di === 0 ? 'rgba(52,211,153,0.95)' : 'rgba(248,113,113,0.95)';
+                }
+                return di === 0 ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.22)';
+              });
+              ds.backgroundColor = bgArray;
+            });
+            chart.update('none');
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: gridColor, drawBorder: false },
+          ticks: { color: tickColor, font: { size: 10, family: 'Outfit' } }
+        },
+        y: {
+          grid: { color: gridColor, drawBorder: false },
+          ticks: {
+            color: tickColor,
+            font: { size: 9, family: 'JetBrains Mono' },
+            callback: v => v >= 1e6 ? (v/1e6).toFixed(0)+'Jt' : v >= 1e3 ? (v/1e3).toFixed(0)+'Rb' : v
+          }
+        }
+      },
+      onHover: (evt, elements) => {
+        if (!elements.length) {
+          // Restore original colors when not hovering
+          if (barChartInstance) {
+            barChartInstance.data.datasets[0].backgroundColor = 'rgba(16,185,129,0.75)';
+            barChartInstance.data.datasets[1].backgroundColor = 'rgba(239,68,68,0.7)';
+            barChartInstance.update('none');
+            getOrCreateTooltip().style.display = 'none';
+          }
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Render Donut Chart interaktif menggunakan Chart.js
+ * Klik kategori → angka tengah berubah dengan animasi counter-up
+ */
+function renderDonutChart() {
+  const wrap = document.getElementById('donutWrap');
+  if (!wrap) return;
+
+  const pExp = state.expenses.filter(e => e.period === state.period);
+  if (!pExp.length) {
+    if (donutChartInstance) { donutChartInstance.destroy(); donutChartInstance = null; }
+    wrap.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Belum ada data pengeluaran periode ini</div>';
+    return;
+  }
+
+  const byCat = {};
+  pExp.forEach(e => { byCat[e.cat] = (byCat[e.cat] || 0) + e.amt; });
+  const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((s, [, v]) => s + v, 0);
+
+  // Setup container
+  wrap.innerHTML = `
+    <div style="position:relative;flex-shrink:0;width:160px;height:160px;">
+      <canvas id="donutCanvas" width="160" height="160"></canvas>
+      <div id="donutCenter" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+        <div style="font-size:10px;color:var(--text-muted);letter-spacing:.5px;">Total</div>
+        <div id="donutCenterVal" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--text-primary);">${fmtShort(total)}</div>
+      </div>
+    </div>
+    <div class="donut-legend" id="donutLegend">
+      ${entries.slice(0, 7).map(([cat, amt], i) => `
+        <div class="donut-leg-item donut-leg-clickable" data-index="${i}" style="cursor:pointer;padding:3px 6px;border-radius:7px;transition:background .15s;" 
+             onmouseover="this.style.background='var(--input-bg)'" onmouseout="this.style.background='transparent'"
+             onclick="highlightDonutSlice(${i}, ${amt}, '${getCatLabel(cat).replace(/'/g,"\\'")}')">
+          <div class="donut-leg-dot" style="background:${CHART_COLORS[i % CHART_COLORS.length]};"></div>
+          <span class="donut-leg-name">${getCatLabel(cat)}</span>
+          <span class="donut-leg-val">${(amt / total * 100).toFixed(0)}%</span>
+        </div>`).join('')}
+    </div>`;
+
+  const canvas = document.getElementById('donutCanvas');
+  if (!canvas) return;
+
+  if (donutChartInstance) { donutChartInstance.destroy(); donutChartInstance = null; }
+
+  donutChartInstance = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: entries.map(([cat]) => getCatLabel(cat)),
+      datasets: [{
+        data: entries.map(([, v]) => v),
+        backgroundColor: entries.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]),
+        hoverBackgroundColor: entries.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]),
+        borderWidth: 2,
+        borderColor: 'transparent',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: false,
+      cutout: '68%',
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false }
+      },
+      onClick: (evt, elements) => {
+        if (elements.length > 0) {
+          const idx = elements[0].index;
+          const [, amt] = entries[idx];
+          const cat = getCatLabel(entries[idx][0]);
+          highlightDonutSlice(idx, amt, cat);
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Highlight slice donut + update center value dengan counter-up animation
+ */
+let donutCounterTimer = null;
+function highlightDonutSlice(index, amount, catLabel) {
+  // Update center text dengan counter-up animation
+  const centerEl = document.getElementById('donutCenterVal');
+  if (!centerEl) return;
+
+  if (donutCounterTimer) clearInterval(donutCounterTimer);
+
+  const startVal = 0;
+  const endVal = amount;
+  const duration = 600;
+  const steps = 30;
+  const increment = endVal / steps;
+  let current = startVal;
+  let step = 0;
+
+  centerEl.style.animation = 'none';
+  centerEl.offsetHeight; // reflow
+  centerEl.style.animation = 'counterFlash .35s var(--spring)';
+
+  const centHead = document.getElementById('donutCenter');
+  if (centHead) {
+    centHead.querySelector('div').textContent = catLabel.replace(/[🍽️⚡🚗🛒🎮🏥📚💎✨]/u, '').trim().substring(0, 12);
+  }
+
+  donutCounterTimer = setInterval(() => {
+    step++;
+    current = step >= steps ? endVal : current + increment;
+    centerEl.textContent = fmtShort(Math.round(current));
+    if (step >= steps) {
+      clearInterval(donutCounterTimer);
+      centerEl.textContent = fmtShort(endVal);
+    }
+  }, duration / steps);
+
+  // Dim other slices in chart
+  if (donutChartInstance) {
+    const pExp = state.expenses.filter(e => e.period === state.period);
+    const byCat = {};
+    pExp.forEach(e => { byCat[e.cat] = (byCat[e.cat] || 0) + e.amt; });
+    const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+    
+    donutChartInstance.data.datasets[0].backgroundColor = entries.map((_, i) => {
+      const baseColor = CHART_COLORS[i % CHART_COLORS.length];
+      return i === index ? baseColor : baseColor + '40';
+    });
+    donutChartInstance.update('none');
+
+    // Reset after 2.5s
+    setTimeout(() => {
+      donutChartInstance.data.datasets[0].backgroundColor = entries.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
+      donutChartInstance.update('none');
+      // Reset center to total
+      const total = entries.reduce((s, [, v]) => s + v, 0);
+      const centHead2 = document.getElementById('donutCenter');
+      if (centHead2) centHead2.querySelector('div').textContent = 'Total';
+      if (centerEl) centerEl.textContent = fmtShort(total);
+    }, 2500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ─── PIMAPIKA v2.7.0 NEW FEATURES JAVASCRIPT ───
+// ═══════════════════════════════════════════════════════════
+
+// ─── FITUR 6: PRIVACY SHADOW MODE ────────────────────────
+
+function togglePrivacy() {
+  state.privacyMode = !state.privacyMode;
+  const btn = document.getElementById('btnPrivacy');
+  if (state.privacyMode) {
+    document.body.classList.add('privacy-active');
+    btn.textContent = '🙈';
+    btn.classList.add('active');
+    toast('🔒 Mode Privasi: Aktif — nominal disembunyikan', 'info');
+  } else {
+    document.body.classList.remove('privacy-active');
+    btn.textContent = '👁️';
+    btn.classList.remove('active');
+    toast('👁️ Mode Privasi: Nonaktif', 'info');
+  }
+  saveState();
+}
+
+// ─── FITUR 7: INLINE MATH EVALUATOR ─────────────────────
+
+/**
+ * Mendeteksi ekspresi matematika pada input jumlah nominal.
+ * Mendukung +, -, *, / dengan auto-evaluasi.
+ */
+function handleMathInput(el, hintId) {
+  const raw = el.value;
+  const hintEl = document.getElementById(hintId);
+
+  // Cek apakah ada operator matematika
+  const mathPattern = /[\+\-\*\/]/;
+  const stripped = raw.replace(/\./g, ''); // hapus separator ribuan
+
+  if (mathPattern.test(stripped) && stripped.trim()) {
+    try {
+      // Evaluasi ekspresi — hanya boleh angka dan operator
+      const safe = stripped.replace(/[^0-9\+\-\*\/\(\)\.\s]/g, '');
+      if (!safe) { formatCurrencyInput(el); return; }
+      // eslint-disable-next-line no-new-func
+      const result = new Function('return (' + safe + ')')();
+      if (typeof result === 'number' && isFinite(result) && result > 0) {
+        const rounded = Math.round(result);
+        if (hintEl) {
+          hintEl.textContent = '= Rp ' + rounded.toLocaleString('id-ID') + ' · Enter untuk terapkan';
+          hintEl.classList.add('has-result');
+          hintEl.dataset.result = rounded;
+        }
+        // Terapkan otomatis saat user berhenti mengetik (debounce)
+        clearTimeout(el._mathTimer);
+        el._mathTimer = setTimeout(() => {
+          el.value = rounded.toLocaleString('id-ID');
+          if (hintEl) {
+            hintEl.textContent = '✅ Hasil rumus diterapkan: Rp ' + rounded.toLocaleString('id-ID');
+            setTimeout(() => { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }, 2500);
+          }
+        }, 900);
+        return;
+      }
+    } catch(e) {
+      if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
+    }
+  } else {
+    if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
+  }
+  formatCurrencyInput(el);
+}
+
+// ─── FITUR 8: MULTI-WORKSPACE ────────────────────────────
+
+const WORKSPACE_ICONS = { Personal: '👤', Bisnis: '💼', Keluarga: '👨‍👩‍👧' };
+
+/** Update posisi ws-indicator (mirip updateTabIndicator) */
+function updateWsIndicator(activeBtn, skipAnim) {
+  const bar = document.getElementById('workspaceBar');
+  const ind = document.getElementById('wsIndicator');
+  if (!bar || !ind || !activeBtn) return;
+
+  const barRect = bar.getBoundingClientRect();
+  const btnRect = activeBtn.getBoundingClientRect();
+  const scrollLeft = bar.scrollLeft;
+
+  const left = btnRect.left - barRect.left + scrollLeft;
+  const width = btnRect.width;
+
+  if (skipAnim) {
+    ind.style.transition = 'none';
+    ind.style.left = left + 'px';
+    ind.style.width = width + 'px';
+    ind.offsetHeight; // reflow
+    ind.style.transition = '';
+  } else {
+    ind.style.left = left + 'px';
+    ind.style.width = width + 'px';
+
+    ind.classList.remove('ws-squish', 'ws-shimmer');
+    void ind.offsetWidth;
+    ind.classList.add('ws-squish');
+    setTimeout(() => {
+      ind.classList.add('ws-shimmer');
+      setTimeout(() => ind.classList.remove('ws-shimmer', 'ws-squish'), 600);
+    }, 80);
+  }
+
+  // Auto-scroll tab into view
+  const scrollTarget = left - (bar.clientWidth / 2 - width / 2);
+  bar.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
+}
+
+function addWsRipple(btn, e) {
+  const ripple = document.createElement('span');
+  ripple.className = 'ws-ripple';
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.cssText = `width:${size}px;height:${size}px;left:${(e.clientX || rect.left + rect.width/2) - rect.left - size/2}px;top:${(e.clientY || rect.top + rect.height/2) - rect.top - size/2}px;`;
+  btn.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 500);
+}
+
+function renderWorkspaceBar() {
+  if (!state.workspaces) state.workspaces = ['Personal'];
+
+  const allWs = ['Personal', 'Bisnis', 'Keluarga'];
+  allWs.forEach(ws => {
+    const btn = document.getElementById('ws-' + ws);
+    if (!btn) return;
+
+    const exists = state.workspaces.includes(ws);
+    btn.style.display = exists ? '' : 'none';
+    btn.classList.toggle('active', state.activeWorkspace === ws);
+
+    // Badge count
+    const wsData = (state.workspaceData || {})[ws] || {};
+    const count = ((wsData.incomes || []).length + (wsData.expenses || []).length);
+    const existingBadge = btn.querySelector('.workspace-badge');
+    if (existingBadge) existingBadge.remove();
+    if (exists && count > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'workspace-badge';
+      badge.textContent = count;
+      btn.appendChild(badge);
+    }
+  });
+
+  // Position indicator on active button
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const activeBtn = document.querySelector('.workspace-btn.active');
+      if (activeBtn) updateWsIndicator(activeBtn, true);
+    });
+  });
+}
+
+function switchWorkspace(ws, btn, e) {
+  if (state.activeWorkspace === ws) return;
+
+  // Ripple
+  if (btn && e) addWsRipple(btn, e);
+
+  // Save current data before switching
+  saveState();
+
+  state.activeWorkspace = ws;
+
+  // Load workspace data
+  if (!state.workspaceData) state.workspaceData = {};
+  if (!state.workspaceData[ws]) {
+    state.workspaceData[ws] = { incomes:[], expenses:[], banks:[], budgets:[], notes:'' };
+  }
+
+  state.incomes  = state.workspaceData[ws].incomes;
+  state.expenses = state.workspaceData[ws].expenses;
+  state.banks    = state.workspaceData[ws].banks;
+  state.budgets  = state.workspaceData[ws].budgets || [];
+  state.notes    = state.workspaceData[ws].notes || '';
+
+  // Update button states & slide indicator
+  document.querySelectorAll('.workspace-btn').forEach(b => b.classList.remove('active'));
+  if (btn) {
+    btn.classList.add('active');
+    updateWsIndicator(btn, false);
+  }
+
+  saveState();
+  renderWorkspaceBar();
+  render();
+
+  const icon = WORKSPACE_ICONS[ws] || '📂';
+  toast(`${icon} Workspace: ${ws}`, 'success');
+}
+
+function addWorkspace() {
+  if (!state.workspaces) state.workspaces = ['Personal'];
+  const available = ['Bisnis', 'Keluarga'].filter(w => !state.workspaces.includes(w));
+
+  if (available.length === 0) {
+    toast('Semua workspace tersedia sudah ditambahkan!', 'info');
+    return;
+  }
+
+  const next = available[0];
+  state.workspaces.push(next);
+  if (!state.workspaceData) state.workspaceData = {};
+  if (!state.workspaceData[next]) {
+    state.workspaceData[next] = { incomes:[], expenses:[], banks:[], budgets:[], notes:'' };
+  }
+  saveState();
+  renderWorkspaceBar();
+
+  const icon = WORKSPACE_ICONS[next] || '📂';
+  toast(`${icon} Workspace "${next}" ditambahkan!`, 'success');
+}
+
+// Reposition indicator on window resize
+window.addEventListener('resize', () => {
+  const activeWsBtn = document.querySelector('.workspace-btn.active');
+  if (activeWsBtn) updateWsIndicator(activeWsBtn, true);
+});
+
+// ─── FITUR KAMERA: PEMINDAI STRUK SMART (Mock OCR) ───────
+
+let _cameraStream = null;
+let _cameraFacingMode = 'environment'; // belakang default
+
+async function openCameraModal() {
+  document.getElementById('cameraModal').classList.add('open');
+  document.getElementById('ocrStatus').textContent = '📡 Mengaktifkan kamera...';
+  document.getElementById('ocrThumbnail').style.display = 'none';
+  document.getElementById('btnCapture').disabled = false;
+  document.getElementById('btnCapture').textContent = '📸 Tangkap Gambar';
+
+  await startCamera();
+}
+
+async function startCamera() {
+  // Hentikan stream lama jika ada
+  if (_cameraStream) {
+    _cameraStream.getTracks().forEach(t => t.stop());
+    _cameraStream = null;
+  }
+  const video = document.getElementById('cameraVideo');
+  try {
+    _cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: _cameraFacingMode, width: { ideal: 1280 }, height: { ideal: 960 } },
+      audio: false
+    });
+    video.srcObject = _cameraStream;
+    await video.play();
+    document.getElementById('ocrStatus').textContent = '✅ Kamera aktif. Arahkan ke struk belanjaan.';
+  } catch (err) {
+    document.getElementById('ocrStatus').innerHTML =
+      '<span style="color:#f87171;">❌ Kamera tidak dapat diakses: ' + (err.message || err) + '</span>' +
+      '<br><span style="font-size:10px;color:var(--text-muted);">Pastikan izin kamera diberikan di browser.</span>';
+  }
+}
+
+async function switchCamera() {
+  _cameraFacingMode = _cameraFacingMode === 'environment' ? 'user' : 'environment';
+  document.getElementById('ocrStatus').textContent = '🔄 Mengganti kamera...';
+  await startCamera();
+}
+
+function captureFrame() {
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('cameraCanvas');
+  const thumb = document.getElementById('ocrThumbnail');
+  const statusEl = document.getElementById('ocrStatus');
+  const captureBtn = document.getElementById('btnCapture');
+
+  if (!video.srcObject) {
+    statusEl.textContent = '❌ Kamera belum aktif.';
+    return;
+  }
+
+  // Capture frame ke canvas tersembunyi
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Tampilkan thumbnail
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  thumb.src = dataUrl;
+  thumb.style.display = 'block';
+  thumb.style.animation = 'popIn .4s var(--spring)';
+
+  // Nonaktifkan tombol capture sementara
+  captureBtn.disabled = true;
+  captureBtn.textContent = '⏳ Memproses...';
+
+  // Tampilkan skeleton loading OCR
+  showOCRSkeleton();
+
+  // Jalankan simulasi OCR setelah 2 detik
+  setTimeout(() => {
+    simulateOCR();
+  }, 2000);
+}
+
+function showOCRSkeleton() {
+  const viewport = document.getElementById('cameraViewport');
+  const existing = viewport.querySelector('.ocr-loading-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'ocr-loading-overlay';
+  overlay.innerHTML = `
+    <div class="ocr-loading-text">🔍 Membaca Struk...</div>
+    <div class="ocr-skel-row">
+      <div class="ocr-skel-line skeleton-box" style="width:90%;"></div>
+      <div class="ocr-skel-line skeleton-box" style="width:65%;"></div>
+      <div class="ocr-skel-line skeleton-box" style="width:80%;"></div>
+      <div class="ocr-skel-line skeleton-box" style="width:55%;"></div>
+      <div class="ocr-skel-line skeleton-box" style="width:75%;"></div>
+    </div>
+    <div style="font-size:10px;color:rgba(56,189,248,.6);letter-spacing:.5px;">Simulasi OCR Engine...</div>
+  `;
+  viewport.appendChild(overlay);
+}
+
+function simulateOCR() {
+  // ─── INTEGRASI API SEBENARNYA DI SINI ───
+  // Untuk produksi, kirim `canvas.toDataURL('image/jpeg')` ke:
+  //   Google Cloud Vision API: POST https://vision.googleapis.com/v1/images:annotate
+  //   OpenAI Vision API: POST https://api.openai.com/v1/chat/completions (model: gpt-4o)
+  // Kemudian parse teks OCR untuk ekstrak total belanja, nama merchant, tanggal.
+  // ──────────────────────────────────────────
+
+  // Simulasi: pilih angka realistis secara acak
+  const mockAmounts = [
+    { amt: 45000, name: 'Belanja Indomaret', cat: 'belanja' },
+    { amt: 125000, name: 'Makan Siang Resto', cat: 'makan' },
+    { amt: 87500, name: 'Belanja Alfamart', cat: 'belanja' },
+    { amt: 32000, name: 'Kopi & Snack', cat: 'makan' },
+    { amt: 215000, name: 'Belanja Bulanan', cat: 'belanja' },
+    { amt: 56000, name: 'Makan Malam', cat: 'makan' },
+    { amt: 78500, name: 'Grocery Supermarket', cat: 'belanja' },
+    { amt: 195000, name: 'Belanja Kebutuhan Dapur', cat: 'belanja' },
+  ];
+  const picked = mockAmounts[Math.floor(Math.random() * mockAmounts.length)];
+
+  // Hapus skeleton overlay
+  const viewport = document.getElementById('cameraViewport');
+  const overlay = viewport.querySelector('.ocr-loading-overlay');
+  if (overlay) {
+    overlay.style.animation = 'none';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity .3s';
+    setTimeout(() => overlay.remove(), 300);
+  }
+
+  // Isi form pengeluaran
+  const expName = document.getElementById('expName');
+  const expAmt = document.getElementById('expAmt');
+  const expCat = document.getElementById('expCat');
+
+  if (expName) expName.value = picked.name;
+  if (expAmt) expAmt.value = picked.amt.toLocaleString('id-ID');
+  if (expCat) expCat.value = picked.cat;
+
+  // Update status
+  document.getElementById('ocrStatus').innerHTML = `
+    <span style="color:#34d399;font-weight:700;">✅ Struk terbaca!</span><br>
+    <span style="font-size:10px;color:var(--text-secondary);">${picked.name} · Rp ${picked.amt.toLocaleString('id-ID')}</span>
+  `;
+
+  const captureBtn = document.getElementById('btnCapture');
+  captureBtn.textContent = '✅ Berhasil! Tangkap Lagi';
+  captureBtn.disabled = false;
+
+  toast(`📷 OCR: ${picked.name} — Rp ${picked.amt.toLocaleString('id-ID')} telah diisi!`, 'success');
+
+  // Auto-close modal setelah 1.5 detik
+  setTimeout(() => closeCameraModal(), 1500);
+}
+
+function closeCameraModal() {
+  document.getElementById('cameraModal').classList.remove('open');
+  if (_cameraStream) {
+    _cameraStream.getTracks().forEach(t => t.stop());
+    _cameraStream = null;
+  }
+  const video = document.getElementById('cameraVideo');
+  if (video) { video.srcObject = null; }
+}
+
+// ─── INIT v2.6.0 ─────────────────────────────────────────
+
+// Set default gold date
+const _goldToday = new Date().toISOString().split('T')[0];
+if (document.getElementById('goldDate')) document.getElementById('goldDate').value = _goldToday;
+
+// Run recurring transaction cron job
+setTimeout(() => processRecurringTransactions(), 3200);
+
+// Initial gold render if tab is active
+setTimeout(() => {
+  renderGold();
+  checkAchievements();
+}, 100);
+
+
 </script>
 </body>
 </html>
