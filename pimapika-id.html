@@ -1228,7 +1228,7 @@
             </select>
           </div>
           <div class="input-group">
-            <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Bisa pakai rumus: 1500000+250000</span></label>
+            <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 1500000+250000=</span></label>
             <div class="currency-wrapper">
               <span class="currency-prefix">Rp</span>
               <input class="glass-input" id="incAmt" placeholder="0" type="text" inputmode="numeric" oninput="handleMathInput(this,'incMathHint')">
@@ -1300,7 +1300,7 @@
             </select>
           </div>
           <div class="input-group">
-            <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Bisa pakai rumus: 20000+15000</span></label>
+            <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 20000+15000=</span></label>
             <div class="currency-wrapper">
               <span class="currency-prefix">Rp</span>
               <input class="glass-input" id="expAmt" placeholder="0" type="text" inputmode="numeric" oninput="handleMathInput(this,'expMathHint')">
@@ -1860,56 +1860,80 @@ let state = {
   workspaces: ['Personal'],
   privacyMode: false,
   workspaceData: {
-    Personal: { incomes:[], expenses:[], banks:[], budgets:[], notes:'' },
-    Bisnis: { incomes:[], expenses:[], banks:[], budgets:[], notes:'' },
-    Keluarga: { incomes:[], expenses:[], banks:[], budgets:[], notes:'' }
+    Personal: { incomes:[], expenses:[], banks:[], budgets:[], notes:'', targets:[], bills:[] },
+    Bisnis:   { incomes:[], expenses:[], banks:[], budgets:[], notes:'', targets:[], bills:[] },
+    Keluarga: { incomes:[], expenses:[], banks:[], budgets:[], notes:'', targets:[], bills:[] }
   }
 };
 
+// ─── Internal helper: apply a workspace's data to root state references ───
+function _applyWorkspace(ws){
+  const d = state.workspaceData[ws];
+  state.incomes  = d.incomes;
+  state.expenses = d.expenses;
+  state.banks    = d.banks;
+  state.budgets  = d.budgets;
+  state.notes    = d.notes || '';
+  state.targets  = d.targets;
+  state.bills    = d.bills;
+}
+
 function loadState(){
   const s = localStorage.getItem('pimapika_state');
-  if(s) try{ state = {...state,...JSON.parse(s)}; }catch(e){}
-  // Ensure new fields exist for older saves
-  if(!state.goldPortfolio) state.goldPortfolio=[];
-  if(!state.goldRefPrice) state.goldRefPrice=1550000;
-  if(!state.achievements) state.achievements={masterSaver:false,emergencyReady:false,budgetWarden:false,goldAccumulator:false};
-  if(!state.lastOpenDate) state.lastOpenDate='';
-  // v2.7.0 fields
-  if(!state.activeWorkspace) state.activeWorkspace='Personal';
-  if(!state.workspaces) state.workspaces=['Personal'];
-  if(!state.privacyMode) state.privacyMode=false;
-  if(!state.workspaceData) state.workspaceData={
-    Personal:{incomes:[],expenses:[],banks:[],budgets:[],notes:''},
-    Bisnis:{incomes:[],expenses:[],banks:[],budgets:[],notes:''},
-    Keluarga:{incomes:[],expenses:[],banks:[],budgets:[],notes:''}
-  };
-  // Migrate old single-workspace data into Personal workspace (first load)
-  if(state.incomes && state.incomes.length > 0 && state.workspaceData.Personal.incomes.length === 0){
-    state.workspaceData.Personal.incomes = state.incomes;
-    state.workspaceData.Personal.expenses = state.expenses;
-    state.workspaceData.Personal.banks = state.banks;
-    state.workspaceData.Personal.budgets = state.budgets;
-    state.workspaceData.Personal.notes = state.notes || '';
+  if(s){ try{ const parsed = JSON.parse(s); state = {...state, ...parsed}; }catch(e){} }
+
+  // Ensure non-workspace global fields
+  if(!state.goldPortfolio)   state.goldPortfolio   = [];
+  if(!state.goldRefPrice)    state.goldRefPrice    = 1550000;
+  if(!state.achievements)    state.achievements    = {masterSaver:false,emergencyReady:false,budgetWarden:false,goldAccumulator:false};
+  if(!state.lastOpenDate)    state.lastOpenDate    = '';
+  if(!state.activeWorkspace) state.activeWorkspace = 'Personal';
+  if(!state.workspaces)      state.workspaces      = ['Personal'];
+  if(typeof state.privacyMode === 'undefined') state.privacyMode = false;
+
+  // Ensure workspaceData with all required per-workspace arrays (incl. targets & bills)
+  if(!state.workspaceData) state.workspaceData = {};
+  ['Personal','Bisnis','Keluarga'].forEach(ws => {
+    if(!state.workspaceData[ws]) state.workspaceData[ws] = {};
+    const d = state.workspaceData[ws];
+    if(!Array.isArray(d.incomes))  d.incomes  = [];
+    if(!Array.isArray(d.expenses)) d.expenses = [];
+    if(!Array.isArray(d.banks))    d.banks    = [];
+    if(!Array.isArray(d.budgets))  d.budgets  = [];
+    if(!d.notes)                   d.notes    = '';
+    if(!Array.isArray(d.targets))  d.targets  = [];
+    if(!Array.isArray(d.bills))    d.bills    = [];
+  });
+
+  // One-time migration: lift old root-level data into Personal workspace
+  const personal = state.workspaceData['Personal'];
+  if(Array.isArray(state.incomes) && state.incomes.length > 0 && personal.incomes.length === 0){
+    personal.incomes  = JSON.parse(JSON.stringify(state.incomes  || []));
+    personal.expenses = JSON.parse(JSON.stringify(state.expenses || []));
+    personal.banks    = JSON.parse(JSON.stringify(state.banks    || []));
+    personal.budgets  = JSON.parse(JSON.stringify(state.budgets  || []));
+    personal.notes    = state.notes || '';
+    personal.targets  = JSON.parse(JSON.stringify(state.targets  || []));
+    personal.bills    = JSON.parse(JSON.stringify(state.bills    || []));
   }
-  // Always use workspaceData as source of truth
+
+  // Activate workspace
   const ws = state.activeWorkspace;
-  if(!state.workspaceData[ws]) state.workspaceData[ws]={incomes:[],expenses:[],banks:[],budgets:[],notes:''};
-  state.incomes = state.workspaceData[ws].incomes;
-  state.expenses = state.workspaceData[ws].expenses;
-  state.banks = state.workspaceData[ws].banks;
-  state.budgets = state.workspaceData[ws].budgets || [];
-  state.notes = state.workspaceData[ws].notes || '';
+  if(!state.workspaceData[ws]) state.workspaceData[ws] = {incomes:[],expenses:[],banks:[],budgets:[],notes:'',targets:[],bills:[]};
+  _applyWorkspace(ws);
 }
 function saveState(){
-  // Sync active workspace arrays back to workspaceData before saving
   const ws = state.activeWorkspace || 'Personal';
-  if(!state.workspaceData) state.workspaceData={};
-  if(!state.workspaceData[ws]) state.workspaceData[ws]={incomes:[],expenses:[],banks:[],budgets:[],notes:''};
-  state.workspaceData[ws].incomes = state.incomes;
-  state.workspaceData[ws].expenses = state.expenses;
-  state.workspaceData[ws].banks = state.banks;
-  state.workspaceData[ws].budgets = state.budgets;
-  state.workspaceData[ws].notes = state.notes || '';
+  if(!state.workspaceData) state.workspaceData = {};
+  if(!state.workspaceData[ws]) state.workspaceData[ws] = {incomes:[],expenses:[],banks:[],budgets:[],notes:'',targets:[],bills:[]};
+  const d = state.workspaceData[ws];
+  d.incomes  = state.incomes;
+  d.expenses = state.expenses;
+  d.banks    = state.banks;
+  d.budgets  = state.budgets;
+  d.notes    = state.notes || '';
+  d.targets  = state.targets;
+  d.bills    = state.bills;
   localStorage.setItem('pimapika_state', JSON.stringify(state));
 }
 
@@ -2113,11 +2137,15 @@ function updateTabIndicator(activeBtn, skipAnim){
 }
 
 function addTabRipple(btn, e){
+  // Guard: skip ripple entirely if event is null/undefined (e.g. switchTabByName calls)
+  if (!btn) return;
   const ripple = document.createElement('span');
   ripple.className = 'tab-ripple';
   const rect = btn.getBoundingClientRect();
   const size = Math.max(rect.width, rect.height);
-  ripple.style.cssText = `width:${size}px;height:${size}px;left:${(e.clientX||rect.left+rect.width/2) - rect.left - size/2}px;top:${(e.clientY||rect.top+rect.height/2) - rect.top - size/2}px;`;
+  const clientX = (e && e.clientX != null) ? e.clientX : rect.left + rect.width / 2;
+  const clientY = (e && e.clientY != null) ? e.clientY : rect.top  + rect.height / 2;
+  ripple.style.cssText = `width:${size}px;height:${size}px;left:${clientX - rect.left - size/2}px;top:${clientY - rect.top - size/2}px;`;
   btn.appendChild(ripple);
   setTimeout(()=>ripple.remove(), 500);
 }
@@ -2174,7 +2202,8 @@ function initTabIndicator(){
 document.addEventListener('DOMContentLoaded', ()=>{
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function(e){
-      // indicator already handled by switchTab via onclick, just pass event for ripple
+      // Ripple is already triggered by switchTab via onclick attr; this is a safety duplicate-guard
+      // addTabRipple is safe to call here because e is always a real MouseEvent
       addTabRipple(this, e);
     });
   });
@@ -2881,11 +2910,26 @@ function renderTargets(){
     const pct=t.goal>0?Math.min(100,(t.saved||0)/t.goal*100):0;
     const done=pct>=100;
     const barColor=done?'#10b981':pct>60?'#0ea5e9':pct>30?'#f59e0b':'#ef4444';
-    let deadlineStr='';
-    if(t.deadline){
-      const dl=new Date(t.deadline); dl.setHours(0,0,0,0);
-      const diff=Math.ceil((dl-today)/(1000*60*60*24));
-      deadlineStr=diff<0?'⛔ Sudah lewat':diff===0?'⏰ Hari ini!':diff<=7?`⚠️ ${diff} hari lagi`:`📅 ${diff} hari lagi`;
+    let deadlineStr = '';
+    // Strict deadline validation — skip diff calc if deadline is empty, null, or produces NaN
+    if (t.deadline && typeof t.deadline === 'string' && t.deadline.trim() !== '') {
+      const dl = new Date(t.deadline);
+      if (!isNaN(dl.getTime())) {
+        dl.setHours(0, 0, 0, 0);
+        const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
+        if (isNaN(diff)) {
+          deadlineStr = '📅 Tanpa tenggat waktu';
+        } else {
+          deadlineStr = diff < 0 ? '⛔ Sudah lewat'
+            : diff === 0 ? '⏰ Hari ini!'
+            : diff <= 7  ? `⚠️ ${diff} hari lagi`
+            : `📅 ${diff} hari lagi`;
+        }
+      } else {
+        deadlineStr = '📅 Tanpa tenggat waktu';
+      }
+    } else {
+      deadlineStr = '📅 Tanpa tenggat waktu';
     }
     return `<div class="target-card">
       <div class="target-top">
@@ -3181,6 +3225,14 @@ function importJSON(input) {
       }
       // Merge fields
       state = { ...state, ...imported };
+      // Re-apply active workspace data to root state refs after import
+      const wsAfterImport = state.activeWorkspace || 'Personal';
+      if (state.workspaceData && state.workspaceData[wsAfterImport]) {
+        const d = state.workspaceData[wsAfterImport];
+        if (!Array.isArray(d.targets)) d.targets = [];
+        if (!Array.isArray(d.bills))   d.bills   = [];
+        _applyWorkspace(wsAfterImport);
+      }
       saveState();
       render();
       if (document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
@@ -3421,8 +3473,11 @@ function addGold() {
 
   if (!state.goldPortfolio) state.goldPortfolio = [];
 
-  const goldId = Date.now();
-  state.goldPortfolio.push({ id: goldId, name, weight, buyPrice, date });
+  // Use a stable string key so goldRef survives JSON export/import cycles
+  const goldId  = Date.now();
+  const goldKey = 'gold_' + goldId; // stable string reference key
+
+  state.goldPortfolio.push({ id: goldId, goldKey, name, weight, buyPrice, date });
 
   // Sinkronkan sebagai pengeluaran tabungan di periode aktif
   state.expenses.push({
@@ -3434,7 +3489,8 @@ function addGold() {
     note: `Investasi Emas ${weight}g @ Rp${Math.round(buyPrice/weight).toLocaleString('id-ID')}/g`,
     period: state.period,
     isRecurring: false,
-    goldRef: goldId // referensi ke gold portfolio
+    goldRef: goldId,   // numeric id (legacy compat)
+    goldKey            // string key (primary, survives JSON round-trip)
   });
 
   // Reset form
@@ -3452,9 +3508,20 @@ function addGold() {
  * Hapus aset emas dan pengeluaran terkait
  */
 function deleteGold(id) {
+  // Find the gold record first to get the stable goldKey
+  const goldRecord = state.goldPortfolio.find(g => g.id === id);
   state.goldPortfolio = state.goldPortfolio.filter(g => g.id !== id);
-  // Hapus expense yang terkait
-  state.expenses = state.expenses.filter(e => e.goldRef !== id);
+
+  // Remove linked expense — match by goldKey (stable string) OR goldRef (numeric, legacy)
+  state.expenses = state.expenses.filter(e => {
+    if (goldRecord && goldRecord.goldKey && e.goldKey) {
+      // Primary match: stable string key (survives JSON round-trips)
+      return e.goldKey !== goldRecord.goldKey;
+    }
+    // Fallback: numeric goldRef match (legacy & direct-session entries)
+    return e.goldRef !== id;
+  });
+
   saveState();
   render();
   renderGold();
@@ -3548,21 +3615,23 @@ function renderBarChart() {
   const el = document.getElementById('barChart12');
   if (!el) return;
 
+  // Destroy existing Chart.js instance before touching the canvas
+  if (barChartInstance) {
+    barChartInstance.destroy();
+    barChartInstance = null;
+  }
+
   // Kumpulkan data 12 bulan
   const incData = MONTHS.map(m => state.incomes.filter(i => i.period === m).reduce((s, i) => s + i.amt, 0));
   const expData = MONTHS.map(m => state.expenses.filter(e => e.period === m).reduce((s, e) => s + e.amt, 0));
   const labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-  // Ganti static HTML dengan canvas jika belum ada
-  if (!el.querySelector('canvas')) {
-    el.innerHTML = '<canvas id="barChartCanvas" style="width:100%;height:130px;"></canvas>';
-    el.style.height = '130px';
-  }
+  // Always rebuild canvas element to clear any Chart.js residual tracking
+  el.innerHTML = '<canvas id="barChartCanvas" style="width:100%;height:130px;"></canvas>';
+  el.style.height = '130px';
+
   const canvas = document.getElementById('barChartCanvas');
   if (!canvas) return;
-
-  // Destroy existing instance
-  if (barChartInstance) { barChartInstance.destroy(); barChartInstance = null; }
 
   const isDark = state.darkMode !== false;
   const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
@@ -3699,7 +3768,13 @@ function renderDonutChart() {
   const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
   const total = entries.reduce((s, [, v]) => s + v, 0);
 
-  // Setup container
+  // Destroy existing donut instance before rebuilding the canvas
+  if (donutChartInstance) {
+    donutChartInstance.destroy();
+    donutChartInstance = null;
+  }
+
+  // Setup container — always rebuild to avoid Chart.js residual tracking
   wrap.innerHTML = `
     <div style="position:relative;flex-shrink:0;width:160px;height:160px;">
       <canvas id="donutCanvas" width="160" height="160"></canvas>
@@ -3721,8 +3796,6 @@ function renderDonutChart() {
 
   const canvas = document.getElementById('donutCanvas');
   if (!canvas) return;
-
-  if (donutChartInstance) { donutChartInstance.destroy(); donutChartInstance = null; }
 
   donutChartInstance = new Chart(canvas, {
     type: 'doughnut',
@@ -3850,46 +3923,58 @@ function togglePrivacy() {
  * Mendeteksi ekspresi matematika pada input jumlah nominal.
  * Mendukung +, -, *, / dengan auto-evaluasi.
  */
+/**
+ * Inline Math Evaluator — v2.7.0 fix:
+ * Ekspresi HANYA dievaluasi saat karakter '=' diketik di akhir input.
+ * Sebelum '=' diketik, field berperilaku normal (format angka biasa).
+ */
 function handleMathInput(el, hintId) {
   const raw = el.value;
   const hintEl = document.getElementById(hintId);
 
-  // Cek apakah ada operator matematika
-  const mathPattern = /[\+\-\*\/]/;
-  const stripped = raw.replace(/\./g, ''); // hapus separator ribuan
-
-  if (mathPattern.test(stripped) && stripped.trim()) {
-    try {
-      // Evaluasi ekspresi — hanya boleh angka dan operator
-      const safe = stripped.replace(/[^0-9\+\-\*\/\(\)\.\s]/g, '');
-      if (!safe) { formatCurrencyInput(el); return; }
-      // eslint-disable-next-line no-new-func
-      const result = new Function('return (' + safe + ')')();
-      if (typeof result === 'number' && isFinite(result) && result > 0) {
-        const rounded = Math.round(result);
-        if (hintEl) {
-          hintEl.textContent = '= Rp ' + rounded.toLocaleString('id-ID') + ' · Enter untuk terapkan';
-          hintEl.classList.add('has-result');
-          hintEl.dataset.result = rounded;
-        }
-        // Terapkan otomatis saat user berhenti mengetik (debounce)
-        clearTimeout(el._mathTimer);
-        el._mathTimer = setTimeout(() => {
-          el.value = rounded.toLocaleString('id-ID');
-          if (hintEl) {
-            hintEl.textContent = '✅ Hasil rumus diterapkan: Rp ' + rounded.toLocaleString('id-ID');
-            setTimeout(() => { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }, 2500);
-          }
-        }, 900);
-        return;
-      }
-    } catch(e) {
-      if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
-    }
-  } else {
+  // Trigger evaluasi HANYA jika karakter terakhir adalah '='
+  if (!raw.endsWith('=')) {
     if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
+    // Jika tidak ada '=', biarkan sebagai input angka biasa (bukan format dulu — bisa mengandung operator)
+    // Hanya format jika tidak ada operator
+    const mathPattern = /[+\-*\/]/;
+    if (!mathPattern.test(raw.replace(/\./g, ''))) {
+      formatCurrencyInput(el);
+    }
+    return;
   }
-  formatCurrencyInput(el);
+
+  // Strip the trailing '=' then evaluate
+  const expr = raw.slice(0, -1).replace(/\./g, ''); // hapus '=' dan separator ribuan
+  const stripped = expr.trim();
+
+  if (!stripped) {
+    if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
+    el.value = '';
+    return;
+  }
+
+  try {
+    // Sanitize — hanya izinkan angka, operator, dan tanda kurung
+    const safe = stripped.replace(/[^0-9+\-*\/().\s]/g, '');
+    if (!safe) { el.value = ''; return; }
+    // eslint-disable-next-line no-new-func
+    const result = new Function('return (' + safe + ')')();
+    if (typeof result === 'number' && isFinite(result) && result > 0) {
+      const rounded = Math.round(result);
+      // Terapkan hasil langsung ke field
+      el.value = rounded.toLocaleString('id-ID');
+      if (hintEl) {
+        hintEl.textContent = '✅ Hasil: Rp ' + rounded.toLocaleString('id-ID');
+        hintEl.classList.add('has-result');
+        setTimeout(() => { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }, 2500);
+      }
+    } else {
+      if (hintEl) { hintEl.textContent = '⚠️ Hasil tidak valid'; hintEl.classList.remove('has-result'); }
+    }
+  } catch(e) {
+    if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
+  }
 }
 
 // ─── FITUR 8: MULTI-WORKSPACE ────────────────────────────
@@ -3980,25 +4065,25 @@ function renderWorkspaceBar() {
 function switchWorkspace(ws, btn, e) {
   if (state.activeWorkspace === ws) return;
 
-  // Ripple
+  // Ripple effect
   if (btn && e) addWsRipple(btn, e);
 
-  // Save current data before switching
+  // Flush current workspace data before switching
   saveState();
 
   state.activeWorkspace = ws;
 
-  // Load workspace data
+  // Ensure target workspace structure exists (with targets & bills)
   if (!state.workspaceData) state.workspaceData = {};
   if (!state.workspaceData[ws]) {
-    state.workspaceData[ws] = { incomes:[], expenses:[], banks:[], budgets:[], notes:'' };
+    state.workspaceData[ws] = { incomes:[], expenses:[], banks:[], budgets:[], notes:'', targets:[], bills:[] };
   }
+  const d = state.workspaceData[ws];
+  if (!Array.isArray(d.targets)) d.targets = [];
+  if (!Array.isArray(d.bills))   d.bills   = [];
 
-  state.incomes  = state.workspaceData[ws].incomes;
-  state.expenses = state.workspaceData[ws].expenses;
-  state.banks    = state.workspaceData[ws].banks;
-  state.budgets  = state.workspaceData[ws].budgets || [];
-  state.notes    = state.workspaceData[ws].notes || '';
+  // Point root state references to new workspace
+  _applyWorkspace(ws);
 
   // Update button states & slide indicator
   document.querySelectorAll('.workspace-btn').forEach(b => b.classList.remove('active'));
@@ -4028,7 +4113,7 @@ function addWorkspace() {
   state.workspaces.push(next);
   if (!state.workspaceData) state.workspaceData = {};
   if (!state.workspaceData[next]) {
-    state.workspaceData[next] = { incomes:[], expenses:[], banks:[], budgets:[], notes:'' };
+    state.workspaceData[next] = { incomes:[], expenses:[], banks:[], budgets:[], notes:'', targets:[], bills:[] };
   }
   saveState();
   renderWorkspaceBar();
