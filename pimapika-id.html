@@ -87,45 +87,124 @@
   .btn-setting:hover{background:var(--input-bg);transform:rotate(45deg);}
 
   /* ── PERIOD BAR ── */
-  .period-bar{display:flex;gap:8px;margin-bottom:28px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
+  .period-bar{
+    position:relative;
+    display:flex;
+    gap:0;
+    margin-bottom:28px;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+    background:rgba(255,255,255,0.07);
+    border-radius:50px;
+    padding:4px;
+    border:1px solid rgba(255,255,255,0.12);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 24px rgba(0,0,0,0.12);
+    align-items:center;
+  }
+  body.light-mode .period-bar{
+    background:rgba(0,0,0,0.05);
+    border-color:rgba(0,0,0,0.08);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 24px rgba(0,0,0,0.06);
+  }
   .period-bar::-webkit-scrollbar{display:none;}
+
+  /* Liquid glass sliding capsule indicator for period bar */
+  .period-indicator{
+    position:absolute;
+    top:4px;
+    left:4px;
+    height:calc(100% - 8px);
+    border-radius:50px;
+    background:linear-gradient(
+      145deg,
+      rgba(255,255,255,0.38) 0%,
+      rgba(255,255,255,0.18) 40%,
+      rgba(255,255,255,0.10) 60%,
+      rgba(255,255,255,0.22) 100%
+    );
+    backdrop-filter:blur(28px) saturate(200%);
+    -webkit-backdrop-filter:blur(28px) saturate(200%);
+    border:1px solid rgba(255,255,255,0.45);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.18),
+      0 0 0 0.5px rgba(255,255,255,0.2) inset,
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 -1px 0 rgba(255,255,255,0.08) inset;
+    transition:
+      left 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      width 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      opacity 0.2s ease;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+  body.light-mode .period-indicator{
+    background:linear-gradient(
+      145deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(255,255,255,0.75) 40%,
+      rgba(255,255,255,0.60) 60%,
+      rgba(255,255,255,0.85) 100%
+    );
+    border-color:rgba(255,255,255,0.9);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.10),
+      0 0 0 0.5px rgba(255,255,255,0.5) inset,
+      0 1px 0 rgba(255,255,255,1) inset;
+  }
+  .period-indicator::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background:linear-gradient(
+      105deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.35) 45%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.35) 55%,
+      rgba(255,255,255,0) 100%
+    );
+    opacity:0;
+    transition:opacity 0.6s ease;
+    pointer-events:none;
+  }
+  .period-indicator.shimmer::after{
+    animation:liquidShimmer 0.55s ease forwards;
+  }
+  .period-indicator.squish{
+    animation:capsuleSquishRight 0.48s cubic-bezier(0.34,1.56,0.64,1);
+    transform-origin:center center;
+  }
+
   .period-btn{
-    padding:10px 20px;border-radius:50px;
-    border:1px solid var(--glass-border);
-    background:rgba(255,255,255,.07);
+    position:relative;
+    z-index:1;
+    padding:10px 20px;
+    border-radius:50px;
+    border:none;
+    background:none;
     color:var(--text-secondary);
     font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
     cursor:pointer;
-    transition:
-      background 0.3s cubic-bezier(0.34,1.56,0.64,1),
-      color 0.25s ease,
-      border-color 0.25s ease,
-      transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
-      box-shadow 0.3s ease;
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
+    transition:color 0.3s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
     flex-shrink:0;
     -webkit-tap-highlight-color:transparent;
     user-select:none;
+    white-space:nowrap;
   }
-  body.light-mode .period-btn{background:rgba(0,0,0,.05);}
-  .period-btn:hover{background:var(--card-hover-bg);color:var(--text-primary);transform:translateY(-1px);}
   .period-btn:active{transform:scale(0.93)!important;}
+  .period-btn:hover{color:var(--text-primary);}
   .period-btn.active{
-    background:linear-gradient(
-      145deg,
-      rgba(37,99,235,0.9),
-      rgba(14,165,233,0.8)
-    );
-    border-color:rgba(37,99,235,.5);
-    color:#fff;
-    box-shadow:
-      0 4px 20px rgba(37,99,235,.4),
-      0 1px 0 rgba(255,255,255,0.3) inset;
-    transform:scale(1.06) translateY(-1px);
-    backdrop-filter:blur(20px) saturate(180%);
-    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    color:var(--text-primary);
+    font-weight:700;
+    text-shadow:0 0 20px rgba(255,255,255,0.4);
   }
+  body.light-mode .period-btn.active{text-shadow:none;}
 
   /* ── SUMMARY GRID ── */
   .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
@@ -1054,19 +1133,20 @@
   </div>
 
   <!-- ── PERIOD BAR ── -->
-  <div class="period-bar">
-    <button class="period-btn" onclick="setPeriod('Januari')">Jan</button>
-    <button class="period-btn" onclick="setPeriod('Februari')">Feb</button>
-    <button class="period-btn" onclick="setPeriod('Maret')">Mar</button>
-    <button class="period-btn" onclick="setPeriod('April')">Apr</button>
-    <button class="period-btn" onclick="setPeriod('Mei')">Mei</button>
-    <button class="period-btn" onclick="setPeriod('Juni')">Jun</button>
-    <button class="period-btn" onclick="setPeriod('Juli')">Jul</button>
-    <button class="period-btn" onclick="setPeriod('Agustus')">Agu</button>
-    <button class="period-btn" onclick="setPeriod('September')">Sep</button>
-    <button class="period-btn" onclick="setPeriod('Oktober')">Okt</button>
-    <button class="period-btn" onclick="setPeriod('November')">Nov</button>
-    <button class="period-btn" onclick="setPeriod('Desember')">Des</button>
+  <div class="period-bar" id="periodBar">
+    <div class="period-indicator" id="periodIndicator"></div>
+    <button class="period-btn" onclick="setPeriod('Januari',this,event)">Jan</button>
+    <button class="period-btn" onclick="setPeriod('Februari',this,event)">Feb</button>
+    <button class="period-btn" onclick="setPeriod('Maret',this,event)">Mar</button>
+    <button class="period-btn" onclick="setPeriod('April',this,event)">Apr</button>
+    <button class="period-btn" onclick="setPeriod('Mei',this,event)">Mei</button>
+    <button class="period-btn" onclick="setPeriod('Juni',this,event)">Jun</button>
+    <button class="period-btn" onclick="setPeriod('Juli',this,event)">Jul</button>
+    <button class="period-btn" onclick="setPeriod('Agustus',this,event)">Agu</button>
+    <button class="period-btn" onclick="setPeriod('September',this,event)">Sep</button>
+    <button class="period-btn" onclick="setPeriod('Oktober',this,event)">Okt</button>
+    <button class="period-btn" onclick="setPeriod('November',this,event)">Nov</button>
+    <button class="period-btn" onclick="setPeriod('Desember',this,event)">Des</button>
   </div>
 
   <!-- ── WORKSPACE BAR (FITUR 8) ── -->
@@ -1921,10 +2001,15 @@ renderWorkspaceBar();
 (function(){
   const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   if(!state.period) state.period=months[new Date().getMonth()];
+  let activeBtn = null;
   document.querySelectorAll('.period-btn').forEach(b=>{
     const m=b.getAttribute('onclick').match(/'([^']+)'/);
-    if(m&&m[1]===state.period) b.classList.add('active');
+    if(m&&m[1]===state.period){ b.classList.add('active'); activeBtn=b; }
   });
+  // Init period indicator after layout
+  if(activeBtn){
+    requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ updatePeriodIndicator(activeBtn, true); }); });
+  }
 })();
 
 render();
@@ -1933,12 +2018,14 @@ render();
 requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ initTabIndicator(); }); });
 
 // ─── PERIOD ───
-function setPeriod(p){
+function setPeriod(p, btn, e){
   state.period=p;
   document.querySelectorAll('.period-btn').forEach(b=>{
     const m=b.getAttribute('onclick').match(/'([^']+)'/);
     b.classList.toggle('active',m&&m[1]===p);
   });
+  // Update liquid glass indicator
+  if(btn) updatePeriodIndicator(btn, false);
   saveState(); render();
   toast(`Periode: ${p}`,'info');
   // refresh active tabs
@@ -1946,6 +2033,42 @@ function setPeriod(p){
   if(document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
   if(document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
   if(document.getElementById('tab-emas').classList.contains('active')) renderGold();
+}
+
+function updatePeriodIndicator(activeBtn, skipAnim){
+  const bar = document.getElementById('periodBar');
+  const ind = document.getElementById('periodIndicator');
+  if(!bar || !ind || !activeBtn) return;
+
+  const barRect = bar.getBoundingClientRect();
+  const btnRect = activeBtn.getBoundingClientRect();
+  const scrollLeft = bar.scrollLeft;
+
+  const left = btnRect.left - barRect.left + scrollLeft;
+  const width = btnRect.width;
+
+  if(skipAnim){
+    ind.style.transition = 'none';
+    ind.style.left = left + 'px';
+    ind.style.width = width + 'px';
+    ind.offsetHeight; // force reflow
+    ind.style.transition = '';
+  } else {
+    ind.style.left = left + 'px';
+    ind.style.width = width + 'px';
+    // Squish + shimmer = liquid feel
+    ind.classList.remove('squish','shimmer');
+    void ind.offsetWidth;
+    ind.classList.add('squish');
+    setTimeout(()=>{
+      ind.classList.add('shimmer');
+      setTimeout(()=>ind.classList.remove('shimmer','squish'), 600);
+    }, 80);
+  }
+
+  // Auto-scroll active month into view
+  const scrollTarget = left - (bar.clientWidth / 2 - width / 2);
+  bar.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
 }
 
 // ─── TABS — Liquid Glass Sliding Capsule ───
@@ -2060,6 +2183,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
 window.addEventListener('resize', ()=>{
   const activeBtn = document.querySelector('.tab-btn.active');
   if(activeBtn) updateTabIndicator(activeBtn, true);
+  const activePeriodBtn = document.querySelector('.period-btn.active');
+  if(activePeriodBtn) updatePeriodIndicator(activePeriodBtn, true);
 });
 
 // ─── FORMAT ───
