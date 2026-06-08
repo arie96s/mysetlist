@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PIMAPIKA.ID v2.7.0 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v2.7.1 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -264,11 +264,11 @@
   .btn-amber:hover{transform:scale(1.04);}
 
   /* ── TX LIST ── */
-  .tx-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding-right:4px;}
+  .tx-list{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;overflow-x:visible;padding-right:4px;}
   .tx-list::-webkit-scrollbar{width:4px;}
   .tx-list::-webkit-scrollbar-track{background:transparent;}
   .tx-list::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:10px;}
-  .tx-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);transition:all .2s var(--spring);animation:slideIn .3s var(--spring);gap:10px;min-width:0;overflow:hidden;}
+  .tx-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);transition:all .2s var(--spring);animation:slideIn .3s var(--spring);gap:10px;min-width:0;position:relative;}
   .tx-item:hover{background:var(--card-hover-bg);transform:translateX(3px);}
   .tx-info{flex:1;min-width:0;overflow:hidden;}
   .tx-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -701,6 +701,68 @@
   .donut-center-animated{transition:all .3s ease;}
   @keyframes counterFlash{0%{transform:scale(1.3);opacity:.7;}100%{transform:scale(1);opacity:1;}}
   .counter-flash{animation:counterFlash .35s var(--spring);}
+
+  /* v2.7.1 NEW STYLES */
+
+  /* 3-DOT MENU */
+  .tx-menu-wrap { position: relative; flex-shrink: 0; }
+  .tx-menu-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; padding: 4px 6px; border-radius: 8px; transition: all .2s; line-height: 1; letter-spacing: 1px; }
+  .tx-menu-btn:hover { background: var(--input-bg); color: var(--text-primary); }
+  .tx-dropdown { position: fixed; background: rgba(15,23,42,0.97); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); min-width: 148px; z-index: 9999; overflow: hidden; animation: dropIn .18s var(--spring); }
+  body.light-mode .tx-dropdown { background: rgba(255,255,255,0.97); border-color: rgba(0,0,0,0.12); }
+  @keyframes dropIn { from{opacity:0;transform:scale(.88) translateY(-8px);} to{opacity:1;transform:scale(1) translateY(0);} }
+  .tx-dropdown-item { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 13px; color: var(--text-primary); cursor: pointer; transition: background .15s; font-family: 'Outfit', sans-serif; border: none; background: none; width: 100%; text-align: left; }
+  .tx-dropdown-item:hover { background: var(--input-bg); }
+  .tx-dropdown-item.danger { color: #f87171; }
+  .tx-dropdown-item.danger:hover { background: rgba(239,68,68,.12); }
+
+  /* EDIT MODAL */
+  .edit-modal-overlay { position: fixed; inset: 0; z-index: 9200; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+  .edit-modal-overlay.open { display: flex; animation: fadeIn .2s ease; }
+  .edit-modal-box { width: min(480px, 95vw); border-radius: 28px; padding: 28px; background: rgba(15,23,42,.95); border: 1px solid rgba(255,255,255,.18); box-shadow: 0 24px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); animation: popIn .35s var(--spring); max-height: 90vh; overflow-y: auto; }
+  body.light-mode .edit-modal-box { background: rgba(255,255,255,.97); border-color: rgba(0,0,0,.1); }
+  .edit-modal-title { font-size: 17px; font-weight: 800; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+  /* WORKSPACE CLOSE X BUTTON */
+  .ws-close-btn { display: none; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: rgba(239,68,68,.25); border: none; color: #f87171; font-size: 9px; cursor: pointer; margin-left: 4px; transition: all .2s; flex-shrink: 0; line-height: 1; padding: 0; vertical-align: middle; }
+  .workspace-btn:hover .ws-close-btn { display: inline-flex; }
+  .ws-close-btn:hover { background: rgba(239,68,68,.6) !important; color: #fff !important; transform: scale(1.15); }
+  .workspace-btn-add.ws-add-hidden { display: none !important; }
+
+  /* INPUT ELASTIC EXPAND ON FOCUS */
+  .input-group { position: relative; z-index: 1; }
+  .input-group:focus-within { z-index: 20; }
+  .glass-input:focus { background: var(--glass-white) !important; border-color: rgba(37,99,235,.7) !important; box-shadow: 0 0 0 3px rgba(37,99,235,.2) !important; transform: scale(1.025) !important; position: relative; z-index: 10; }
+  .two-col > div { overflow: visible !important; }
+  .glass-card { overflow: visible !important; }
+
+  /* PIN LOCK SCREEN */
+  .pin-lock-overlay { position: fixed; inset: 0; z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-grad1); }
+  .pin-lock-overlay.active { display: flex; }
+  .pin-lock-box { width: min(360px, 92vw); padding: 40px 32px; border-radius: 32px; background: var(--glass-white); border: 1px solid var(--glass-border); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: 0 24px 80px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.25); text-align: center; animation: popIn .5s var(--spring); }
+  .pin-lock-logo { font-size: 48px; margin-bottom: 12px; }
+  .pin-lock-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .pin-lock-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+  .pin-dots { display: flex; gap: 14px; justify-content: center; margin-bottom: 28px; }
+  .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); background: transparent; transition: all .25s var(--spring); }
+  .pin-dot.filled { background: #2563eb; border-color: #2563eb; box-shadow: 0 0 12px rgba(37,99,235,.6); transform: scale(1.15); }
+  .pin-dot.error { background: #ef4444; border-color: #ef4444; animation: pinShake .4s ease; }
+  @keyframes pinShake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 260px; margin: 0 auto; }
+  .pin-key { aspect-ratio: 1; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: var(--text-primary); font-size: 20px; font-weight: 700; cursor: pointer; transition: all .18s var(--spring); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+  .pin-key:hover { background: rgba(255,255,255,.18); transform: scale(1.08); }
+  .pin-key:active { transform: scale(.92); }
+  .pin-key.del { font-size: 18px; background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.3); color: #f87171; }
+  .pin-key.del:hover { background: rgba(239,68,68,.25); }
+  .pin-lock-err { font-size: 12px; color: #f87171; min-height: 18px; margin-top: 12px; font-weight: 600; }
+  .pin-lock-forgot { font-size: 11px; color: var(--text-muted); margin-top: 16px; cursor: pointer; text-decoration: underline; }
+  .pin-lock-forgot:hover { color: var(--text-secondary); }
+  .pin-setting-section { margin-top: 4px; padding: 16px; border-radius: 14px; background: var(--input-bg); border: 1px solid var(--input-border); }
+  .pin-setting-label { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .pin-setting-desc { font-size: 11px; color: var(--text-secondary); margin-bottom: 12px; }
+  .pin-status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; margin-bottom: 10px; }
+  .pin-status-badge.on { background: rgba(16,185,129,.2); color: #34d399; border: 1px solid rgba(16,185,129,.3); }
+  .pin-status-badge.off { background: rgba(255,255,255,.08); color: var(--text-muted); border: 1px solid rgba(255,255,255,.1); }
 
   /* ══════════ v2.7.0 NEW STYLES ══════════ */
 
@@ -1153,9 +1215,9 @@
   <div class="workspace-bar" id="workspaceBar">
     <div class="ws-indicator" id="wsIndicator"></div>
     <button class="workspace-btn active" id="ws-Personal" onclick="switchWorkspace('Personal', this, event)">👤 Personal</button>
-    <button class="workspace-btn" id="ws-Bisnis" onclick="switchWorkspace('Bisnis', this, event)" style="display:none;">💼 Bisnis</button>
-    <button class="workspace-btn" id="ws-Keluarga" onclick="switchWorkspace('Keluarga', this, event)" style="display:none;">👨‍👩‍👧 Keluarga</button>
-    <button class="workspace-btn-add" onclick="addWorkspace()" title="Tambah workspace baru">＋</button>
+    <button class="workspace-btn" id="ws-Bisnis" onclick="switchWorkspace('Bisnis', this, event)" style="display:none;">💼 Bisnis<span class="ws-close-btn" onclick="removeWorkspace('Bisnis', event)" title="Tutup workspace">✕</span></button>
+    <button class="workspace-btn" id="ws-Keluarga" onclick="switchWorkspace('Keluarga', this, event)" style="display:none;">👨‍👩‍👧 Keluarga<span class="ws-close-btn" onclick="removeWorkspace('Keluarga', event)" title="Tutup workspace">✕</span></button>
+    <button class="workspace-btn-add" id="wsAddBtn" onclick="addWorkspace()" title="Tambah workspace baru">＋</button>
   </div>
 
   <!-- ── SUMMARY GRID ── -->
@@ -1231,7 +1293,7 @@
             <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 1500000+250000=</span></label>
             <div class="currency-wrapper">
               <span class="currency-prefix">Rp</span>
-              <input class="glass-input" id="incAmt" placeholder="0" type="text" inputmode="numeric" oninput="handleMathInput(this,'incMathHint')">
+              <input class="glass-input" id="incAmt" placeholder="0" type="text" oninput="handleMathInput(this,'incMathHint')">
             </div>
             <div class="math-hint" id="incMathHint"></div>
           </div>
@@ -1303,7 +1365,7 @@
             <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 20000+15000=</span></label>
             <div class="currency-wrapper">
               <span class="currency-prefix">Rp</span>
-              <input class="glass-input" id="expAmt" placeholder="0" type="text" inputmode="numeric" oninput="handleMathInput(this,'expMathHint')">
+              <input class="glass-input" id="expAmt" placeholder="0" type="text" oninput="handleMathInput(this,'expMathHint')">
             </div>
             <div class="math-hint" id="expMathHint"></div>
           </div>
@@ -1793,14 +1855,28 @@
         <span>ℹ️ Tentang Aplikasi</span><span>▼</span>
       </div>
       <div class="collapse-body" id="aboutCollapse">
-        <p><b>Nama Aplikasi:</b> PIMAPIKA.ID v2.7.0</p>
+        <p><b>Nama Aplikasi:</b> PIMAPIKA.ID v2.7.1</p>
         <p><b>Filosofi:</b> <em>Pitih Masuak Pitih Kalua</em></p>
         <p><b>Developer:</b> @arie96s</p>
-        <p><b>Fitur v2.7.0:</b> Privacy Shadow, Inline Math Evaluator, Multi-Workspace, Pemindai Struk Smart (Mock OCR)</p>
+        <p><b>Fitur v2.7.1:</b> Edit Riwayat (3-dot menu), Close Tab Workspace, Input Elastic Expand, PIN Lock App</p>
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="closeSettingModal()" style="width:100%">Selesai</button>
+    <!-- PIN Setting -->
+    <div class="setting-row" style="margin-bottom:0;">
+      <div class="setting-info">
+        <div class="title">🔐 Kunci PIN</div>
+        <div class="desc">Lindungi data dengan PIN 4 digit saat buka app</div>
+      </div>
+    </div>
+    <div class="pin-setting-section" id="pinSettingSection">
+      <div class="pin-status-badge off" id="pinStatusBadge">🔓 PIN Tidak Aktif</div>
+      <div id="pinSettingBtns">
+        <button class="btn btn-primary" onclick="openPinSetup('create')" style="width:100%;margin-bottom:8px;">🔐 Buat PIN</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="closeSettingModal()" style="width:100%;margin-top:16px;">Selesai</button>
   </div>
 </div>
 
@@ -1890,6 +1966,33 @@ function loadState(){
   if(!state.activeWorkspace) state.activeWorkspace = 'Personal';
   if(!state.workspaces)      state.workspaces      = ['Personal'];
   if(typeof state.privacyMode === 'undefined') state.privacyMode = false;
+
+  // BUG FIX 5: Validate goldPortfolio integrity — ensure every gold entry has a stable goldKey string.
+  // This preserves the delete-link between goldPortfolio entries and their matching expenses
+  // across export/import JSON cycles (where numeric object references reset but string keys survive).
+  if (Array.isArray(state.goldPortfolio)) {
+    state.goldPortfolio.forEach(g => {
+      // If goldKey is missing (e.g. old backup), reconstruct it from the numeric id
+      if (!g.goldKey) {
+        g.goldKey = 'gold_' + g.id;
+      }
+    });
+  }
+  // Similarly ensure linked expenses have goldKey set (back-fill from goldRef for old backups)
+  const allExpensesArrays = [];
+  if (Array.isArray(state.expenses)) allExpensesArrays.push(state.expenses);
+  if (state.workspaceData) {
+    Object.values(state.workspaceData).forEach(wd => {
+      if (Array.isArray(wd.expenses)) allExpensesArrays.push(wd.expenses);
+    });
+  }
+  allExpensesArrays.forEach(expArr => {
+    expArr.forEach(e => {
+      if (e.goldRef && !e.goldKey) {
+        e.goldKey = 'gold_' + e.goldRef;
+      }
+    });
+  });
 
   // Ensure workspaceData with all required per-workspace arrays (incl. targets & bills)
   if(!state.workspaceData) state.workspaceData = {};
@@ -2667,8 +2770,13 @@ function openSettingModal(){
     document.getElementById('settingModal').classList.add('open');
 }
 function closeSettingModal(){ document.getElementById('settingModal').classList.remove('open'); }
-document.getElementById('resetModal').addEventListener('click',function(e){ if(e.target===this) closeResetModal(); });
-document.getElementById('settingModal').addEventListener('click',function(e){ if(e.target===this) closeSettingModal(); });
+// Safe null-checked event listeners for modals
+(function(){
+  var _rm = document.getElementById('resetModal');
+  if(_rm) _rm.addEventListener('click',function(e){ if(e.target===this) closeResetModal(); });
+  var _sm = document.getElementById('settingModal');
+  if(_sm) _sm.addEventListener('click',function(e){ if(e.target===this) closeSettingModal(); });
+})();
 
 // ─── DARK MODE ───
 function toggleDarkMode(){
@@ -2831,13 +2939,15 @@ function renderIncome(){
   if(!incList) return;
   incList.innerHTML=filtered.length
     ? filtered.slice().reverse().map(i=>`
-      <div class="tx-item">
+      <div class="tx-item" id="txinc-${i.id}">
         <div class="tx-info">
           <div class="tx-name">${i.name}${i.isRecurring?'<span class="recurring-icon">🔁 '+i.frequency+'</span>':''}</div>
           <div class="tx-meta">${getCatLabel(i.cat)} · ${formatDate(i.date)}${i.note?' · <em>'+i.note+'</em>':''}</div>
         </div>
         <div class="tx-amount inc">${fmt(i.amt)}</div>
-        <button class="tx-del" onclick="deleteIncome(${i.id})">✕</button>
+        <div class="tx-menu-wrap">
+          <button class="tx-menu-btn" onclick="toggleTxMenuFixed(this,'inc',${i.id},event)" title="Opsi">⋮</button>
+        </div>
       </div>`).join('')
     : (q?'<div class="empty-state"><div class="empty-icon">🔍</div>Tidak ditemukan</div>':'<div class="empty-state"><div class="empty-icon">📭</div>Belum ada pemasukan</div>');
 }
@@ -2849,13 +2959,15 @@ function renderExpense(){
   if(!expList) return;
   expList.innerHTML=filtered.length
     ? filtered.slice().reverse().map(i=>`
-      <div class="tx-item">
+      <div class="tx-item" id="txexp-${i.id}">
         <div class="tx-info">
           <div class="tx-name">${i.name}${i.isRecurring?'<span class="recurring-icon">🔁 '+i.frequency+'</span>':''}</div>
           <div class="tx-meta">${getCatLabel(i.cat)} · ${formatDate(i.date)}${i.note?' · <em>'+i.note+'</em>':''}</div>
         </div>
         <div class="tx-amount exp">-${fmt(i.amt)}</div>
-        <button class="tx-del" onclick="deleteExpense(${i.id})">✕</button>
+        <div class="tx-menu-wrap">
+          <button class="tx-menu-btn" onclick="toggleTxMenuFixed(this,'exp',${i.id},event)" title="Opsi">⋮</button>
+        </div>
       </div>`).join('')
     : (q?'<div class="empty-state"><div class="empty-icon">🔍</div>Tidak ditemukan</div>':'<div class="empty-state"><div class="empty-icon">📭</div>Belum ada pengeluaran</div>');
 }
@@ -3615,22 +3727,26 @@ function renderBarChart() {
   const el = document.getElementById('barChart12');
   if (!el) return;
 
-  // Destroy existing Chart.js instance before touching the canvas
+  // BUG FIX 2: Destroy existing Chart.js instance AND clear innerHTML completely
+  // to remove residual canvas tracking before creating a fresh canvas element
   if (barChartInstance) {
     barChartInstance.destroy();
     barChartInstance = null;
   }
+  // Wipe wrapper innerHTML first, then create a brand-new canvas via createElement
+  // This prevents "Canvas is already in use by chart with ID '0'" errors
+  el.innerHTML = '';
+  el.style.height = '130px';
+  const canvas = document.createElement('canvas');
+  canvas.id = 'barChartCanvas';
+  canvas.style.cssText = 'width:100%;height:130px;';
+  el.appendChild(canvas);
 
   // Kumpulkan data 12 bulan
   const incData = MONTHS.map(m => state.incomes.filter(i => i.period === m).reduce((s, i) => s + i.amt, 0));
   const expData = MONTHS.map(m => state.expenses.filter(e => e.period === m).reduce((s, e) => s + e.amt, 0));
   const labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-  // Always rebuild canvas element to clear any Chart.js residual tracking
-  el.innerHTML = '<canvas id="barChartCanvas" style="width:100%;height:130px;"></canvas>';
-  el.style.height = '130px';
-
-  const canvas = document.getElementById('barChartCanvas');
   if (!canvas) return;
 
   const isDark = state.darkMode !== false;
@@ -3768,7 +3884,8 @@ function renderDonutChart() {
   const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
   const total = entries.reduce((s, [, v]) => s + v, 0);
 
-  // Destroy existing donut instance before rebuilding the canvas
+  // BUG FIX 2: Destroy existing donut instance then fully clear innerHTML
+  // and rebuild canvas via createElement to eliminate residual Chart.js tracking
   if (donutChartInstance) {
     donutChartInstance.destroy();
     donutChartInstance = null;
@@ -3777,7 +3894,7 @@ function renderDonutChart() {
   // Setup container — always rebuild to avoid Chart.js residual tracking
   wrap.innerHTML = `
     <div style="position:relative;flex-shrink:0;width:160px;height:160px;">
-      <canvas id="donutCanvas" width="160" height="160"></canvas>
+      <div id="donutCanvasWrap" style="width:160px;height:160px;"></div>
       <div id="donutCenter" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
         <div style="font-size:10px;color:var(--text-muted);letter-spacing:.5px;">Total</div>
         <div id="donutCenterVal" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--text-primary);">${fmtShort(total)}</div>
@@ -3794,8 +3911,13 @@ function renderDonutChart() {
         </div>`).join('')}
     </div>`;
 
-  const canvas = document.getElementById('donutCanvas');
-  if (!canvas) return;
+  // Create canvas via createElement to avoid Chart.js "already in use" error
+  const canvasWrap = document.getElementById('donutCanvasWrap');
+  const canvas = document.createElement('canvas');
+  canvas.id = 'donutCanvas';
+  canvas.width = 160;
+  canvas.height = 160;
+  canvasWrap.appendChild(canvas);
 
   donutChartInstance = new Chart(canvas, {
     type: 'doughnut',
@@ -3881,15 +4003,24 @@ function highlightDonutSlice(index, amount, catLabel) {
     });
     donutChartInstance.update('none');
 
-    // Reset after 2.5s
+    // BUG FIX 3: Reset after 2.5s — use active workspace expenses, not global root
     setTimeout(() => {
-      donutChartInstance.data.datasets[0].backgroundColor = entries.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
+      // Fetch expenses from the currently active workspace to avoid stale-data bug
+      const activeWsKey = state.activeWorkspace || 'Personal';
+      const wsExp = (state.workspaceData && state.workspaceData[activeWsKey])
+        ? state.workspaceData[activeWsKey].expenses
+        : state.expenses;
+      const wsFiltered = wsExp.filter(e => e.period === state.period);
+      const wsByCat = {};
+      wsFiltered.forEach(e => { wsByCat[e.cat] = (wsByCat[e.cat] || 0) + e.amt; });
+      const wsEntries = Object.entries(wsByCat).sort((a, b) => b[1] - a[1]);
+      donutChartInstance.data.datasets[0].backgroundColor = wsEntries.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
       donutChartInstance.update('none');
       // Reset center to total
-      const total = entries.reduce((s, [, v]) => s + v, 0);
+      const wsTotal = wsEntries.reduce((s, [, v]) => s + v, 0);
       const centHead2 = document.getElementById('donutCenter');
       if (centHead2) centHead2.querySelector('div').textContent = 'Total';
-      if (centerEl) centerEl.textContent = fmtShort(total);
+      if (centerEl) centerEl.textContent = fmtShort(wsTotal);
     }, 2500);
   }
 }
@@ -3935,7 +4066,7 @@ function handleMathInput(el, hintId) {
   // Trigger evaluasi HANYA jika karakter terakhir adalah '='
   if (!raw.endsWith('=')) {
     if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
-    // Jika tidak ada '=', biarkan sebagai input angka biasa (bukan format dulu — bisa mengandung operator)
+    // Jika tidak ada '=', biarkan sebagai input angka biasa (bisa mengandung operator)
     // Hanya format jika tidak ada operator
     const mathPattern = /[+\-*\/]/;
     if (!mathPattern.test(raw.replace(/\./g, ''))) {
@@ -3954,14 +4085,54 @@ function handleMathInput(el, hintId) {
     return;
   }
 
+  // BUG FIX 4: Strict validation — must contain at least one digit before evaluating
+  // Prevents Uncaught SyntaxError from expressions like "+-*/=" that have no digits
+  const hasDigit = /[0-9]/.test(stripped);
+  if (!hasDigit) {
+    if (hintEl) { hintEl.textContent = '⚠️ Masukkan angka terlebih dahulu'; hintEl.classList.remove('has-result'); }
+    el.value = '';
+    return;
+  }
+
   try {
     // Sanitize — hanya izinkan angka, operator, dan tanda kurung
     const safe = stripped.replace(/[^0-9+\-*\/().\s]/g, '');
-    if (!safe) { el.value = ''; return; }
-    // eslint-disable-next-line no-new-func
-    const result = new Function('return (' + safe + ')')();
+    if (!safe || !/[0-9]/.test(safe)) {
+      if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
+      el.value = '';
+      return;
+    }
+
+    // BUG FIX 4: Wrap in try-catch to prevent Uncaught SyntaxError from crashing the app
+    let result;
+    try {
+      // eslint-disable-next-line no-new-func
+      result = new Function('return (' + safe + ')')();
+    } catch (evalErr) {
+      if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
+      el.value = '';
+      return;
+    }
+
     if (typeof result === 'number' && isFinite(result) && result > 0) {
       const rounded = Math.round(result);
+
+      // BUG FIX 6: Auto-record formula string into the Note field before clearing the amount input
+      // Determine the note field ID based on which amount field triggered this
+      const noteFieldId = (el.id === 'incAmt') ? 'incNote'
+                        : (el.id === 'expAmt') ? 'expNote'
+                        : null;
+      if (noteFieldId) {
+        const noteEl = document.getElementById(noteFieldId);
+        if (noteEl) {
+          const formulaTag = '[Rumus: ' + safe.trim() + '] ';
+          // Prepend formula to existing note content
+          noteEl.value = noteEl.value
+            ? formulaTag + noteEl.value
+            : formulaTag;
+        }
+      }
+
       // Terapkan hasil langsung ke field
       el.value = rounded.toLocaleString('id-ID');
       if (hintEl) {
@@ -4295,6 +4466,386 @@ function closeCameraModal() {
   if (video) { video.srcObject = null; }
 }
 
+// ─── v2.7.1 NEW FEATURES JS ────────────────────────────────
+// ─── v2.7.1: 3-DOT MENU (Edit Riwayat) ──────────────────
+// Shared global dropdown element for tx menus
+(function(){
+  const dd = document.createElement('div');
+  dd.id = 'globalTxDropdown';
+  dd.className = 'tx-dropdown';
+  dd.style.display = 'none';
+  document.body.appendChild(dd);
+})();
+
+let _txMenuCtx = null; // {type:'inc'|'exp', id:Number}
+
+function toggleTxMenuFixed(btn, type, id, e) {
+  e && e.stopPropagation();
+  const dd = document.getElementById('globalTxDropdown');
+  if (!dd) return;
+  // If already open for this item, close it
+  if (dd.style.display !== 'none' && _txMenuCtx && _txMenuCtx.type === type && _txMenuCtx.id === id) {
+    dd.style.display = 'none';
+    _txMenuCtx = null;
+    return;
+  }
+  _txMenuCtx = { type, id };
+  // Build dropdown content
+  if (type === 'inc') {
+    dd.innerHTML = `
+      <button class="tx-dropdown-item" onclick="openEditIncome(${id});closeTxMenus()">✏️ Edit</button>
+      <button class="tx-dropdown-item danger" onclick="deleteIncome(${id});closeTxMenus()">🗑️ Hapus</button>`;
+  } else {
+    dd.innerHTML = `
+      <button class="tx-dropdown-item" onclick="openEditExpense(${id});closeTxMenus()">✏️ Edit</button>
+      <button class="tx-dropdown-item danger" onclick="deleteExpense(${id});closeTxMenus()">🗑️ Hapus</button>`;
+  }
+  // Position fixed relative to button
+  const rect = btn.getBoundingClientRect();
+  dd.style.display = 'block';
+  const menuW = 148;
+  let left = rect.right - menuW;
+  let top = rect.bottom + 6;
+  if (left < 8) left = 8;
+  if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
+  if (top + 88 > window.innerHeight) top = rect.top - 88 - 6;
+  dd.style.top = top + 'px';
+  dd.style.left = left + 'px';
+}
+function closeTxMenus() {
+  const dd = document.getElementById('globalTxDropdown');
+  if (dd) dd.style.display = 'none';
+  _txMenuCtx = null;
+}
+// Legacy stub so old refs don't break
+function toggleTxMenu(id, e) { closeTxMenus(); }
+document.addEventListener('click', closeTxMenus);
+document.addEventListener('scroll', closeTxMenus, true);
+
+// ─── Edit Income ───
+function openEditIncome(id) {
+  const item = state.incomes.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('editIncId').value = id;
+  document.getElementById('editIncName').value = item.name;
+  document.getElementById('editIncCat').value = item.cat;
+  document.getElementById('editIncAmt').value = item.amt.toLocaleString('id-ID');
+  document.getElementById('editIncDate').value = item.date;
+  document.getElementById('editIncNote').value = item.note || '';
+  document.getElementById('editIncomeModal').classList.add('open');
+}
+function closeEditIncome() {
+  document.getElementById('editIncomeModal').classList.remove('open');
+}
+function saveEditIncome() {
+  const id = parseInt(document.getElementById('editIncId').value);
+  const name = document.getElementById('editIncName').value.trim();
+  const cat = document.getElementById('editIncCat').value;
+  const amtRaw = document.getElementById('editIncAmt').value.replace(/\./g,'').replace(/,/g,'');
+  const amt = parseFloat(amtRaw) || 0;
+  const date = document.getElementById('editIncDate').value;
+  const note = document.getElementById('editIncNote').value.trim();
+  if (!name) { toast('Masukkan nama!', 'error'); return; }
+  if (!amt || amt <= 0) { toast('Masukkan jumlah valid!', 'error'); return; }
+  const idx = state.incomes.findIndex(i => i.id === id);
+  if (idx === -1) return;
+  state.incomes[idx] = { ...state.incomes[idx], name, cat, amt, date, note };
+  // BUG FIX 1: Sync edit back into active workspaceData so changes are persistent
+  const activeWs = state.activeWorkspace || 'Personal';
+  if (state.workspaceData && state.workspaceData[activeWs]) {
+    const wsIdx = state.workspaceData[activeWs].incomes.findIndex(i => i.id === id);
+    if (wsIdx !== -1) {
+      state.workspaceData[activeWs].incomes[wsIdx] = { ...state.workspaceData[activeWs].incomes[wsIdx], name, cat, amt, date, note };
+    }
+  }
+  saveState(); render();
+  closeEditIncome();
+  toast('✅ Pemasukan diperbarui!', 'success');
+}
+// editIncomeModal is defined after this script block — attach via DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  var _eim = document.getElementById('editIncomeModal');
+  if (_eim) _eim.addEventListener('click', function(e) { if (e.target === this) closeEditIncome(); });
+});
+
+// ─── Edit Expense ───
+function openEditExpense(id) {
+  const item = state.expenses.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('editExpId').value = id;
+  document.getElementById('editExpName').value = item.name;
+  document.getElementById('editExpCat').value = item.cat;
+  document.getElementById('editExpAmt').value = item.amt.toLocaleString('id-ID');
+  document.getElementById('editExpDate').value = item.date;
+  document.getElementById('editExpNote').value = item.note || '';
+  document.getElementById('editExpenseModal').classList.add('open');
+}
+function closeEditExpense() {
+  document.getElementById('editExpenseModal').classList.remove('open');
+}
+function saveEditExpense() {
+  const id = parseInt(document.getElementById('editExpId').value);
+  const name = document.getElementById('editExpName').value.trim();
+  const cat = document.getElementById('editExpCat').value;
+  const amtRaw = document.getElementById('editExpAmt').value.replace(/\./g,'').replace(/,/g,'');
+  const amt = parseFloat(amtRaw) || 0;
+  const date = document.getElementById('editExpDate').value;
+  const note = document.getElementById('editExpNote').value.trim();
+  if (!name) { toast('Masukkan keterangan!', 'error'); return; }
+  if (!amt || amt <= 0) { toast('Masukkan jumlah valid!', 'error'); return; }
+  const idx = state.expenses.findIndex(i => i.id === id);
+  if (idx === -1) return;
+  state.expenses[idx] = { ...state.expenses[idx], name, cat, amt, date, note };
+  // BUG FIX 1: Sync edit back into active workspaceData so changes are persistent
+  const activeWs = state.activeWorkspace || 'Personal';
+  if (state.workspaceData && state.workspaceData[activeWs]) {
+    const wsIdx = state.workspaceData[activeWs].expenses.findIndex(i => i.id === id);
+    if (wsIdx !== -1) {
+      state.workspaceData[activeWs].expenses[wsIdx] = { ...state.workspaceData[activeWs].expenses[wsIdx], name, cat, amt, date, note };
+    }
+  }
+  saveState(); render();
+  closeEditExpense();
+  toast('✅ Pengeluaran diperbarui!', 'success');
+}
+// editExpenseModal is defined after this script block — attach via DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  var _eem = document.getElementById('editExpenseModal');
+  if (_eem) _eem.addEventListener('click', function(e) { if (e.target === this) closeEditExpense(); });
+});
+
+// ─── v2.7.1: WORKSPACE CLOSE (Remove workspace) ───────────
+function removeWorkspace(ws, e) {
+  e && e.stopPropagation();
+  if (ws === 'Personal') return;
+  if (!confirm(`Hapus workspace "${ws}"? Data di dalamnya akan tetap tersimpan tapi tersembunyi.`)) return;
+  // If currently active, switch to Personal first
+  if (state.activeWorkspace === ws) {
+    saveState();
+    state.activeWorkspace = 'Personal';
+    _applyWorkspace('Personal');
+  }
+  state.workspaces = state.workspaces.filter(w => w !== ws);
+  saveState();
+  renderWorkspaceBar();
+  render();
+  toast(`Workspace "${ws}" dihapus`, 'info');
+}
+
+// Override renderWorkspaceBar to handle add btn visibility
+const _origRenderWsBar = renderWorkspaceBar;
+renderWorkspaceBar = function() {
+  _origRenderWsBar();
+  // Show/hide add button: hidden when all 3 workspaces are active
+  const addBtn = document.getElementById('wsAddBtn');
+  if (addBtn) {
+    const allActive = ['Personal','Bisnis','Keluarga'].every(w => state.workspaces.includes(w));
+    addBtn.classList.toggle('ws-add-hidden', allActive);
+  }
+  // Update PIN setting UI
+  updatePinSettingUI();
+};
+
+// ─── v2.7.1: PIN LOCK ─────────────────────────────────────
+let _pinBuffer = '';
+let _pinSetupPhase = 'create'; // 'create' | 'confirm'
+let _pinFirstEntry = '';
+let _pinSetupBuffer = '';
+
+function getPinHash(pin) {
+  // Simple btoa hash (not cryptographic, but obfuscated in storage)
+  return btoa('pmpk_' + pin + '_salt');
+}
+
+function loadPinState() {
+  return localStorage.getItem('pimapika_pin') || '';
+}
+function savePinHash(hash) {
+  if (hash) localStorage.setItem('pimapika_pin', hash);
+  else localStorage.removeItem('pimapika_pin');
+}
+
+function checkAndShowPinLock() {
+  const hash = loadPinState();
+  if (!hash) return; // no PIN set
+  const overlay = document.getElementById('pinLockOverlay');
+  if (!overlay) return; // element not yet in DOM
+  overlay.classList.add('active');
+  _pinBuffer = '';
+  updatePinDots('pd', _pinBuffer, '');
+  const errEl = document.getElementById('pinLockErr');
+  if (errEl) errEl.textContent = '';
+}
+
+function pinKey(num) {
+  if (_pinBuffer.length >= 4) return;
+  _pinBuffer += String(num);
+  updatePinDots('pd', _pinBuffer, '');
+  if (_pinBuffer.length === 4) {
+    setTimeout(() => checkPin(), 120);
+  }
+}
+
+function pinDel() {
+  if (!_pinBuffer.length) return;
+  _pinBuffer = _pinBuffer.slice(0, -1);
+  updatePinDots('pd', _pinBuffer, '');
+}
+
+function checkPin() {
+  const stored = loadPinState();
+  if (getPinHash(_pinBuffer) === stored) {
+    // Correct
+    const overlay = document.getElementById('pinLockOverlay');
+    if (overlay) overlay.classList.remove('active');
+    _pinBuffer = '';
+    updatePinDots('pd', '', '');
+  } else {
+    // Wrong
+    updatePinDots('pd', '1234', 'error');
+    const errEl = document.getElementById('pinLockErr');
+    if (errEl) errEl.textContent = '❌ PIN salah, coba lagi';
+    setTimeout(() => {
+      _pinBuffer = '';
+      updatePinDots('pd', '', '');
+      const e2 = document.getElementById('pinLockErr');
+      if (e2) e2.textContent = '';
+    }, 800);
+  }
+}
+
+function pinForgot() {
+  if (!confirm('Reset PIN? Semua data keuangan Anda TIDAK akan dihapus, hanya PIN yang direset.')) return;
+  savePinHash('');
+  const overlay = document.getElementById('pinLockOverlay');
+  if (overlay) overlay.classList.remove('active');
+  _pinBuffer = '';
+  updatePinSettingUI();
+  toast('🔓 PIN berhasil direset', 'info');
+}
+
+function updatePinDots(prefix, filled, state) {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(prefix + i);
+    if (!dot) continue;
+    dot.className = 'pin-dot';
+    if (state === 'error') dot.classList.add('error');
+    else if (i < filled.length) dot.classList.add('filled');
+  }
+}
+
+// PIN Setup
+function openPinSetup(mode) {
+  _pinSetupPhase = 'create';
+  _pinFirstEntry = '';
+  _pinSetupBuffer = '';
+  _pinSetupMode = mode; // 'create' or 'change' or 'remove'
+  const title = document.getElementById('pinSetupTitle');
+  if (mode === 'remove') {
+    title.textContent = '🔐 Konfirmasi PIN Lama';
+    document.getElementById('pinSetupErr').textContent = '';
+    updatePinDots('sp', '', '');
+    document.getElementById('pinSetupModal').classList.add('open');
+    return;
+  }
+  title.textContent = '🔐 Buat PIN Baru (4 digit)';
+  document.getElementById('pinSetupErr').textContent = '';
+  updatePinDots('sp', '', '');
+  document.getElementById('pinSetupModal').classList.add('open');
+}
+function closePinSetup() {
+  document.getElementById('pinSetupModal').classList.remove('open');
+  _pinSetupBuffer = '';
+  _pinFirstEntry = '';
+  _pinSetupPhase = 'create';
+}
+function setupPinKey(num) {
+  if (_pinSetupBuffer.length >= 4) return;
+  _pinSetupBuffer += String(num);
+  updatePinDots('sp', _pinSetupBuffer, '');
+  if (_pinSetupBuffer.length === 4) {
+    setTimeout(() => processSetupPin(), 120);
+  }
+}
+function setupPinDel() {
+  if (!_pinSetupBuffer.length) return;
+  _pinSetupBuffer = _pinSetupBuffer.slice(0, -1);
+  updatePinDots('sp', _pinSetupBuffer, '');
+}
+
+let _pinSetupMode = 'create';
+function processSetupPin() {
+  if (_pinSetupMode === 'remove') {
+    // Verify old PIN before removing
+    const stored = loadPinState();
+    if (getPinHash(_pinSetupBuffer) !== stored) {
+      updatePinDots('sp', '1234', 'error');
+      document.getElementById('pinSetupErr').textContent = '❌ PIN salah!';
+      setTimeout(() => { _pinSetupBuffer=''; updatePinDots('sp','',''); document.getElementById('pinSetupErr').textContent=''; }, 800);
+      return;
+    }
+    savePinHash('');
+    closePinSetup();
+    updatePinSettingUI();
+    toast('🔓 PIN berhasil dihapus', 'success');
+    return;
+  }
+  if (_pinSetupPhase === 'create') {
+    _pinFirstEntry = _pinSetupBuffer;
+    _pinSetupBuffer = '';
+    _pinSetupPhase = 'confirm';
+    document.getElementById('pinSetupTitle').textContent = '🔐 Konfirmasi PIN';
+    document.getElementById('pinSetupErr').textContent = '';
+    updatePinDots('sp', '', '');
+  } else {
+    if (_pinSetupBuffer === _pinFirstEntry) {
+      savePinHash(getPinHash(_pinSetupBuffer));
+      closePinSetup();
+      updatePinSettingUI();
+      toast('🔐 PIN berhasil dibuat! App akan terkunci saat dibuka ulang.', 'success');
+    } else {
+      updatePinDots('sp', '1234', 'error');
+      document.getElementById('pinSetupErr').textContent = '❌ PIN tidak cocok, ulangi';
+      setTimeout(() => {
+        _pinSetupBuffer=''; _pinFirstEntry=''; _pinSetupPhase='create';
+        document.getElementById('pinSetupTitle').textContent = '🔐 Buat PIN Baru (4 digit)';
+        updatePinDots('sp','','');
+        document.getElementById('pinSetupErr').textContent='';
+      }, 900);
+    }
+  }
+}
+// pinSetupModal is defined after this script block — attach via DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  var _psm = document.getElementById('pinSetupModal');
+  if (_psm) _psm.addEventListener('click', function(e) { if (e.target === this) closePinSetup(); });
+});
+
+function updatePinSettingUI() {
+  const hash = loadPinState();
+  const badge = document.getElementById('pinStatusBadge');
+  const btns = document.getElementById('pinSettingBtns');
+  if (!badge || !btns) return;
+  if (hash) {
+    badge.className = 'pin-status-badge on';
+    badge.textContent = '🔐 PIN Aktif';
+    btns.innerHTML = `
+      <button class="btn btn-glass" onclick="openPinSetup('create')" style="width:100%;margin-bottom:8px;">🔄 Ganti PIN</button>
+      <button class="btn btn-danger" onclick="openPinSetup('remove')" style="width:100%;">🗑️ Hapus PIN</button>`;
+  } else {
+    badge.className = 'pin-status-badge off';
+    badge.textContent = '🔓 PIN Tidak Aktif';
+    btns.innerHTML = `<button class="btn btn-primary" onclick="openPinSetup('create')" style="width:100%;">🔐 Buat PIN</button>`;
+  }
+}
+
+// Check PIN on app load — deferred to DOMContentLoaded because pinLockOverlay HTML
+// is defined AFTER this <script> block, so getElementById returns null if called here directly.
+document.addEventListener('DOMContentLoaded', function() {
+  checkAndShowPinLock();
+  updatePinSettingUI();
+});
+
 // ─── INIT v2.6.0 ─────────────────────────────────────────
 
 // Set default gold date
@@ -4312,5 +4863,154 @@ setTimeout(() => {
 
 
 </script>
+
+<!-- ══ PIN LOCK OVERLAY ══ -->
+<div class="pin-lock-overlay" id="pinLockOverlay">
+  <div class="bg-orbs" style="position:fixed;"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+  <div class="pin-lock-box">
+    <div class="pin-lock-logo">🔐</div>
+    <div class="pin-lock-title">PIMAPIKA.ID</div>
+    <div class="pin-lock-sub" id="pinLockSub">Masukkan PIN untuk membuka</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey(1)">1</button>
+      <button class="pin-key" onclick="pinKey(2)">2</button>
+      <button class="pin-key" onclick="pinKey(3)">3</button>
+      <button class="pin-key" onclick="pinKey(4)">4</button>
+      <button class="pin-key" onclick="pinKey(5)">5</button>
+      <button class="pin-key" onclick="pinKey(6)">6</button>
+      <button class="pin-key" onclick="pinKey(7)">7</button>
+      <button class="pin-key" onclick="pinKey(8)">8</button>
+      <button class="pin-key" onclick="pinKey(9)">9</button>
+      <div></div>
+      <button class="pin-key" onclick="pinKey(0)">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-lock-err" id="pinLockErr"></div>
+    <div class="pin-lock-forgot" onclick="pinForgot()">Lupa PIN? (Reset data)</div>
+  </div>
+</div>
+
+<!-- ══ EDIT INCOME MODAL ══ -->
+<div class="edit-modal-overlay" id="editIncomeModal">
+  <div class="edit-modal-box">
+    <div class="edit-modal-title">✏️ Edit Pemasukan</div>
+    <div class="input-group">
+      <label class="input-label">Sumber Pemasukan</label>
+      <input class="glass-input" id="editIncName" type="text" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Kategori</label>
+      <select class="glass-input" id="editIncCat">
+        <option value="gaji">💼 Gaji</option>
+        <option value="usaha">🏪 Usaha / Bisnis</option>
+        <option value="investasi">📈 Investasi / Dividen</option>
+        <option value="freelance">💻 Freelance / Proyek</option>
+        <option value="bonus">🎁 Bonus / THR</option>
+        <option value="lainnya">✨ Lainnya</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Jumlah (Rp)</label>
+      <div class="currency-wrapper">
+        <span class="currency-prefix">Rp</span>
+        <input class="glass-input" id="editIncAmt" placeholder="0" type="text" oninput="formatCurrencyInput(this)" style="padding-left:38px;text-align:right;font-family:'JetBrains Mono',monospace;">
+      </div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Tanggal</label>
+      <input class="glass-input" id="editIncDate" type="date">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Catatan</label>
+      <input class="glass-input" id="editIncNote" type="text" autocomplete="off">
+    </div>
+    <input type="hidden" id="editIncId">
+    <div style="display:flex;gap:12px;margin-top:8px;">
+      <button class="btn btn-success" onclick="saveEditIncome()" style="flex:1;">💾 Simpan</button>
+      <button class="btn btn-glass" onclick="closeEditIncome()" style="flex:1;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EDIT EXPENSE MODAL ══ -->
+<div class="edit-modal-overlay" id="editExpenseModal">
+  <div class="edit-modal-box">
+    <div class="edit-modal-title">✏️ Edit Pengeluaran</div>
+    <div class="input-group">
+      <label class="input-label">Keterangan</label>
+      <input class="glass-input" id="editExpName" type="text" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Kategori</label>
+      <select class="glass-input" id="editExpCat">
+        <option value="makan">🍽️ Makan & Minum</option>
+        <option value="tagihan">⚡ Tagihan / Utilitas</option>
+        <option value="transport">🚗 Transportasi</option>
+        <option value="belanja">🛒 Belanja</option>
+        <option value="hiburan">🎮 Hiburan</option>
+        <option value="kesehatan">🏥 Kesehatan</option>
+        <option value="pendidikan">📚 Pendidikan</option>
+        <option value="tabungan">💎 Tabungan / Investasi</option>
+        <option value="lainnya">✨ Lainnya</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Jumlah (Rp)</label>
+      <div class="currency-wrapper">
+        <span class="currency-prefix">Rp</span>
+        <input class="glass-input" id="editExpAmt" placeholder="0" type="text" oninput="formatCurrencyInput(this)" style="padding-left:38px;text-align:right;font-family:'JetBrains Mono',monospace;">
+      </div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Tanggal</label>
+      <input class="glass-input" id="editExpDate" type="date">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Catatan</label>
+      <input class="glass-input" id="editExpNote" type="text" autocomplete="off">
+    </div>
+    <input type="hidden" id="editExpId">
+    <div style="display:flex;gap:12px;margin-top:8px;">
+      <button class="btn btn-danger" onclick="saveEditExpense()" style="flex:1;">💾 Simpan</button>
+      <button class="btn btn-glass" onclick="closeEditExpense()" style="flex:1;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PIN SETUP MODAL ══ -->
+<div class="edit-modal-overlay" id="pinSetupModal">
+  <div class="edit-modal-box" style="max-width:340px;">
+    <div class="edit-modal-title" id="pinSetupTitle">🔐 Buat PIN Baru</div>
+    <div class="pin-dots" style="justify-content:center;margin-bottom:20px;">
+      <div class="pin-dot" id="sp0"></div>
+      <div class="pin-dot" id="sp1"></div>
+      <div class="pin-dot" id="sp2"></div>
+      <div class="pin-dot" id="sp3"></div>
+    </div>
+    <div class="pin-keypad" style="max-width:240px;margin:0 auto 16px;">
+      <button class="pin-key" onclick="setupPinKey(1)">1</button>
+      <button class="pin-key" onclick="setupPinKey(2)">2</button>
+      <button class="pin-key" onclick="setupPinKey(3)">3</button>
+      <button class="pin-key" onclick="setupPinKey(4)">4</button>
+      <button class="pin-key" onclick="setupPinKey(5)">5</button>
+      <button class="pin-key" onclick="setupPinKey(6)">6</button>
+      <button class="pin-key" onclick="setupPinKey(7)">7</button>
+      <button class="pin-key" onclick="setupPinKey(8)">8</button>
+      <button class="pin-key" onclick="setupPinKey(9)">9</button>
+      <div></div>
+      <button class="pin-key" onclick="setupPinKey(0)">0</button>
+      <button class="pin-key del" onclick="setupPinDel()">⌫</button>
+    </div>
+    <div class="pin-lock-err" id="pinSetupErr" style="margin-bottom:8px;"></div>
+    <button class="btn btn-glass" onclick="closePinSetup()" style="width:100%;">Batal</button>
+  </div>
+</div>
+
 </body>
 </html>
