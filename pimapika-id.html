@@ -1150,6 +1150,93 @@
     .glass-input{font-size:16px;}
     .health-metrics{grid-template-columns:repeat(3,1fr);}
   }
+
+  /* ══ FITUR BARU: QUICK AMOUNT PRESETS ══ */
+  .quick-preset-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .quick-preset-btn {
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all .18s var(--spring);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .quick-preset-btn:hover {
+    background: rgba(37,99,235,0.25);
+    border-color: rgba(37,99,235,0.5);
+    color: #93c5fd;
+    transform: translateY(-1px);
+  }
+  .quick-preset-btn:active { transform: scale(0.93); }
+  .quick-preset-btn.danger {
+    border-color: rgba(239,68,68,0.25);
+    background: rgba(239,68,68,0.08);
+    color: #f87171;
+  }
+  .quick-preset-btn.danger:hover {
+    background: rgba(239,68,68,0.2);
+    border-color: rgba(239,68,68,0.5);
+  }
+  body.light-mode .quick-preset-btn {
+    background: rgba(15,23,42,0.05);
+    border-color: rgba(15,23,42,0.12);
+    color: var(--text-secondary);
+  }
+  body.light-mode .quick-preset-btn:hover {
+    background: rgba(37,99,235,0.1);
+    border-color: rgba(37,99,235,0.3);
+    color: var(--accent-blue);
+  }
+
+  /* ══ FITUR BARU: SMART BUDGET ALERT ══ */
+  .budget-alert-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 13px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.45;
+    animation: slideIn .25s var(--spring);
+  }
+  .budget-alert-box.warn {
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: #fbbf24;
+  }
+  .budget-alert-box.over {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.35);
+    color: #f87171;
+  }
+  .budget-alert-box.safe {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.25);
+    color: #34d399;
+  }
+  .budget-alert-bar {
+    height: 4px;
+    border-radius: 4px;
+    background: var(--input-bg);
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .budget-alert-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width .4s ease;
+  }
 </style>
 </head>
 <body>
@@ -1296,6 +1383,14 @@
               <input class="glass-input" id="incAmt" placeholder="0" type="text" oninput="handleMathInput(this,'incMathHint')">
             </div>
             <div class="math-hint" id="incMathHint"></div>
+            <!-- FITUR BARU 2: Quick Amount Presets -->
+            <div class="quick-preset-row" id="incQuickPresets">
+              <button class="quick-preset-btn" onclick="addQuickPreset('incAmt',500000)">+500rb</button>
+              <button class="quick-preset-btn" onclick="addQuickPreset('incAmt',1000000)">+1jt</button>
+              <button class="quick-preset-btn" onclick="addQuickPreset('incAmt',2000000)">+2jt</button>
+              <button class="quick-preset-btn" onclick="addQuickPreset('incAmt',5000000)">+5jt</button>
+              <button class="quick-preset-btn danger" onclick="clearQuickPreset('incAmt')" title="Reset jumlah">✕</button>
+            </div>
           </div>
           <div class="input-group">
             <label class="input-label">Tanggal</label>
@@ -1360,6 +1455,8 @@
               <option value="tabungan">💎 Tabungan / Investasi</option>
               <option value="lainnya">✨ Lainnya</option>
             </select>
+            <!-- FITUR BARU 1: Smart Budget Alert -->
+            <div id="expBudgetAlert" style="display:none;margin-top:8px;"></div>
           </div>
           <div class="input-group">
             <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 20000+15000=</span></label>
@@ -1368,6 +1465,15 @@
               <input class="glass-input" id="expAmt" placeholder="0" type="text" oninput="handleMathInput(this,'expMathHint')">
             </div>
             <div class="math-hint" id="expMathHint"></div>
+            <!-- FITUR BARU 2: Quick Amount Presets -->
+            <div class="quick-preset-row" id="expQuickPresets">
+              <button class="quick-preset-btn" onclick="addQuickPreset('expAmt',10000)">+10rb</button>
+              <button class="quick-preset-btn" onclick="addQuickPreset('expAmt',25000)">+25rb</button>
+              <button class="quick-preset-btn" onclick="addQuickPreset('expAmt',50000)">+50rb</button>
+              <button class="quick-preset-btn" onclick="addQuickPreset('expAmt',100000)">+100rb</button>
+              <button class="quick-preset-btn" onclick="addQuickPreset('expAmt',500000)">+500rb</button>
+              <button class="quick-preset-btn danger" onclick="clearQuickPreset('expAmt')" title="Reset jumlah">✕</button>
+            </div>
           </div>
           <div class="input-group">
             <label class="input-label">Tanggal</label>
@@ -2042,6 +2148,10 @@ function saveState(){
 
 // ─── CURRENCY ───
 function formatCurrencyInput(el){
+  // PENTING: Jika ada operator matematika, jangan format — serahkan ke handleMathInput
+  const hasMathOp = /[+\-*\/]/.test(el.value.replace(/\./g,''));
+  if(hasMathOp) return;
+
   const cur = el.selectionStart, prev = el.value.length;
   let raw = el.value.replace(/\D/g,'');
   if(raw.length>15) raw=raw.slice(0,15);
@@ -2051,7 +2161,17 @@ function formatCurrencyInput(el){
   try{ el.setSelectionRange(cur+diff, cur+diff); }catch(e){}
 }
 function getCurrencyValue(id){
-  return parseFloat(document.getElementById(id).value.replace(/\./g,'').replace(/,/g,'')) || 0;
+  const raw = document.getElementById(id).value.replace(/\./g,'').replace(/,/g,'').replace(/=/g,'').trim();
+  // BUG FIX: Evaluasi ekspresi matematika jika ada operator (user lupa tekan '=')
+  if (/[+\-*\/]/.test(raw)) {
+    try {
+      const safe = raw.replace(/[^0-9+\-*\/().\s]/g,'');
+      // eslint-disable-next-line no-new-func
+      const res = new Function('return (' + safe + ')')();
+      return (typeof res === 'number' && isFinite(res) && res > 0) ? Math.round(res) : 0;
+    } catch(e) { return 0; }
+  }
+  return parseFloat(raw) || 0;
 }
 function clearCurrencyInput(id){ document.getElementById(id).value=''; }
 
@@ -2759,7 +2879,14 @@ function renderRingkasan(){
 function resetAll(){ document.getElementById('resetModal').classList.add('open'); }
 function closeResetModal(){ document.getElementById('resetModal').classList.remove('open'); }
 function confirmReset(){
+  // Reset root state
   state.incomes=[]; state.expenses=[]; state.banks=[]; state.budgets=[]; state.notes='';
+  state.targets=[]; state.bills=[];
+  // BUG FIX: Reset workspace data juga agar data tidak tersisa setelah reset
+  const ws = state.activeWorkspace || 'Personal';
+  if(state.workspaceData && state.workspaceData[ws]){
+    state.workspaceData[ws] = {incomes:[],expenses:[],banks:[],budgets:[],notes:'',targets:[],bills:[]};
+  }
   saveState(); closeResetModal(); render();
   if(document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
@@ -4059,92 +4186,102 @@ function togglePrivacy() {
  * Ekspresi HANYA dievaluasi saat karakter '=' diketik di akhir input.
  * Sebelum '=' diketik, field berperilaku normal (format angka biasa).
  */
+function _formatMathSegments(raw) {
+  // Split berdasarkan operator, pertahankan operator di hasil
+  const parts = raw.split(/([\+\-\*\/])/);
+  return parts.map((part, i) => {
+    if (i % 2 === 1) return part; // indeks ganjil = operator, kembalikan apa adanya
+    // indeks genap = segmen angka
+    const digits = part.replace(/\./g, ''); // hapus titik separator lama
+    if (!digits) return part;
+    const num = parseInt(digits, 10);
+    return isNaN(num) ? part : num.toLocaleString('id-ID');
+  }).join('');
+}
+
 function handleMathInput(el, hintId) {
-  const raw = el.value;
-  const hintEl = document.getElementById(hintId);
+  const hintEl = hintId ? document.getElementById(hintId) : null;
+  const cursorPos = el.selectionStart;
+  const prevLen = el.value.length;
 
-  // Trigger evaluasi HANYA jika karakter terakhir adalah '='
-  if (!raw.endsWith('=')) {
-    if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
-    // Jika tidak ada '=', biarkan sebagai input angka biasa (bisa mengandung operator)
-    // Hanya format jika tidak ada operator
-    const mathPattern = /[+\-*\/]/;
-    if (!mathPattern.test(raw.replace(/\./g, ''))) {
-      formatCurrencyInput(el);
-    }
-    return;
-  }
+  // ── EVALUASI: user mengetik '=' di akhir ──
+  if (el.value.endsWith('=')) {
+    const expr = el.value.slice(0, -1).replace(/\./g, '').trim();
 
-  // Strip the trailing '=' then evaluate
-  const expr = raw.slice(0, -1).replace(/\./g, ''); // hapus '=' dan separator ribuan
-  const stripped = expr.trim();
-
-  if (!stripped) {
-    if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
-    el.value = '';
-    return;
-  }
-
-  // BUG FIX 4: Strict validation — must contain at least one digit before evaluating
-  // Prevents Uncaught SyntaxError from expressions like "+-*/=" that have no digits
-  const hasDigit = /[0-9]/.test(stripped);
-  if (!hasDigit) {
-    if (hintEl) { hintEl.textContent = '⚠️ Masukkan angka terlebih dahulu'; hintEl.classList.remove('has-result'); }
-    el.value = '';
-    return;
-  }
-
-  try {
-    // Sanitize — hanya izinkan angka, operator, dan tanda kurung
-    const safe = stripped.replace(/[^0-9+\-*\/().\s]/g, '');
-    if (!safe || !/[0-9]/.test(safe)) {
-      if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
+    if (!expr || !/[0-9]/.test(expr)) {
+      if (hintEl) { hintEl.textContent = '⚠️ Masukkan angka terlebih dahulu'; hintEl.classList.remove('has-result'); }
       el.value = '';
       return;
     }
 
-    // BUG FIX 4: Wrap in try-catch to prevent Uncaught SyntaxError from crashing the app
-    let result;
     try {
-      // eslint-disable-next-line no-new-func
-      result = new Function('return (' + safe + ')')();
-    } catch (evalErr) {
-      if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
-      el.value = '';
-      return;
-    }
+      const safe = expr.replace(/[^0-9+\-*\/().\s]/g, '');
+      if (!safe || !/[0-9]/.test(safe)) {
+        if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
+        el.value = '';
+        return;
+      }
 
-    if (typeof result === 'number' && isFinite(result) && result > 0) {
-      const rounded = Math.round(result);
+      let result;
+      try {
+        // eslint-disable-next-line no-new-func
+        result = new Function('return (' + safe + ')')();
+      } catch (evalErr) {
+        if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
+        el.value = '';
+        return;
+      }
 
-      // BUG FIX 6: Auto-record formula string into the Note field before clearing the amount input
-      // Determine the note field ID based on which amount field triggered this
-      const noteFieldId = (el.id === 'incAmt') ? 'incNote'
-                        : (el.id === 'expAmt') ? 'expNote'
-                        : null;
-      if (noteFieldId) {
-        const noteEl = document.getElementById(noteFieldId);
-        if (noteEl) {
-          const formulaTag = '[Rumus: ' + safe.trim() + '] ';
-          // Prepend formula to existing note content
-          noteEl.value = noteEl.value
-            ? formulaTag + noteEl.value
-            : formulaTag;
+      if (typeof result === 'number' && isFinite(result) && result > 0) {
+        const rounded = Math.round(result);
+
+        // Catat rumus ke field Catatan (form utama & modal edit)
+        const noteFieldMap = {
+          incAmt: 'incNote',
+          expAmt: 'expNote',
+          editIncAmt: 'editIncNote',
+          editExpAmt: 'editExpNote'
+        };
+        const noteFieldId = noteFieldMap[el.id] || null;
+        if (noteFieldId) {
+          const noteEl = document.getElementById(noteFieldId);
+          if (noteEl) {
+            const tag = '[Rumus: ' + safe.trim() + '] ';
+            noteEl.value = noteEl.value ? tag + noteEl.value : tag;
+          }
         }
-      }
 
-      // Terapkan hasil langsung ke field
-      el.value = rounded.toLocaleString('id-ID');
-      if (hintEl) {
-        hintEl.textContent = '✅ Hasil: Rp ' + rounded.toLocaleString('id-ID');
-        hintEl.classList.add('has-result');
-        setTimeout(() => { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }, 2500);
+        el.value = rounded.toLocaleString('id-ID');
+        if (hintEl) {
+          hintEl.textContent = '✅ Hasil: Rp ' + rounded.toLocaleString('id-ID');
+          hintEl.classList.add('has-result');
+          setTimeout(() => { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }, 2500);
+        }
+      } else {
+        if (hintEl) { hintEl.textContent = '⚠️ Hasil tidak valid (harus > 0)'; hintEl.classList.remove('has-result'); }
       }
-    } else {
-      if (hintEl) { hintEl.textContent = '⚠️ Hasil tidak valid'; hintEl.classList.remove('has-result'); }
+    } catch(e) {
+      if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
     }
-  } catch(e) {
-    if (hintEl) { hintEl.textContent = '⚠️ Ekspresi tidak valid'; hintEl.classList.remove('has-result'); }
+    return;
+  }
+
+  // ── FORMAT REAL-TIME (belum ada '=') ──
+  if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
+
+  const hasMathOp = /[+\-*\/]/.test(el.value.replace(/\./g, ''));
+
+  if (hasMathOp) {
+    // Format tiap segmen angka dengan titik ribuan, pertahankan operator
+    const formatted = _formatMathSegments(el.value);
+    if (formatted !== el.value) {
+      el.value = formatted;
+      const diff = formatted.length - prevLen;
+      try { el.setSelectionRange(cursorPos + diff, cursorPos + diff); } catch(e) {}
+    }
+  } else {
+    // Tidak ada operator → format angka biasa
+    formatCurrencyInput(el);
   }
 }
 
@@ -4541,8 +4678,19 @@ function saveEditIncome() {
   const id = parseInt(document.getElementById('editIncId').value);
   const name = document.getElementById('editIncName').value.trim();
   const cat = document.getElementById('editIncCat').value;
-  const amtRaw = document.getElementById('editIncAmt').value.replace(/\./g,'').replace(/,/g,'');
-  const amt = parseFloat(amtRaw) || 0;
+  const rawVal = document.getElementById('editIncAmt').value;
+  const strippedRaw = rawVal.replace(/\./g,'').replace(/,/g,'').replace(/=/g,'').trim();
+  let amt = 0;
+  if (/[+\-*\/]/.test(strippedRaw)) {
+    try {
+      const safe = strippedRaw.replace(/[^0-9+\-*\/().\s]/g,'');
+      // eslint-disable-next-line no-new-func
+      const res = new Function('return (' + safe + ')')();
+      amt = (typeof res === 'number' && isFinite(res)) ? Math.round(res) : 0;
+    } catch(e) { amt = 0; }
+  } else {
+    amt = parseFloat(strippedRaw) || 0;
+  }
   const date = document.getElementById('editIncDate').value;
   const note = document.getElementById('editIncNote').value.trim();
   if (!name) { toast('Masukkan nama!', 'error'); return; }
@@ -4587,8 +4735,19 @@ function saveEditExpense() {
   const id = parseInt(document.getElementById('editExpId').value);
   const name = document.getElementById('editExpName').value.trim();
   const cat = document.getElementById('editExpCat').value;
-  const amtRaw = document.getElementById('editExpAmt').value.replace(/\./g,'').replace(/,/g,'');
-  const amt = parseFloat(amtRaw) || 0;
+  const rawVal = document.getElementById('editExpAmt').value;
+  const strippedRaw = rawVal.replace(/\./g,'').replace(/,/g,'').replace(/=/g,'').trim();
+  let amt = 0;
+  if (/[+\-*\/]/.test(strippedRaw)) {
+    try {
+      const safe = strippedRaw.replace(/[^0-9+\-*\/().\s]/g,'');
+      // eslint-disable-next-line no-new-func
+      const res = new Function('return (' + safe + ')')();
+      amt = (typeof res === 'number' && isFinite(res)) ? Math.round(res) : 0;
+    } catch(e) { amt = 0; }
+  } else {
+    amt = parseFloat(strippedRaw) || 0;
+  }
   const date = document.getElementById('editExpDate').value;
   const note = document.getElementById('editExpNote').value.trim();
   if (!name) { toast('Masukkan keterangan!', 'error'); return; }
@@ -4724,12 +4883,12 @@ function pinForgot() {
   toast('🔓 PIN berhasil direset', 'info');
 }
 
-function updatePinDots(prefix, filled, state) {
+function updatePinDots(prefix, filled, dotState) {
   for (let i = 0; i < 4; i++) {
     const dot = document.getElementById(prefix + i);
     if (!dot) continue;
     dot.className = 'pin-dot';
-    if (state === 'error') dot.classList.add('error');
+    if (dotState === 'error') dot.classList.add('error');
     else if (i < filled.length) dot.classList.add('filled');
   }
 }
@@ -4846,6 +5005,133 @@ document.addEventListener('DOMContentLoaded', function() {
   updatePinSettingUI();
 });
 
+// ─── FITUR BARU v2.7.2: QUICK AMOUNT PRESETS ─────────────
+/**
+ * Tambahkan nominal preset ke field jumlah secara kumulatif.
+ * Mendukung field yang sudah terformat titik ribuan.
+ */
+function addQuickPreset(fieldId, amount) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  // Ambil nilai saat ini (strip titik)
+  const currentRaw = el.value.replace(/\./g,'').replace(/,/g,'').replace(/=/g,'').trim();
+  let current = 0;
+  if (/[+\-*\/]/.test(currentRaw)) {
+    try {
+      const safe = currentRaw.replace(/[^0-9+\-*\/().\s]/g,'');
+      // eslint-disable-next-line no-new-func
+      const res = new Function('return (' + safe + ')')();
+      current = (typeof res === 'number' && isFinite(res) && res > 0) ? Math.round(res) : 0;
+    } catch(e) { current = 0; }
+  } else {
+    current = parseFloat(currentRaw) || 0;
+  }
+  const newVal = current + amount;
+  el.value = newVal.toLocaleString('id-ID');
+  el.focus();
+  // Trigger hint clear & budget alert
+  const hintId = fieldId === 'expAmt' ? 'expMathHint' : (fieldId === 'incAmt' ? 'incMathHint' : null);
+  if (hintId) {
+    const hintEl = document.getElementById(hintId);
+    if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }
+  }
+  // Update budget alert for expense
+  if (fieldId === 'expAmt') updateExpBudgetAlert();
+}
+
+function clearQuickPreset(fieldId) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  el.value = '';
+  el.focus();
+  if (fieldId === 'expAmt') {
+    const alertEl = document.getElementById('expBudgetAlert');
+    if (alertEl) alertEl.style.display = 'none';
+  }
+}
+
+// ─── FITUR BARU v2.7.2: SMART BUDGET ALERT ───────────────
+/**
+ * Tampilkan alert budget real-time di form pengeluaran
+ * saat kategori berubah atau jumlah berubah.
+ * Dipanggil dari: onchange expCat, oninput expAmt, addQuickPreset
+ */
+function updateExpBudgetAlert() {
+  const alertEl = document.getElementById('expBudgetAlert');
+  if (!alertEl) return;
+
+  const cat = (document.getElementById('expCat') || {}).value;
+  if (!cat) { alertEl.style.display = 'none'; return; }
+
+  // Cari budget untuk kategori & periode ini
+  const budget = state.budgets.find(b => b.cat === cat && b.period === state.period);
+  if (!budget) { alertEl.style.display = 'none'; return; }
+
+  // Hitung sudah berapa yang dipakai
+  const spent = state.expenses
+    .filter(e => e.cat === cat && e.period === state.period)
+    .reduce((s, e) => s + e.amt, 0);
+
+  // Ambil nilai yang sedang diinput (tidak wajib ada)
+  const inputRaw = (document.getElementById('expAmt') || {}).value || '';
+  const stripped = inputRaw.replace(/\./g,'').replace(/,/g,'').replace(/=/g,'').trim();
+  let inputAmt = 0;
+  if (/[+\-*\/]/.test(stripped)) {
+    try {
+      const safe = stripped.replace(/[^0-9+\-*\/().\s]/g,'');
+      // eslint-disable-next-line no-new-func
+      const res = new Function('return (' + safe + ')')();
+      inputAmt = (typeof res === 'number' && isFinite(res) && res > 0) ? Math.round(res) : 0;
+    } catch(e) { inputAmt = 0; }
+  } else {
+    inputAmt = parseFloat(stripped) || 0;
+  }
+
+  const afterInput = spent + inputAmt;
+  const pct = budget.limit > 0 ? (afterInput / budget.limit) * 100 : 0;
+  const remaining = budget.limit - spent;
+
+  let cls, icon, msg;
+  if (pct >= 100) {
+    cls = 'over'; icon = '🚨';
+    msg = `Budget <b>${getCatLabel(cat)}</b> sudah HABIS!<br>Sisa: <b>-${fmt(afterInput - budget.limit)}</b> (${pct.toFixed(0)}% terpakai)`;
+  } else if (pct >= 80) {
+    cls = 'warn'; icon = '⚠️';
+    msg = `Budget <b>${getCatLabel(cat)}</b> hampir habis!<br>Tersisa: <b>${fmt(remaining)}</b> dari ${fmt(budget.limit)} (${pct.toFixed(0)}% terpakai)`;
+  } else {
+    cls = 'safe'; icon = '✅';
+    msg = `Budget <b>${getCatLabel(cat)}</b>: ${fmt(remaining)} tersisa (${pct.toFixed(0)}% terpakai)`;
+  }
+
+  const barColor = pct >= 100 ? '#ef4444' : pct >= 80 ? '#f59e0b' : '#10b981';
+  alertEl.innerHTML = `
+    <div class="budget-alert-box ${cls}">
+      <span style="font-size:15px;flex-shrink:0;">${icon}</span>
+      <div style="flex:1;min-width:0;">
+        <div>${msg}</div>
+        <div class="budget-alert-bar" style="margin-top:5px;">
+          <div class="budget-alert-bar-fill" style="width:${Math.min(pct,100)}%;background:${barColor};"></div>
+        </div>
+      </div>
+    </div>`;
+  alertEl.style.display = 'block';
+}
+
+// Hook expCat onchange untuk update budget alert
+document.addEventListener('DOMContentLoaded', function() {
+  const expCatEl = document.getElementById('expCat');
+  if (expCatEl) expCatEl.addEventListener('change', updateExpBudgetAlert);
+
+  const expAmtEl = document.getElementById('expAmt');
+  if (expAmtEl) {
+    const _origOninput = expAmtEl.oninput;
+    expAmtEl.addEventListener('input', function() {
+      // Budget alert update setelah handleMathInput selesai
+      setTimeout(updateExpBudgetAlert, 10);
+    });
+  }
+});
+
 // ─── INIT v2.6.0 ─────────────────────────────────────────
 
 // Set default gold date
@@ -4916,11 +5202,14 @@ setTimeout(() => {
       </select>
     </div>
     <div class="input-group">
-      <label class="input-label">Jumlah (Rp)</label>
+      <label class="input-label">Jumlah (Rp)
+        <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir</span>
+      </label>
       <div class="currency-wrapper">
         <span class="currency-prefix">Rp</span>
-        <input class="glass-input" id="editIncAmt" placeholder="0" type="text" oninput="formatCurrencyInput(this)" style="padding-left:38px;text-align:right;font-family:'JetBrains Mono',monospace;">
+        <input class="glass-input" id="editIncAmt" placeholder="0" type="text" oninput="handleMathInput(this,'editIncMathHint')" style="padding-left:38px;text-align:right;font-family:'JetBrains Mono',monospace;">
       </div>
+      <div class="math-hint" id="editIncMathHint"></div>
     </div>
     <div class="input-group">
       <label class="input-label">Tanggal</label>
@@ -4961,11 +5250,14 @@ setTimeout(() => {
       </select>
     </div>
     <div class="input-group">
-      <label class="input-label">Jumlah (Rp)</label>
+      <label class="input-label">Jumlah (Rp)
+        <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir</span>
+      </label>
       <div class="currency-wrapper">
         <span class="currency-prefix">Rp</span>
-        <input class="glass-input" id="editExpAmt" placeholder="0" type="text" oninput="formatCurrencyInput(this)" style="padding-left:38px;text-align:right;font-family:'JetBrains Mono',monospace;">
+        <input class="glass-input" id="editExpAmt" placeholder="0" type="text" oninput="handleMathInput(this,'editExpMathHint')" style="padding-left:38px;text-align:right;font-family:'JetBrains Mono',monospace;">
       </div>
+      <div class="math-hint" id="editExpMathHint"></div>
     </div>
     <div class="input-group">
       <label class="input-label">Tanggal</label>
