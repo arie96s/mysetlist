@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PIMAPIKA.ID v3.0 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.1 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -73,6 +73,14 @@
     background-attachment: fixed;
   }
   body.theme-oldgrey .orb{display:none;}
+  body.theme-oldgrey #introScreen{
+    background:
+      radial-gradient(circle at 18% 12%, rgba(210,212,216,0.16), transparent 42%),
+      radial-gradient(circle at 85% 18%, rgba(120,124,132,0.22), transparent 45%),
+      radial-gradient(circle at 75% 80%, rgba(20,20,24,0.55), transparent 50%),
+      radial-gradient(circle at 15% 85%, rgba(60,62,68,0.35), transparent 50%),
+      linear-gradient(135deg, #3a3c40 0%, #2e3034 28%, #1c1d20 55%, #0c0c0e 100%);
+  }
   body.theme-oldgrey .glass{
     background:linear-gradient(160deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
     border:1px solid rgba(255,255,255,0.10);
@@ -651,7 +659,7 @@
   @keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
 
   /* ── INTRO ── */
-  #introScreen{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f172a;transition:opacity .5s ease;}
+  #introScreen{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-grad1);transition:opacity .5s ease;}
   #introScreen.hide{opacity:0;pointer-events:none;}
   .intro-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;animation:introZoomIn .6s cubic-bezier(.34,1.56,.64,1) both;}
   .intro-logo-img{width:130px;height:130px;border-radius:32px;object-fit:cover;box-shadow:0 0 80px rgba(37,99,235,.5),0 0 40px rgba(14,165,233,.3);border:2px solid rgba(255,255,255,.2);}
@@ -2920,10 +2928,14 @@
         <span>ℹ️ Tentang Aplikasi</span><span>▼</span>
       </div>
       <div class="collapse-body" id="aboutCollapse">
-        <p><b>Nama Aplikasi:</b> PIMAPIKA.ID v3.0</p>
+        <p><b>Nama Aplikasi:</b> PIMAPIKA.ID v3.1</p>
         <p><b>Filosofi:</b> <em>Pitih Masuak Pitih Kalua</em></p>
         <p><b>Developer:</b> @arie96s</p>
         <p><b>Fitur v3.0:</b> Jam Digital (24/12 jam, WIB/WITA/WIT), Dynamic Island Berita Finansial (Google News), Liquid Glass Animation</p>
+        <p><b>Fitur Baru v3.1:</b></p>
+        <p>• 🗂 Tab Workspace pada Dynamic Island kini menampilkan Saldo Bersih, Pemasukan, Pengeluaran & Tabungan secara real-time (bug "—" telah diperbaiki)</p>
+        <p>• 🎨 Layar Intro kini otomatis menyesuaikan warna latar dengan tema (Dark / Light / Old Grey) yang dipilih di Pengaturan</p>
+        <p>• 🛠️ Perbaikan bug umum & peningkatan stabilitas sinkronisasi data antar workspace</p>
       </div>
     </div>
 
@@ -6312,6 +6324,9 @@ function diSwitchTab(tab, e) {
   document.getElementById('diTabWS').classList.toggle('active', tab === 'ws');
   document.getElementById('diTabNews').classList.toggle('active', tab === 'news');
   diSnapCapsule(tab);
+  if (tab === 'ws') {
+    diUpdateWorkspace();
+  }
   if (tab === 'news') {
     const stale = Date.now() - _diNewsFetchedAt > 600000; // 10 menit
     if (!_diNewsLoaded || stale) { _diNewsLoaded = false; diFetchNews(); }
@@ -6355,16 +6370,15 @@ function diCapsuleRelease(tab) {
 
 function diUpdateWorkspace() {
   try {
-    const state  = loadState();
-    const ws     = state.activeWorkspace || 'personal';
-    const month  = state.selectedMonth || new Date().toISOString().slice(0,7);
-    const txns   = (state.transactions || [])
-      .filter(t => (t.workspace || 'personal') === ws && (t.date||'').startsWith(month));
+    const period = state.period;
+    const pInc  = (state.incomes  || []).filter(i => i.period === period);
+    const pExp  = (state.expenses || []).filter(e => e.period === period);
     let inc = 0, exp = 0;
-    txns.forEach(t => t.type === 'income' ? inc += (t.amount||0) : exp += (t.amount||0));
+    pInc.forEach(i => inc += (i.amt || 0));
+    pExp.forEach(e => exp += (e.amt || 0));
     const net = inc - exp;
-    const goals = state.savingsGoals || [];
-    const totalSaved = goals.reduce((a,g) => a + (g.current||0), 0);
+    const goals = state.targets || [];
+    const totalSaved = goals.reduce((a,g) => a + (g.saved||0), 0);
     const fmt = v => {
       const abs = Math.abs(v);
       if (abs >= 1e9) return (v<0?'-':'')+'Rp'+(abs/1e9).toFixed(1)+'M';
