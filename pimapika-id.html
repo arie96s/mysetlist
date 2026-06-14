@@ -2131,7 +2131,7 @@
       <!-- Tap date to open native date picker -->
       <div class="header-date-wrap" title="Tap untuk ubah tanggal">
         <div class="header-date-display" id="headerDate"></div>
-        <input type="date" class="header-date-input" id="headerDatePicker" onchange="onHeaderDatePick(this)">
+        <input type="date" class="header-date-input" id="headerDatePicker" onchange="onHeaderDatePick(this)" oninput="onHeaderDatePick(this)">
       </div>
       <button class="btn-privacy" id="btnPrivacy" onclick="togglePrivacy()" title="Mode Privasi (sembunyikan nominal)">👁️</button>
       <button class="btn-setting" onclick="openSettingModal()" title="Pengaturan">⚙️</button>
@@ -3077,6 +3077,14 @@ function loadState(){
   const s = localStorage.getItem('pimapika_state');
   if(s){ try{ const parsed = JSON.parse(s); state = {...state, ...parsed}; }catch(e){} }
 
+  // Restore headerDate from redundant backup key if main state lost it
+  if(!state.headerDate){
+    try{
+      const backupDate = localStorage.getItem('pimapika_headerDate');
+      if(backupDate) state.headerDate = backupDate;
+    }catch(e){}
+  }
+
   // Ensure non-workspace global fields
   if(!state.goldPortfolio)   state.goldPortfolio   = [];
   if(!state.goldRefPrice)    state.goldRefPrice    = 1550000;
@@ -3192,8 +3200,10 @@ function clearCurrencyInput(id){ document.getElementById(id).value=''; }
 // Native date picker handler — called when user picks a date
 function onHeaderDatePick(el){
   if(!el.value) return;
+  if(state.headerDate === el.value) return; // avoid duplicate save from input+change firing together
   state.headerDate = el.value; // already YYYY-MM-DD from native picker
   saveState();
+  try{ localStorage.setItem('pimapika_headerDate', el.value); }catch(e){}
   renderHeaderDate();
   toast('Tanggal diperbarui ✓','success');
 }
@@ -6786,8 +6796,8 @@ const CURRENCY_CATALOG = {
 };
 const CURRENCY_ORDER = Object.keys(CURRENCY_CATALOG);
 
-let _convFrom = 'AUD';
-let _convTo = 'EUR';
+let _convFrom = 'USD';
+let _convTo = 'IDR';
 let _convRates = null;        // rates relatif terhadap USD: { CODE: rate }
 let _kursLoaded = false;
 let _kursFetchedAt = 0;
@@ -7216,9 +7226,15 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutCollapse');
   if (about) {
-    about.innerHTML = '<p><b>Nama Aplikasi:</b> PIMAPIKA.ID v3.0</p>'
+    about.innerHTML = '<p><b>Nama Aplikasi:</b> PIMAPIKA.ID v3.1</p>'
       + '<p><b>Filosofi:</b> <em>Pitih Masuak Pitih Kalua</em></p>'
       + '<p><b>Developer:</b> @arie96s</p>'
+      + '<p><b>Fitur Baru v3.1:</b></p>'
+      + '<p>🗂️ <b>Dynamic Island — Tab Workspace</b> kini menampilkan Saldo Bersih, Pemasukan, Pengeluaran &amp; Tabungan secara real-time (perbaikan bug tampilan "—")</p>'
+      + '<p>📅 <b>Tanggal Header Tersimpan Permanen</b> — perubahan tanggal di header kini tersimpan dan tidak kembali ke tanggal hari ini saat app dibuka ulang/refresh</p>'
+      + '<p>🎨 <b>Intro Mengikuti Tema</b> — warna latar layar pembuka otomatis menyesuaikan tema (Dark / Light / Old Grey) yang dipilih di Pengaturan</p>'
+      + '<p>🛠️ <b>Stabilitas &amp; Performa</b> — perbaikan bug umum, sinkronisasi data antar workspace lebih andal</p>'
+      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
       + '<p><b>Fitur v3.0:</b></p>'
       + '<p>⏰ <b>Jam Digital Header</b> — Format 24 jam atau 12 jam (AM/PM), zona waktu WIB/WITA/WIT, tampilan ringkas sejajar</p>'
       + '<p>🏝️ <b>Dynamic Island</b> — Mengambang di kiri bawah seperti Assistive Touch Apple. Idle → transparan &amp; mengecil. Tap untuk expand ke tengah. Tab <b>Workspace</b> + tab <b>News</b> dengan kapsul kenyal spring animation</p>'
