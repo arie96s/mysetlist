@@ -3077,12 +3077,12 @@ function loadState(){
   const s = localStorage.getItem('pimapika_state');
   if(s){ try{ const parsed = JSON.parse(s); state = {...state, ...parsed}; }catch(e){} }
 
-  // Restore headerDate from redundant backup key if main state lost it
-  if(!state.headerDate){
-    try{
-      const backupDate = localStorage.getItem('pimapika_headerDate');
-      if(backupDate) state.headerDate = backupDate;
-    }catch(e){}
+  // Header date selalu di-reset ke tanggal hari ini saat app dibuka/refresh
+  // (perubahan tanggal di header hanya berlaku sementara untuk sesi berjalan,
+  // bukan disimpan permanen)
+  {
+    const t=new Date();
+    state.headerDate=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
   }
 
   // Ensure non-workspace global fields
@@ -3198,14 +3198,14 @@ function clearCurrencyInput(id){ document.getElementById(id).value=''; }
 
 // ─── DATE UTILS ───
 // Native date picker handler — called when user picks a date
+// Catatan: perubahan ini hanya berlaku untuk sesi berjalan (tidak disimpan).
+// Saat app dibuka/refresh, tanggal header akan kembali ke tanggal hari ini.
 function onHeaderDatePick(el){
   if(!el.value) return;
-  if(state.headerDate === el.value) return; // avoid duplicate save from input+change firing together
+  if(state.headerDate === el.value) return; // avoid duplicate fire from input+change
   state.headerDate = el.value; // already YYYY-MM-DD from native picker
-  saveState();
-  try{ localStorage.setItem('pimapika_headerDate', el.value); }catch(e){}
   renderHeaderDate();
-  toast('Tanggal diperbarui ✓','success');
+  toast('Tanggal diperbarui ✓ (berlaku untuk sesi ini)','success');
 }
 
 // ─── HEADER DATE ───
@@ -3238,10 +3238,6 @@ loadState();
   },2700);
 })();
 
-if(!state.headerDate){
-  const t=new Date();
-  state.headerDate=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-}
 renderHeaderDate();
 
 const _today=new Date().toISOString().split('T')[0];
@@ -7231,7 +7227,8 @@ document.addEventListener('DOMContentLoaded', () => {
       + '<p><b>Developer:</b> @arie96s</p>'
       + '<p><b>Fitur Baru v3.1:</b></p>'
       + '<p>🗂️ <b>Dynamic Island — Tab Workspace</b> kini menampilkan Saldo Bersih, Pemasukan, Pengeluaran &amp; Tabungan secara real-time (perbaikan bug tampilan "—")</p>'
-      + '<p>📅 <b>Tanggal Header Tersimpan Permanen</b> — perubahan tanggal di header kini tersimpan dan tidak kembali ke tanggal hari ini saat app dibuka ulang/refresh</p>'
+      + '<p>📅 <b>Tanggal Header Sesi-Sementara</b> — tanggal header dapat diubah untuk kebutuhan input transaksi, namun akan otomatis kembali ke tanggal hari ini (real-time) setiap kali aplikasi dibuka/refresh</p>'
+      + '<p>💱 <b>Default Kurs Diperbaiki</b> — Currency Converter kini default ke pasangan USD → IDR</p>'
       + '<p>🎨 <b>Intro Mengikuti Tema</b> — warna latar layar pembuka otomatis menyesuaikan tema (Dark / Light / Old Grey) yang dipilih di Pengaturan</p>'
       + '<p>🛠️ <b>Stabilitas &amp; Performa</b> — perbaikan bug umum, sinkronisasi data antar workspace lebih andal</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
