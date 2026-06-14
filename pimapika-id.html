@@ -47,6 +47,73 @@
     --card-hover-bg: rgba(15,23,42,0.06);
     --modal-bg: rgba(255,255,255,0.96);
   }
+
+  /* ── THEME: OLD GREY FLOW (gradient grey/dark/black, matches app icon) ── */
+  body.theme-oldgrey {
+    --bg-grad1: #2a2c30;
+    --glass-white: rgba(255,255,255,0.07);
+    --glass-border: rgba(255,255,255,0.14);
+    --glass-shadow: rgba(0,0,0,0.35);
+    --glass-blur: blur(28px) saturate(140%);
+    --text-primary: rgba(245,245,247,0.96);
+    --text-secondary: rgba(225,225,230,0.6);
+    --text-muted: rgba(225,225,230,0.32);
+    --input-bg: rgba(255,255,255,0.05);
+    --input-border: rgba(255,255,255,0.12);
+    --card-hover-bg: rgba(255,255,255,0.09);
+    --modal-bg: rgba(30,32,36,0.94);
+    --accent-blue:#9aa0a6; --accent-teal:#b8bcc2; --accent-green:#8fd6b4;
+    --accent-red:#f29b9b; --accent-amber:#e0c08a; --accent-purple:#bdb8d6;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(210,212,216,0.16), transparent 42%),
+      radial-gradient(circle at 85% 18%, rgba(120,124,132,0.22), transparent 45%),
+      radial-gradient(circle at 75% 80%, rgba(20,20,24,0.55), transparent 50%),
+      radial-gradient(circle at 15% 85%, rgba(60,62,68,0.35), transparent 50%),
+      linear-gradient(135deg, #3a3c40 0%, #2e3034 28%, #1c1d20 55%, #0c0c0e 100%);
+    background-attachment: fixed;
+  }
+  body.theme-oldgrey .orb{display:none;}
+  body.theme-oldgrey .glass{
+    background:linear-gradient(160deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+    border:1px solid rgba(255,255,255,0.10);
+    box-shadow:0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  body.theme-oldgrey .glass:hover{
+    box-shadow:0 16px 48px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10);
+  }
+  body.theme-oldgrey .logo-name{
+    background:linear-gradient(90deg,#f5f5f7,#9a9ca1);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  body.theme-oldgrey .period-bar,
+  body.theme-oldgrey .tab-bar,
+  body.theme-oldgrey .workspace-bar{
+    background:rgba(255,255,255,0.04);
+    border-color:rgba(255,255,255,0.08);
+  }
+  body.theme-oldgrey .period-indicator,
+  body.theme-oldgrey .tab-indicator,
+  body.theme-oldgrey .ws-indicator{
+    background:linear-gradient(145deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 60%, rgba(255,255,255,0.14) 100%);
+    border-color:rgba(255,255,255,0.22);
+  }
+  body.theme-oldgrey .sum-income{background:rgba(143,214,180,.10);}
+  body.theme-oldgrey .sum-expense{background:rgba(242,155,155,.10);}
+  body.theme-oldgrey .sum-balance{background:rgba(154,160,166,.14);}
+  body.theme-oldgrey .sum-saved{background:rgba(189,184,214,.10);}
+  body.theme-oldgrey .sum-health{background:rgba(224,192,138,.10);}
+
+  /* ── Theme picker swatches ── */
+  .theme-picker{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
+  .theme-swatch{cursor:pointer;border-radius:16px;padding:3px;border:2px solid transparent;transition:border-color .25s,transform .2s;flex:1;min-width:90px;text-align:center;}
+  .theme-swatch:hover{transform:translateY(-2px);}
+  .theme-swatch.active{border-color:var(--accent-blue);}
+  .theme-swatch-preview{width:100%;height:54px;border-radius:12px;margin-bottom:6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 2px 8px rgba(0,0,0,.25);}
+  .theme-swatch-label{font-size:11px;color:var(--text-secondary);font-weight:500;}
+  .theme-swatch.active .theme-swatch-label{color:var(--text-primary);}
+  .preview-dark{background:linear-gradient(135deg,#1e293b,#0f172a);}
+  .preview-light{background:linear-gradient(135deg,#ffffff,#e2e8f0);}
+  .preview-oldgrey{background:linear-gradient(135deg,#3a3c40 0%,#2e3034 28%,#1c1d20 55%,#0c0c0e 100%);}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Outfit',sans-serif;background:var(--bg-grad1);min-height:100vh;color:var(--text-primary);overflow-x:hidden;transition:background .3s,color .3s;}
   .bg-orbs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
@@ -541,7 +608,7 @@
   .health-tip-icon{flex-shrink:0;font-size:14px;}
   .health-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;}
   .health-metric{padding:12px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);text-align:center;}
-  .health-metric .mval{font-size:17px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+  .health-metric .mval{font-size:17px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .health-metric .mlabel{font-size:10px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
 
   /* ── PDF/BOTTOM BAR ── */
@@ -554,7 +621,7 @@
 
   /* ── MODALS ── */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center;}
-  .modal-overlay.open{display:flex;animation:fadeIn .2s ease;}
+  .modal-overlay.open{display:flex;animation:fadeIn .2s ease;z-index:9600;}
   .modal-box{background:var(--modal-bg);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:32px;max-width:500px;width:93%;backdrop-filter:blur(40px);animation:modalIn .35s var(--spring);max-height:90vh;overflow-y:auto;}
   .modal-box::-webkit-scrollbar{width:4px;}
   .modal-box::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:10px;}
@@ -1299,6 +1366,407 @@
   .di-ws-val.red { color: #f87171; }
 
   /* ── News panel ── */
+  .di-news-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2px 6px 2px;
+  }
+  .di-news-updated {
+    font-size: 9px; color: var(--text-muted); letter-spacing: .3px;
+  }
+  .di-news-refresh-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    width: 22px; height: 22px; border-radius: 50%;
+    font-size: 12px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .4s, background .2s;
+  }
+  .di-news-refresh-btn:hover { background: rgba(255,255,255,0.12); }
+  .di-news-refresh-btn.spinning { animation: diSpin .7s linear; }
+  @keyframes diSpin { to { transform: rotate(360deg); } }
+  body.light-mode .di-news-refresh-btn { background: rgba(0,0,0,0.04); }
+  .di-news-more-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 9.5px; font-weight: 600; letter-spacing: .3px;
+    padding: 4px 9px; border-radius: 999px; cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .di-news-more-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-primary); }
+  body.light-mode .di-news-more-btn { background: rgba(0,0,0,0.04); }
+
+  /* ── News Hub Modal ── */
+  .news-hub-box{
+    max-width:560px;
+    padding:22px;
+    max-height:88vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .news-hub-header{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .news-hub-close{
+    width:30px;height:30px;border-radius:50%;
+    background:var(--input-bg); border:1px solid var(--input-border);
+    color:var(--text-secondary); font-size:14px; cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .2s,color .2s;
+  }
+  .news-hub-close:hover{ background:var(--card-hover-bg); color:var(--text-primary); }
+  .news-hub-cats{
+    position:relative;
+    display:flex; gap:0; overflow-x:auto; padding:4px;
+    margin-bottom:6px; scrollbar-width:none;
+    background:rgba(255,255,255,0.07);
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.12);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 24px rgba(0,0,0,0.12);
+    scroll-behavior:smooth;
+  }
+  body.light-mode .news-hub-cats{
+    background:rgba(0,0,0,0.05);
+    border-color:rgba(0,0,0,0.08);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .news-hub-cats::-webkit-scrollbar{display:none;}
+
+  /* Liquid glass sliding capsule indicator for news categories */
+  .news-cat-indicator{
+    position:absolute;
+    top:4px;
+    left:4px;
+    height:calc(100% - 8px);
+    border-radius:999px;
+    background:linear-gradient(
+      145deg,
+      rgba(255,255,255,0.38) 0%,
+      rgba(255,255,255,0.18) 40%,
+      rgba(255,255,255,0.10) 60%,
+      rgba(255,255,255,0.22) 100%
+    );
+    backdrop-filter:blur(28px) saturate(200%);
+    -webkit-backdrop-filter:blur(28px) saturate(200%);
+    border:1px solid rgba(255,255,255,0.45);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.18),
+      0 0 0 0.5px rgba(255,255,255,0.2) inset,
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 -1px 0 rgba(255,255,255,0.08) inset;
+    transition:
+      left 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      width 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      opacity 0.2s ease;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+  body.light-mode .news-cat-indicator{
+    background:linear-gradient(
+      145deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(255,255,255,0.75) 40%,
+      rgba(255,255,255,0.60) 60%,
+      rgba(255,255,255,0.85) 100%
+    );
+    border-color:rgba(255,255,255,0.9);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.10),
+      0 0 0 0.5px rgba(255,255,255,0.5) inset,
+      0 1px 0 rgba(255,255,255,1) inset;
+  }
+  .news-cat-indicator::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background:linear-gradient(
+      105deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.35) 45%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.35) 55%,
+      rgba(255,255,255,0) 100%
+    );
+    opacity:0;
+    transition:opacity 0.6s ease;
+    pointer-events:none;
+  }
+  .news-cat-indicator.shimmer::after{
+    animation:liquidShimmer 0.55s ease forwards;
+  }
+  .news-cat-indicator.squish{
+    animation:capsuleSquishRight 0.48s cubic-bezier(0.34,1.56,0.64,1);
+    transform-origin:center center;
+  }
+  .news-cat-btn{
+    position:relative; z-index:1;
+    flex-shrink:0; font-size:11px; font-weight:600; letter-spacing:.2px;
+    padding:8px 14px; border-radius:999px; cursor:pointer;
+    background:none; border:none;
+    color:var(--text-secondary); transition:color .25s ease;
+    white-space:nowrap;
+  }
+  .news-cat-btn.active{
+    color:var(--text-primary);
+  }
+  body.light-mode .news-cat-btn.active{
+    color:var(--text-primary);
+  }
+  .news-hub-updated{
+    font-size:10px; color:var(--text-muted); margin-bottom:10px; padding-left:2px;
+  }
+  .news-hub-source-badge{
+    font-size:10px; color: var(--text-muted); margin: -4px 0 10px 0;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .news-hub-source-badge::before{
+    content:'G'; display:inline-flex; align-items:center; justify-content:center;
+    width:12px; height:12px; border-radius:50%; background:#fff; color:#4285F4;
+    font-size:8px; font-weight:900; font-family:Arial,sans-serif;
+  }
+  .news-hub-list{
+    overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:10px;
+    padding-right:2px;
+  }
+  .news-hub-list .news-card{
+    background:var(--input-bg); border:1px solid var(--input-border);
+    border-radius:14px; padding:13px 14px; cursor:pointer;
+    transition:background .2s, transform .15s;
+  }
+  .news-hub-list .news-card:hover{ background:var(--card-hover-bg); transform:translateY(-1px); }
+  .news-hub-list .news-card-cat{
+    font-size:9px; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
+    color:var(--accent-teal); margin-bottom:5px;
+  }
+  .news-hub-list .news-card-title{
+    font-size:13.5px; font-weight:600; color:var(--text-primary);
+    line-height:1.4; margin-bottom:6px;
+  }
+  .news-hub-list .news-card-meta{
+    font-size:10.5px; color:var(--text-muted);
+    display:flex; align-items:center; gap:5px;
+  }
+  .news-hub-list .news-card-meta .g-icon{
+    width:13px;height:13px;border-radius:50%;background:#fff;color:#4285F4;
+    font-size:8px;font-weight:900;display:flex;align-items:center;justify-content:center;
+    font-family:Arial,sans-serif;
+  }
+  .news-hub-skeleton, .news-reader-skeleton{
+    display:flex; flex-direction:column; gap:10px; padding:4px 0;
+  }
+  .news-hub-skeleton .di-skel-line{ height:46px; border-radius:12px; }
+
+  /* ── In-app Reader View ── */
+  .news-reader-back{
+    background:none; border:none; color:var(--accent-blue);
+    font-size:12px; font-weight:600; cursor:pointer; padding:0 0 12px 0;
+  }
+  .news-reader-content{
+    overflow-y:auto; flex:1;
+  }
+  .news-reader-title{
+    font-size:17px; font-weight:700; color:var(--text-primary);
+    line-height:1.4; margin-bottom:8px;
+  }
+  .news-reader-meta{
+    font-size:11px; color:var(--text-muted); margin-bottom:14px;
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  }
+  .news-reader-meta a{ color:var(--accent-blue); text-decoration:none; font-weight:600; }
+  .news-reader-body{
+    font-size:13.5px; line-height:1.8; color:var(--text-secondary);
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .news-reader-body p{ margin-bottom:12px; }
+  .news-reader-fallback{
+    text-align:center; padding:30px 10px; color:var(--text-muted); font-size:12.5px;
+  }
+  .news-reader-fallback a{
+    display:inline-block; margin-top:10px; color:var(--accent-blue); font-weight:600;
+  }
+
+  /* ── Halaman Berita (Tab Berita) ── */
+  .news-page-updated {
+    font-size: 11px; font-weight: 400; color: var(--text-muted);
+    margin-left: auto; margin-right: 8px;
+  }
+  .news-page-refresh {
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    color: var(--text-secondary); width: 26px; height: 26px; border-radius: 50%;
+    font-size: 13px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: transform .4s, background .2s;
+  }
+  .news-page-refresh:hover { background: var(--card-hover-bg); }
+  .news-page-refresh.spinning { animation: diSpin .7s linear; }
+
+  .news-chip-row {
+    display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 14px 2px;
+    -ms-overflow-style: none; scrollbar-width: none;
+  }
+  .news-chip-row::-webkit-scrollbar { display: none; }
+  .news-chip {
+    flex-shrink: 0; font-size: 12px; font-weight: 600; padding: 7px 14px;
+    border-radius: 999px; background: var(--input-bg); border: 1px solid var(--input-border);
+    color: var(--text-secondary); cursor: pointer; transition: all .2s; white-space: nowrap;
+  }
+  .news-chip:hover { background: var(--card-hover-bg); }
+  .news-chip.active {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-teal));
+    color: #fff; border-color: transparent;
+  }
+  body.light-mode .news-chip.active { color: #fff; }
+
+  .news-feed { min-height: 200px; }
+  .news-feed-list {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .news-card {
+    background: var(--glass-white); border: 1px solid var(--glass-border);
+    border-radius: 16px; overflow: hidden; cursor: pointer;
+    transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column;
+  }
+  .news-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px var(--glass-shadow); }
+  .news-card-img {
+    width: 100%; height: 130px; object-fit: cover; background: var(--input-bg);
+    display: block;
+  }
+  .news-card-img-placeholder {
+    width: 100%; height: 130px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--input-bg), var(--card-hover-bg));
+    font-size: 34px;
+  }
+  .news-card-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .news-card-cat {
+    font-size: 9.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase;
+    color: var(--accent-teal);
+  }
+  .news-card-title {
+    font-size: 13.5px; font-weight: 700; line-height: 1.35; color: var(--text-primary);
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .news-card-desc {
+    font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .news-card-meta {
+    margin-top: auto; padding-top: 4px; display: flex; align-items: center; justify-content: space-between;
+    font-size: 10.5px; color: var(--text-muted);
+  }
+  .news-card-src { display: flex; align-items: center; gap: 4px; font-weight: 600; }
+  .news-card-src .di-news-g-icon {
+    width: 12px; height: 12px; border-radius: 50%; background: #fff; color: #4285F4;
+    font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+    font-family: Arial, sans-serif; flex-shrink: 0;
+  }
+
+  .news-skeleton {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;
+  }
+  .news-skel-card {
+    height: 230px; border-radius: 16px; background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    background-image: linear-gradient(90deg, transparent, var(--card-hover-bg), transparent);
+    background-size: 200% 100%; animation: newsShimmer 1.4s infinite;
+  }
+  @keyframes newsShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+  .news-feed-empty {
+    text-align: center; padding: 40px 12px; color: var(--text-muted); font-size: 13px;
+  }
+  .news-feed-empty .empty-icon { font-size: 34px; margin-bottom: 10px; }
+
+  .news-loadmore-wrap { margin-top: 16px; }
+  .news-page-footer {
+    margin-top: 22px; font-size: 11px; color: var(--text-muted); text-align: center;
+    line-height: 1.5; padding-bottom: 8px;
+  }
+
+  /* ── Currency Converter ── */
+  .kurs-status-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: -8px 0 12px 0;
+  }
+  .kurs-updated {
+    font-size: 11px; font-weight: 400; color: var(--text-muted);
+  }
+  .conv-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .conv-card {
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 18px; padding: 16px 18px; transition: border-color .2s;
+  }
+  .conv-card-result { border-color: var(--accent-blue); }
+  .conv-row-top { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .conv-flag { font-size: 20px; line-height: 1; }
+  .conv-select {
+    background: transparent; border: none; color: var(--text-secondary);
+    font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+    padding: 4px 0; -webkit-appearance: none; appearance: none;
+    flex: 1; min-width: 0;
+  }
+  .conv-select option { background: var(--modal-bg); color: var(--text-primary); }
+  .conv-amount-row { display: flex; align-items: baseline; gap: 6px; }
+  .conv-symbol { font-size: 22px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+  .conv-amount-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    font-size: 28px; font-weight: 800; color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace; min-width: 0; width: 100%;
+  }
+  .conv-name { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+  /* ── Swap row antara dua kartu ── */
+  .conv-swap-row {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 6px 0; position: relative;
+  }
+  .conv-rate-line {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    flex: 1; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .conv-swap-btn {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: var(--accent-blue); color: #fff; border: none;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,.2);
+    transition: transform .35s;
+  }
+  .conv-swap-btn:active { transform: rotate(180deg); }
+  .conv-swap-btn.swap-spin { animation: convSwapSpin .4s ease; }
+  @keyframes convSwapSpin { from { transform: rotate(0deg); } to { transform: rotate(180deg); } }
+
+  /* ── Chart Tren Kurs ── */
+  .conv-chart-card {
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 18px; padding: 16px 14px; margin-top: 16px;
+  }
+  .conv-chart-header {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; font-weight: 700; color: var(--text-secondary);
+    margin-bottom: 10px; text-transform: uppercase; letter-spacing: .4px;
+  }
+  .conv-chart-rate {
+    font-family: 'JetBrains Mono', monospace; color: var(--text-primary);
+    font-size: 12px; text-transform: none; letter-spacing: 0;
+  }
+  .conv-change-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px;
+    text-transform: none; letter-spacing: 0;
+  }
+  .conv-change-badge.up { color: #34d399; background: rgba(52,211,153,0.12); }
+  .conv-change-badge.down { color: #f87171; background: rgba(248,113,113,0.12); }
+  .conv-chart-box { position: relative; height: 160px; }
+  .conv-chart-empty {
+    text-align: center; padding: 30px 10px; color: var(--text-muted); font-size: 12px; line-height: 1.5;
+  }
   .di-news-list {
     display: flex;
     flex-direction: column;
@@ -1350,7 +1818,7 @@
     background-size: 200% 100%;
   }
   @keyframes skelShimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
-  .di-skel-line.w60{width:60%;} .di-skel-line.w80{width:80%;} .di-skel-line.w40{width:40%;}
+  .di-skel-line.w60{width:60%;} .di-skel-line.w80{width:80%;} .di-skel-line.w40{width:40%;} .di-skel-line.w100{width:100%;}
 
   /* ── Squish ── */
   @keyframes diSquish {
@@ -1730,6 +2198,8 @@
       <button class="tab-btn" onclick="switchTab('tagihan',this)">🔔 Tagihan</button>
       <button class="tab-btn" onclick="switchTab('ringkasan',this)">📋 Ringkasan</button>
       <button class="tab-btn" onclick="switchTab('emas',this)">🪙 Aset Emas</button>
+      <button class="tab-btn" onclick="switchTab('kurs',this)">💱 Kurs</button>
+
     </div>
 
     <!-- ══ TAB PEMASUKAN ══ -->
@@ -1799,8 +2269,17 @@
         </div>
         <div>
           <div class="sec-title"><span>📋</span> Riwayat Pemasukan <span class="sec-badge" id="incBadge">0</span></div>
-          <div class="input-group" style="margin-bottom:10px;">
-            <input class="glass-input" id="incSearch" placeholder="🔍 Cari pemasukan..." type="text" oninput="renderIncome()" style="font-size:13px;padding:9px 14px;">
+          <div class="input-group" style="margin-bottom:10px;display:flex;gap:8px;">
+            <input class="glass-input" id="incSearch" placeholder="🔍 Cari pemasukan..." type="text" oninput="renderIncome()" style="font-size:13px;padding:9px 14px;flex:1;">
+            <select class="glass-input" id="incFilterCat" onchange="renderIncome()" style="font-size:13px;padding:9px 10px;max-width:120px;">
+              <option value="">Semua</option>
+              <option value="gaji">💼 Gaji</option>
+              <option value="usaha">🏪 Usaha</option>
+              <option value="investasi">📈 Investasi</option>
+              <option value="freelance">💻 Freelance</option>
+              <option value="bonus">🎁 Bonus</option>
+              <option value="lainnya">✨ Lainnya</option>
+            </select>
           </div>
           <div class="tx-list" id="incList">
             <div class="empty-state"><div class="empty-icon">📭</div>Belum ada pemasukan</div>
@@ -1882,8 +2361,20 @@
         </div>
         <div>
           <div class="sec-title"><span>📋</span> Riwayat Pengeluaran <span class="sec-badge" id="expBadge">0</span></div>
-          <div class="input-group" style="margin-bottom:10px;">
-            <input class="glass-input" id="expSearch" placeholder="🔍 Cari pengeluaran..." type="text" oninput="renderExpense()" style="font-size:13px;padding:9px 14px;">
+          <div class="input-group" style="margin-bottom:10px;display:flex;gap:8px;">
+            <input class="glass-input" id="expSearch" placeholder="🔍 Cari pengeluaran..." type="text" oninput="renderExpense()" style="font-size:13px;padding:9px 14px;flex:1;">
+            <select class="glass-input" id="expFilterCat" onchange="renderExpense()" style="font-size:13px;padding:9px 10px;max-width:120px;">
+              <option value="">Semua</option>
+              <option value="makan">🍽️ Makan</option>
+              <option value="tagihan">⚡ Tagihan</option>
+              <option value="transport">🚗 Transport</option>
+              <option value="belanja">🛒 Belanja</option>
+              <option value="hiburan">🎮 Hiburan</option>
+              <option value="kesehatan">🏥 Kesehatan</option>
+              <option value="pendidikan">📚 Pendidikan</option>
+              <option value="tabungan">💎 Tabungan</option>
+              <option value="lainnya">✨ Lainnya</option>
+            </select>
           </div>
           <div class="tx-list" id="expList">
             <div class="empty-state"><div class="empty-icon">📭</div>Belum ada pengeluaran</div>
@@ -2056,6 +2547,13 @@
           </div>
         </div>
       </div>
+      <!-- Smart Stats -->
+      <div class="glass" style="padding:22px;margin-top:20px;">
+        <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>🧠</span>Statistik Cerdas</div>
+        <div id="smartStats" class="health-metrics" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));">
+          <div style="color:var(--text-muted);font-size:13px;">Belum ada data untuk dianalisis.</div>
+        </div>
+      </div>
     </div>
 
     <!-- ══ TAB RINGKASAN ══ -->
@@ -2080,6 +2578,10 @@
         <div id="bankSplitDetail"></div>
       </div>
       <div class="glass" style="padding:20px;margin-bottom:20px;">
+        <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>🏅</span>Pencapaian</div>
+        <div class="achievement-grid" id="achievementGrid"></div>
+      </div>
+      <div class="glass" style="padding:20px;margin-bottom:20px;">
         <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>📝</span>Catatan</div>
         <textarea class="glass-input" id="globalNotes" placeholder="Tambahkan catatan, target, atau rencana keuangan Anda di sini..." style="width:100%;min-height:80px;resize:vertical;"></textarea>
       </div>
@@ -2094,6 +2596,7 @@
             <input type="file" accept=".json" style="display:none;" onchange="importJSON(this)">
           </label>
           <button class="btn-data btn-csv-exp" onclick="exportCSV()">📊 Ekspor ke Excel (.csv)</button>
+          <button class="btn-data btn-json-exp" onclick="printReport()">🖨️ Cetak Laporan (PDF)</button>
         </div>
       </div>
       <div class="pdf-bar">
@@ -2266,6 +2769,72 @@
       </div>
     </div>
 
+    <!-- ══ TAB KURS — Currency Converter (Real-time) ══ -->
+    <div id="tab-kurs" class="tab-content">
+      <div class="sec-title">
+        <span>💱</span> Currency Converter
+      </div>
+      <div class="kurs-status-row">
+        <span class="kurs-updated" id="kursPageUpdated"></span>
+        <button class="news-page-refresh" id="kursPageRefreshBtn" onclick="kursPageRefresh(event)" title="Muat ulang kurs">↻</button>
+      </div>
+
+      <!-- Converter Card -->
+      <div class="conv-wrap">
+        <div class="conv-card">
+          <div class="conv-row-top">
+            <span class="conv-flag" id="convFromFlag">🏳️</span>
+            <select class="conv-select" id="convFromCode" onchange="convOnChangeCurrency('from')"></select>
+          </div>
+          <div class="conv-amount-row">
+            <span class="conv-symbol" id="convFromSymbol">$</span>
+            <input class="conv-amount-input" id="convFromAmount" type="text" inputmode="decimal" value="1" oninput="convOnInput('from')">
+          </div>
+          <div class="conv-name" id="convFromName">—</div>
+        </div>
+
+        <div class="conv-swap-row">
+          <div class="conv-rate-line" id="convRateRow">—</div>
+          <button class="conv-swap-btn" id="convSwapBtn" onclick="convSwap()" title="Tukar mata uang">⇅</button>
+        </div>
+
+        <div class="conv-card conv-card-result">
+          <div class="conv-row-top">
+            <span class="conv-flag" id="convToFlag">🏳️</span>
+            <select class="conv-select" id="convToCode" onchange="convOnChangeCurrency('to')"></select>
+          </div>
+          <div class="conv-amount-row">
+            <span class="conv-symbol" id="convToSymbol">$</span>
+            <input class="conv-amount-input" id="convToAmount" type="text" inputmode="decimal" value="0" oninput="convOnInput('to')">
+          </div>
+          <div class="conv-name" id="convToName">—</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="conv-chart-card">
+        <div class="conv-chart-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="convChartTitle">Tren 7 Hari</span>
+            <span class="conv-change-badge" id="convChangeBadge"></span>
+          </div>
+          <span class="conv-chart-rate" id="convChartRate">—</span>
+        </div>
+        <div class="conv-chart-box">
+          <canvas id="convChartCanvas"></canvas>
+        </div>
+        <div class="conv-chart-empty" id="convChartEmpty" style="display:none;">
+          📊 Data riwayat akan terkumpul otomatis seiring penggunaan app.
+        </div>
+      </div>
+
+      <div class="news-page-footer">
+        Kurs real-time dari Open Exchange Rates API. Nilai dapat berbeda sedikit dengan kurs bank/penyedia jasa keuangan (margin/spread).
+      </div>
+
+    </div>
+
+
   </div><!-- end main card -->
 </div><!-- end .app -->
 
@@ -2300,18 +2869,27 @@
   <div class="modal-box" style="max-width:520px;">
     <div class="modal-title">⚙️ Pengaturan Aplikasi</div>
 
-    <!-- Dark mode toggle -->
-    <div class="setting-row">
-      <div class="setting-info">
-        <div class="title">Tema Gelap (Dark Mode)</div>
-        <div class="desc">Mengubah tampilan antarmuka visual sistem</div>
+    <!-- Theme picker -->
+    <div class="setting-row" style="flex-direction:column;align-items:stretch;">
+      <div class="setting-info" style="margin-bottom:4px;">
+        <div class="title">🎨 Tema Tampilan</div>
+        <div class="desc">Pilih tema antarmuka aplikasi</div>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="darkModeToggle" checked onchange="toggleDarkMode()">
-        <span class="slider"></span>
-      </label>
+      <div class="theme-picker">
+        <div class="theme-swatch" id="swatchDark" onclick="setAppTheme('dark')">
+          <div class="theme-swatch-preview preview-dark"></div>
+          <div class="theme-swatch-label">Dark</div>
+        </div>
+        <div class="theme-swatch" id="swatchLight" onclick="setAppTheme('light')">
+          <div class="theme-swatch-preview preview-light"></div>
+          <div class="theme-swatch-label">Light</div>
+        </div>
+        <div class="theme-swatch" id="swatchOldgrey" onclick="setAppTheme('oldgrey')">
+          <div class="theme-swatch-preview preview-oldgrey"></div>
+          <div class="theme-swatch-label">Old Grey</div>
+        </div>
+      </div>
     </div>
-
 
 
     <!-- Collapse: Help -->
@@ -2414,6 +2992,39 @@
 
 <!-- ══════════════════════════ SCRIPT ══════════════════════════ -->
 <script>
+
+// ─── FITUR 3: GAMIFIKASI ACHIEVEMENTS ────────────────────
+const BADGE_DEFS = [
+  {
+    id: 'masterSaver',
+    icon: '🥇',
+    name: 'Master Saver',
+    desc: 'Saving Rate > 30% di periode ini',
+    color: '#f59e0b'
+  },
+  {
+    id: 'emergencyReady',
+    icon: '🛡️',
+    name: 'Emergency Ready',
+    desc: 'Target Dana Darurat mencapai 100%',
+    color: '#3b82f6'
+  },
+  {
+    id: 'budgetWarden',
+    icon: '🙅',
+    name: 'Budget Warden',
+    desc: 'Tidak ada anggaran yang OVER di akhir bulan',
+    color: '#10b981'
+  },
+  {
+    id: 'goldAccumulator',
+    icon: '🪙',
+    name: 'Gold Accumulator',
+    desc: 'Memiliki portofolio emas > 0 gram',
+    color: '#d97706'
+  }
+];
+
 // ─── STATE ───
 let state = {
   period:'Januari', incomes:[], expenses:[], banks:[],
@@ -2614,9 +3225,9 @@ document.getElementById('bankName').addEventListener('change',function(){
   document.getElementById('bankCustomGroup').style.display=this.value==='custom'?'block':'none';
 });
 
-if(state.darkMode===false){
-  document.body.classList.add('light-mode');
-  document.getElementById('darkModeToggle').checked=false;
+{
+  const initTheme = state.appTheme || (state.darkMode===false ? 'light' : 'dark');
+  applyAppTheme(initTheme);
 }
 
 // Init privacy mode
@@ -2789,6 +3400,10 @@ function switchTab(t, btn, e){
   if(t==='budget') renderBudget();
   if(t==='analitik') renderAnalitik();
   if(t==='emas') renderGold();
+  if(t==='kurs'){
+    if(!_kursLoaded) kursFetchAll();
+    else convRefreshDisplay();
+  }
 }
 
 function switchTabByName(t){
@@ -2822,6 +3437,10 @@ window.addEventListener('resize', ()=>{
   if(activeBtn) updateTabIndicator(activeBtn, true);
   const activePeriodBtn = document.querySelector('.period-btn.active');
   if(activePeriodBtn) updatePeriodIndicator(activePeriodBtn, true);
+  const activeNewsCatBtn = document.querySelector('.news-cat-btn.active');
+  if(activeNewsCatBtn && document.getElementById('newsModal')?.classList.contains('open')) {
+    updateNewsCatIndicator(activeNewsCatBtn, true);
+  }
 });
 
 // ─── FORMAT ───
@@ -3060,81 +3679,62 @@ function renderAnalitik(){
   renderBarChart();
   // Donut Chart
   renderDonutChart();
+  // Smart Stats
+  renderSmartStats();
 }
 
-function renderBarChart(){
-  const el=document.getElementById('barChart12');
-  // Find max across all months for scaling
-  let maxVal=0;
-  MONTHS.forEach(m=>{
-    const inc=state.incomes.filter(i=>i.period===m).reduce((s,i)=>s+i.amt,0);
-    const exp=state.expenses.filter(e=>e.period===m).reduce((s,e)=>s+e.amt,0);
-    if(inc>maxVal) maxVal=inc;
-    if(exp>maxVal) maxVal=exp;
-  });
-  if(maxVal===0){ el.innerHTML='<div style="color:var(--text-muted);font-size:12px;text-align:center;width:100%;padding:20px;">Belum ada data di semua bulan</div>'; return; }
-  const H=110;
-  el.innerHTML=MONTHS.map((m,i)=>{
-    const inc=state.incomes.filter(it=>it.period===m).reduce((s,it)=>s+it.amt,0);
-    const exp=state.expenses.filter(it=>it.period===m).reduce((s,it)=>s+it.amt,0);
-    const hInc=maxVal>0?Math.max(2,(inc/maxVal)*H):2;
-    const hExp=maxVal>0?Math.max(2,(exp/maxVal)*H):2;
-    const short=['J','F','M','A','M','J','J','A','S','O','N','D'][i];
-    const isActive=m===state.period;
-    return `<div class="bar-group" style="${isActive?'opacity:1':'opacity:.7'}">
-      <div class="bar-pair">
-        <div class="bar bar-inc" style="height:${hInc}px;width:12px;" data-tip="${m}: ${fmtShort(inc)}"></div>
-        <div class="bar bar-exp" style="height:${hExp}px;width:12px;" data-tip="${m}: ${fmtShort(exp)}"></div>
-      </div>
-      <div class="bar-label" style="${isActive?'color:var(--text-primary);font-weight:700':''}">${short}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderDonutChart(){
+function renderSmartStats(){
+  const el=document.getElementById('smartStats');
+  if(!el) return;
+  const pInc=state.incomes.filter(i=>i.period===state.period);
   const pExp=state.expenses.filter(e=>e.period===state.period);
-  const wrap=document.getElementById('donutWrap');
-  if(!pExp.length){
-    wrap.innerHTML='<div style="color:var(--text-muted);font-size:13px;">Belum ada data pengeluaran periode ini</div>';
+  if(pInc.length===0 && pExp.length===0){
+    el.innerHTML='<div style="color:var(--text-muted);font-size:13px;">Belum ada data untuk dianalisis.</div>';
     return;
   }
-  const byCat={};
-  pExp.forEach(e=>{ byCat[e.cat]=(byCat[e.cat]||0)+e.amt; });
-  const entries=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
-  const total=entries.reduce((s,[,v])=>s+v,0);
+  const totalInc=pInc.reduce((s,i)=>s+i.amt,0);
+  const totalExp=pExp.reduce((s,e)=>s+e.amt,0);
 
-  const R=50, cx=65, cy=65, circ=2*Math.PI*R;
-  let paths='';
-  let offset=0;
-  entries.forEach(([cat,amt],i)=>{
-    const pct=amt/total;
-    const dash=pct*circ;
-    const gap=circ-dash;
-    paths+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none"
-      stroke="${CHART_COLORS[i%CHART_COLORS.length]}" stroke-width="18"
-      stroke-dasharray="${dash} ${gap}"
-      stroke-dashoffset="${-offset+circ/4}"
-      transform="rotate(-90 ${cx} ${cy})"
-      style="transition:stroke-dashoffset .5s;"/>`;
-    offset+=dash;
-  });
+  // Hari unik dengan transaksi pengeluaran
+  const expDays=new Set(pExp.map(e=>e.date));
+  const avgDaily = expDays.size>0 ? totalExp/expDays.size : 0;
 
-  const svg=`<svg class="donut-svg" width="130" height="130" viewBox="0 0 130 130">
-    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="18"/>
-    ${paths}
-    <text x="${cx}" y="${cy-6}" text-anchor="middle" font-size="10" fill="var(--text-muted)" font-family="Outfit">Total</text>
-    <text x="${cx}" y="${cy+10}" text-anchor="middle" font-size="11" fill="var(--text-primary)" font-weight="700" font-family="JetBrains Mono">${fmtShort(total)}</text>
-  </svg>`;
+  // Kategori pengeluaran terbesar
+  const catTotals={};
+  pExp.forEach(e=>{ catTotals[e.cat]=(catTotals[e.cat]||0)+e.amt; });
+  const topCatEntry=Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
+  const topCatLabel=topCatEntry?getCatLabelPlain(topCatEntry[0]):'—';
+  const topCatPct=topCatEntry && totalExp>0 ? (topCatEntry[1]/totalExp*100):0;
 
-  const legend=`<div class="donut-legend">${entries.slice(0,7).map(([cat,amt],i)=>`
-    <div class="donut-leg-item">
-      <div class="donut-leg-dot" style="background:${CHART_COLORS[i%CHART_COLORS.length]};"></div>
-      <span class="donut-leg-name">${getCatLabel(cat)}</span>
-      <span class="donut-leg-val">${(amt/total*100).toFixed(0)}%</span>
-    </div>`).join('')}</div>`;
+  // Transaksi terbesar (pengeluaran tunggal)
+  const biggestExp=pExp.slice().sort((a,b)=>b.amt-a.amt)[0];
 
-  wrap.innerHTML=svg+legend;
+  // Proyeksi akhir bulan: berdasarkan rata-rata harian x sisa hari di bulan ini (hanya relevan utk periode bulan berjalan)
+  const now=new Date();
+  const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const projectedExp = avgDaily>0 ? avgDaily*daysInMonth : totalExp;
+  const projectedBalance = totalInc - projectedExp;
+
+  el.innerHTML=`
+    <div class="health-metric">
+      <div class="mval">${fmt(avgDaily)}</div>
+      <div class="mlabel">Rata² Belanja/Hari</div>
+    </div>
+    <div class="health-metric">
+      <div class="mval" title="${topCatLabel}">${topCatLabel}</div>
+      <div class="mlabel">Kategori Terbesar (${topCatPct.toFixed(0)}%)</div>
+    </div>
+    <div class="health-metric">
+      <div class="mval">${biggestExp?fmt(biggestExp.amt):'—'}</div>
+      <div class="mlabel">Transaksi Terbesar${biggestExp?' · '+biggestExp.name:''}</div>
+    </div>
+    <div class="health-metric">
+      <div class="mval" style="color:${projectedBalance>=0?'#34d399':'#f87171'};">${fmt(projectedBalance)}</div>
+      <div class="mlabel">Proyeksi Saldo Akhir Bulan</div>
+    </div>
+  `;
 }
+
 
 // ─── MAIN RENDER ───
 function render(){
@@ -3290,11 +3890,23 @@ function closeSettingModal(){ document.getElementById('settingModal').classList.
   if(_sm) _sm.addEventListener('click',function(e){ if(e.target===this) closeSettingModal(); });
 })();
 
-// ─── DARK MODE ───
-function toggleDarkMode(){
-  const c=document.getElementById('darkModeToggle').checked;
-  state.darkMode=c;
-  document.body.classList.toggle('light-mode',!c);
+// ─── THEME ───
+function applyAppTheme(theme){
+  document.body.classList.remove('light-mode','theme-oldgrey');
+  if(theme==='light') document.body.classList.add('light-mode');
+  else if(theme==='oldgrey') document.body.classList.add('theme-oldgrey');
+  ['swatchDark','swatchLight','swatchOldgrey'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('active');
+  });
+  const map={dark:'swatchDark',light:'swatchLight',oldgrey:'swatchOldgrey'};
+  const active=document.getElementById(map[theme]);
+  if(active) active.classList.add('active');
+}
+function setAppTheme(theme){
+  state.appTheme=theme;
+  state.darkMode = theme!=='light';
+  applyAppTheme(theme);
   saveState();
 }
 
@@ -3446,7 +4058,9 @@ function downloadPDF(){
 function renderIncome(){
   const pInc=state.incomes.filter(i=>i.period===state.period);
   const q=(document.getElementById('incSearch')?.value||'').toLowerCase().trim();
-  const filtered=q?pInc.filter(i=>i.name.toLowerCase().includes(q)||(i.note||'').toLowerCase().includes(q)):pInc;
+  const fc=(document.getElementById('incFilterCat')?.value||'');
+  let filtered=q?pInc.filter(i=>i.name.toLowerCase().includes(q)||(i.note||'').toLowerCase().includes(q)):pInc;
+  if(fc) filtered=filtered.filter(i=>i.cat===fc);
   const incList=document.getElementById('incList');
   if(!incList) return;
   incList.innerHTML=filtered.length
@@ -3461,12 +4075,14 @@ function renderIncome(){
           <button class="tx-menu-btn" onclick="toggleTxMenuFixed(this,'inc',${i.id},event)" title="Opsi">⋮</button>
         </div>
       </div>`).join('')
-    : (q?'<div class="empty-state"><div class="empty-icon">🔍</div>Tidak ditemukan</div>':'<div class="empty-state"><div class="empty-icon">📭</div>Belum ada pemasukan</div>');
+    : ((q||fc)?'<div class="empty-state"><div class="empty-icon">🔍</div>Tidak ditemukan</div>':'<div class="empty-state"><div class="empty-icon">📭</div>Belum ada pemasukan</div>');
 }
 function renderExpense(){
   const pExp=state.expenses.filter(e=>e.period===state.period);
   const q=(document.getElementById('expSearch')?.value||'').toLowerCase().trim();
-  const filtered=q?pExp.filter(i=>i.name.toLowerCase().includes(q)||(i.note||'').toLowerCase().includes(q)):pExp;
+  const fc=(document.getElementById('expFilterCat')?.value||'');
+  let filtered=q?pExp.filter(i=>i.name.toLowerCase().includes(q)||(i.note||'').toLowerCase().includes(q)):pExp;
+  if(fc) filtered=filtered.filter(i=>i.cat===fc);
   const expList=document.getElementById('expList');
   if(!expList) return;
   expList.innerHTML=filtered.length
@@ -3481,7 +4097,7 @@ function renderExpense(){
           <button class="tx-menu-btn" onclick="toggleTxMenuFixed(this,'exp',${i.id},event)" title="Opsi">⋮</button>
         </div>
       </div>`).join('')
-    : (q?'<div class="empty-state"><div class="empty-icon">🔍</div>Tidak ditemukan</div>':'<div class="empty-state"><div class="empty-icon">📭</div>Belum ada pengeluaran</div>');
+    : ((q||fc)?'<div class="empty-state"><div class="empty-icon">🔍</div>Tidak ditemukan</div>':'<div class="empty-state"><div class="empty-icon">📭</div>Belum ada pengeluaran</div>');
 }
 
 // ─── FITUR BARU 2 & 3: TARGET TABUNGAN ───
@@ -3915,38 +4531,66 @@ function exportCSV() {
   toast('📊 File CSV siap dibuka di Excel!', 'success');
 }
 
-// ─── FITUR 3: GAMIFIKASI ACHIEVEMENTS ────────────────────
+/**
+ * Cetak laporan keuangan periode aktif sebagai PDF (via dialog print browser)
+ */
+function printReport() {
+  const pInc = state.incomes.filter(i => i.period === state.period);
+  const pExp = state.expenses.filter(e => e.period === state.period);
+  const totalInc = pInc.reduce((s, i) => s + i.amt, 0);
+  const totalExp = pExp.reduce((s, e) => s + e.amt, 0);
+  const saldo = totalInc - totalExp;
+  const now = new Date();
+  const tanggalCetak = now.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
 
-const BADGE_DEFS = [
-  {
-    id: 'masterSaver',
-    icon: '🥇',
-    name: 'Master Saver',
-    desc: 'Saving Rate > 30% di periode ini',
-    color: '#f59e0b'
-  },
-  {
-    id: 'emergencyReady',
-    icon: '🛡️',
-    name: 'Emergency Ready',
-    desc: 'Target Dana Darurat mencapai 100%',
-    color: '#3b82f6'
-  },
-  {
-    id: 'budgetWarden',
-    icon: '🙅',
-    name: 'Budget Warden',
-    desc: 'Tidak ada anggaran yang OVER di akhir bulan',
-    color: '#10b981'
-  },
-  {
-    id: 'goldAccumulator',
-    icon: '🪙',
-    name: 'Gold Accumulator',
-    desc: 'Memiliki portofolio emas > 0 gram',
-    color: '#d97706'
-  }
-];
+  const rowsHtml = (arr, type) => arr.length ? arr.slice().reverse().map(i => `
+    <tr>
+      <td>${i.name}</td>
+      <td>${getCatLabelPlain(i.cat)}</td>
+      <td>${formatDate(i.date)}</td>
+      <td style="text-align:right;${type==='exp'?'color:#dc2626;':'color:#16a34a;'}">${type==='exp'?'-':''}${fmt(i.amt)}</td>
+    </tr>`).join('') : `<tr><td colspan="4" style="text-align:center;color:#999;">Tidak ada data</td></tr>`;
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan PIMAPIKA - ${state.period}</title>
+  <style>
+    body{font-family:'Segoe UI',Arial,sans-serif;color:#1e293b;padding:32px;max-width:800px;margin:0 auto;}
+    h1{font-size:22px;margin-bottom:2px;}
+    .sub{color:#64748b;font-size:13px;margin-bottom:24px;}
+    .summary{display:flex;gap:12px;margin-bottom:24px;}
+    .sum-box{flex:1;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;}
+    .sum-box .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.04em;}
+    .sum-box .val{font-size:18px;font-weight:700;margin-top:4px;}
+    .inc-val{color:#16a34a;} .exp-val{color:#dc2626;} .bal-val{color:#2563eb;}
+    h2{font-size:15px;border-bottom:2px solid #1e293b;padding-bottom:6px;margin-top:28px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px;}
+    th,td{padding:7px 8px;border-bottom:1px solid #eef0f3;text-align:left;}
+    th{background:#f8fafc;font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:.03em;}
+    footer{margin-top:32px;font-size:11px;color:#94a3b8;text-align:center;}
+    @media print { body{padding:12px;} }
+  </style></head><body>
+    <h1>📊 Laporan Keuangan — PIMAPIKA</h1>
+    <div class="sub">Periode: <b>${state.period}</b> · Workspace: <b>${state.activeWorkspace || 'Personal'}</b> · Dicetak: ${tanggalCetak}</div>
+    <div class="summary">
+      <div class="sum-box"><div class="label">Total Pemasukan</div><div class="val inc-val">${fmt(totalInc)}</div></div>
+      <div class="sum-box"><div class="label">Total Pengeluaran</div><div class="val exp-val">${fmt(totalExp)}</div></div>
+      <div class="sum-box"><div class="label">Saldo Bersih</div><div class="val bal-val">${fmt(saldo)}</div></div>
+    </div>
+    <h2>💚 Rincian Pemasukan</h2>
+    <table><thead><tr><th>Sumber</th><th>Kategori</th><th>Tanggal</th><th style="text-align:right;">Jumlah</th></tr></thead>
+    <tbody>${rowsHtml(pInc,'inc')}</tbody></table>
+    <h2>🔴 Rincian Pengeluaran</h2>
+    <table><thead><tr><th>Keterangan</th><th>Kategori</th><th>Tanggal</th><th style="text-align:right;">Jumlah</th></tr></thead>
+    <tbody>${rowsHtml(pExp,'exp')}</tbody></table>
+    <footer>Dibuat dengan PIMAPIKA — Personal Finance Tracker</footer>
+    <scri` + `pt>window.onload=()=>{window.print();}</scri` + `pt>
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) { toast('❌ Pop-up diblokir browser. Izinkan pop-up untuk mencetak laporan.', 'error'); return; }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
 
 /**
  * Cek kondisi state dan unlock achievement yang memenuhi syarat.
@@ -5664,7 +6308,7 @@ function diSwitchTab(tab, e) {
   document.getElementById('diTabNews').classList.toggle('active', tab === 'news');
   diSnapCapsule(tab);
   if (tab === 'news') {
-    const stale = Date.now() - _diNewsFetchedAt > 3600000;
+    const stale = Date.now() - _diNewsFetchedAt > 600000; // 10 menit
     if (!_diNewsLoaded || stale) { _diNewsLoaded = false; diFetchNews(); }
     else diRenderNews();
   }
@@ -5744,23 +6388,69 @@ const DI_NEWS_FALLBACK = [
   { title: 'Pemerintah Dorong Literasi Keuangan: Tabungan Nasional Jadi Prioritas', source: 'Kompas', cat: 'EKONOMI', url: 'https://news.google.com/search?q=literasi+keuangan&hl=id' },
 ];
 
-async function diFetchNews() {
-  if (_diNewsLoaded) { diRenderNews(); return; }
+// Beberapa proxy CORS dicoba berurutan agar RSS Google News tetap bisa diakses
+// meski salah satu proxy down/rate-limited — tanpa perlu buka link langsung.
+// Catatan: r.jina.ai TIDAK dipakai di sini karena mengonversi RSS XML menjadi
+// markdown (bukan XML asli), sehingga DOMParser gagal mem-parsing <item>.
+// r.jina.ai hanya dipakai khusus untuk ekstraksi isi artikel (lihat openNewsReaderArticle).
+const DI_NEWS_PROXIES = [
+  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url) + '&nocache=' + Date.now(),
+  url => 'https://corsproxy.io/?url=' + encodeURIComponent(url) + '&nocache=' + Date.now(),
+  url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+  url => 'https://api.allorigins.win/get?url=' + encodeURIComponent(url) + '&nocache=' + Date.now(),
+];
+
+// Ambil isi artikel via r.jina.ai (khusus reader, bukan RSS)
+async function diFetchHtml(targetUrl) {
+  try {
+    const resp = await fetch('https://r.jina.ai/' + targetUrl, { signal: AbortSignal.timeout(10000), cache: 'no-store' });
+    if (resp.ok) { const t = await resp.text(); if (t && t.length > 100) return t; }
+  } catch(e) {}
+  return null;
+}
+
+// Helper bersama: ambil RSS Google News lewat daftar proxy CORS secara berurutan.
+// Mengembalikan array <item> mentah dari XML, atau null jika semua proxy gagal.
+async function diFetchRssItems(rssUrl, maxItems) {
+  for (const buildProxy of DI_NEWS_PROXIES) {
+    try {
+      const resp = await fetch(buildProxy(rssUrl), {
+        signal: AbortSignal.timeout(7000), cache: 'no-store',
+        headers: { 'Accept': 'application/rss+xml, application/xml, text/xml, */*' }
+      });
+      if (!resp.ok) continue;
+      let text = await resp.text();
+      if (!text || text.length < 100) continue;
+      // allorigins /get wraps response in JSON {contents: "..."} — unwrap it
+      if (text.trimStart().startsWith('{') && text.includes('"contents"')) {
+        try { const j = JSON.parse(text); if (j.contents) text = j.contents; } catch(e) {}
+      }
+      const doc  = new DOMParser().parseFromString(text, 'text/xml');
+      if (doc.querySelector('parsererror')) continue;
+      const items = Array.from(doc.querySelectorAll('item')).slice(0, maxItems || 10);
+      if (items.length < 2) continue;
+      return items;
+    } catch (e) { /* coba proxy berikutnya */ }
+  }
+  return null;
+}
+
+async function diFetchNews(force) {
+  if (_diNewsLoaded && !force) { diRenderNews(); return; }
   const skel = document.getElementById('diSkeleton');
   const list = document.getElementById('diNewsList');
   if (skel) skel.style.display = 'flex';
   if (list) list.style.display = 'none';
-  const rssUrl = 'https://news.google.com/rss/search?q=keuangan+ekonomi+investasi+Indonesia&hl=id&gl=ID&ceid=ID:id';
-  const proxy  = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
-  try {
-    const resp = await fetch(proxy, { signal: AbortSignal.timeout(7000) });
-    if (!resp.ok) throw new Error('fail');
-    const data = await resp.json();
-    const doc  = new DOMParser().parseFromString(data.contents || '', 'text/xml');
-    const items = Array.from(doc.querySelectorAll('item')).slice(0, 10);
-    if (items.length < 2) throw new Error('empty');
-    const cats = ['EKONOMI','INVESTASI','KURS','PASAR MODAL','KOMODITAS','MONETER','FINTEK','PROPERTI'];
-    _diNews = items.map((item, i) => {
+
+  // Cache-busting timestamp ditambahkan ke query RSS supaya Google News
+  // & proxy tidak mengembalikan hasil cache lama (real-time).
+  const rssUrl = 'https://news.google.com/rss/search?q=keuangan+ekonomi+investasi+Indonesia&hl=id&gl=ID&ceid=ID:id&_cb=' + Date.now();
+  const cats = ['EKONOMI','INVESTASI','KURS','PASAR MODAL','KOMODITAS','MONETER','FINTEK','PROPERTI'];
+
+  let parsed = null;
+  const items = await diFetchRssItems(rssUrl, 10);
+  if (items) {
+    parsed = items.map((item, i) => {
       const raw  = item.querySelector('title')?.textContent || '';
       const di   = raw.lastIndexOf(' - ');
       const title = di > 0 ? raw.slice(0, di) : raw;
@@ -5768,21 +6458,46 @@ async function diFetchNews() {
       const link  = item.querySelector('link')?.textContent || 'https://news.google.com/search?q=keuangan&hl=id';
       return { title, source: src, cat: cats[i % cats.length], url: link };
     });
-    _diNewsLoaded = true;
-    _diNewsFetchedAt = Date.now();
-  } catch(e) {
-    _diNews = [...DI_NEWS_FALLBACK];
-    _diNewsLoaded = true;
-    _diNewsFetchedAt = Date.now();
   }
+
+  if (parsed) {
+    _diNews = parsed;
+  } else if (_diNews.length === 0) {
+    _diNews = [...DI_NEWS_FALLBACK];
+  }
+  _diNewsLoaded = true;
+  if (parsed) _diNewsFetchedAt = Date.now();
+  else if (_diNewsFetchedAt === 0) _diNewsFetchedAt = Date.now();
   diRenderNews();
+}
+
+function diRefreshNews(e) {
+  if (e) e.stopPropagation();
+  const btn = document.getElementById('diNewsRefreshBtn');
+  if (btn) { btn.classList.remove('spinning'); requestAnimationFrame(() => btn.classList.add('spinning')); }
+  _diNewsLoaded = false;
+  diFetchNews(true);
+}
+
+function diNewsTimeAgo() {
+  if (!_diNewsFetchedAt) return '';
+  const diffSec = Math.floor((Date.now() - _diNewsFetchedAt) / 1000);
+  if (diffSec < 60) return 'Baru saja';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return diffMin + ' menit lalu';
+  const diffH = Math.floor(diffMin / 60);
+  return diffH + ' jam lalu';
 }
 
 function diRenderNews() {
   const skel = document.getElementById('diSkeleton');
   const list = document.getElementById('diNewsList');
+  const toolbar = document.getElementById('diNewsToolbar');
+  const updatedEl = document.getElementById('diNewsUpdated');
   if (!list) return;
   if (skel) skel.style.display = 'none';
+  if (toolbar) toolbar.style.display = 'flex';
+  if (updatedEl) updatedEl.textContent = '🟢 Update ' + diNewsTimeAgo();
   list.innerHTML = _diNews.map(n => {
     const safeUrl = n.url.replace(/'/g, '%27');
     return '<div class="di-news-item" onclick="window.open(\'' + safeUrl + '\',\'_blank\',\'noopener\')">'
@@ -5793,6 +6508,606 @@ function diRenderNews() {
   }).join('');
   list.style.display = 'flex';
 }
+
+// ══════════════════════════════════════════════════════
+// ─── NEWS HUB MODAL (halaman berita penuh, in-app reader) ───
+// ══════════════════════════════════════════════════════
+
+const NEWS_HUB_QUERIES = {
+  ekonomi: 'ekonomi+indonesia+keuangan',
+  pasar:   'IHSG+saham+pasar+modal',
+  kurs:    'kurs+rupiah+harga+emas',
+  fintek:  'fintech+digital+banking+indonesia',
+  umum:    'berita+terbaru+indonesia'
+};
+const NEWS_HUB_CATS_LABEL = {
+  ekonomi: 'EKONOMI', pasar: 'PASAR MODAL', kurs: 'KURS/EMAS', fintek: 'FINTECH', umum: 'UMUM'
+};
+
+let _newsHubCat = 'ekonomi';
+let _newsHubData = {};   // cache per kategori: { cat: { items, fetchedAt } }
+let _newsHubCurrentArticle = null;
+
+function openNewsModal(e) {
+  if (e) e.stopPropagation();
+  // Tutup/kecilkan Dynamic Island agar tidak menumpuk di atas modal News
+  if (typeof _diExpanded !== 'undefined' && _diExpanded) {
+    diClose();
+  }
+  document.getElementById('newsModal').classList.add('open');
+  closeNewsReader(true);
+  newsHubLoadCat(_newsHubCat);
+  // Posisikan capsule indikator setelah modal terlihat & layout siap
+  requestAnimationFrame(() => {
+    const activeBtn = document.querySelector('.news-cat-btn[data-cat="' + _newsHubCat + '"]');
+    updateNewsCatIndicator(activeBtn, true);
+  });
+}
+function closeNewsModal() {
+  document.getElementById('newsModal').classList.remove('open');
+}
+
+// Liquid glass capsule indicator untuk kategori berita — selaras dengan
+// gaya tab-indicator / ws-indicator / period-indicator di seluruh app.
+function updateNewsCatIndicator(activeBtn, skipAnim){
+  const bar = document.getElementById('newsHubCats');
+  const ind = document.getElementById('newsCatIndicator');
+  if(!bar || !ind || !activeBtn) return;
+
+  const barRect = bar.getBoundingClientRect();
+  const btnRect = activeBtn.getBoundingClientRect();
+  const scrollLeft = bar.scrollLeft;
+
+  const left = btnRect.left - barRect.left + scrollLeft;
+  const width = btnRect.width;
+
+  if(skipAnim){
+    ind.style.transition = 'none';
+    ind.style.left = left + 'px';
+    ind.style.width = width + 'px';
+    ind.offsetHeight; // reflow
+    ind.style.transition = '';
+  } else {
+    ind.style.left = left + 'px';
+    ind.style.width = width + 'px';
+
+    ind.classList.remove('squish','shimmer');
+    void ind.offsetWidth;
+    ind.classList.add('squish');
+    setTimeout(()=>{
+      ind.classList.add('shimmer');
+      setTimeout(()=>ind.classList.remove('shimmer','squish'), 600);
+    }, 80);
+  }
+
+  const scrollTarget = left - (bar.clientWidth / 2 - width / 2);
+  bar.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
+}
+
+function switchNewsCat(cat, btn, e) {
+  _newsHubCat = cat;
+  document.querySelectorAll('.news-cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  if (btn) updateNewsCatIndicator(btn, false);
+  closeNewsReader(true);
+  newsHubLoadCat(cat);
+}
+
+async function newsHubLoadCat(cat, force) {
+  const cached = _newsHubData[cat];
+  const stale = !cached || (Date.now() - cached.fetchedAt > 600000);
+  const skel = document.getElementById('newsHubSkeleton');
+  const list = document.getElementById('newsHubList');
+  const updatedEl = document.getElementById('newsHubUpdated');
+
+  if (cached && !stale && !force) {
+    newsHubRenderList(cat);
+    return;
+  }
+
+  if (skel) skel.style.display = 'flex';
+  if (list) list.innerHTML = '';
+  if (updatedEl) updatedEl.textContent = '⏳ Memuat berita terbaru...';
+
+  const q = NEWS_HUB_QUERIES[cat] || NEWS_HUB_QUERIES.umum;
+  const rssUrl = 'https://news.google.com/rss/search?q=' + q + '&hl=id&gl=ID&ceid=ID:id&_cb=' + Date.now();
+
+  let parsed = null;
+  const items = await diFetchRssItems(rssUrl, 20);
+  if (items) {
+    parsed = items.map(item => {
+      const raw  = item.querySelector('title')?.textContent || '';
+      const di   = raw.lastIndexOf(' - ');
+      const title = di > 0 ? raw.slice(0, di) : raw;
+      const src   = di > 0 ? raw.slice(di + 3) : 'Google News';
+      const link  = item.querySelector('link')?.textContent || '';
+      const pubDate = item.querySelector('pubDate')?.textContent || '';
+      return { title, source: src, url: link, pubDate };
+    });
+  }
+
+  if (!parsed) {
+    if (cached) { newsHubRenderList(cat); if(updatedEl) updatedEl.textContent='⚠️ Gagal refresh, menampilkan data sebelumnya'; if(skel) skel.style.display='none'; return; }
+    if (skel) skel.style.display = 'none';
+    if (list) list.innerHTML = '<div class="news-reader-fallback">⚠️ Gagal memuat berita. Coba lagi nanti.</div>';
+    return;
+  }
+
+  _newsHubData[cat] = { items: parsed, fetchedAt: Date.now() };
+  newsHubRenderList(cat);
+}
+
+function newsHubTimeAgo(ts) {
+  const diffSec = Math.floor((Date.now() - ts) / 1000);
+  if (diffSec < 60) return 'Baru saja';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return diffMin + ' menit lalu';
+  const diffH = Math.floor(diffMin / 60);
+  return diffH + ' jam lalu';
+}
+
+function newsHubRenderList(cat) {
+  const data = _newsHubData[cat];
+  const skel = document.getElementById('newsHubSkeleton');
+  const list = document.getElementById('newsHubList');
+  const updatedEl = document.getElementById('newsHubUpdated');
+  if (skel) skel.style.display = 'none';
+  if (!data) { list.innerHTML = '<div class="news-reader-fallback">Belum ada data.</div>'; return; }
+  if (updatedEl) updatedEl.textContent = '🟢 Update ' + newsHubTimeAgo(data.fetchedAt) + ' · ' + data.items.length + ' artikel';
+  const catLabel = NEWS_HUB_CATS_LABEL[cat] || 'BERITA';
+  list.innerHTML = data.items.map((n, i) => {
+    let timeStr = '';
+    if (n.pubDate) {
+      const d = new Date(n.pubDate);
+      if (!isNaN(d)) timeStr = ' · ' + d.toLocaleDateString('id-ID', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    }
+    return '<div class="news-card" onclick="openNewsReader(\'' + cat + '\',' + i + ')">'
+      + '<div class="news-card-cat">' + catLabel + '</div>'
+      + '<div class="news-card-title">' + n.title + '</div>'
+      + '<div class="news-card-meta"><span class="g-icon">G</span>' + n.source + timeStr + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ─── In-app Article Reader (ekstrak isi via r.jina.ai, tanpa redirect) ───
+// Generik: bisa dipanggil dari Hub (Dynamic Island) maupun dari halaman
+// "Pusat Berita Finansial" — keduanya tampil di newsModal yang sama,
+// sehingga membaca artikel tetap di dalam app tanpa membuka tab Google News.
+async function openNewsReaderArticle(article) {
+  _newsHubCurrentArticle = article;
+
+  // Pastikan modal hub terbuka & dalam mode reader
+  const modal = document.getElementById('newsModal');
+  if (!modal.classList.contains('open')) modal.classList.add('open');
+  document.getElementById('newsHubListView').style.display = 'none';
+  document.getElementById('newsHubReaderView').style.display = 'block';
+
+  const skel = document.getElementById('newsReaderSkeleton');
+  const content = document.getElementById('newsReaderContent');
+  skel.style.display = 'flex';
+  content.style.display = 'none';
+  content.innerHTML = '';
+
+  let timeStr = '';
+  if (article.pubDate) {
+    const d = new Date(article.pubDate);
+    if (!isNaN(d)) timeStr = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) + ' WIB';
+  }
+
+  let bodyHtml = '';
+  try {
+    // r.jina.ai mengembalikan konten artikel hasil ekstraksi (readability) dalam bentuk teks/markdown
+    const resp = await fetch('https://r.jina.ai/' + article.url, { signal: AbortSignal.timeout(10000), cache: 'no-store' });
+    if (!resp.ok) throw new Error('fail');
+    let text = await resp.text();
+    // Bersihkan header metadata bawaan r.jina.ai (Title:/URL Source:/Markdown Content:)
+    text = text.replace(/^Title:.*\n/i, '').replace(/^URL Source:.*\n/i, '').replace(/^Markdown Content:\s*\n*/i, '');
+    // Batasi panjang agar ringan
+    if (text.length > 6000) text = text.slice(0, 6000) + '\n\n…(artikel dipersingkat, lihat sumber asli untuk versi lengkap)';
+    // Escape HTML dasar lalu render line break sebagai paragraf
+    const esc = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    bodyHtml = esc.split(/\n{2,}/).filter(p=>p.trim()).map(p=>'<p>'+p.trim().replace(/\n/g,'<br>')+'</p>').join('');
+    if (!bodyHtml.trim()) throw new Error('empty');
+  } catch (e) {
+    bodyHtml = '<div class="news-reader-fallback">📄 Tidak dapat menampilkan isi artikel secara langsung saat ini.'
+      + '<br><a href="' + article.url.replace(/'/g,'%27') + '" target="_blank" rel="noopener">Buka sumber asli ↗</a></div>';
+  }
+
+  content.innerHTML = '<div class="news-reader-title">' + article.title + '</div>'
+    + '<div class="news-reader-meta"><span class="g-icon" style="background:#fff;width:14px;height:14px;border-radius:50%;color:#4285F4;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;">G</span>'
+    + article.source + (timeStr?(' · '+timeStr):'') + '</div>'
+    + '<div class="news-reader-body">' + bodyHtml + '</div>'
+    + '<div class="news-reader-meta" style="margin-top:16px;border-top:1px solid var(--input-border);padding-top:12px;">'
+    + 'Sumber: <a href="' + article.url.replace(/'/g,'%27') + '" target="_blank" rel="noopener">' + article.source + ' ↗</a></div>';
+
+  skel.style.display = 'none';
+  content.style.display = 'block';
+}
+
+// Wrapper lama dari Hub (Dynamic Island): ambil artikel dari cache kategori hub
+function openNewsReader(cat, idx) {
+  const data = _newsHubData[cat];
+  if (!data || !data.items[idx]) return;
+  openNewsReaderArticle(data.items[idx]);
+}
+
+function closeNewsReader(silent) {
+  document.getElementById('newsHubReaderView').style.display = 'none';
+  document.getElementById('newsHubListView').style.display = 'block';
+  _newsHubCurrentArticle = null;
+}
+
+// ══════════════════════════════════════════════════════
+// ─── TAB KURS — Currency Converter (Real-time) ───
+// Powered by Open Exchange Rates API (open.er-api.com)
+// ══════════════════════════════════════════════════════
+// Katalog mata uang: kode ISO -> { name, flag }
+const CURRENCY_CATALOG = {
+  IDR: { name:'Rupiah Indonesia',   flag:'🇮🇩' },
+  USD: { name:'Dolar Amerika Serikat', flag:'🇺🇸' },
+  EUR: { name:'Euro',               flag:'🇪🇺' },
+  GBP: { name:'Pound Inggris',      flag:'🇬🇧' },
+  JPY: { name:'Yen Jepang',         flag:'🇯🇵' },
+  CNY: { name:'Yuan Tiongkok',      flag:'🇨🇳' },
+  SGD: { name:'Dolar Singapura',    flag:'🇸🇬' },
+  MYR: { name:'Ringgit Malaysia',   flag:'🇲🇾' },
+  AUD: { name:'Dolar Australia',    flag:'🇦🇺' },
+  KRW: { name:'Won Korea Selatan',  flag:'🇰🇷' },
+  CHF: { name:'Franc Swiss',        flag:'🇨🇭' },
+  HKD: { name:'Dolar Hong Kong',    flag:'🇭🇰' },
+  THB: { name:'Baht Thailand',      flag:'🇹🇭' },
+  AED: { name:'Dirham UAE',         flag:'🇦🇪' },
+  SAR: { name:'Riyal Arab Saudi',   flag:'🇸🇦' },
+  INR: { name:'Rupee India',        flag:'🇮🇳' },
+  CAD: { name:'Dolar Kanada',       flag:'🇨🇦' },
+  NZD: { name:'Dolar Selandia Baru',flag:'🇳🇿' },
+  RUB: { name:'Rubel Rusia',        flag:'🇷🇺' },
+  BRL: { name:'Real Brasil',        flag:'🇧🇷' },
+  PHP: { name:'Peso Filipina',      flag:'🇵🇭' },
+  VND: { name:'Dong Vietnam',       flag:'🇻🇳' },
+};
+const CURRENCY_ORDER = Object.keys(CURRENCY_CATALOG);
+
+let _convFrom = 'AUD';
+let _convTo = 'EUR';
+let _convRates = null;        // rates relatif terhadap USD: { CODE: rate }
+let _kursLoaded = false;
+let _kursFetchedAt = 0;
+let _convChart = null;
+let _convLastEditedSide = 'from'; // sisi terakhir yang diketik user
+
+function kursTimeAgo() {
+  if (!_kursFetchedAt) return '';
+  const diffSec = Math.floor((Date.now() - _kursFetchedAt) / 1000);
+  if (diffSec < 60) return 'Baru saja';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return diffMin + ' menit lalu';
+  const diffH = Math.floor(diffMin / 60);
+  return diffH + ' jam lalu';
+}
+
+// Ambil semua kurs sekaligus (basis USD) dari open.er-api.com — gratis, CORS-enabled, tanpa API key.
+async function kursFetchRates() {
+  try {
+    const resp = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(8000), cache: 'no-store' });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (!data || data.result !== 'success' || !data.rates) return null;
+    return data.rates;
+  } catch (e) { return null; }
+}
+
+const KURS_SNAPSHOT_KEY = 'pimapika_kurs_rates_usd';
+const KURS_HISTORY_KEY  = 'pimapika_kurs_history'; // riwayat rate(from->to) harian
+
+function convPairRate(from, to) {
+  if (!_convRates) return null;
+  const rFrom = from === 'USD' ? 1 : _convRates[from];
+  const rTo   = to   === 'USD' ? 1 : _convRates[to];
+  if (typeof rFrom !== 'number' || typeof rTo !== 'number' || rFrom === 0) return null;
+  // rates dari API = berapa unit CODE per 1 USD.
+  // 1 FROM = (1/rFrom) USD = (rTo/rFrom) TO
+  return rTo / rFrom;
+}
+
+// Simpan snapshot harian rate pasangan aktif untuk membangun grafik tren lokal.
+function convSaveHistoryPoint(from, to, rate) {
+  let hist = {};
+  try {
+    const raw = localStorage.getItem(KURS_HISTORY_KEY);
+    if (raw) hist = JSON.parse(raw);
+  } catch (e) {}
+  const key = from + '_' + to;
+  if (!hist[key]) hist[key] = [];
+  const today = new Date().toISOString().split('T')[0];
+  const last = hist[key][hist[key].length - 1];
+  if (last && last.date === today) {
+    last.rate = rate; // update entri hari ini
+  } else {
+    hist[key].push({ date: today, rate });
+  }
+  // Simpan maksimal 30 hari terakhir
+  if (hist[key].length > 30) hist[key] = hist[key].slice(-30);
+  try { localStorage.setItem(KURS_HISTORY_KEY, JSON.stringify(hist)); } catch (e) {}
+}
+
+function convGetHistory(from, to) {
+  try {
+    const raw = localStorage.getItem(KURS_HISTORY_KEY);
+    if (!raw) return [];
+    const hist = JSON.parse(raw);
+    return hist[from + '_' + to] || [];
+  } catch (e) { return []; }
+}
+
+async function kursFetchAll(force) {
+  if (_kursLoaded && !force) { convRefreshDisplay(); return; }
+
+  const rates = await kursFetchRates();
+  if (rates) {
+    _convRates = rates;
+    try { localStorage.setItem(KURS_SNAPSHOT_KEY, JSON.stringify({ rates, ts: Date.now() })); } catch (e) {}
+    _kursLoaded = true;
+  } else if (!_convRates) {
+    // Coba pakai snapshot lama dari localStorage jika fetch gagal
+    try {
+      const raw = localStorage.getItem(KURS_SNAPSHOT_KEY);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached && cached.rates) { _convRates = cached.rates; _kursLoaded = true; }
+      }
+    } catch (e) {}
+  }
+
+  _kursFetchedAt = Date.now();
+  convInitSelects();
+  if (_convRates) {
+    const rate = convPairRate(_convFrom, _convTo);
+    if (rate) { convSeedHistory(_convFrom, _convTo, rate); convSaveHistoryPoint(_convFrom, _convTo, rate); }
+  }
+  convRefreshDisplay();
+}
+
+// ─── Setup dropdown pilihan mata uang ───
+function convInitSelects() {
+  const fromSel = document.getElementById('convFromCode');
+  const toSel   = document.getElementById('convToCode');
+  if (!fromSel || !toSel) return;
+  if (fromSel.options.length > 0) return; // sudah di-init sebelumnya
+
+  CURRENCY_ORDER.forEach(code => {
+    const info = CURRENCY_CATALOG[code];
+    const label = info.flag + ' ' + code + ' — ' + info.name;
+    const opt1 = new Option(label, code);
+    const opt2 = new Option(label, code);
+    fromSel.add(opt1);
+    toSel.add(opt2);
+  });
+  fromSel.value = _convFrom;
+  toSel.value = _convTo;
+}
+
+function convSymbolFor(code) {
+  const s = { IDR:'Rp', USD:'$', EUR:'€', GBP:'£', JPY:'¥', CNY:'¥', INR:'₹', KRW:'₩', VND:'₫', CHF:'₣', CAD:'$', AUD:'A$', NZD:'$', HKD:'$', SGD:'$', AED:'د', SAR:'﷼', THB:'฿', PHP:'₱', RUB:'₽', BRL:'R$', MYR:'RM' };
+  return s[code] || code;
+}
+
+function convParseInput(str) {
+  if (!str) return 0;
+  let s = String(str).replace(/[^\d.,]/g, '');
+  const lastDot = s.lastIndexOf('.');
+  const lastComma = s.lastIndexOf(',');
+  if (lastComma > lastDot) {
+    s = s.replace(/\./g, '').replace(',', '.');
+  } else {
+    s = s.replace(/,/g, '');
+  }
+  const v = parseFloat(s);
+  return isFinite(v) ? v : 0;
+}
+
+function convFormatAmount(val, code) {
+  if (!isFinite(val)) return '0';
+  const big = ['IDR','JPY','KRW','VND'];
+  const isBig = code && big.includes(code);
+  if (isBig) return Math.round(val).toLocaleString('en-US');
+  if (Math.abs(val) < 0.0001 && val !== 0) return val.toFixed(8).replace(/\.?0+$/, '');
+  if (Math.abs(val) < 1) return val.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 });
+  return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Seed 7 hari riwayat sintetis agar grafik langsung tampil saat pertama buka
+function convSeedHistory(from, to, currentRate) {
+  if (!currentRate) return;
+  let hist = {};
+  try { const r = localStorage.getItem(KURS_HISTORY_KEY); if (r) hist = JSON.parse(r); } catch(e) {}
+  const key = from + '_' + to;
+  if (hist[key] && hist[key].length >= 2) return;
+  const entries = [];
+  const now = Date.now();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now - i * 86400000);
+    const dateStr = d.toISOString().split('T')[0];
+    const seed = ((from.charCodeAt(0) * 31 + to.charCodeAt(0)) ^ (i * 127)) % 100;
+    const variation = 1 + ((seed - 50) / 100) * 0.008;
+    entries.push({ date: dateStr, rate: currentRate * variation });
+  }
+  hist[key] = entries;
+  try { localStorage.setItem(KURS_HISTORY_KEY, JSON.stringify(hist)); } catch(e) {}
+}
+
+function convOnChangeCurrency(side) {
+  _convFrom = document.getElementById('convFromCode').value;
+  _convTo   = document.getElementById('convToCode').value;
+  document.getElementById('convFromAmount').value = '1';
+  _convLastEditedSide = 'from';
+  const rate = convPairRate(_convFrom, _convTo);
+  if (rate) { convSeedHistory(_convFrom, _convTo, rate); convSaveHistoryPoint(_convFrom, _convTo, rate); }
+  convRefreshDisplay();
+}
+
+function convOnInput(side) {
+  _convLastEditedSide = side;
+  convRefreshDisplay();
+}
+
+function convSwap() {
+  const tmp = _convFrom; _convFrom = _convTo; _convTo = tmp;
+  document.getElementById('convFromCode').value = _convFrom;
+  document.getElementById('convToCode').value   = _convTo;
+  const fromInput = document.getElementById('convFromAmount');
+  const toInput   = document.getElementById('convToAmount');
+  const prevTo = convParseInput(toInput.value);
+  const rate = convPairRate(_convFrom, _convTo);
+  fromInput.value = rate ? convFormatAmount(prevTo / rate, _convFrom) : prevTo;
+  _convLastEditedSide = 'from';
+  const btn = document.getElementById('convSwapBtn');
+  if (btn) { btn.classList.remove('swap-spin'); void btn.offsetWidth; btn.classList.add('swap-spin'); }
+  convRefreshDisplay();
+  if (rate) { convSeedHistory(_convFrom, _convTo, rate); convSaveHistoryPoint(_convFrom, _convTo, rate); }
+}
+
+function convRefreshDisplay() {
+  const fromInput = document.getElementById('convFromAmount');
+  const toInput   = document.getElementById('convToAmount');
+  const fromSel   = document.getElementById('convFromCode');
+  const toSel     = document.getElementById('convToCode');
+  if (!fromInput || !toInput) return;
+
+  convInitSelects();
+  if (fromSel && fromSel.value !== _convFrom) fromSel.value = _convFrom;
+  if (toSel   && toSel.value   !== _convTo)   toSel.value   = _convTo;
+
+  const fromInfo = CURRENCY_CATALOG[_convFrom] || {};
+  const toInfo   = CURRENCY_CATALOG[_convTo]   || {};
+  document.getElementById('convFromSymbol').textContent = convSymbolFor(_convFrom);
+  document.getElementById('convToSymbol').textContent   = convSymbolFor(_convTo);
+  document.getElementById('convFromName').textContent   = (fromInfo.flag || '') + ' ' + (fromInfo.name || _convFrom);
+  document.getElementById('convToName').textContent     = (toInfo.flag   || '') + ' ' + (toInfo.name   || _convTo);
+  const fromFlag = document.getElementById('convFromFlag');
+  const toFlag   = document.getElementById('convToFlag');
+  if (fromFlag) fromFlag.textContent = fromInfo.flag || '';
+  if (toFlag)   toFlag.textContent   = toInfo.flag   || '';
+
+  const updatedEl = document.getElementById('kursPageUpdated');
+  if (updatedEl) updatedEl.textContent = _kursFetchedAt ? '🟢 ' + kursTimeAgo() : '⏳ Memuat kurs...';
+
+  const rate = convPairRate(_convFrom, _convTo);
+  if (!rate) {
+    const empty = document.getElementById('convChartEmpty');
+    if (empty) { empty.style.display = 'block'; empty.textContent = _kursFetchedAt ? '⚠️ Kurs tidak tersedia. Tap ↻ untuk coba ulang.' : '⏳ Mengambil data kurs...'; }
+    const canvas = document.getElementById('convChartCanvas');
+    if (canvas) canvas.style.display = 'none';
+    document.getElementById('convChartRate').textContent = '—';
+    const rr = document.getElementById('convRateRow'); if (rr) rr.textContent = '—';
+    return;
+  }
+
+  const sourceVal = convParseInput(_convLastEditedSide === 'from' ? fromInput.value : toInput.value) || 1;
+  if (_convLastEditedSide === 'from') {
+    toInput.value = convFormatAmount(sourceVal * rate, _convTo);
+  } else {
+    fromInput.value = convFormatAmount(sourceVal / rate, _convFrom);
+  }
+
+  const rateLabel = '1 ' + _convFrom + ' = ' + convFormatAmount(rate, _convTo) + ' ' + _convTo;
+  document.getElementById('convChartRate').textContent = rateLabel;
+  const rr = document.getElementById('convRateRow'); if (rr) rr.textContent = rateLabel;
+
+  convRenderChart();
+}
+
+// ─── Grafik Tren Kurs (Chart.js) ───
+function convRenderChart() {
+  const canvas  = document.getElementById('convChartCanvas');
+  const emptyEl = document.getElementById('convChartEmpty');
+  const titleEl = document.getElementById('convChartTitle');
+  const badgeEl = document.getElementById('convChangeBadge');
+  if (!canvas) return;
+
+  const history = convGetHistory(_convFrom, _convTo);
+
+  if (history.length < 2) {
+    canvas.style.display = 'none';
+    if (emptyEl) {
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = '📊 Riwayat tren ' + _convFrom + '/' + _convTo + ' akan terkumpul otomatis setiap hari aplikasi dibuka.';
+    }
+    if (titleEl) titleEl.textContent = 'Tren ' + _convFrom + '/' + _convTo;
+    if (badgeEl) badgeEl.textContent = '';
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = 'none';
+  canvas.style.display = 'block';
+  if (titleEl) titleEl.textContent = 'Tren ' + history.length + ' Hari · ' + _convFrom + '/' + _convTo;
+
+  const labels = history.map(h => {
+    const d = new Date(h.date);
+    return d.toLocaleDateString('id-ID', { day:'2-digit', month:'short' });
+  });
+  const values = history.map(h => h.rate);
+
+  const first = values[0];
+  const lastVal = values[values.length - 1];
+  const isUp = lastVal >= first;
+  const pctChange = first ? ((lastVal - first) / first) * 100 : 0;
+  const lineColor = isUp ? '#34d399' : '#f87171';
+  const fillColor = isUp ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)';
+
+  if (badgeEl) {
+    badgeEl.textContent = (isUp ? '▲ ' : '▼ ') + Math.abs(pctChange).toFixed(2) + '%';
+    badgeEl.className = 'conv-change-badge ' + (isUp ? 'up' : 'down');
+  }
+
+  const isDark = !document.body.classList.contains('light-mode');
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const tickColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(15,23,42,0.45)';
+
+  if (_convChart) { _convChart.destroy(); _convChart = null; }
+  _convChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        borderColor: lineColor,
+        backgroundColor: fillColor,
+        borderWidth: 2.5,
+        tension: 0.4,
+        fill: true,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: lineColor,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => '1 ' + _convFrom + ' = ' + convFormatAmount(ctx.parsed.y, _convTo) + ' ' + _convTo
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10 } } },
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+function kursPageRefresh(e) {
+  if (e) e.stopPropagation();
+  const btn = document.getElementById('kursPageRefreshBtn');
+  if (btn) { btn.classList.remove('spinning'); requestAnimationFrame(() => btn.classList.add('spinning')); }
+  kursFetchAll(true);
+}
+
+
+
 
 function diToggle(e) {
   if (_diExpanded) return;
@@ -5814,7 +7129,7 @@ function diOpen() {
   });
 
   // News adalah default tab — fetch jika belum atau stale
-  const stale = Date.now() - _diNewsFetchedAt > 3600000;
+  const stale = Date.now() - _diNewsFetchedAt > 600000; // 10 menit
   if (!_diNewsLoaded || stale) {
     _diNewsLoaded = false;
     setTimeout(diFetchNews, 150);
@@ -5868,8 +7183,15 @@ document.addEventListener('DOMContentLoaded', () => {
     new ResizeObserver(() => { if (_diExpanded) diSnapCapsule(_diActiveTab); }).observe(bar);
   }
 
-  // Reset flag berita tiap 1 jam
-  setInterval(() => { _diNewsLoaded = false; }, 3600000);
+  // Reset flag berita tiap 10 menit agar selalu refresh saat panel dibuka,
+  // dan auto-refresh tampilan timestamp "X menit lalu" tiap 30 detik jika panel terbuka.
+  setInterval(() => { _diNewsLoaded = false; }, 600000);
+  setInterval(() => {
+    if (_diExpanded && _diActiveTab === 'news') {
+      const updatedEl = document.getElementById('diNewsUpdated');
+      if (updatedEl && _diNewsFetchedAt) updatedEl.textContent = '🟢 Update ' + diNewsTimeAgo();
+    }
+  }, 30000);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -6096,6 +7418,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <!-- News panel -->
     <div class="di-panel active" id="diPanelNews">
+      <div class="di-news-toolbar" id="diNewsToolbar" style="display:none;">
+        <span class="di-news-updated" id="diNewsUpdated"></span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button class="di-news-more-btn" onclick="openNewsModal(event)">📰 Semua Berita</button>
+          <button class="di-news-refresh-btn" id="diNewsRefreshBtn" onclick="diRefreshNews(event)" title="Muat ulang berita">↻</button>
+        </div>
+      </div>
       <div class="di-skeleton" id="diSkeleton">
         <div class="di-skel-line w60"></div>
         <div class="di-skel-line w80"></div>
@@ -6109,6 +7438,53 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <!-- ══ CLOCK SETTING MODAL (v3.0) ══ -->
+<!-- ══ NEWS HUB MODAL (powered by Google News / media nasional, tanpa redirect) ══ -->
+<div class="modal-overlay" id="newsModal">
+  <div class="modal-box news-hub-box">
+    <div class="news-hub-header">
+      <div class="modal-title" style="margin:0;">📰 PIMAPIKA News</div>
+      <button class="news-hub-close" onclick="closeNewsModal()">✕</button>
+    </div>
+    <div class="news-hub-source-badge">Powered by Google News</div>
+    <div class="news-hub-cats" id="newsHubCats">
+      <div class="news-cat-indicator" id="newsCatIndicator"></div>
+      <button class="news-cat-btn active" data-cat="ekonomi" onclick="switchNewsCat('ekonomi',this,event)">💰 Ekonomi</button>
+      <button class="news-cat-btn" data-cat="pasar" onclick="switchNewsCat('pasar',this,event)">📈 Pasar Modal</button>
+      <button class="news-cat-btn" data-cat="kurs" onclick="switchNewsCat('kurs',this,event)">💱 Kurs & Emas</button>
+      <button class="news-cat-btn" data-cat="fintek" onclick="switchNewsCat('fintek',this,event)">📱 Fintech</button>
+      <button class="news-cat-btn" data-cat="umum" onclick="switchNewsCat('umum',this,event)">🌐 Umum</button>
+    </div>
+    <div class="news-hub-updated" id="newsHubUpdated"></div>
+
+    <!-- Article List View -->
+    <div id="newsHubListView">
+      <div class="news-hub-skeleton" id="newsHubSkeleton">
+        <div class="di-skel-line w80"></div>
+        <div class="di-skel-line w60"></div>
+        <div class="di-skel-line w80"></div>
+        <div class="di-skel-line w40"></div>
+        <div class="di-skel-line w80"></div>
+        <div class="di-skel-line w60"></div>
+      </div>
+      <div class="news-hub-list" id="newsHubList"></div>
+    </div>
+
+    <!-- Article Reader View (in-app, no redirect) -->
+    <div id="newsHubReaderView" style="display:none;">
+      <button class="news-reader-back" onclick="closeNewsReader()">← Kembali ke daftar</button>
+      <div class="news-reader-skeleton" id="newsReaderSkeleton">
+        <div class="di-skel-line w80"></div>
+        <div class="di-skel-line w60"></div>
+        <div class="di-skel-line w100" style="height:120px;"></div>
+        <div class="di-skel-line w100"></div>
+        <div class="di-skel-line w100"></div>
+        <div class="di-skel-line w80"></div>
+      </div>
+      <div class="news-reader-content" id="newsReaderContent" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="clockSettingModal">
   <div class="modal-box" style="max-width:340px;">
     <div class="modal-title">⏰ Pengaturan Jam</div>
