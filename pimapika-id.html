@@ -3835,6 +3835,13 @@ function render(){
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
   if(document.getElementById('tab-emas').classList.contains('active')) renderGold();
   checkAchievements();
+
+  // BUG FIX: renderTargets() & renderBills() harus selalu dipanggil di render() utama,
+  // bukan hanya di dalam renderRingkasan(), agar tab "Target" & "Tagihan" selalu
+  // menampilkan data yang sudah tersimpan walaupun tab Ringkasan belum pernah dibuka
+  // (misalnya setelah refresh halaman).
+  renderTargets();
+  renderBills();
 }
 
 // ─── RINGKASAN ───
