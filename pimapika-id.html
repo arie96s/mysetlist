@@ -2089,6 +2089,63 @@
     border-radius: 4px;
     transition: width .4s ease;
   }
+
+  /* ══ FITUR BARU: STICKY NOTE BULAN ══ */
+  .sticky-note-wrap {
+    margin: 0 0 16px 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.13), rgba(245,158,11,0.07));
+    border: 1.5px solid rgba(251,191,36,0.28);
+    overflow: hidden;
+  }
+  .sticky-note-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fbbf24;
+    cursor: pointer;
+  }
+  .sticky-note-toggle {
+    background: none;
+    border: none;
+    color: #fbbf24;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: transform .25s;
+  }
+  .sticky-note-toggle.collapsed { transform: rotate(-90deg); }
+  .sticky-note-input {
+    width: 100%;
+    min-height: 70px;
+    background: transparent;
+    border: none;
+    border-top: 1px solid rgba(251,191,36,0.15);
+    color: #f5f0e0;
+    font-size: 13px;
+    padding: 10px 14px;
+    resize: vertical;
+    box-sizing: border-box;
+    outline: none;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  body.light-mode .sticky-note-input {
+    color: #2d2000;
+  }
+  .sticky-note-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+    padding: 4px 14px 8px;
+    opacity: 0.7;
+  }
+  .sticky-note-input::placeholder {
+    color: rgba(251,191,36,0.45);
+  }
 </style>
 </head>
 <body>
@@ -2202,6 +2259,16 @@
     </div>
   </div>
 
+  <!-- ── FITUR BARU: BANNER SALDO MINUS ── -->
+  <div id="saldoMinusBanner" style="display:none;margin:0 0 12px 0;padding:12px 16px;border-radius:16px;background:linear-gradient(135deg,rgba(239,68,68,0.18),rgba(220,38,38,0.10));border:1.5px solid rgba(239,68,68,0.35);backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat detail di Analitik">
+    <span style="font-size:22px;flex-shrink:0;">⚠️</span>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:2px;">Pengeluaran Melebihi Pemasukan!</div>
+      <div style="font-size:12px;color:var(--text-muted);" id="saldoMinusDetail">Bulan ini kamu defisit. Tap untuk lihat detail.</div>
+    </div>
+    <span style="font-size:18px;color:#f87171;flex-shrink:0;">›</span>
+  </div>
+
   <!-- ── MAIN CARD ── -->
   <div class="glass glass-card" style="margin-bottom:20px;">
     <div class="tab-bar" id="mainTabBar">
@@ -2221,6 +2288,17 @@
 
     <!-- ══ TAB PEMASUKAN ══ -->
     <div id="tab-pemasukan" class="tab-content active">
+      <!-- FITUR BARU: STICKY NOTE BULAN INI -->
+      <div class="sticky-note-wrap" id="stickyNoteWrap">
+        <div class="sticky-note-header">
+          <span>🏷️ Catatan Bulan <span id="stickyNoteMonth"></span></span>
+          <button class="sticky-note-toggle" id="stickyNoteToggle" onclick="toggleStickyNote()" title="Tampilkan/Sembunyikan">▼</button>
+        </div>
+        <div id="stickyNoteBody">
+          <textarea id="stickyNoteInput" class="sticky-note-input" placeholder="Tulis reminder keuangan bulan ini... contoh: 'Cicilan ke-3 jatuh tgl 15', 'Hemat minggu ini 🎯'"></textarea>
+          <div class="sticky-note-hint">💾 Tersimpan otomatis per bulan</div>
+        </div>
+      </div>
       <div class="two-col">
         <div>
           <div class="sec-title"><span>💚</span> Tambah Pemasukan</div>
@@ -2282,7 +2360,9 @@
               </select>
             </div>
           </div>
-          <button class="btn btn-success" onclick="addIncome()" style="width:100%;margin-top:12px;">➕ Tambah Pemasukan</button>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn btn-success" onclick="addIncome()" style="width:100%;">➕ Tambah Pemasukan</button>
+          </div>
         </div>
         <div>
           <div class="sec-title"><span>📋</span> Riwayat Pemasukan <span class="sec-badge" id="incBadge">0</span></div>
@@ -2374,7 +2454,9 @@
               </select>
             </div>
           </div>
-          <button class="btn btn-danger" onclick="addExpense()" style="width:100%;margin-top:12px;">➕ Tambah Pengeluaran</button>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn btn-danger" onclick="addExpense()" style="width:100%;">➕ Tambah Pengeluaran</button>
+          </div>
         </div>
         <div>
           <div class="sec-title"><span>📋</span> Riwayat Pengeluaran <span class="sec-badge" id="expBadge">0</span></div>
@@ -2966,6 +3048,15 @@
       </div>
     </div>
 
+    <!-- Shortcut ke Manajemen Data di tab Ringkasan -->
+    <div class="setting-row" style="margin-top:16px;">
+      <div class="setting-info">
+        <div class="title">💾 Backup & Manajemen Data</div>
+        <div class="desc">Export/Import JSON, Export CSV, dan Cetak Laporan PDF tersedia di tab Ringkasan.</div>
+      </div>
+      <button class="btn btn-glass" onclick="closeSettingModal(); switchTab('ringkasan', document.querySelector('[onclick*=ringkasan]'))" style="padding:8px 14px;font-size:12px;">Buka →</button>
+    </div>
+
     <button class="btn btn-primary" onclick="closeSettingModal()" style="width:100%;margin-top:16px;">Selesai</button>
   </div>
 </div>
@@ -3054,6 +3145,7 @@ let state = {
   goldPortfolio:[], goldRefPrice:1550000,
   achievements:{masterSaver:false, emergencyReady:false, budgetWarden:false, goldAccumulator:false},
   lastOpenDate:'',
+  monthlyNotes: {},
   // v2.7.0
   activeWorkspace: 'Personal',
   workspaces: ['Personal'],
@@ -3097,6 +3189,7 @@ function loadState(){
   if(!state.activeWorkspace) state.activeWorkspace = 'Personal';
   if(!state.workspaces)      state.workspaces      = ['Personal'];
   if(typeof state.privacyMode === 'undefined') state.privacyMode = false;
+  if(!state.monthlyNotes || typeof state.monthlyNotes !== 'object') state.monthlyNotes = {};
 
   // BUG FIX 5: Validate goldPortfolio integrity — ensure every gold entry has a stable goldKey string.
   // This preserves the delete-link between goldPortfolio entries and their matching expenses
@@ -3514,6 +3607,19 @@ function deleteIncome(id){
   toast('Pemasukan dihapus','info');
 }
 
+// FITUR BARU: Ulangi transaksi pemasukan terakhir (Quick Repeat)
+function repeatLastIncome(){
+  if(!state.incomes.length){ toast('Belum ada riwayat pemasukan','error'); return; }
+  const last = state.incomes[state.incomes.length-1];
+  document.getElementById('incName').value = last.name;
+  document.getElementById('incCat').value = last.cat;
+  document.getElementById('incAmt').value = last.amt.toLocaleString('id-ID');
+  document.getElementById('incNote').value = last.note || '';
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('incDate').value = today;
+  toast('Form diisi dari pemasukan terakhir, silakan periksa & simpan','info');
+}
+
 // ─── EXPENSE ───
 function addExpense(){
   const name=document.getElementById('expName').value.trim();
@@ -3541,6 +3647,19 @@ function deleteExpense(id){
   saveState(); render();
   toast('Pengeluaran dihapus','info');
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
+}
+
+// FITUR BARU: Ulangi transaksi pengeluaran terakhir (Quick Repeat)
+function repeatLastExpense(){
+  if(!state.expenses.length){ toast('Belum ada riwayat pengeluaran','error'); return; }
+  const last = state.expenses[state.expenses.length-1];
+  document.getElementById('expName').value = last.name;
+  document.getElementById('expCat').value = last.cat;
+  document.getElementById('expAmt').value = last.amt.toLocaleString('id-ID');
+  document.getElementById('expNote').value = last.note || '';
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('expDate').value = today;
+  toast('Form diisi dari pengeluaran terakhir, silakan periksa & simpan','info');
 }
 
 // ─── BANK ───
@@ -3703,9 +3822,9 @@ function renderAnalitik(){
     : '<div style="color:var(--text-muted);font-size:13px;">Data belum cukup untuk analisis.</div>';
 
   // Bar Chart 12 bulan
-  renderBarChart();
+  try { renderBarChart(); } catch(e) { console.warn('renderBarChart error:', e.message); }
   // Donut Chart
-  renderDonutChart();
+  try { renderDonutChart(); } catch(e) { console.warn('renderDonutChart error:', e.message); }
   // Smart Stats
   renderSmartStats();
 }
@@ -3842,6 +3961,18 @@ function render(){
   // (misalnya setelah refresh halaman).
   renderTargets();
   renderBills();
+
+  // FITUR BARU
+  initStickyNote();
+  updateSaldoMinusBanner();
+
+  // BUG FIX: update Health Score card di summary — selalu visible di semua tab
+  // tapi hanya diupdate di renderAnalitik/renderRingkasan sebelumnya
+  const _hs = calcHealthScore();
+  const _hsEl = document.getElementById('sumHealthScore');
+  const _hlEl = document.getElementById('sumHealthLabel');
+  if(_hsEl) _hsEl.textContent = _hs.score > 0 ? _hs.score + '/100' : '—';
+  if(_hlEl) _hlEl.textContent = _hs.score >= 80 ? '😄 Sangat Baik' : _hs.score >= 60 ? '🙂 Baik' : _hs.score >= 40 ? '😐 Cukup' : _hs.score > 0 ? '😟 Perlu Perbaikan' : 'Klik lihat detail';
 }
 
 // ─── RINGKASAN ───
@@ -3901,6 +4032,8 @@ function confirmReset(){
   // Reset root state
   state.incomes=[]; state.expenses=[]; state.banks=[]; state.budgets=[]; state.notes='';
   state.targets=[]; state.bills=[];
+  // BUG FIX: Reset goldPortfolio juga (disimpan di root state, bukan workspaceData)
+  state.goldPortfolio = [];
   // BUG FIX: Reset workspace data juga agar data tidak tersisa setelah reset
   const ws = state.activeWorkspace || 'Personal';
   if(state.workspaceData && state.workspaceData[ws]){
@@ -3916,6 +4049,56 @@ function openSettingModal(){
     document.getElementById('settingModal').classList.add('open');
 }
 function closeSettingModal(){ document.getElementById('settingModal').classList.remove('open'); }
+
+// ─── FITUR BARU: STICKY NOTE BULAN ───────────────────────────────────────────
+function initStickyNote(){
+  const period = state.period;
+  const el = document.getElementById('stickyNoteInput');
+  const monthEl = document.getElementById('stickyNoteMonth');
+  if(!el || !monthEl) return;
+  monthEl.textContent = period;
+  if(!state.monthlyNotes) state.monthlyNotes = {};
+  el.value = state.monthlyNotes[period] || '';
+  el.oninput = function(){
+    if(!state.monthlyNotes) state.monthlyNotes = {};
+    state.monthlyNotes[period] = this.value;
+    saveState();
+  };
+  // Restore collapse state
+  const collapsed = localStorage.getItem('stickyNoteCollapsed') === '1';
+  const body = document.getElementById('stickyNoteBody');
+  const toggle = document.getElementById('stickyNoteToggle');
+  if(collapsed){ body.style.display='none'; toggle.classList.add('collapsed'); }
+  else { body.style.display=''; toggle.classList.remove('collapsed'); }
+}
+function toggleStickyNote(){
+  const body = document.getElementById('stickyNoteBody');
+  const toggle = document.getElementById('stickyNoteToggle');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  toggle.classList.toggle('collapsed', !isHidden);
+  localStorage.setItem('stickyNoteCollapsed', isHidden ? '0' : '1');
+}
+
+// ─── FITUR BARU: BANNER SALDO MINUS ──────────────────────────────────────────
+function updateSaldoMinusBanner(){
+  const banner = document.getElementById('saldoMinusBanner');
+  const detail = document.getElementById('saldoMinusDetail');
+  if(!banner || !detail) return;
+  const pInc = state.incomes.filter(i => i.period === state.period);
+  const pExp = state.expenses.filter(e => e.period === state.period);
+  const totalInc = pInc.reduce((s,i) => s+i.amt, 0);
+  const totalExp = pExp.reduce((s,e) => s+e.amt, 0);
+  if(totalInc > 0 && totalExp > totalInc){
+    const defisit = totalExp - totalInc;
+    detail.textContent = `Defisit ${fmt(defisit)} di bulan ${state.period}. Kurangi pengeluaran segera!`;
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ─── FITUR BARU: BACKUP & RESTORE DATA (Export/Import JSON) ───
 // Safe null-checked event listeners for modals
 (function(){
   var _rm = document.getElementById('resetModal');
@@ -3997,6 +4180,7 @@ function toast(msg,type='info'){
 
 // ─── PDF ───
 function downloadPDF(){
+  if(!window.jspdf || !window.jspdf.jsPDF){ toast('PDF tidak tersedia (library belum dimuat)','error'); return; }
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=210,H=297;
@@ -4718,9 +4902,13 @@ function showAchievementPopup(def) {
   document.getElementById('achieveSub').textContent = def.desc;
   document.getElementById('achieveModal').classList.add('open');
   spawnConfetti();
+  // Auto-close after 5 seconds so the modal doesn't block ongoing user interaction
+  clearTimeout(window._achieveAutoClose);
+  window._achieveAutoClose = setTimeout(() => closeAchieveModal(), 5000);
 }
 
 function closeAchieveModal() {
+  clearTimeout(window._achieveAutoClose);
   document.getElementById('achieveModal').classList.remove('open');
   document.getElementById('confettiContainer').innerHTML = '';
 }
@@ -4917,7 +5105,11 @@ function renderBarChart() {
   const el = document.getElementById('barChart12');
   if (!el) return;
 
-  // BUG FIX 2: Destroy existing Chart.js instance AND clear innerHTML completely
+  // Guard: Chart.js belum/gagal load dari CDN
+  if (typeof Chart === 'undefined') {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px;">📊 Grafik tidak tersedia (CDN offline)</div>';
+    return;
+  }
   // to remove residual canvas tracking before creating a fresh canvas element
   if (barChartInstance) {
     barChartInstance.destroy();
@@ -5061,6 +5253,12 @@ function renderBarChart() {
 function renderDonutChart() {
   const wrap = document.getElementById('donutWrap');
   if (!wrap) return;
+
+  // Guard: Chart.js belum/gagal load dari CDN
+  if (typeof Chart === 'undefined') {
+    wrap.innerHTML = '<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px;">🍩 Grafik tidak tersedia (CDN offline)</div>';
+    return;
+  }
 
   const pExp = state.expenses.filter(e => e.period === state.period);
   if (!pExp.length) {
