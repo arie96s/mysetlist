@@ -5556,23 +5556,26 @@ function updateWsIndicator(activeBtn, skipAnim) {
   const ind = document.getElementById('wsIndicator');
   if (!bar || !ind || !activeBtn) return;
 
-  const barRect = bar.getBoundingClientRect();
-  const btnRect = activeBtn.getBoundingClientRect();
-  const scrollLeft = bar.scrollLeft;
+  // BUG FIX: gunakan offsetLeft/offsetWidth (layout-relative, bukan viewport-relative)
+  // sehingga bekerja saat elemen belum ter-paint atau ter-scroll
+  const left  = activeBtn.offsetLeft;
+  const width = activeBtn.offsetWidth;
 
-  const left = btnRect.left - barRect.left + scrollLeft;
-  const width = btnRect.width;
+  // Jika width masih 0 (belum di-layout), jadwalkan ulang
+  if (width === 0) {
+    requestAnimationFrame(() => updateWsIndicator(activeBtn, skipAnim));
+    return;
+  }
 
   if (skipAnim) {
     ind.style.transition = 'none';
-    ind.style.left = left + 'px';
+    ind.style.left  = left  + 'px';
     ind.style.width = width + 'px';
-    ind.offsetHeight; // reflow
+    ind.offsetHeight; // force reflow
     ind.style.transition = '';
   } else {
-    ind.style.left = left + 'px';
+    ind.style.left  = left  + 'px';
     ind.style.width = width + 'px';
-
     ind.classList.remove('ws-squish', 'ws-shimmer');
     void ind.offsetWidth;
     ind.classList.add('ws-squish');
@@ -5622,13 +5625,38 @@ function renderWorkspaceBar() {
     }
   });
 
-  // Position indicator on active button
+  // BUG FIX: posisi indicator sering hilang saat refresh karena getBoundingClientRect
+  // belum siap. Sekarang pakai offsetLeft + multi-layer fallback:
+  // 1) rAF pertama (DOM commit), 2) rAF kedua (paint), 3) fonts.ready (font load),
+  // 4) ResizeObserver (pertama kali bar punya ukuran final)
+  const _repositionWsInd = () => {
+    const activeBtn = document.querySelector('.workspace-btn.active');
+    if (activeBtn && activeBtn.offsetWidth > 0) {
+      updateWsIndicator(activeBtn, true);
+    }
+  };
+
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      const activeBtn = document.querySelector('.workspace-btn.active');
-      if (activeBtn) updateWsIndicator(activeBtn, true);
+      _repositionWsInd();
+      // Fallback 3: setelah font web selesai dimuat (ukuran tombol bisa berubah)
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(_repositionWsInd);
+      }
     });
   });
+
+  // Fallback 4: ResizeObserver — deteksi saat bar pertama kali punya lebar nyata
+  if (typeof ResizeObserver !== 'undefined' && !window._wsBarObserver) {
+    window._wsBarObserver = new ResizeObserver(() => {
+      const activeBtn = document.querySelector('.workspace-btn.active');
+      if (activeBtn && activeBtn.offsetWidth > 0) {
+        updateWsIndicator(activeBtn, true);
+      }
+    });
+    const bar = document.getElementById('workspaceBar');
+    if (bar) window._wsBarObserver.observe(bar);
+  }
 }
 
 function switchWorkspace(ws, btn, e) {
