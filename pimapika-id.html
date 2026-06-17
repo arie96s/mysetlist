@@ -2137,51 +2137,11 @@
   body.light-mode .sticky-note-input {
     color: #2d2000;
   }
-  .sticky-note-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 14px 10px;
-    gap: 10px;
-  }
   .sticky-note-hint {
     font-size: 10px;
     color: var(--text-muted);
-    opacity: 0.75;
-    transition: color .2s ease, opacity .2s ease;
-  }
-  .sticky-note-hint.is-dirty {
-    color: #fbbf24;
-    opacity: 0.95;
-  }
-  .sticky-note-hint.is-saved {
-    color: #34d399;
-    opacity: 0.95;
-  }
-  .sticky-note-save-btn {
-    flex-shrink: 0;
-    border: 1.5px solid rgba(251,191,36,0.4);
-    background: rgba(251,191,36,0.14);
-    color: #fbbf24;
-    font-size: 11.5px;
-    font-weight: 600;
-    padding: 5px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background .2s ease, transform .15s ease, opacity .2s ease;
-  }
-  .sticky-note-save-btn:active { transform: scale(0.95); }
-  .sticky-note-save-btn:disabled {
-    opacity: 0.45;
-    cursor: default;
-  }
-  .sticky-note-save-btn.just-saved {
-    background: rgba(52,211,153,0.18);
-    border-color: rgba(52,211,153,0.45);
-    color: #34d399;
-  }
-  body.light-mode .sticky-note-save-btn {
-    background: rgba(245,158,11,0.12);
+    padding: 4px 14px 8px;
+    opacity: 0.7;
   }
   .sticky-note-input::placeholder {
     color: rgba(251,191,36,0.45);
@@ -2300,7 +2260,7 @@
   </div>
 
   <!-- ── FITUR BARU: BANNER SALDO MINUS ── -->
-  <div id="saldoMinusBanner" style="display:none;margin:0 0 12px 0;padding:12px 16px;border-radius:16px;background:linear-gradient(135deg,rgba(239,68,68,0.18),rgba(220,38,38,0.10));border:1.5px solid rgba(239,68,68,0.35);backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat detail di Analitik">
+  <div id="saldoMinusBanner" style="display:none;margin:0 0 12px 0;padding:12px 16px;border-radius:16px;background:linear-gradient(135deg,rgba(239,68,68,0.18),rgba(220,38,38,0.10));border:1.5px solid rgba(239,68,68,0.35);backdrop-filter:blur(12px);align-items:center;gap:12px;cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat detail di Analitik">
     <span style="font-size:22px;flex-shrink:0;">⚠️</span>
     <div style="flex:1;min-width:0;">
       <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:2px;">Pengeluaran Melebihi Pemasukan!</div>
@@ -2336,10 +2296,7 @@
         </div>
         <div id="stickyNoteBody">
           <textarea id="stickyNoteInput" class="sticky-note-input" placeholder="Tulis reminder keuangan bulan ini... contoh: 'Cicilan ke-3 jatuh tgl 15', 'Hemat minggu ini 🎯'"></textarea>
-          <div class="sticky-note-footer">
-            <span class="sticky-note-hint" id="stickyNoteHint">💾 Tersimpan otomatis per bulan</span>
-            <button type="button" class="sticky-note-save-btn" id="stickyNoteSaveBtn" onclick="saveStickyNote()" disabled>Simpan</button>
-          </div>
+          <div class="sticky-note-hint">💾 Tersimpan otomatis per bulan</div>
         </div>
       </div>
       <div class="two-col">
@@ -3219,12 +3176,6 @@ const BADGE_DEFS = [
     color: '#d97706'
   }
 ];
-
-// ─── STICKY NOTE: deklarasi di-hoist ke atas (sebelum render() pertama dipanggil)
-// agar tidak terjadi ReferenceError TDZ saat initStickyNote() dipanggil dari render()
-// pada inisialisasi awal halaman.
-let _stickyNoteSaveTimer = null;
-let _stickyNoteLastPeriod = null;
 
 // ─── STATE ───
 let state = {
@@ -4147,43 +4098,12 @@ function initStickyNote(){
   if(!el || !monthEl) return;
   monthEl.textContent = period;
   if(!state.monthlyNotes) state.monthlyNotes = {};
-
-  // BUG FIX: initStickyNote() dipanggil ulang setiap render() (mis. saat tambah
-  // transaksi), yang sebelumnya selalu menimpa textarea dengan state.monthlyNotes.
-  // Ini me-reset isi & posisi kursor bahkan saat user sedang mengetik catatan.
-  // Sekarang: hanya repopulate value jika elemen TIDAK sedang difokus, ATAU
-  // periode benar-benar berubah (ganti bulan).
-  const periodChanged = _stickyNoteLastPeriod !== period;
-  const isFocused = document.activeElement === el;
-  if(periodChanged || !isFocused){
-    el.value = state.monthlyNotes[period] || '';
-    _setStickyNoteStatus('saved');
-  }
-  _stickyNoteLastPeriod = period;
-
-  // Auto-save (debounced) tetap berjalan sebagai jaring pengaman, TAPI sekarang
-  // disertai tombol "Simpan" manual + indikator status agar user yakin
-  // catatannya benar-benar tersimpan (sebelumnya tidak ada feedback apa pun).
+  el.value = state.monthlyNotes[period] || '';
   el.oninput = function(){
-    _setStickyNoteStatus('dirty');
-    clearTimeout(_stickyNoteSaveTimer);
-    _stickyNoteSaveTimer = setTimeout(()=>{ saveStickyNote(true); }, 800);
+    if(!state.monthlyNotes) state.monthlyNotes = {};
+    state.monthlyNotes[period] = this.value;
+    saveState();
   };
-  el.onblur = function(){
-    clearTimeout(_stickyNoteSaveTimer);
-    saveStickyNote(true);
-  };
-  // Jaga-jaga: simpan juga saat user pindah tab/menutup app sebelum debounce selesai
-  if(!el._stickyUnloadBound){
-    window.addEventListener('beforeunload', ()=>{
-      if(el.value !== (state.monthlyNotes[state.period] || '')){
-        state.monthlyNotes[state.period] = el.value;
-        saveState();
-      }
-    });
-    el._stickyUnloadBound = true;
-  }
-
   // Restore collapse state
   const collapsed = localStorage.getItem('stickyNoteCollapsed') === '1';
   const body = document.getElementById('stickyNoteBody');
@@ -4191,54 +4111,6 @@ function initStickyNote(){
   if(collapsed){ body.style.display='none'; toggle.classList.add('collapsed'); }
   else { body.style.display=''; toggle.classList.remove('collapsed'); }
 }
-
-function _setStickyNoteStatus(status){
-  const hint = document.getElementById('stickyNoteHint');
-  const btn = document.getElementById('stickyNoteSaveBtn');
-  if(!hint || !btn) return;
-  if(status === 'dirty'){
-    hint.textContent = '✏️ Belum disimpan...';
-    hint.classList.add('is-dirty');
-    hint.classList.remove('is-saved');
-    btn.disabled = false;
-    btn.classList.remove('just-saved');
-    btn.textContent = 'Simpan';
-  } else if(status === 'saved'){
-    hint.textContent = '💾 Tersimpan otomatis per bulan';
-    hint.classList.remove('is-dirty');
-    hint.classList.remove('is-saved');
-    btn.disabled = true;
-    btn.classList.remove('just-saved');
-    btn.textContent = 'Simpan';
-  } else if(status === 'just-saved'){
-    hint.textContent = '✅ Catatan tersimpan';
-    hint.classList.remove('is-dirty');
-    hint.classList.add('is-saved');
-    btn.disabled = true;
-    btn.classList.add('just-saved');
-    btn.textContent = 'Tersimpan ✓';
-  }
-}
-
-// Simpan manual (dipanggil oleh tombol "Simpan") sekaligus dipakai oleh
-// auto-save debounced. silent=true artinya dipanggil otomatis (tanpa toast),
-// silent=false artinya user menekan tombol secara eksplisit (tampilkan toast).
-function saveStickyNote(silent){
-  const el = document.getElementById('stickyNoteInput');
-  if(!el) return;
-  if(!state.monthlyNotes) state.monthlyNotes = {};
-  state.monthlyNotes[state.period] = el.value;
-  saveState();
-  _setStickyNoteStatus('just-saved');
-  if(!silent) toast('Catatan bulan ' + state.period + ' tersimpan ✓','success');
-  // Setelah sebentar, kembali ke status default jika tidak ada perubahan baru
-  clearTimeout(el._stickyResetTimer);
-  el._stickyResetTimer = setTimeout(()=>{
-    const btn = document.getElementById('stickyNoteSaveBtn');
-    if(btn && btn.disabled) _setStickyNoteStatus('saved');
-  }, 2200);
-}
-
 function toggleStickyNote(){
   const body = document.getElementById('stickyNoteBody');
   const toggle = document.getElementById('stickyNoteToggle');
