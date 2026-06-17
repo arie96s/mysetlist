@@ -2137,11 +2137,51 @@
   body.light-mode .sticky-note-input {
     color: #2d2000;
   }
+  .sticky-note-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 14px 10px;
+    gap: 10px;
+  }
   .sticky-note-hint {
     font-size: 10px;
     color: var(--text-muted);
-    padding: 4px 14px 8px;
-    opacity: 0.7;
+    opacity: 0.75;
+    transition: color .2s ease, opacity .2s ease;
+  }
+  .sticky-note-hint.is-dirty {
+    color: #fbbf24;
+    opacity: 0.95;
+  }
+  .sticky-note-hint.is-saved {
+    color: #34d399;
+    opacity: 0.95;
+  }
+  .sticky-note-save-btn {
+    flex-shrink: 0;
+    border: 1.5px solid rgba(251,191,36,0.4);
+    background: rgba(251,191,36,0.14);
+    color: #fbbf24;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .2s ease, transform .15s ease, opacity .2s ease;
+  }
+  .sticky-note-save-btn:active { transform: scale(0.95); }
+  .sticky-note-save-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .sticky-note-save-btn.just-saved {
+    background: rgba(52,211,153,0.18);
+    border-color: rgba(52,211,153,0.45);
+    color: #34d399;
+  }
+  body.light-mode .sticky-note-save-btn {
+    background: rgba(245,158,11,0.12);
   }
   .sticky-note-input::placeholder {
     color: rgba(251,191,36,0.45);
@@ -2296,7 +2336,10 @@
         </div>
         <div id="stickyNoteBody">
           <textarea id="stickyNoteInput" class="sticky-note-input" placeholder="Tulis reminder keuangan bulan ini... contoh: 'Cicilan ke-3 jatuh tgl 15', 'Hemat minggu ini 🎯'"></textarea>
-          <div class="sticky-note-hint">💾 Tersimpan otomatis per bulan</div>
+          <div class="sticky-note-footer">
+            <span class="sticky-note-hint" id="stickyNoteHint">💾 Tersimpan otomatis per bulan</span>
+            <button type="button" class="sticky-note-save-btn" id="stickyNoteSaveBtn" onclick="saveStickyNote()" disabled>Simpan</button>
+          </div>
         </div>
       </div>
       <div class="two-col">
@@ -3034,67 +3077,66 @@
       </div>
     </div>
 
-    <!-- ── INFO APLIKASI (Terpadu: App Info + Tentang) ── -->
-    <div style="margin-top:12px;margin-bottom:8px;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);">
-
-      <!-- Logo + nama -->
-      <div style="display:flex;flex-direction:column;align-items:center;padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07);">
-        <img src="PMPK-Info.webp" alt="PIMAPIKA Logo"
-             style="width:56px;height:56px;border-radius:16px;object-fit:cover;margin-bottom:10px;box-shadow:0 4px 16px rgba(99,102,241,0.35);"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-        <div style="display:none;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);align-items:center;justify-content:center;font-size:28px;margin-bottom:10px;box-shadow:0 4px 16px rgba(99,102,241,0.35);">💰</div>
-        <div style="font-size:15px;font-weight:700;color:var(--text-primary);letter-spacing:0.3px;">PIMAPIKA.ID</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-        <div style="margin-top:8px;padding:3px 10px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:600;color:#a5b4fc;letter-spacing:0.5px;">VERSI 3.1.3</div>
+    <!-- ── INFO APLIKASI accordion ── -->
+    <div class="setting-collapse" style="margin-top:8px;margin-bottom:8px;">
+      <div class="collapse-head" onclick="toggleCollapse('aboutCollapse')" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>ℹ️ Info Aplikasi</span>
+        <span id="aboutCollapseChevron" style="transition:transform 0.25s;display:inline-block;">▼</span>
       </div>
+      <div class="collapse-body" id="aboutCollapse" style="padding:0;">
 
-      <!-- Info rows -->
-      <div style="padding:4px 0;">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-          <span style="font-size:12px;color:var(--text-muted);">Developer</span>
-          <span style="font-size:12px;color:var(--text-primary);font-weight:600;">@arie96s</span>
+        <!-- ① Hero: Logo + identitas -->
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 16px 14px;border-bottom:1px solid var(--input-border);">
+          <div style="position:relative;flex-shrink:0;">
+            <img src="PMPK-Info.webp" alt="PIMAPIKA"
+                 id="infoAppLogo"
+                 style="width:52px;height:52px;border-radius:14px;object-fit:cover;box-shadow:0 4px 14px rgba(99,102,241,0.4);"
+                 onerror="this.style.display='none';document.getElementById('infoAppLogoFallback').style.display='flex';">
+            <div id="infoAppLogoFallback"
+                 style="display:none;width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 14px rgba(99,102,241,0.4);">💰</div>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
+            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.1.3</div>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-          <span style="font-size:12px;color:var(--text-muted);">Platform</span>
-          <span style="font-size:12px;color:var(--text-primary);font-weight:600;">Web App (PWA)</span>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-          <span style="font-size:12px;color:var(--text-muted);">Penyimpanan Data</span>
-          <span style="font-size:12px;color:#34d399;font-weight:600;">Lokal · Privat 🔒</span>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.05);">
-          <span style="font-size:12px;color:var(--text-muted);">Manajemen Data</span>
-          <button onclick="closeSettingModal();switchTab('ringkasan',document.querySelector('[onclick*=ringkasan]'))" style="background:none;border:none;font-size:12px;color:#818cf8;font-weight:600;cursor:pointer;padding:0;">Export / Import →</button>
-        </div>
-      </div>
 
-      <!-- Tentang Aplikasi accordion (di dalam card) -->
-      <div style="border-top:1px solid rgba(255,255,255,0.07);">
-        <div onclick="toggleCollapse('aboutCollapse')"
-             style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none;">
-          <span style="font-size:12px;font-weight:600;color:var(--text-secondary);">ℹ️ Tentang Aplikasi</span>
-          <span id="aboutCollapseChevron" style="font-size:11px;color:var(--text-muted);transition:transform 0.25s;">▼</span>
+        <!-- ② Info rows -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--input-border);">
+            <span style="font-size:12px;color:var(--text-muted);">Developer</span>
+            <span style="font-size:12px;color:var(--text-primary);font-weight:700;">@arie96s</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--input-border);">
+            <span style="font-size:12px;color:var(--text-muted);">Platform</span>
+            <span style="font-size:12px;color:var(--text-primary);font-weight:700;">Web App (PWA)</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--input-border);">
+            <span style="font-size:12px;color:var(--text-muted);">Penyimpanan</span>
+            <span style="font-size:12px;color:#34d399;font-weight:700;">Lokal · Privat 🔒</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--input-border);">
+            <span style="font-size:12px;color:var(--text-muted);">Manajemen Data</span>
+            <button onclick="closeSettingModal();switchTab('ringkasan',document.querySelector('[onclick*=ringkasan]'))"
+                    style="background:none;border:none;font-size:12px;color:#818cf8;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;">
+              Export / Import <span style="font-size:14px;">→</span>
+            </button>
+          </div>
         </div>
-        <div class="collapse-body" id="aboutCollapse"
-             style="padding:0 16px;font-size:12px;color:var(--text-secondary);line-height:1.7;">
-          <p style="margin:0 0 6px;"><b>Nama Aplikasi:</b> PIMAPIKA.ID v3.1</p>
-          <p style="margin:0 0 6px;"><b>Filosofi:</b> <em>Pitih Masuak Pitih Kalua</em></p>
-          <p style="margin:0 0 6px;"><b>Developer:</b> @arie96s</p>
-          <p style="margin:0 0 4px;"><b>Fitur v3.0:</b> Jam Digital (24/12 jam, WIB/WITA/WIT), Dynamic Island Berita Finansial (Google News), Liquid Glass Animation</p>
-          <p style="margin:0 0 4px;"><b>Fitur Baru v3.1:</b></p>
-          <p style="margin:0 0 3px;">• 🗂 Tab Workspace pada Dynamic Island kini menampilkan Saldo Bersih, Pemasukan, Pengeluaran & Tabungan secara real-time</p>
-          <p style="margin:0 0 3px;">• 🎨 Layar Intro otomatis menyesuaikan tema (Dark / Light / Old Grey)</p>
-          <p style="margin:0 0 12px;">• 🛠️ Perbaikan bug umum & peningkatan stabilitas</p>
-        </div>
-      </div>
 
-      <!-- Legal footer -->
-      <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);text-align:center;">
-        <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
-          Data keuangan Anda tersimpan sepenuhnya di perangkat ini.<br>
-          Tidak ada data yang dikirim ke server manapun.<br>
-          <span style="color:rgba(255,255,255,0.25);margin-top:4px;display:block;">© 2025–2026 PIMAPIKA.ID · All rights reserved</span>
+        <!-- ③ Changelog -->
+        <div id="aboutChangelog" style="padding:12px 16px 4px;border-bottom:1px solid var(--input-border);font-size:12px;color:var(--text-secondary);line-height:1.8;"></div>
+
+        <!-- ④ Privacy note + copyright -->
+        <div style="padding:12px 16px;text-align:center;">
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.7;">
+            Data keuangan Anda tersimpan sepenuhnya di perangkat ini.<br>
+            Tidak ada data yang dikirim ke server manapun.
+          </div>
+          <div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,0.2);font-weight:500;">© 2025–2026 PIMAPIKA.ID · All rights reserved</div>
         </div>
+
       </div>
     </div>
 
@@ -3177,6 +3219,12 @@ const BADGE_DEFS = [
     color: '#d97706'
   }
 ];
+
+// ─── STICKY NOTE: deklarasi di-hoist ke atas (sebelum render() pertama dipanggil)
+// agar tidak terjadi ReferenceError TDZ saat initStickyNote() dipanggil dari render()
+// pada inisialisasi awal halaman.
+let _stickyNoteSaveTimer = null;
+let _stickyNoteLastPeriod = null;
 
 // ─── STATE ───
 let state = {
@@ -4099,12 +4147,43 @@ function initStickyNote(){
   if(!el || !monthEl) return;
   monthEl.textContent = period;
   if(!state.monthlyNotes) state.monthlyNotes = {};
-  el.value = state.monthlyNotes[period] || '';
+
+  // BUG FIX: initStickyNote() dipanggil ulang setiap render() (mis. saat tambah
+  // transaksi), yang sebelumnya selalu menimpa textarea dengan state.monthlyNotes.
+  // Ini me-reset isi & posisi kursor bahkan saat user sedang mengetik catatan.
+  // Sekarang: hanya repopulate value jika elemen TIDAK sedang difokus, ATAU
+  // periode benar-benar berubah (ganti bulan).
+  const periodChanged = _stickyNoteLastPeriod !== period;
+  const isFocused = document.activeElement === el;
+  if(periodChanged || !isFocused){
+    el.value = state.monthlyNotes[period] || '';
+    _setStickyNoteStatus('saved');
+  }
+  _stickyNoteLastPeriod = period;
+
+  // Auto-save (debounced) tetap berjalan sebagai jaring pengaman, TAPI sekarang
+  // disertai tombol "Simpan" manual + indikator status agar user yakin
+  // catatannya benar-benar tersimpan (sebelumnya tidak ada feedback apa pun).
   el.oninput = function(){
-    if(!state.monthlyNotes) state.monthlyNotes = {};
-    state.monthlyNotes[period] = this.value;
-    saveState();
+    _setStickyNoteStatus('dirty');
+    clearTimeout(_stickyNoteSaveTimer);
+    _stickyNoteSaveTimer = setTimeout(()=>{ saveStickyNote(true); }, 800);
   };
+  el.onblur = function(){
+    clearTimeout(_stickyNoteSaveTimer);
+    saveStickyNote(true);
+  };
+  // Jaga-jaga: simpan juga saat user pindah tab/menutup app sebelum debounce selesai
+  if(!el._stickyUnloadBound){
+    window.addEventListener('beforeunload', ()=>{
+      if(el.value !== (state.monthlyNotes[state.period] || '')){
+        state.monthlyNotes[state.period] = el.value;
+        saveState();
+      }
+    });
+    el._stickyUnloadBound = true;
+  }
+
   // Restore collapse state
   const collapsed = localStorage.getItem('stickyNoteCollapsed') === '1';
   const body = document.getElementById('stickyNoteBody');
@@ -4112,6 +4191,54 @@ function initStickyNote(){
   if(collapsed){ body.style.display='none'; toggle.classList.add('collapsed'); }
   else { body.style.display=''; toggle.classList.remove('collapsed'); }
 }
+
+function _setStickyNoteStatus(status){
+  const hint = document.getElementById('stickyNoteHint');
+  const btn = document.getElementById('stickyNoteSaveBtn');
+  if(!hint || !btn) return;
+  if(status === 'dirty'){
+    hint.textContent = '✏️ Belum disimpan...';
+    hint.classList.add('is-dirty');
+    hint.classList.remove('is-saved');
+    btn.disabled = false;
+    btn.classList.remove('just-saved');
+    btn.textContent = 'Simpan';
+  } else if(status === 'saved'){
+    hint.textContent = '💾 Tersimpan otomatis per bulan';
+    hint.classList.remove('is-dirty');
+    hint.classList.remove('is-saved');
+    btn.disabled = true;
+    btn.classList.remove('just-saved');
+    btn.textContent = 'Simpan';
+  } else if(status === 'just-saved'){
+    hint.textContent = '✅ Catatan tersimpan';
+    hint.classList.remove('is-dirty');
+    hint.classList.add('is-saved');
+    btn.disabled = true;
+    btn.classList.add('just-saved');
+    btn.textContent = 'Tersimpan ✓';
+  }
+}
+
+// Simpan manual (dipanggil oleh tombol "Simpan") sekaligus dipakai oleh
+// auto-save debounced. silent=true artinya dipanggil otomatis (tanpa toast),
+// silent=false artinya user menekan tombol secara eksplisit (tampilkan toast).
+function saveStickyNote(silent){
+  const el = document.getElementById('stickyNoteInput');
+  if(!el) return;
+  if(!state.monthlyNotes) state.monthlyNotes = {};
+  state.monthlyNotes[state.period] = el.value;
+  saveState();
+  _setStickyNoteStatus('just-saved');
+  if(!silent) toast('Catatan bulan ' + state.period + ' tersimpan ✓','success');
+  // Setelah sebentar, kembali ke status default jika tidak ada perubahan baru
+  clearTimeout(el._stickyResetTimer);
+  el._stickyResetTimer = setTimeout(()=>{
+    const btn = document.getElementById('stickyNoteSaveBtn');
+    if(btn && btn.disabled) _setStickyNoteStatus('saved');
+  }, 2200);
+}
+
 function toggleStickyNote(){
   const body = document.getElementById('stickyNoteBody');
   const toggle = document.getElementById('stickyNoteToggle');
@@ -4171,13 +4298,20 @@ function setAppTheme(theme){
 // ─── COLLAPSE ───
 function toggleCollapse(id){
   const el=document.getElementById(id);
+  if(!el) return;
   const hidden=window.getComputedStyle(el).display==='none';
+  // tutup semua
   document.querySelectorAll('.collapse-body').forEach(b=>b.style.display='none');
-  const chevron=document.getElementById('aboutCollapseChevron');
-  if(chevron) chevron.style.transform='rotate(0deg)';
+  // reset semua chevron
+  document.querySelectorAll('.collapse-head [id$="Chevron"], #aboutCollapseChevron').forEach(c=>c.style.transform='rotate(0deg)');
   if(hidden){
     el.style.display='block';
-    if(id==='aboutCollapse'&&chevron) chevron.style.transform='rotate(180deg)';
+    // rotate chevron milik accordion ini
+    const head=el.previousElementSibling;
+    if(head){
+      const chev=head.querySelector('[id$="Chevron"]')||head.querySelector('span:last-child');
+      if(chev) chev.style.transform='rotate(180deg)';
+    }
   }
 }
 
@@ -7503,24 +7637,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const about = document.getElementById('aboutCollapse');
+  const about = document.getElementById('aboutChangelog');
   if (about) {
-    about.innerHTML = '<p><b>Nama Aplikasi:</b> PIMAPIKA.ID v3.1</p>'
-      + '<p><b>Filosofi:</b> <em>Pitih Masuak Pitih Kalua</em></p>'
-      + '<p><b>Developer:</b> @arie96s</p>'
-      + '<p><b>Fitur Baru v3.1:</b></p>'
-      + '<p>🗂️ <b>Dynamic Island — Tab Workspace</b> kini menampilkan Saldo Bersih, Pemasukan, Pengeluaran &amp; Tabungan secara real-time (perbaikan bug tampilan "—")</p>'
-      + '<p>📅 <b>Tanggal Header Sesi-Sementara</b> — tanggal header dapat diubah untuk kebutuhan input transaksi, namun akan otomatis kembali ke tanggal hari ini (real-time) setiap kali aplikasi dibuka/refresh</p>'
-      + '<p>💱 <b>Default Kurs Diperbaiki</b> — Currency Converter kini default ke pasangan USD → IDR</p>'
-      + '<p>🎨 <b>Intro Mengikuti Tema</b> — warna latar layar pembuka otomatis menyesuaikan tema (Dark / Light / Old Grey) yang dipilih di Pengaturan</p>'
-      + '<p>🛠️ <b>Stabilitas &amp; Performa</b> — perbaikan bug umum, sinkronisasi data antar workspace lebih andal</p>'
+    about.innerHTML = ''
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.1</p>'
+      + '<p style="margin:0 0 4px;">🗂️ <b>Dynamic Island Workspace</b> — Saldo Bersih, Pemasukan, Pengeluaran &amp; Tabungan real-time</p>'
+      + '<p style="margin:0 0 4px;">📅 <b>Tanggal Header Sementara</b> — dapat diubah untuk input, otomatis reset saat buka ulang</p>'
+      + '<p style="margin:0 0 4px;">💱 <b>Kurs Default</b> — Currency Converter kini default ke USD → IDR</p>'
+      + '<p style="margin:0 0 4px;">🎨 <b>Intro Adaptif Tema</b> — latar pembuka menyesuaikan tema Dark / Light / Old Grey</p>'
+      + '<p style="margin:0 0 10px;">🛠️ <b>Stabilitas</b> — perbaikan bug umum &amp; sinkronisasi workspace lebih andal</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p><b>Fitur v3.0:</b></p>'
-      + '<p>⏰ <b>Jam Digital Header</b> — Format 24 jam atau 12 jam (AM/PM), zona waktu WIB/WITA/WIT, tampilan ringkas sejajar</p>'
-      + '<p>🏝️ <b>Dynamic Island</b> — Mengambang di kiri bawah seperti Assistive Touch Apple. Idle → transparan &amp; mengecil. Tap untuk expand ke tengah. Tab <b>Workspace</b> + tab <b>News</b> dengan kapsul kenyal spring animation</p>'
-      + '<p>📰 <b>Berita Finansial Realtime</b> — Google News RSS, topik ekonomi, investasi, kurs, IHSG, emas, reksa dana</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">🚀 Fitur v3.0</p>'
+      + '<p style="margin:0 0 4px;">⏰ <b>Jam Digital Header</b> — 24/12 jam, zona WIB/WITA/WIT</p>'
+      + '<p style="margin:0 0 4px;">🏝️ <b>Dynamic Island</b> — mengambang, spring animation, Tab Workspace + News</p>'
+      + '<p style="margin:0 0 10px;">📰 <b>Berita Finansial Realtime</b> — Google News RSS, ekonomi, IHSG, emas, kurs</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="font-size:11px;color:var(--text-muted);">Fitur sebelumnya: Edit Riwayat, Workspace Tabs, PIN Lock, Aset Emas, Tagihan Rutin, Target Tabungan, Budget Planner, Analitik, Backup/Restore, CSV, PDF, Pemindai Struk, Transaksi Berulang</p>';
+      + '<p style="margin:0 0 4px;font-size:11px;color:var(--text-muted);">Fitur sebelumnya: Edit Riwayat · Workspace Tabs · PIN Lock · Aset Emas · Tagihan Rutin · Target Tabungan · Budget Planner · Analitik · Backup/Restore · CSV · PDF · Pemindai Struk · Transaksi Berulang</p>';
   }
 });
 
