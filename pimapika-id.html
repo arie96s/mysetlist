@@ -2091,60 +2091,131 @@
   }
 
   /* ══ FITUR BARU: STICKY NOTE BULAN ══ */
-  .sticky-note-wrap {
-    margin: 0 0 16px 0;
-    border-radius: 16px;
-    background: linear-gradient(135deg, rgba(251,191,36,0.13), rgba(245,158,11,0.07));
-    border: 1.5px solid rgba(251,191,36,0.28);
+  /* ── STICKY NOTE CARD — sejajar health score ── */
+  .sn-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
     overflow: hidden;
+    cursor: default;
   }
-  .sticky-note-header {
+  /* Subtle left amber strip */
+  .sn-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14px; bottom: 14px;
+    width: 2.5px;
+    border-radius: 2px;
+    background: linear-gradient(180deg,
+      rgba(251,191,36,.55),
+      rgba(245,158,11,.2));
+    pointer-events: none;
+  }
+  .sn-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #fbbf24;
-    cursor: pointer;
+    margin-bottom: 8px;
+    flex-shrink: 0;
   }
-  .sticky-note-toggle {
-    background: none;
-    border: none;
-    color: #fbbf24;
+  .sn-bell {
     font-size: 13px;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 6px;
-    transition: transform .25s;
+    opacity: .3;
+    transition: opacity .25s, transform .3s;
+    line-height: 1;
   }
-  .sticky-note-toggle.collapsed { transform: rotate(-90deg); }
-  .sticky-note-input {
+  .sn-bell.ring {
+    opacity: 1;
+    animation: snBellRing .4s cubic-bezier(.36,.07,.19,.97) 2;
+  }
+  @keyframes snBellRing {
+    0%,100%{ transform:rotate(0deg); }
+    20%    { transform:rotate(-18deg); }
+    60%    { transform:rotate(14deg); }
+    80%    { transform:rotate(-8deg); }
+  }
+  .sn-textarea {
+    flex: 1;
     width: 100%;
-    min-height: 70px;
+    min-height: 52px;
     background: transparent;
     border: none;
-    border-top: 1px solid rgba(251,191,36,0.15);
-    color: #f5f0e0;
-    font-size: 13px;
-    padding: 10px 14px;
-    resize: vertical;
-    box-sizing: border-box;
     outline: none;
+    resize: none;
     font-family: inherit;
-    line-height: 1.5;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    opacity: .8;
+    transition: opacity .2s;
+    padding: 0;
+    box-sizing: border-box;
   }
-  body.light-mode .sticky-note-input {
-    color: #2d2000;
-  }
-  .sticky-note-hint {
-    font-size: 10px;
+  .sn-textarea:focus { opacity: 1; }
+  .sn-textarea::placeholder {
     color: var(--text-muted);
-    padding: 4px 14px 8px;
-    opacity: 0.7;
+    font-size: 11px;
+    opacity: .55;
   }
-  .sticky-note-input::placeholder {
-    color: rgba(251,191,36,0.45);
+  .sn-card-footer {
+    font-size: 9px;
+    color: var(--text-muted);
+    opacity: .4;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Tempel animation — jiggle saat selesai ketik */
+  @keyframes snTempel {
+    0%   { transform: scale(1) rotate(0deg); }
+    25%  { transform: scale(1.015) rotate(.4deg); box-shadow: 0 6px 24px rgba(251,191,36,.12); }
+    55%  { transform: scale(.996) rotate(-.25deg); }
+    80%  { transform: scale(1.004) rotate(.1deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .sn-card.tempel { animation: snTempel .5s cubic-bezier(.34,1.56,.64,1); }
+
+  /* Reminder toast */
+  #snReminder {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    z-index: 800;
+    pointer-events: none;
+    max-width: 300px;
+    width: max-content;
+    padding: 9px 16px;
+    border-radius: 12px;
+    background: rgba(20,14,4,.95);
+    border: 1px solid rgba(251,191,36,.28);
+    box-shadow: 0 6px 24px rgba(0,0,0,.45);
+    font-size: 12px;
+    font-weight: 600;
+    color: #fde68a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    backdrop-filter: blur(12px);
+    transition: opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  body.light-mode #snReminder {
+    background: rgba(255,252,230,.97);
+    color: #92400e;
+    border-color: rgba(217,119,6,.3);
+    box-shadow: 0 4px 20px rgba(0,0,0,.1);
+  }
+  body.theme-oldgrey #snReminder {
+    background: rgba(28,20,4,.96);
+  }
+  #snReminder.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 </style>
 </head>
@@ -2251,12 +2322,31 @@
       <div class="sum-val" id="sumAllocated">Rp 0</div>
       <div class="sum-sub" id="sumAllocatedPct">0% dari pemasukan</div>
     </div>
+    <!-- Health Score card (standalone) -->
     <div class="glass sum-card sum-health" style="cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat Health Score">
       <span class="sum-icon">💡</span>
       <div class="sum-label">Health Score</div>
       <div class="sum-val" id="sumHealthScore">—</div>
       <div class="sum-sub" id="sumHealthLabel">Klik lihat detail</div>
     </div>
+
+    <!-- Sticky Note card (standalone, sejajar health score) -->
+    <div class="glass sum-card sn-card" id="stickyNoteWrap">
+      <div class="sn-card-header">
+        <span class="sum-label" style="margin:0;">🏷️ Catatan&nbsp;<span id="stickyNoteMonth" style="color:rgba(251,191,36,.7);text-transform:none;letter-spacing:0;font-size:10px;"></span></span>
+        <span class="sn-bell" id="snBell">🔔</span>
+      </div>
+      <textarea id="stickyNoteInput" class="sn-textarea"
+        placeholder="Tulis pengingat bulan ini…" spellcheck="false"></textarea>
+      <div class="sn-card-footer">💾 tersimpan per bulan</div>
+    </div>
+
+  </div><!-- /summary-grid -->
+
+  <!-- Reminder toast -->
+  <div id="snReminder">
+    <span id="snReminderIcon">🏷️</span>
+    <span id="snReminderText"></span>
   </div>
 
   <!-- ── FITUR BARU: BANNER SALDO MINUS ── -->
@@ -2288,17 +2378,6 @@
 
     <!-- ══ TAB PEMASUKAN ══ -->
     <div id="tab-pemasukan" class="tab-content active">
-      <!-- FITUR BARU: STICKY NOTE BULAN INI -->
-      <div class="sticky-note-wrap" id="stickyNoteWrap">
-        <div class="sticky-note-header">
-          <span>🏷️ Catatan Bulan <span id="stickyNoteMonth"></span></span>
-          <button class="sticky-note-toggle" id="stickyNoteToggle" onclick="toggleStickyNote()" title="Tampilkan/Sembunyikan">▼</button>
-        </div>
-        <div id="stickyNoteBody">
-          <textarea id="stickyNoteInput" class="sticky-note-input" placeholder="Tulis reminder keuangan bulan ini... contoh: 'Cicilan ke-3 jatuh tgl 15', 'Hemat minggu ini 🎯'"></textarea>
-          <div class="sticky-note-hint">💾 Tersimpan otomatis per bulan</div>
-        </div>
-      </div>
       <div class="two-col">
         <div>
           <div class="sec-title"><span>💚</span> Tambah Pemasukan</div>
@@ -3055,7 +3134,7 @@
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.1.3</div>
+            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.1.4</div>
           </div>
         </div>
 
@@ -3178,6 +3257,7 @@ const BADGE_DEFS = [
 ];
 
 // ─── STATE ───
+let _snLastPeriod = null; // sticky note: track periode terakhir (harus dideklarasi sebelum render())
 let state = {
   period:'Januari', incomes:[], expenses:[], banks:[],
   budgets:[], notes:'', darkMode:true, headerDate:'',
@@ -3430,6 +3510,7 @@ function setPeriod(p, btn, e){
   // Update liquid glass indicator
   if(btn) updatePeriodIndicator(btn, false);
   saveState(); render();
+  initStickyNote();
   toast(`Periode: ${p}`,'info');
   // refresh active tabs
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
@@ -3639,11 +3720,13 @@ function addIncome(){
   document.getElementById('incRecurring').checked=false;
   document.getElementById('incFreqWrap').classList.remove('show');
   saveState(); render();
+  diUpdateWorkspace(); // BUG FIX: sync DI panel
   toast(`Pemasukan ditambah: ${fmt(amt)}`,'success');
 }
 function deleteIncome(id){
   state.incomes=state.incomes.filter(i=>i.id!==id);
   saveState(); render();
+  diUpdateWorkspace(); // BUG FIX: update DI panel
   toast('Pemasukan dihapus','info');
 }
 
@@ -3679,12 +3762,14 @@ function addExpense(){
   document.getElementById('expRecurring').checked=false;
   document.getElementById('expFreqWrap').classList.remove('show');
   saveState(); render();
+  diUpdateWorkspace(); // BUG FIX: sync DI panel
   toast(`Pengeluaran ditambah: ${fmt(amt)}`,'success');
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
 }
 function deleteExpense(id){
   state.expenses=state.expenses.filter(i=>i.id!==id);
   saveState(); render();
+  diUpdateWorkspace(); // BUG FIX: update DI panel
   toast('Pengeluaran dihapus','info');
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
 }
@@ -3993,6 +4078,7 @@ function render(){
   if(document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
   if(document.getElementById('tab-emas').classList.contains('active')) renderGold();
+  if(document.getElementById('tab-ringkasan').classList.contains('active')) renderMonthComparison();
   checkAchievements();
 
   // BUG FIX: renderTargets() & renderBills() harus selalu dipanggil di render() utama,
@@ -4079,10 +4165,13 @@ function confirmReset(){
   if(state.workspaceData && state.workspaceData[ws]){
     state.workspaceData[ws] = {incomes:[],expenses:[],banks:[],budgets:[],notes:'',targets:[],bills:[]};
   }
+  // BUG FIX: Reset achievements untuk workspace aktif agar tidak tersisa setelah reset
+  state.achievements = {masterSaver:false, emergencyReady:false, budgetWarden:false, goldAccumulator:false};
   saveState(); closeResetModal(); render();
   if(document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
   if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
   if(document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
+  diUpdateWorkspace();
   toast('Semua data telah direset ✓','info');
 }
 function openSettingModal(){
@@ -4091,34 +4180,82 @@ function openSettingModal(){
 function closeSettingModal(){ document.getElementById('settingModal').classList.remove('open'); }
 
 // ─── FITUR BARU: STICKY NOTE BULAN ───────────────────────────────────────────
+// ─── STICKY NOTE (sejajar health score) ─────────────────────────────────────
 function initStickyNote(){
-  const period = state.period;
-  const el = document.getElementById('stickyNoteInput');
+  const el      = document.getElementById('stickyNoteInput');
   const monthEl = document.getElementById('stickyNoteMonth');
   if(!el || !monthEl) return;
+
+  const period = state.period;
   monthEl.textContent = period;
+
   if(!state.monthlyNotes) state.monthlyNotes = {};
-  el.value = state.monthlyNotes[period] || '';
-  el.oninput = function(){
-    if(!state.monthlyNotes) state.monthlyNotes = {};
-    state.monthlyNotes[period] = this.value;
-    saveState();
-  };
-  // Restore collapse state
-  const collapsed = localStorage.getItem('stickyNoteCollapsed') === '1';
-  const body = document.getElementById('stickyNoteBody');
-  const toggle = document.getElementById('stickyNoteToggle');
-  if(collapsed){ body.style.display='none'; toggle.classList.add('collapsed'); }
-  else { body.style.display=''; toggle.classList.remove('collapsed'); }
+
+  // Hanya reinit listener saat periode benar-benar berubah
+  if(_snLastPeriod !== period){
+    _snLastPeriod = period;
+
+    // Detach old listener, attach fresh one for new period
+    const fresh = el.cloneNode(true);
+    el.parentNode.replaceChild(fresh, el);
+    const inp = document.getElementById('stickyNoteInput');
+    inp.value = state.monthlyNotes[period] || '';
+
+    let _snTypingTimer = null;
+    inp.addEventListener('input', function(){
+      if(!state.monthlyNotes) state.monthlyNotes = {};
+      state.monthlyNotes[period] = this.value;
+      saveState();
+      // Tempel animation on pause
+      clearTimeout(_snTypingTimer);
+      _snTypingTimer = setTimeout(() => _snTempel(), 900);
+    });
+
+    // Init reminder on first load only
+    if(!window._snReminderDone) _snScheduleReminder();
+  } else {
+    // Periode sama — hanya update nilai tanpa clone DOM
+    el.value = state.monthlyNotes[period] || '';
+  }
 }
-function toggleStickyNote(){
-  const body = document.getElementById('stickyNoteBody');
-  const toggle = document.getElementById('stickyNoteToggle');
-  const isHidden = body.style.display === 'none';
-  body.style.display = isHidden ? '' : 'none';
-  toggle.classList.toggle('collapsed', !isHidden);
-  localStorage.setItem('stickyNoteCollapsed', isHidden ? '0' : '1');
+
+function _snTempel(){
+  const card = document.getElementById('stickyNoteWrap');
+  if(!card) return;
+  card.classList.remove('tempel');
+  void card.offsetWidth;
+  card.classList.add('tempel');
+  card.addEventListener('animationend', () => card.classList.remove('tempel'), { once: true });
 }
+
+/* Reminder: 5 detik fade-in/out, pakai baris pertama catatan bulan ini */
+function _snScheduleReminder(){
+  // Munculkan 4 detik setelah load, kemudian tiap 5 menit
+  setTimeout(_snShowReminder, 4000);
+  setInterval(_snShowReminder, 5 * 60 * 1000);
+  window._snReminderDone = true;
+}
+function _snShowReminder(){
+  const text = (state.monthlyNotes && state.monthlyNotes[state.period] || '').trim();
+  if(!text) return; // tidak ada catatan = tidak perlu remind
+  const firstLine = text.split('\n')[0].slice(0, 48);
+  const el   = document.getElementById('snReminder');
+  const tEl  = document.getElementById('snReminderText');
+  const bell = document.getElementById('snBell');
+  if(!el || !tEl) return;
+  tEl.textContent = firstLine;
+  el.classList.add('show');
+  // Bell ring
+  if(bell){ bell.classList.remove('ring'); void bell.offsetWidth; bell.classList.add('ring'); }
+  setTimeout(() => {
+    el.classList.remove('show');
+    if(bell) bell.classList.remove('ring');
+  }, 5000);
+}
+
+/* toggleStickyNote tidak dipakai lagi tapi dibiarkan agar tidak error jika dipanggil */
+function toggleStickyNote(){ /* no-op — collapsed state dihapus */ }
+function _snUpdatePreview(){} // no-op
 
 // ─── FITUR BARU: BANNER SALDO MINUS ──────────────────────────────────────────
 function updateSaldoMinusBanner(){
@@ -4392,7 +4529,7 @@ function addTarget(){
 function updateTargetSaved(id){
   const el=document.getElementById('targetAddSaved_'+id);
   if(!el) return;
-  const add=parseFloat(el.value.replace(/\./g,'').replace(/,/g,''))||0;
+  const add=getCurrencyValue('targetAddSaved_'+id)||0;
   const t=state.targets.find(t=>t.id===id);
   if(!t||add<=0){ toast('Masukkan jumlah yang valid!','error'); return; }
   t.saved=Math.min((t.saved||0)+add,t.goal);
@@ -4748,6 +4885,8 @@ function importJSON(input) {
       if (document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
       if (document.getElementById('tab-budget').classList.contains('active')) renderBudget();
       if (document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
+      renderTargets();
+      renderBills();
       toast('📤 Data berhasil diimpor! ✅', 'success');
     } catch (err) {
       toast('❌ File rusak atau bukan format JSON yang valid!', 'error');
@@ -5183,7 +5322,7 @@ function renderBarChart() {
 
   if (!canvas) return;
 
-  const isDark = state.darkMode !== false;
+  const isDark = !document.body.classList.contains('light-mode');
   const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
   const tickColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
 
@@ -5744,6 +5883,7 @@ function switchWorkspace(ws, btn, e) {
   saveState();
   renderWorkspaceBar();
   render();
+  diUpdateWorkspace(); // BUG FIX: update DI workspace panel setelah switch
 
   const icon = WORKSPACE_ICONS[ws] || '📂';
   toast(`${icon} Workspace: ${ws}`, 'success');
@@ -6049,6 +6189,7 @@ function saveEditIncome() {
   }
   saveState(); render();
   closeEditIncome();
+  diUpdateWorkspace(); // BUG FIX: sync DI panel
   toast('✅ Pemasukan diperbarui!', 'success');
 }
 // editIncomeModal is defined after this script block — attach via DOMContentLoaded
@@ -6106,6 +6247,7 @@ function saveEditExpense() {
   }
   saveState(); render();
   closeEditExpense();
+  diUpdateWorkspace(); // BUG FIX: sync DI panel
   toast('✅ Pengeluaran diperbarui!', 'success');
 }
 // editExpenseModal is defined after this script block — attach via DOMContentLoaded
@@ -7186,8 +7328,17 @@ function convInitSelects() {
   const fromSel = document.getElementById('convFromCode');
   const toSel   = document.getElementById('convToCode');
   if (!fromSel || !toSel) return;
-  if (fromSel.options.length > 0) return; // sudah di-init sebelumnya
-
+  // Hanya skip jika dropdown sudah terisi lengkap
+  const expectedLen = CURRENCY_ORDER.length;
+  if (fromSel.options.length >= expectedLen) {
+    // Pastikan nilai terpilih masih sinkron
+    if (fromSel.value !== _convFrom) fromSel.value = _convFrom;
+    if (toSel.value   !== _convTo)   toSel.value   = _convTo;
+    return;
+  }
+  // Kosongkan dan isi ulang
+  fromSel.innerHTML = '';
+  toSel.innerHTML   = '';
   CURRENCY_ORDER.forEach(code => {
     const info = CURRENCY_CATALOG[code];
     const label = info.flag + ' ' + code + ' — ' + info.name;
@@ -7512,14 +7663,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.1</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.1.4</p>'
+      + '<p style="margin:0 0 4px;">🐛 <b>Perbaikan Bug</b> — DI Workspace real-time setelah tambah/edit/hapus transaksi, sticky note event leak per render, tombol Edit Pengeluaran warna benar, reset achievements ikut reset data, dropdown kurs dapat reinit, input target tabungan konsisten</p>'
+      + '<p style="margin:0 0 10px;">⚡ <b>Performa</b> — initStickyNote tidak clone DOM setiap render, chart bar/donut theme konsisten lintas tema</p>'
+      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ v3.1</p>'
       + '<p style="margin:0 0 4px;">🗂️ <b>Dynamic Island Workspace</b> — Saldo Bersih, Pemasukan, Pengeluaran &amp; Tabungan real-time</p>'
       + '<p style="margin:0 0 4px;">📅 <b>Tanggal Header Sementara</b> — dapat diubah untuk input, otomatis reset saat buka ulang</p>'
       + '<p style="margin:0 0 4px;">💱 <b>Kurs Default</b> — Currency Converter kini default ke USD → IDR</p>'
-      + '<p style="margin:0 0 4px;">🎨 <b>Intro Adaptif Tema</b> — latar pembuka menyesuaikan tema Dark / Light / Old Grey</p>'
-      + '<p style="margin:0 0 10px;">🛠️ <b>Stabilitas</b> — perbaikan bug umum &amp; sinkronisasi workspace lebih andal</p>'
+      + '<p style="margin:0 0 10px;">🎨 <b>Intro Adaptif Tema</b> — latar pembuka menyesuaikan tema Dark / Light / Old Grey</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">🚀 Fitur v3.0</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">🚀 v3.0</p>'
       + '<p style="margin:0 0 4px;">⏰ <b>Jam Digital Header</b> — 24/12 jam, zona WIB/WITA/WIT</p>'
       + '<p style="margin:0 0 4px;">🏝️ <b>Dynamic Island</b> — mengambang, spring animation, Tab Workspace + News</p>'
       + '<p style="margin:0 0 10px;">📰 <b>Berita Finansial Realtime</b> — Google News RSS, ekonomi, IHSG, emas, kurs</p>'
@@ -7650,7 +7804,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <input type="hidden" id="editExpId">
     <div style="display:flex;gap:12px;margin-top:8px;">
-      <button class="btn btn-danger" onclick="saveEditExpense()" style="flex:1;">💾 Simpan</button>
+      <button class="btn btn-success" onclick="saveEditExpense()" style="flex:1;">💾 Simpan</button>
       <button class="btn btn-glass" onclick="closeEditExpense()" style="flex:1;">Batal</button>
     </div>
   </div>
@@ -7836,6 +7990,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <button class="btn btn-primary" onclick="closeClockSetting()" style="width:100%;">Simpan & Tutup</button>
   </div>
 </div>
+
 
 </body>
 </html>
