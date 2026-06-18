@@ -654,6 +654,7 @@
 
   /* ── KEYFRAMES ── */
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes modalIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
   @keyframes slideIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
   @keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
@@ -2099,7 +2100,11 @@
     position: relative;
     overflow: hidden;
     cursor: default;
+    transition: all .35s cubic-bezier(.16,1,.3,1);
+    z-index: 1;
   }
+  /* Saat expanded, hapus overflow:hidden agar fixed positioning tidak ter-clip di Safari */
+  .sn-card.sn-expanded { overflow: visible; }
   /* Subtle left amber strip */
   .sn-card::before {
     content: '';
@@ -2178,6 +2183,82 @@
     100% { transform: scale(1) rotate(0deg); }
   }
   .sn-card.tempel { animation: snTempel .5s cubic-bezier(.34,1.56,.64,1); }
+
+  /* ── STICKY NOTE EXPAND ON FOCUS ── */
+  /* Card jadi overlay saat textarea fokus — mirip edit modal tapi ringan */
+  .sn-card.sn-expanded {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(420px, calc(100vw - 32px)) !important;
+    max-height: 80vh !important;
+    z-index: 600 !important;
+    box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 0 0 1px rgba(251,191,36,.22) !important;
+    border-color: rgba(251,191,36,.35) !important;
+    padding: 18px 20px !important;
+  }
+  .sn-card.sn-expanded .sn-textarea {
+    min-height: 160px !important;
+    font-size: 13.5px !important;
+    opacity: 1 !important;
+  }
+  /* Backdrop overlay saat expanded */
+  #snOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(3px);
+    z-index: 599;
+    animation: fadeIn .2s ease;
+  }
+  #snOverlay.show { display: block; }
+
+  /* ── incCurrency SELECT dalam currency-wrapper ── */
+  .currency-select {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    background: rgba(255,255,255,.06);
+    border: none;
+    border-right: 1px solid var(--input-border);
+    border-radius: 14px 0 0 14px;
+    color: var(--text-secondary);
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    padding: 0 8px 0 10px;
+    cursor: pointer;
+    outline: none;
+    z-index: 2;
+    min-width: 52px;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: background .2s, color .2s;
+  }
+  .currency-select:focus { background: rgba(37,99,235,.12); color: var(--text-primary); }
+  .currency-select option { background: var(--bg-grad1); color: var(--text-primary); }
+  /* Geser input ke kanan jika pakai currency-select */
+  .currency-wrapper.has-select .glass-input { padding-left: 62px; }
+
+  /* ── KURS DROP WARNING BANNER ── */
+  #kursDropBanner {
+    display: none;
+    margin: 0 0 12px 0;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(245,158,11,.18), rgba(217,119,6,.10));
+    border: 1.5px solid rgba(245,158,11,.38);
+    backdrop-filter: blur(12px);
+    align-items: center;
+    gap: 12px;
+    animation: fadeIn .4s ease;
+  }
+  #kursDropBanner.show { display: flex; }
 
   /* Reminder toast */
   #snReminder {
@@ -2349,7 +2430,17 @@
     <span id="snReminderText"></span>
   </div>
 
+  <!-- Sticky Note overlay backdrop -->
+  <div id="snOverlay"></div>
+
   <!-- ── FITUR BARU: BANNER SALDO MINUS ── -->
+  <div id="kursDropBanner" style="">
+    <span style="font-size:22px;flex-shrink:0;">📉</span>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;color:#fbbf24;margin-bottom:2px;">⚠️ Warning Valas</div>
+      <div style="font-size:12px;color:var(--text-muted);" id="kursDropDetail">Kurs USD sedang turun.</div>
+    </div>
+  </div>
   <div id="saldoMinusBanner" style="display:none;margin:0 0 12px 0;padding:12px 16px;border-radius:16px;background:linear-gradient(135deg,rgba(239,68,68,0.18),rgba(220,38,38,0.10));border:1.5px solid rgba(239,68,68,0.35);backdrop-filter:blur(12px);align-items:center;gap:12px;cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat detail di Analitik">
     <span style="font-size:22px;flex-shrink:0;">⚠️</span>
     <div style="flex:1;min-width:0;">
@@ -2397,9 +2488,12 @@
             </select>
           </div>
           <div class="input-group">
-            <label class="input-label">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 1500000+250000=</span></label>
-            <div class="currency-wrapper">
-              <span class="currency-prefix">Rp</span>
+            <label class="input-label" id="incAmtLabel">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 1500000+250000=</span></label>
+            <div class="currency-wrapper has-select">
+              <select class="currency-select" id="incCurrency" onchange="onIncCurrencyChange()">
+                <option value="IDR">IDR</option>
+                <option value="USD">USD</option>
+              </select>
               <input class="glass-input" id="incAmt" placeholder="0" type="text" oninput="handleMathInput(this,'incMathHint')">
             </div>
             <div class="math-hint" id="incMathHint"></div>
@@ -3134,7 +3228,7 @@
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.1.4</div>
+            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.1.5</div>
           </div>
         </div>
 
@@ -3258,6 +3352,7 @@ const BADGE_DEFS = [
 
 // ─── STATE ───
 let _snLastPeriod = null; // sticky note: track periode terakhir (harus dideklarasi sebelum render())
+let _kursDropCache = null; // kurs drop warning cache — harus dideklarasi sebelum render()
 let state = {
   period:'Januari', incomes:[], expenses:[], banks:[],
   budgets:[], notes:'', darkMode:true, headerDate:'',
@@ -3702,15 +3797,77 @@ function formatDate(d){
 }
 
 // ─── INCOME ───
+function onIncCurrencyChange(){
+  const cur = document.getElementById('incCurrency').value;
+  const label = document.getElementById('incAmtLabel');
+  if(label) label.firstChild.textContent = cur === 'USD' ? 'Jumlah (USD) ' : 'Jumlah (Rp) ';
+  // Sembunyikan quick preset rupiah saat USD (tidak relevan)
+  const presets = document.getElementById('incQuickPresets');
+  if(presets) presets.style.display = cur === 'USD' ? 'none' : '';
+  // Tampilkan/sembunyikan rate hint
+  _updateIncRateHint();
+}
+
+// Tampilkan info rate live di bawah input amount saat USD dipilih
+function _updateIncRateHint(){
+  let hint = document.getElementById('incRateHint');
+  const cur = (document.getElementById('incCurrency') || {}).value || 'IDR';
+  if(cur !== 'USD'){
+    if(hint) hint.style.display = 'none';
+    return;
+  }
+  if(!hint){
+    // Buat elemen hint sekali
+    const mathHint = document.getElementById('incMathHint');
+    if(!mathHint) return;
+    hint = document.createElement('div');
+    hint.id = 'incRateHint';
+    hint.style.cssText = 'font-size:11px;color:var(--accent-teal);margin-top:4px;padding:5px 10px;border-radius:8px;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.18);';
+    mathHint.parentNode.insertBefore(hint, mathHint.nextSibling);
+  }
+  const rate = convPairRate('USD','IDR');
+  if(rate){
+    const rateStr = Math.round(rate).toLocaleString('id-ID');
+    hint.textContent = `💱 1 USD = Rp ${rateStr} (kurs hari ini)`;
+    hint.style.display = 'block';
+  } else {
+    hint.textContent = '⏳ Mengambil kurs USD…';
+    hint.style.display = 'block';
+  }
+}
+
 function addIncome(){
   const name=document.getElementById('incName').value.trim();
   const cat=document.getElementById('incCat').value;
-  const amt=getCurrencyValue('incAmt');
+  const rawAmt=getCurrencyValue('incAmt');
   const date=document.getElementById('incDate').value;
-  const note=document.getElementById('incNote').value.trim();
+  const rawNote=document.getElementById('incNote').value.trim();
   if(!name){ toast('Masukkan nama pemasukan!','error'); return; }
-  if(!amt||amt<=0){ toast('Masukkan jumlah yang valid!','error'); return; }
+  if(!rawAmt||rawAmt<=0){ toast('Masukkan jumlah yang valid!','error'); return; }
   if(!date){ toast('Pilih tanggal!','error'); return; }
+
+  const cur = (document.getElementById('incCurrency') || {}).value || 'IDR';
+  let amt = rawAmt;
+  let note = rawNote;
+
+  if(cur === 'USD'){
+    // Coba load dari cache localStorage jika _convRates belum di-load di memory
+    if(!_convRates){
+      try {
+        const raw = localStorage.getItem(KURS_SNAPSHOT_KEY);
+        if(raw){ const cached = JSON.parse(raw); if(cached && cached.rates) _convRates = cached.rates; }
+      } catch(e){}
+    }
+    const rate = convPairRate('USD','IDR');
+    if(!rate){ toast('Rate USD belum tersedia. Tunggu sebentar atau buka tab Kurs sekali.','error'); return; }
+    amt = Math.round(rawAmt * rate);
+    const rateStr = rate.toLocaleString('id-ID',{maximumFractionDigits:0});
+    const usdStr = rawAmt.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const appendix = `(Input: $${usdStr} USD @ Rp ${rateStr})`;
+    note = note ? note + ' ' + appendix : appendix;
+    toast(`Dikonversi: $${usdStr} USD → ${fmt(amt)}`,'info');
+  }
+
   const incIsRec=document.getElementById('incRecurring').checked;
   const incFreq=incIsRec?document.getElementById('incFreq').value:'';
   state.incomes.push({id:Date.now(),name,cat,amt,date,note,period:state.period,isRecurring:incIsRec,frequency:incFreq});
@@ -3719,8 +3876,11 @@ function addIncome(){
   document.getElementById('incNote').value='';
   document.getElementById('incRecurring').checked=false;
   document.getElementById('incFreqWrap').classList.remove('show');
+  // Reset currency select ke IDR
+  const csel = document.getElementById('incCurrency');
+  if(csel){ csel.value='IDR'; onIncCurrencyChange(); }
   saveState(); render();
-  diUpdateWorkspace(); // BUG FIX: sync DI panel
+  diUpdateWorkspace();
   toast(`Pemasukan ditambah: ${fmt(amt)}`,'success');
 }
 function deleteIncome(id){
@@ -3740,6 +3900,9 @@ function repeatLastIncome(){
   document.getElementById('incNote').value = last.note || '';
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('incDate').value = today;
+  // Reset currency ke IDR — amt yang diulang sudah dalam IDR
+  const csel = document.getElementById('incCurrency');
+  if(csel){ csel.value = 'IDR'; onIncCurrencyChange(); }
   toast('Form diisi dari pemasukan terakhir, silakan periksa & simpan','info');
 }
 
@@ -4091,6 +4254,7 @@ function render(){
   // FITUR BARU
   initStickyNote();
   updateSaldoMinusBanner();
+  checkKursDropWarning();
 
   // BUG FIX: update Health Score card di summary — selalu visible di semua tab
   // tapi hanya diupdate di renderAnalitik/renderRingkasan sebelumnya
@@ -4211,12 +4375,45 @@ function initStickyNote(){
       _snTypingTimer = setTimeout(() => _snTempel(), 900);
     });
 
+    // Expand on focus — pop up seperti edit modal
+    inp.addEventListener('focus', function(){
+      const card = document.getElementById('stickyNoteWrap');
+      const overlay = document.getElementById('snOverlay');
+      if(card) card.classList.add('sn-expanded');
+      if(overlay) overlay.classList.add('show');
+    });
+
     // Init reminder on first load only
     if(!window._snReminderDone) _snScheduleReminder();
   } else {
     // Periode sama — hanya update nilai tanpa clone DOM
     el.value = state.monthlyNotes[period] || '';
   }
+
+  // Pastikan overlay collapse listener terpasang (sekali saja)
+  if(!window._snOverlayBound){
+    window._snOverlayBound = true;
+    const overlay = document.getElementById('snOverlay');
+    if(overlay){
+      overlay.addEventListener('click', _snCollapse);
+    }
+    // ESC key juga collapse
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){
+        const card = document.getElementById('stickyNoteWrap');
+        if(card && card.classList.contains('sn-expanded')) _snCollapse();
+      }
+    });
+  }
+}
+
+function _snCollapse(){
+  const card = document.getElementById('stickyNoteWrap');
+  const overlay = document.getElementById('snOverlay');
+  const inp = document.getElementById('stickyNoteInput');
+  if(card) card.classList.remove('sn-expanded');
+  if(overlay) overlay.classList.remove('show');
+  if(inp) inp.blur();
 }
 
 function _snTempel(){
@@ -4272,6 +4469,45 @@ function updateSaldoMinusBanner(){
     banner.style.display = 'flex';
   } else {
     banner.style.display = 'none';
+  }
+}
+
+// ─── SMART VALAS: KURS DROP WARNING ─────────────────────────────────────────
+function checkKursDropWarning(){
+  const banner = document.getElementById('kursDropBanner');
+  const detail = document.getElementById('kursDropDetail');
+  if(!banner || !detail) return;
+
+  // Throttle: re-evaluate max sekali per menit (render() bisa dipanggil sangat sering)
+  const now = Date.now();
+  if(_kursDropCache && (now - _kursDropCache.ts) < 60000){
+    if(_kursDropCache.show){ detail.textContent = _kursDropCache.detail; banner.classList.add('show'); }
+    else banner.classList.remove('show');
+    return;
+  }
+
+  const history = convGetHistory('USD','IDR');
+  if(!history || history.length < 2){ banner.classList.remove('show'); _kursDropCache = { show:false, ts:now }; return; }
+
+  const windowData = history.slice(-7);
+  if(windowData.length < 2){ banner.classList.remove('show'); _kursDropCache = { show:false, ts:now }; return; }
+
+  const prevRate = windowData[0].rate;
+  const currRate = windowData[windowData.length - 1].rate;
+  if(!prevRate || !currRate){ banner.classList.remove('show'); _kursDropCache = { show:false, ts:now }; return; }
+
+  const changePct = ((currRate - prevRate) / prevRate) * 100;
+
+  if(changePct <= -2.0){
+    const absPct = Math.abs(changePct).toFixed(1);
+    const currRateStr = Math.round(currRate).toLocaleString('id-ID');
+    const msg = `Kurs USD turun ${absPct}% ke Rp ${currRateStr}/USD dalam 7 hari. Pertimbangkan menahan pencairan dari platform/klien internasional Anda.`;
+    detail.textContent = msg;
+    banner.classList.add('show');
+    _kursDropCache = { show:true, detail:msg, ts:now };
+  } else {
+    banner.classList.remove('show');
+    _kursDropCache = { show:false, ts:now };
   }
 }
 
@@ -6912,7 +7148,10 @@ async function diFetchNews(force) {
       const title = di > 0 ? raw.slice(0, di) : raw;
       const src   = di > 0 ? raw.slice(di + 3) : 'Google News';
       const link  = item.querySelector('link')?.textContent || 'https://news.google.com/search?q=keuangan&hl=id';
-      return { title, source: src, cat: cats[i % cats.length], url: link };
+      let snippet = item.querySelector('description')?.textContent || '';
+      snippet = snippet.replace(/<[^>]+>/g, '').replace(/&lt;.*?&gt;/g, '').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim();
+      if (snippet.length > 400) snippet = snippet.slice(0, 400) + '…';
+      return { title, source: src, cat: cats[i % cats.length], url: link, snippet };
     });
   }
 
@@ -7077,7 +7316,13 @@ async function newsHubLoadCat(cat, force) {
       const src   = di > 0 ? raw.slice(di + 3) : 'Google News';
       const link  = item.querySelector('link')?.textContent || '';
       const pubDate = item.querySelector('pubDate')?.textContent || '';
-      return { title, source: src, url: link, pubDate };
+      // Ambil snippet/description dari RSS untuk preview instan (tanpa fetch tambahan)
+      let snippet = item.querySelector('description')?.textContent || '';
+      // Google News kadang wrap description dalam CDATA HTML — strip tag HTML-nya
+      snippet = snippet.replace(/<[^>]+>/g, '').replace(/&lt;.*?&gt;/g, '').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim();
+      // Batasi panjang snippet
+      if (snippet.length > 400) snippet = snippet.slice(0, 400) + '…';
+      return { title, source: src, url: link, pubDate, snippet };
     });
   }
 
@@ -7124,14 +7369,77 @@ function newsHubRenderList(cat) {
   }).join('');
 }
 
-// ─── In-app Article Reader (ekstrak isi via r.jina.ai, tanpa redirect) ───
-// Generik: bisa dipanggil dari Hub (Dynamic Island) maupun dari halaman
-// "Pusat Berita Finansial" — keduanya tampil di newsModal yang sama,
-// sehingga membaca artikel tetap di dalam app tanpa membuka tab Google News.
+// ─── In-app Article Reader ───
+// Strategi multi-layer + snippet-first:
+// 0. Cek sessionStorage cache → instant jika sudah pernah dibuka
+// 1. LANGSUNG tampilkan snippet RSS (0ms loading, selalu ada)
+// 2. Background fetch: r.jina.ai (layer 1) → allorigins raw HTML (layer 2)
+// 3. Jika fetch berhasil, upgrade konten tanpa user perlu nunggu dari awal
+// 4. Tombol "Buka sumber asli" selalu ada di bawah sebagai fallback terakhir
+
+// Cache artikel di sessionStorage agar buka ulang = instant
+function _articleCacheKey(url) {
+  // btoa() crashes on non-ASCII chars (Google News redirect URLs) — gunakan encodeURIComponent + simple hash
+  const safe = encodeURIComponent(url);
+  let h = 0;
+  for (let i = 0; i < safe.length; i++) { h = Math.imul(31, h) + safe.charCodeAt(i) | 0; }
+  return 'pmpk_art_' + (h >>> 0).toString(36) + '_' + safe.length;
+}
+function _articleCacheGet(url) {
+  try { const v = sessionStorage.getItem(_articleCacheKey(url)); return v ? JSON.parse(v) : null; } catch(e){ return null; }
+}
+function _articleCacheSet(url, html) {
+  try { sessionStorage.setItem(_articleCacheKey(url), JSON.stringify({ html, ts: Date.now() })); } catch(e){}
+}
+
+// Layer 2: ekstrak teks bersih dari raw HTML via allorigins
+async function _fetchArticleAllorigins(url) {
+  const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+  const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+  if (!resp.ok) throw new Error('allorigins fail');
+  const j = await resp.json();
+  const raw = j.contents || '';
+  if (raw.length < 200) throw new Error('empty');
+  // Ambil teks dari <article>, <main>, atau <body> — strip semua tag HTML
+  const tmp = document.createElement('div');
+  tmp.innerHTML = raw;
+  // Hapus elemen non-konten
+  tmp.querySelectorAll('script,style,nav,header,footer,aside,iframe,figure,noscript,img,video,form').forEach(el=>el.remove());
+  const articleEl = tmp.querySelector('article') || tmp.querySelector('main') || tmp.querySelector('[class*="content"]') || tmp.querySelector('[class*="article"]') || tmp;
+  let text = articleEl.textContent || '';
+  text = text.replace(/\s{3,}/g, '\n\n').trim();
+  if (text.length < 150) throw new Error('too short');
+  if (text.length > 5000) text = text.slice(0, 5000) + '\n\n…(artikel dipersingkat)';
+  return text;
+}
+
+// Konversi plain text → paragraf HTML
+function _textToHtml(text) {
+  const esc = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return esc.split(/\n{2,}/).filter(p=>p.trim()).map(p=>'<p>'+p.trim().replace(/\n/g,'<br>')+'</p>').join('');
+}
+
+// Render helper — menulis ke DOM reader
+function _renderArticleContent(article, bodyHtml, timeStr, isSnippet) {
+  const content = document.getElementById('newsReaderContent');
+  if (!content) return;
+  const safeUrl = article.url.replace(/'/g,'%27');
+  const fetchingBadge = isSnippet
+    ? '<div id="newsReaderFetchBadge" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--accent-teal);margin-bottom:10px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:2px solid var(--accent-teal);border-top-color:transparent;animation:spin .8s linear infinite;"></span>Memuat artikel lengkap…</div>'
+    : '';
+  content.innerHTML =
+    '<div class="news-reader-title">' + article.title + '</div>'
+    + '<div class="news-reader-meta"><span class="g-icon" style="background:#fff;width:14px;height:14px;border-radius:50%;color:#4285F4;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;">G</span>'
+    + article.source + (timeStr ? (' · ' + timeStr) : '') + '</div>'
+    + fetchingBadge
+    + '<div class="news-reader-body">' + bodyHtml + '</div>'
+    + '<div class="news-reader-meta" style="margin-top:16px;border-top:1px solid var(--input-border);padding-top:12px;">'
+    + 'Sumber: <a href="' + safeUrl + '" target="_blank" rel="noopener">' + article.source + ' ↗</a></div>';
+}
+
 async function openNewsReaderArticle(article) {
   _newsHubCurrentArticle = article;
 
-  // Pastikan modal hub terbuka & dalam mode reader
   const modal = document.getElementById('newsModal');
   if (!modal.classList.contains('open')) modal.classList.add('open');
   document.getElementById('newsHubListView').style.display = 'none';
@@ -7139,8 +7447,6 @@ async function openNewsReaderArticle(article) {
 
   const skel = document.getElementById('newsReaderSkeleton');
   const content = document.getElementById('newsReaderContent');
-  skel.style.display = 'flex';
-  content.style.display = 'none';
   content.innerHTML = '';
 
   let timeStr = '';
@@ -7149,34 +7455,58 @@ async function openNewsReaderArticle(article) {
     if (!isNaN(d)) timeStr = d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) + ' WIB';
   }
 
-  let bodyHtml = '';
-  try {
-    // r.jina.ai mengembalikan konten artikel hasil ekstraksi (readability) dalam bentuk teks/markdown
-    const resp = await fetch('https://r.jina.ai/' + article.url, { signal: AbortSignal.timeout(10000), cache: 'no-store' });
-    if (!resp.ok) throw new Error('fail');
-    let text = await resp.text();
-    // Bersihkan header metadata bawaan r.jina.ai (Title:/URL Source:/Markdown Content:)
-    text = text.replace(/^Title:.*\n/i, '').replace(/^URL Source:.*\n/i, '').replace(/^Markdown Content:\s*\n*/i, '');
-    // Batasi panjang agar ringan
-    if (text.length > 6000) text = text.slice(0, 6000) + '\n\n…(artikel dipersingkat, lihat sumber asli untuk versi lengkap)';
-    // Escape HTML dasar lalu render line break sebagai paragraf
-    const esc = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    bodyHtml = esc.split(/\n{2,}/).filter(p=>p.trim()).map(p=>'<p>'+p.trim().replace(/\n/g,'<br>')+'</p>').join('');
-    if (!bodyHtml.trim()) throw new Error('empty');
-  } catch (e) {
-    bodyHtml = '<div class="news-reader-fallback">📄 Tidak dapat menampilkan isi artikel secara langsung saat ini.'
-      + '<br><a href="' + article.url.replace(/'/g,'%27') + '" target="_blank" rel="noopener">Buka sumber asli ↗</a></div>';
+  // ── LAYER 0: SessionStorage cache → tampil instant ──
+  const cached = _articleCacheGet(article.url);
+  if (cached) {
+    skel.style.display = 'none';
+    content.style.display = 'block';
+    _renderArticleContent(article, cached.html, timeStr, false);
+    return;
   }
 
-  content.innerHTML = '<div class="news-reader-title">' + article.title + '</div>'
-    + '<div class="news-reader-meta"><span class="g-icon" style="background:#fff;width:14px;height:14px;border-radius:50%;color:#4285F4;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;">G</span>'
-    + article.source + (timeStr?(' · '+timeStr):'') + '</div>'
-    + '<div class="news-reader-body">' + bodyHtml + '</div>'
-    + '<div class="news-reader-meta" style="margin-top:16px;border-top:1px solid var(--input-border);padding-top:12px;">'
-    + 'Sumber: <a href="' + article.url.replace(/'/g,'%27') + '" target="_blank" rel="noopener">' + article.source + ' ↗</a></div>';
+  // ── LAYER C: Snippet RSS → tampil SEKETIKA, 0ms fetch ──
+  let snippetHtml = '';
+  if (article.snippet && article.snippet.trim().length > 20) {
+    snippetHtml = '<p style="color:var(--text-secondary);font-style:italic;">' + article.snippet.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
+  } else {
+    snippetHtml = '<p style="color:var(--text-muted);font-style:italic;">Memuat ringkasan artikel…</p>';
+  }
 
+  // Tampilkan snippet dulu — langsung, tanpa skeleton
   skel.style.display = 'none';
   content.style.display = 'block';
+  _renderArticleContent(article, snippetHtml, timeStr, true);
+
+  // ── LAYER B1: r.jina.ai background fetch ──
+  let fullHtml = '';
+  try {
+    const resp = await fetch('https://r.jina.ai/' + article.url, { signal: AbortSignal.timeout(6000), cache: 'no-store' });
+    if (!resp.ok) throw new Error('jina fail');
+    let text = await resp.text();
+    text = text.replace(/^Title:.*\n/im, '').replace(/^URL Source:.*\n/im, '').replace(/^Markdown Content:\s*\n*/im, '').trim();
+    if (text.length > 5000) text = text.slice(0, 5000) + '\n\n…(artikel dipersingkat)';
+    if (text.length > 100) fullHtml = _textToHtml(text);
+  } catch(e) {}
+
+  // ── LAYER B2: allorigins raw HTML fallback ──
+  if (!fullHtml) {
+    try {
+      const text = await _fetchArticleAllorigins(article.url);
+      if (text && text.length > 100) fullHtml = _textToHtml(text);
+    } catch(e) {}
+  }
+
+  // ── Upgrade konten jika fetch berhasil, atau pertahankan snippet ──
+  if (_newsHubCurrentArticle && _newsHubCurrentArticle.url === article.url) {
+    if (fullHtml) {
+      _articleCacheSet(article.url, fullHtml);
+      _renderArticleContent(article, fullHtml, timeStr, false);
+    } else {
+      // Fetch gagal semua — hapus badge "memuat" tapi pertahankan snippet
+      const badge = document.getElementById('newsReaderFetchBadge');
+      if (badge) badge.remove();
+    }
+  }
 }
 
 // Wrapper lama dari Hub (Dynamic Island): ambil artikel dari cache kategori hub
@@ -7321,6 +7651,9 @@ async function kursFetchAll(force) {
     if (rate) { convSeedHistory(_convFrom, _convTo, rate); convSaveHistoryPoint(_convFrom, _convTo, rate); }
   }
   convRefreshDisplay();
+  // Update info rate di form pemasukan & re-evaluate kurs drop warning
+  if (typeof _updateIncRateHint === 'function') _updateIncRateHint();
+  if (typeof checkKursDropWarning === 'function') { _kursDropCache = null; checkKursDropWarning(); }
 }
 
 // ─── Setup dropdown pilihan mata uang ───
@@ -7663,7 +7996,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.1.4</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.1.5</p>'
+      + '<p style="margin:0 0 4px;">📝 <b>Sticky Note Expand</b> — tap catatan → pop up seperti modal edit, ketik lebih nyaman; tutup dengan tap di luar atau ESC</p>'
+      + '<p style="margin:0 0 4px;">💱 <b>Smart Valas Input</b> — pilih USD/IDR di form Pemasukan; input USD otomatis dikonversi ke IDR dan catatan jejak konversi ditambahkan</p>'
+      + '<p style="margin:0 0 10px;">📉 <b>Kurs Drop Warning</b> — banner amber otomatis muncul jika kurs USD turun ≥2% dalam 7 hari terakhir</p>'
+      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ v3.1.4-4</p>'
+      + '<p style="margin:0 0 4px;">⚡ <b>Snippet-First Reader</b> — Artikel langsung tampil dari ringkasan RSS (0ms), artikel lengkap dimuat di background tanpa spinner menggantung</p>'
+      + '<p style="margin:0 0 4px;">🔄 <b>Multi-layer Fetch</b> — r.jina.ai (layer 1) → allorigins raw HTML (layer 2) → snippet RSS tetap ditampilkan jika semua gagal</p>'
+      + '<p style="margin:0 0 10px;">💾 <b>Cache Artikel</b> — Buka ulang artikel yang sama = instant (sessionStorage)</p>'
+      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ v3.1.4</p>'
       + '<p style="margin:0 0 4px;">🐛 <b>Perbaikan Bug</b> — DI Workspace real-time setelah tambah/edit/hapus transaksi, sticky note event leak per render, tombol Edit Pengeluaran warna benar, reset achievements ikut reset data, dropdown kurs dapat reinit, input target tabungan konsisten</p>'
       + '<p style="margin:0 0 10px;">⚡ <b>Performa</b> — initStickyNote tidak clone DOM setiap render, chart bar/donut theme konsisten lintas tema</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
@@ -7682,6 +8025,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// ── Background kurs fetch saat startup ───────────────────────────────────────
+// Fetch kurs diam-diam saat app load agar fitur Smart Valas Input bisa
+// langsung dipakai tanpa harus buka tab Kurs dulu.
+// Pakai requestIdleCallback jika tersedia agar tidak blokir render awal.
+document.addEventListener('DOMContentLoaded', () => {
+  const doFetch = () => {
+    if (!_kursLoaded) {
+      kursFetchAll().then(() => {
+        // Setelah fetch selesai, update info rate di form pemasukan jika sudah ada
+        _updateIncRateHint();
+      }).catch(() => {});
+    }
+  };
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(doFetch, { timeout: 3000 });
+  } else {
+    setTimeout(doFetch, 800);
+  }
+});
 
 </script>
 
