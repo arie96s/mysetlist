@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PIMAPIKA.ID v3.2.3 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.2.4 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2141,7 +2141,7 @@
 
   /* ── STATE: EXPANDED (card aktif, mengambil ruang besar) ── */
   .sn-deck-card.sn-st-expanded {
-    height: 158px;
+    height: 178px;
     margin-top: 0;
     margin-bottom: 8px;
     padding: 16px 18px 12px;
@@ -2303,7 +2303,7 @@
   }
   .sn-st-expanded .sn-deck-textarea {
     opacity: 0.9;
-    max-height: 80px;
+    max-height: 100px;
     pointer-events: auto;
   }
   .sn-deck-textarea:focus { opacity: 1; }
@@ -2381,11 +2381,16 @@
   .sn-edit-btn:active { transform: scale(0.88); }
   .sn-edit-btn.editing { opacity: 1; }
 
-  /* ── DONE BUTTON (✅) — selalu ada tapi redup saat read-only ── */
+  /* ── DONE BUTTON (✅) — posisi absolut sudut kanan bawah kartu ── */
   .sn-nav-btn.sn-done-btn {
-    opacity: 0.28;
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    opacity: 0;
+    pointer-events: none;
     transition: opacity .2s, background .18s, transform .15s;
   }
+  .sn-st-expanded .sn-nav-btn.sn-done-btn { opacity: 0.28; pointer-events: auto; }
   .sn-st-expanded.sn-editing .sn-nav-btn.sn-done-btn { opacity: 1; }
 
   /* ── RULED LINES seperti kertas di textarea ── */
@@ -2630,9 +2635,7 @@
         <textarea class="sn-deck-textarea" data-textarea-el
           placeholder="Tulis pengingat bulan ini…" spellcheck="false" readonly></textarea>
         <div class="sn-deck-footer">
-          <div style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
-            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+2)%3)" title="Catatan sebelumnya">‹</button>
-            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+1)%3)" title="Catatan berikutnya">›</button>
+          <div style="display:flex;align-items:center;justify-content:flex-end;width:100%;">
             <button class="sn-nav-btn sn-done-btn" id="snDoneBtn0" onclick="_snDoneEdit(0,event)" title="Selesai">✅</button>
           </div>
         </div>
@@ -2646,9 +2649,7 @@
         <textarea class="sn-deck-textarea" data-textarea-el
           placeholder="Tulis pengingat bulan ini…" spellcheck="false" readonly></textarea>
         <div class="sn-deck-footer">
-          <div style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
-            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+2)%3)" title="Catatan sebelumnya">‹</button>
-            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+1)%3)" title="Catatan berikutnya">›</button>
+          <div style="display:flex;align-items:center;justify-content:flex-end;width:100%;">
             <button class="sn-nav-btn sn-done-btn" id="snDoneBtn1" onclick="_snDoneEdit(1,event)" title="Selesai">✅</button>
           </div>
         </div>
@@ -2662,9 +2663,7 @@
         <textarea class="sn-deck-textarea" data-textarea-el
           placeholder="Tulis pengingat bulan ini…" spellcheck="false" readonly></textarea>
         <div class="sn-deck-footer">
-          <div style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
-            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+2)%3)" title="Catatan sebelumnya">‹</button>
-            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+1)%3)" title="Catatan berikutnya">›</button>
+          <div style="display:flex;align-items:center;justify-content:flex-end;width:100%;">
             <button class="sn-nav-btn sn-done-btn" id="snDoneBtn2" onclick="_snDoneEdit(2,event)" title="Selesai">✅</button>
           </div>
         </div>
@@ -3477,7 +3476,7 @@
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.2.3</div>
+            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.2.4</div>
           </div>
         </div>
 
@@ -4965,6 +4964,7 @@ function toast(msg,type='info'){
 // ─── PDF ───
 function downloadPDF(){
   if(!window.jspdf || !window.jspdf.jsPDF){ toast('PDF tidak tersedia (library belum dimuat)','error'); return; }
+  function stripEmoji(str){ return (str||'').replace(/[\u{1F300}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{200D}\u{20D0}-\u{20FF}]/gu,'').replace(/[^\x00-\x7E\u00C0-\u024F]/g,'').trim(); }
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=210,H=297;
@@ -4997,9 +4997,9 @@ function downloadPDF(){
     doc.setFontSize(9); doc.text('KETERANGAN / KATEGORI',15,y); doc.text('TGL',135,y); doc.text('JUMLAH',W-15,y,{align:'right'}); y+=4; dashed(y); y+=5;
     pInc.forEach(item=>{
       checkPage(14); doc.setFont('courier','normal'); doc.setFontSize(9);
-      doc.text(`${item.name.substring(0,25)} (${getCatLabelPlain(item.cat)})`,15,y);
+      doc.text(`${stripEmoji(item.name).substring(0,30)} (${getCatLabelPlain(item.cat)})`,15,y);
       doc.text(formatDate(item.date),135,y); doc.setFont('courier','bold'); doc.text(fmt(item.amt),W-15,y,{align:'right'}); y+=4;
-      if(item.note&&item.note.trim()){ doc.setFont('courier','normal'); doc.setFontSize(8); doc.text(`   * ${item.note.substring(0,50)}`,15,y); y+=4; } y+=1;
+      if(item.note&&item.note.trim()){ doc.setFont('courier','normal'); doc.setFontSize(8); doc.text(`   * ${stripEmoji(item.note).substring(0,55)}`,15,y); y+=4; } y+=1;
     });
     y+=2; dashed(y); y+=5; doc.setFont('courier','bold'); doc.text('SUBTOTAL PEMASUKAN',15,y); doc.text(fmt(totalInc),W-15,y,{align:'right'}); y+=10;
   }
@@ -5008,9 +5008,9 @@ function downloadPDF(){
     doc.setFontSize(9); doc.text('KETERANGAN / KATEGORI',15,y); doc.text('TGL',135,y); doc.text('JUMLAH',W-15,y,{align:'right'}); y+=4; dashed(y); y+=5;
     pExp.forEach(item=>{
       checkPage(14); doc.setFont('courier','normal'); doc.setFontSize(9);
-      doc.text(`${item.name.substring(0,25)} (${getCatLabelPlain(item.cat)})`,15,y);
+      doc.text(`${stripEmoji(item.name).substring(0,30)} (${getCatLabelPlain(item.cat)})`,15,y);
       doc.text(formatDate(item.date),135,y); doc.setFont('courier','bold'); doc.text(`-${fmt(item.amt)}`,W-15,y,{align:'right'}); y+=4;
-      if(item.note&&item.note.trim()){ doc.setFont('courier','normal'); doc.setFontSize(8); doc.text(`   * ${item.note.substring(0,50)}`,15,y); y+=4; } y+=1;
+      if(item.note&&item.note.trim()){ doc.setFont('courier','normal'); doc.setFontSize(8); doc.text(`   * ${stripEmoji(item.note).substring(0,55)}`,15,y); y+=4; } y+=1;
     });
     y+=2; dashed(y); y+=5; doc.setFont('courier','bold'); doc.text('SUBTOTAL PENGELUARAN',15,y); doc.text(`-${fmt(totalExp)}`,W-15,y,{align:'right'}); y+=10;
   }
@@ -8366,14 +8366,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.2.3 · Versi Saat Ini</p>'
-      + '<p style="margin:0 0 4px;">✏️ <b>Edit Mode Catatan</b> — tap ikon pensil untuk mulai ketik, ✅ untuk selesai; textarea read-only by default</p>'
-      + '<p style="margin:0 0 4px;">📋 <b>Tampilan Catatan Bersih</b> — dots, ikon 🏷️, dan teks "tersimpan per bulan" dihapus; tombol ‹ › ✅ dipusatkan</p>'
-      + '<p style="margin:0 0 10px;">📝 <b>Garis Kertas</b> — textarea kini bergaris tipis seperti buku catatan</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.2.4 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">🗑️ <b>Tombol ‹ › Dihapus</b> — sticky notes lebih bersih; navigasi tetap via tap kartu summary</p>'
+      + '<p style="margin:0 0 4px;">📌 <b>Tombol ✅ Pindah</b> — kini di sudut kanan bawah kartu, posisi lebih natural</p>'
+      + '<p style="margin:0 0 4px;">📄 <b>Ruang Catatan Diperluas</b> — textarea satu baris lebih tinggi untuk lebih banyak teks</p>'
+      + '<p style="margin:0 0 10px;">🔤 <b>Fix PDF Emoji</b> — nama transaksi berisi emoji kini tampil bersih di output PDF</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.2.2 · Versi Sebelumnya</p>'
-      + '<p style="margin:0 0 4px;">🔔 <b>Sticky Note Diperbarui</b> — lonceng & "💾 tersimpan per bulan" dihapus; ikon ✏️ di kiri atas ditambahkan</p>'
-      + '<p style="margin:0 0 10px;">🃏 <b>Layout Kartu Catatan</b> — desain 3 kartu bertumpuk dengan navigasi ‹ › dan tombol ✅</p>';
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.2.3 · Versi Sebelumnya</p>'
+      + '<p style="margin:0 0 4px;">✏️ <b>Edit Mode Catatan</b> — tap ikon pensil untuk mulai ketik, ✅ untuk selesai; textarea read-only by default</p>'
+      + '<p style="margin:0 0 4px;">📋 <b>Tampilan Catatan Bersih</b> — dots, ikon 🏷️, dan teks "tersimpan per bulan" dihapus; tombol ‹ › dipusatkan</p>'
+      + '<p style="margin:0 0 10px;">📝 <b>Garis Kertas</b> — textarea bergaris tipis seperti buku catatan</p>';
   }
 });
 
