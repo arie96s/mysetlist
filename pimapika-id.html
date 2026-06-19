@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PIMAPIKA.ID v3.1 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.2.3 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2091,125 +2091,333 @@
     transition: width .4s ease;
   }
 
-  /* ══ FITUR BARU: STICKY NOTE BULAN ══ */
-  /* ── STICKY NOTE CARD — sejajar health score ── */
-  .sn-card {
+  /* ══ STICKY NOTE — VERTICAL STACK (3 catatan aktif) ══
+     Pola: card aktif melebar penuh, 2 lainnya jadi strip ringkas
+     di atas/bawahnya — persis seperti referensi gambar. */
+
+  .sn-deck-wrap {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 0;
-    position: relative;
-    overflow: hidden;
-    cursor: default;
-    transition: all .35s cubic-bezier(.16,1,.3,1);
-    z-index: 1;
+    min-width: 0;
+    max-width: 100%;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
   }
-  /* Saat expanded, hapus overflow:hidden agar fixed positioning tidak ter-clip di Safari */
-  .sn-card.sn-expanded { overflow: visible; }
-  /* Subtle left amber strip */
-  .sn-card::before {
+  .sn-deck-wrap:hover { transform: none !important; box-shadow: none !important; }
+
+  /* ── Setiap card dalam stack — liquid glass, kenyal ── */
+  .sn-deck-card {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform, height, opacity, margin, border-radius;
+    transition:
+      height        0.52s cubic-bezier(0.22, 1, 0.36, 1),
+      margin-top    0.52s cubic-bezier(0.22, 1, 0.36, 1),
+      margin-bottom 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+      border-radius 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow    0.4s ease,
+      transform     0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+      background    0.4s ease,
+      border-color  0.4s ease;
+  }
+  .sn-deck-card:active { transform: scale(0.985); }
+
+  /* ── STATE: EXPANDED (card aktif, mengambil ruang besar) ── */
+  .sn-deck-card.sn-st-expanded {
+    height: 158px;
+    margin-top: 0;
+    margin-bottom: 8px;
+    padding: 16px 18px 12px;
+    z-index: 3;
+    cursor: default;
+    box-shadow: 0 10px 32px rgba(0,0,0,0.22), 0 0 0 0.5px rgba(251,191,36,0.14) inset;
+  }
+  .sn-deck-card.sn-st-expanded:active { transform: none; }
+
+  /* ── STATE: SUMMARY (strip ringkas, di atas atau bawah expanded) ── */
+  .sn-deck-card.sn-st-summary {
+    height: 38px;
+    margin-top: 0;
+    margin-bottom: 8px;
+    padding: 0 18px;
+    flex-direction: row;
+    align-items: center;
+    z-index: 1;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  }
+  .sn-deck-card.sn-st-summary:last-child { margin-bottom: 0; }
+
+  /* Saat summary ada DI ATAS expanded: radius bawah lebih kecil agar nyambung visual */
+  .sn-deck-card.sn-st-summary.sn-above {
+    border-radius: 18px 18px 14px 14px;
+    margin-bottom: -6px;
+  }
+  /* Saat summary ada DI BAWAH expanded: radius atas lebih kecil */
+  .sn-deck-card.sn-st-summary.sn-below {
+    border-radius: 14px 14px 18px 18px;
+    margin-top: -6px;
+  }
+
+  /* ── Warna per slot (selaras tema, beda hue agar mudah dibedakan) ── */
+  .sn-deck-card[data-slot="0"] {
+    background: var(--glass-white);
+    border: 1px solid rgba(251,191,36,0.30);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+  }
+  .sn-deck-card[data-slot="1"] {
+    background: rgba(99,102,241,0.16);
+    border: 1px solid rgba(99,102,241,0.28);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+  .sn-deck-card[data-slot="2"] {
+    background: rgba(16,185,129,0.13);
+    border: 1px solid rgba(16,185,129,0.26);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  body.light-mode .sn-deck-card[data-slot="0"] {
+    background: rgba(255,255,255,0.82);
+    border-color: rgba(245,158,11,0.35);
+  }
+  body.light-mode .sn-deck-card[data-slot="1"] {
+    background: rgba(99,102,241,0.09);
+    border-color: rgba(99,102,241,0.22);
+  }
+  body.light-mode .sn-deck-card[data-slot="2"] {
+    background: rgba(16,185,129,0.09);
+    border-color: rgba(16,185,129,0.22);
+  }
+
+  /* Amber top strip — hanya saat expanded */
+  .sn-deck-card.sn-st-expanded::before {
     content: '';
     position: absolute;
-    left: 0; top: 14px; bottom: 14px;
-    width: 2.5px;
-    border-radius: 2px;
-    background: linear-gradient(180deg,
-      rgba(251,191,36,.55),
-      rgba(245,158,11,.2));
+    top: 0; left: 16px; right: 16px;
+    height: 2.5px;
+    border-radius: 0 0 3px 3px;
+    background: linear-gradient(90deg,
+      rgba(251,191,36,0),rgba(251,191,36,.8),rgba(245,158,11,.6),rgba(251,191,36,0));
     pointer-events: none;
   }
-  .sn-card-header {
+
+  /* ── KONTEN: HEADER (selalu ada, beda layout per state) ── */
+  .sn-deck-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
     flex-shrink: 0;
   }
-  .sn-bell {
-    font-size: 13px;
-    opacity: .3;
-    transition: opacity .25s, transform .3s;
-    line-height: 1;
+  .sn-st-expanded .sn-deck-header { margin-bottom: 8px; }
+  .sn-st-summary .sn-deck-header { height: 100%; }
+
+  .sn-deck-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: font-size 0.4s ease, opacity 0.3s ease;
   }
-  .sn-bell.ring {
-    opacity: 1;
-    animation: snBellRing .4s cubic-bezier(.36,.07,.19,.97) 2;
+  .sn-st-summary .sn-deck-label {
+    font-size: 9.5px;
+    opacity: 0.75;
   }
-  @keyframes snBellRing {
-    0%,100%{ transform:rotate(0deg); }
-    20%    { transform:rotate(-18deg); }
-    60%    { transform:rotate(14deg); }
-    80%    { transform:rotate(-8deg); }
+  .sn-deck-month {
+    color: rgba(251,191,36,.78);
+    font-size: 10px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
   }
-  .sn-textarea {
+  .sn-st-summary .sn-deck-month { font-size: 9px; }
+
+  /* .sn-deck-nav removed */
+  /* .sn-deck-dot removed — dots dihapus dari UI */
+
+  /* Preview text — muncul di tengah strip summary, fade in/out */
+  .sn-peek-preview {
+    flex: 1;
+    min-width: 0;
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    opacity: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    margin: 0 10px;
+    max-height: 0;
+    transition: opacity 0.3s ease 0.15s, max-height 0.3s ease;
+  }
+  .sn-st-summary .sn-peek-preview {
+    opacity: 0.62;
+    max-height: 20px;
+  }
+
+  /* Textarea — hanya tampil/berfungsi saat expanded */
+  .sn-deck-textarea {
     flex: 1;
     width: 100%;
-    min-height: 52px;
+    min-height: 0;
     background: transparent;
     border: none;
     outline: none;
     resize: none;
     font-family: inherit;
-    font-size: 12px;
-    line-height: 1.6;
+    font-size: 12.5px;
+    line-height: 1.65;
     color: var(--text-primary);
-    opacity: .8;
-    transition: opacity .2s;
+    opacity: 0;
+    max-height: 0;
+    transition: opacity 0.3s ease 0.18s, max-height 0.45s cubic-bezier(0.22,1,0.36,1);
     padding: 0;
     box-sizing: border-box;
+    pointer-events: none;
   }
-  .sn-textarea:focus { opacity: 1; }
-  .sn-textarea::placeholder {
+  .sn-st-expanded .sn-deck-textarea {
+    opacity: 0.9;
+    max-height: 80px;
+    pointer-events: auto;
+  }
+  .sn-deck-textarea:focus { opacity: 1; }
+  .sn-deck-textarea::placeholder {
     color: var(--text-muted);
-    font-size: 11px;
-    opacity: .55;
+    font-size: 11.5px;
+    opacity: .5;
   }
-  .sn-card-footer {
+
+  /* Footer — hanya tampil saat expanded */
+  .sn-deck-footer {
     font-size: 9px;
-    color: var(--text-muted);
-    opacity: .4;
-    margin-top: 6px;
+    color: rgba(251,191,36,.4);
+    margin-top: 0;
     display: flex;
     align-items: center;
-    gap: 3px;
+    justify-content: space-between;
     flex-shrink: 0;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.25s ease, max-height 0.4s cubic-bezier(0.22,1,0.36,1), margin-top 0.4s ease;
+  }
+  .sn-st-expanded .sn-deck-footer {
+    opacity: 1;
+    max-height: 24px;
+    margin-top: 6px;
   }
 
-  /* Tempel animation — jiggle saat selesai ketik */
+  .sn-nav-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    width: 26px; height: 22px;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .18s, transform .15s;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+  }
+  .sn-nav-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.92); }
+  body.light-mode .sn-nav-btn {
+    background: rgba(0,0,0,0.06);
+    border-color: rgba(0,0,0,0.12);
+    color: var(--text-secondary);
+  }
+
+  /* Tempel jiggle — saat selesai mengetik (debounced save) */
   @keyframes snTempel {
-    0%   { transform: scale(1) rotate(0deg); }
-    25%  { transform: scale(1.015) rotate(.4deg); box-shadow: 0 6px 24px rgba(251,191,36,.12); }
-    55%  { transform: scale(.996) rotate(-.25deg); }
-    80%  { transform: scale(1.004) rotate(.1deg); }
-    100% { transform: scale(1) rotate(0deg); }
+    0%   { transform:scale(1) rotate(0); }
+    25%  { transform:scale(1.012) rotate(.3deg); }
+    55%  { transform:scale(.997) rotate(-.2deg); }
+    100% { transform:scale(1) rotate(0); }
   }
-  .sn-card.tempel { animation: snTempel .5s cubic-bezier(.34,1.56,.64,1); }
+  .sn-deck-card.tempel { animation: snTempel .5s cubic-bezier(.34,1.56,.64,1); }
 
-  /* ── STICKY NOTE EXPAND ON FOCUS ── */
-  /* Card jadi overlay saat textarea fokus — mirip edit modal tapi ringan */
-  .sn-card.sn-expanded {
-    position: fixed !important;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: min(420px, calc(100vw - 32px)) !important;
-    max-height: 80vh !important;
-    z-index: 600 !important;
-    box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 0 0 1px rgba(251,191,36,.22) !important;
-    border-color: rgba(251,191,36,.35) !important;
-    padding: 18px 20px !important;
+  /* ── EDIT BUTTON (✏️ kiri atas) ── */
+  .sn-edit-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.38;
+    transition: opacity .2s, transform .2s;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
   }
-  .sn-card.sn-expanded .sn-textarea {
-    min-height: 160px !important;
-    font-size: 13.5px !important;
-    opacity: 1 !important;
+  .sn-st-expanded .sn-edit-btn { display: flex; }
+  .sn-st-summary .sn-edit-btn { display: none; }
+  .sn-edit-btn:active { transform: scale(0.88); }
+  .sn-edit-btn.editing { opacity: 1; }
+
+  /* ── DONE BUTTON (✅) — selalu ada tapi redup saat read-only ── */
+  .sn-nav-btn.sn-done-btn {
+    opacity: 0.28;
+    transition: opacity .2s, background .18s, transform .15s;
   }
-  /* Backdrop overlay saat expanded */
+  .sn-st-expanded.sn-editing .sn-nav-btn.sn-done-btn { opacity: 1; }
+
+  /* ── RULED LINES seperti kertas di textarea ── */
+  .sn-deck-textarea {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(1.65em - 1px),
+      rgba(255,255,255,0.08) calc(1.65em - 1px),
+      rgba(255,255,255,0.08) 1.65em
+    );
+    background-attachment: local;
+  }
+  body.light-mode .sn-deck-textarea {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(1.65em - 1px),
+      rgba(0,0,0,0.07) calc(1.65em - 1px),
+      rgba(0,0,0,0.07) 1.65em
+    );
+  }
+  /* Textarea read-only state — kursor tidak ber-blink */
+  .sn-deck-textarea[readonly] { caret-color: transparent; }
+
+  /* Overlay backdrop (legacy, dijaga agar tidak error jika ada referensi lama) */
   #snOverlay {
     display: none;
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: rgba(0,0,0,.45);
     backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
     z-index: 599;
     animation: fadeIn .2s ease;
   }
@@ -2411,15 +2619,56 @@
       <div class="sum-sub" id="sumHealthLabel">Klik lihat detail</div>
     </div>
 
-    <!-- Sticky Note card (standalone, sejajar health score) -->
-    <div class="glass sum-card sn-card" id="stickyNoteWrap">
-      <div class="sn-card-header">
-        <span class="sum-label" style="margin:0;">🏷️ Catatan&nbsp;<span id="stickyNoteMonth" style="color:rgba(251,191,36,.7);text-transform:none;letter-spacing:0;font-size:10px;"></span></span>
-        <span class="sn-bell" id="snBell">🔔</span>
+    <!-- Sticky Note — Vertical Stack (3 catatan aktif, liquid glass) -->
+    <div class="sn-deck-wrap sum-card" id="snDeckWrap">
+      <div class="sn-deck-card glass" id="snCard0" data-slot="0">
+        <div class="sn-deck-header">
+          <button class="sn-edit-btn" id="snEditBtn0" onclick="_snToggleEdit(0,event)" title="Edit catatan">✏️</button>
+          <span class="sn-deck-label">Catatan <span class="sn-deck-month" data-month-el></span></span>
+          <div class="sn-peek-preview" data-preview-el>—</div>
+        </div>
+        <textarea class="sn-deck-textarea" data-textarea-el
+          placeholder="Tulis pengingat bulan ini…" spellcheck="false" readonly></textarea>
+        <div class="sn-deck-footer">
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
+            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+2)%3)" title="Catatan sebelumnya">‹</button>
+            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+1)%3)" title="Catatan berikutnya">›</button>
+            <button class="sn-nav-btn sn-done-btn" id="snDoneBtn0" onclick="_snDoneEdit(0,event)" title="Selesai">✅</button>
+          </div>
+        </div>
       </div>
-      <textarea id="stickyNoteInput" class="sn-textarea"
-        placeholder="Tulis pengingat bulan ini…" spellcheck="false"></textarea>
-      <div class="sn-card-footer">💾 tersimpan per bulan</div>
+      <div class="sn-deck-card glass" id="snCard1" data-slot="1">
+        <div class="sn-deck-header">
+          <button class="sn-edit-btn" id="snEditBtn1" onclick="_snToggleEdit(1,event)" title="Edit catatan">✏️</button>
+          <span class="sn-deck-label">Catatan <span class="sn-deck-month" data-month-el></span></span>
+          <div class="sn-peek-preview" data-preview-el>—</div>
+        </div>
+        <textarea class="sn-deck-textarea" data-textarea-el
+          placeholder="Tulis pengingat bulan ini…" spellcheck="false" readonly></textarea>
+        <div class="sn-deck-footer">
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
+            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+2)%3)" title="Catatan sebelumnya">‹</button>
+            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+1)%3)" title="Catatan berikutnya">›</button>
+            <button class="sn-nav-btn sn-done-btn" id="snDoneBtn1" onclick="_snDoneEdit(1,event)" title="Selesai">✅</button>
+          </div>
+        </div>
+      </div>
+      <div class="sn-deck-card glass" id="snCard2" data-slot="2">
+        <div class="sn-deck-header">
+          <button class="sn-edit-btn" id="snEditBtn2" onclick="_snToggleEdit(2,event)" title="Edit catatan">✏️</button>
+          <span class="sn-deck-label">Catatan <span class="sn-deck-month" data-month-el></span></span>
+          <div class="sn-peek-preview" data-preview-el>—</div>
+        </div>
+        <textarea class="sn-deck-textarea" data-textarea-el
+          placeholder="Tulis pengingat bulan ini…" spellcheck="false" readonly></textarea>
+        <div class="sn-deck-footer">
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
+            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+2)%3)" title="Catatan sebelumnya">‹</button>
+            <button class="sn-nav-btn" onclick="_snRotateDeck((_snActiveSlot+1)%3)" title="Catatan berikutnya">›</button>
+            <button class="sn-nav-btn sn-done-btn" id="snDoneBtn2" onclick="_snDoneEdit(2,event)" title="Selesai">✅</button>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div><!-- /summary-grid -->
@@ -2488,7 +2737,7 @@
             </select>
           </div>
           <div class="input-group">
-            <label class="input-label" id="incAmtLabel">Jumlah (Rp) <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 1500000+250000=</span></label>
+            <label class="input-label" id="incAmtLabel">Jumlah (Rp) <span id="incFormulaHint" style="font-size:10px;color:var(--text-muted);font-weight:normal;">✨ Rumus: ketik <b>=</b> di akhir, mis: 1.500.000+250.000=</span></label>
             <div class="currency-wrapper has-select">
               <select class="currency-select" id="incCurrency" onchange="onIncCurrencyChange()">
                 <option value="IDR">IDR</option>
@@ -3228,7 +3477,7 @@
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.1.5</div>
+            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.2.3</div>
           </div>
         </div>
 
@@ -3351,7 +3600,10 @@ const BADGE_DEFS = [
 ];
 
 // ─── STATE ───
-let _snLastPeriod = null; // sticky note: track periode terakhir (harus dideklarasi sebelum render())
+let _snLastPeriod  = null; // kept for compatibility
+let _snActiveSlot  = 0;   // kartu yang sedang di depan (0/1/2)
+let _snTypingTimer = null;
+let _snDeckInited  = false;
 let _kursDropCache = null; // kurs drop warning cache — harus dideklarasi sebelum render()
 let state = {
   period:'Januari', incomes:[], expenses:[], banks:[],
@@ -3494,14 +3746,29 @@ function formatCurrencyInput(el){
   try{ el.setSelectionRange(cur+diff, cur+diff); }catch(e){}
 }
 function getCurrencyValue(id){
-  const raw = document.getElementById(id).value.replace(/\./g,'').replace(/,/g,'').replace(/=/g,'').trim();
+  const el = document.getElementById(id);
+  const rawVal = el ? el.value : '';
+  // Deteksi apakah field ini menggunakan USD (incAmt dengan incCurrency=USD)
+  const currSel = id === 'incAmt' ? document.getElementById('incCurrency') : null;
+  const isUSD = currSel && currSel.value === 'USD';
+  let raw;
+  if (isUSD) {
+    // Format en-US: koma = pemisah ribuan, titik = desimal → buang koma saja
+    raw = rawVal.replace(/,/g,'').replace(/=/g,'').trim();
+  } else {
+    // Format id-ID: titik = pemisah ribuan, koma = desimal → buang titik & koma
+    raw = rawVal.replace(/\./g,'').replace(/,/g,'').replace(/=/g,'').trim();
+  }
   // BUG FIX: Evaluasi ekspresi matematika jika ada operator (user lupa tekan '=')
   if (/[+\-*\/]/.test(raw)) {
     try {
       const safe = raw.replace(/[^0-9+\-*\/().\s]/g,'');
       // eslint-disable-next-line no-new-func
       const res = new Function('return (' + safe + ')')();
-      return (typeof res === 'number' && isFinite(res) && res > 0) ? Math.round(res) : 0;
+      if (typeof res === 'number' && isFinite(res) && res > 0) {
+        return isUSD ? Math.round(res * 100) / 100 : Math.round(res);
+      }
+      return 0;
     } catch(e) { return 0; }
   }
   return parseFloat(raw) || 0;
@@ -3801,6 +4068,15 @@ function onIncCurrencyChange(){
   const cur = document.getElementById('incCurrency').value;
   const label = document.getElementById('incAmtLabel');
   if(label) label.firstChild.textContent = cur === 'USD' ? 'Jumlah (USD) ' : 'Jumlah (Rp) ';
+  // Update formula hint agar relevan dengan mata uang aktif
+  const fhint = document.getElementById('incFormulaHint');
+  if(fhint){
+    if(cur === 'USD'){
+      fhint.innerHTML = '✨ Rumus: ketik <b>=</b> di akhir, mis: 10.5+2.5=';
+    } else {
+      fhint.innerHTML = '✨ Rumus: ketik <b>=</b> di akhir, mis: 1.500.000+250.000=';
+    }
+  }
   // Sembunyikan quick preset rupiah saat USD (tidak relevan)
   const presets = document.getElementById('incQuickPresets');
   if(presets) presets.style.display = cur === 'USD' ? 'none' : '';
@@ -3897,7 +4173,12 @@ function repeatLastIncome(){
   document.getElementById('incName').value = last.name;
   document.getElementById('incCat').value = last.cat;
   document.getElementById('incAmt').value = last.amt.toLocaleString('id-ID');
-  document.getElementById('incNote').value = last.note || '';
+  // Bersihkan catatan dari tag otomatis [Rumus:...] dan keterangan konversi USD
+  const cleanNote = (last.note || '')
+    .replace(/\[Rumus:[^\]]*\]\s*/g, '')
+    .replace(/\(Input:\s*\$[\d.,]+\s*USD\s*@\s*Rp\s*[\d.,]+\)\s*/g, '')
+    .trim();
+  document.getElementById('incNote').value = cleanNote;
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('incDate').value = today;
   // Reset currency ke IDR — amt yang diulang sudah dalam IDR
@@ -3944,7 +4225,11 @@ function repeatLastExpense(){
   document.getElementById('expName').value = last.name;
   document.getElementById('expCat').value = last.cat;
   document.getElementById('expAmt').value = last.amt.toLocaleString('id-ID');
-  document.getElementById('expNote').value = last.note || '';
+  // Bersihkan catatan dari tag otomatis [Rumus:...]
+  const cleanNote = (last.note || '')
+    .replace(/\[Rumus:[^\]]*\]\s*/g, '')
+    .trim();
+  document.getElementById('expNote').value = cleanNote;
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('expDate').value = today;
   toast('Form diisi dari pengeluaran terakhir, silakan periksa & simpan','info');
@@ -4191,12 +4476,6 @@ function render(){
   document.getElementById('sumAllocated').textContent=fmtShort(totalAlloc);
   document.getElementById('sumAllocatedPct').textContent=totalAllocPct.toFixed(1)+'% dari pemasukan';
 
-  // Health score quick calc for summary card
-  const hs=calcHealthScore();
-  document.getElementById('sumHealthScore').textContent=hs.score>0?hs.score+'/100':'—';
-  const hl=hs.score>=80?'😄 Sangat Baik':hs.score>=60?'🙂 Baik':hs.score>=40?'😐 Cukup':hs.score>0?'😟 Perlu Perbaikan':'Klik lihat detail';
-  document.getElementById('sumHealthLabel').textContent=hl;
-
   // Income list
   document.getElementById('incBadge').textContent=pInc.length;
   renderIncome();
@@ -4343,116 +4622,196 @@ function openSettingModal(){
 }
 function closeSettingModal(){ document.getElementById('settingModal').classList.remove('open'); }
 
-// ─── FITUR BARU: STICKY NOTE BULAN ───────────────────────────────────────────
-// ─── STICKY NOTE (sejajar health score) ─────────────────────────────────────
+// ─── STICKY NOTE — VERTICAL STACK (3 catatan aktif, liquid glass) ──────────
+// Setiap card (slot 0/1/2) berisi markup lengkap (header+textarea+footer).
+// JS hanya toggle class .sn-st-expanded / .sn-st-summary + data-state pada
+// wrapper, dan isi value textarea masing-masing slot. Tidak ada DOM-moving.
+
 function initStickyNote(){
-  const el      = document.getElementById('stickyNoteInput');
-  const monthEl = document.getElementById('stickyNoteMonth');
-  if(!el || !monthEl) return;
+  const wrap = document.getElementById('snDeckWrap');
+  if(!wrap) return;
 
   const period = state.period;
-  monthEl.textContent = period;
 
+  // Pastikan struktur data monthlyNotes mendukung 3 slot per periode
   if(!state.monthlyNotes) state.monthlyNotes = {};
-
-  // Hanya reinit listener saat periode benar-benar berubah
-  if(_snLastPeriod !== period){
-    _snLastPeriod = period;
-
-    // Detach old listener, attach fresh one for new period
-    const fresh = el.cloneNode(true);
-    el.parentNode.replaceChild(fresh, el);
-    const inp = document.getElementById('stickyNoteInput');
-    inp.value = state.monthlyNotes[period] || '';
-
-    let _snTypingTimer = null;
-    inp.addEventListener('input', function(){
-      if(!state.monthlyNotes) state.monthlyNotes = {};
-      state.monthlyNotes[period] = this.value;
-      saveState();
-      // Tempel animation on pause
-      clearTimeout(_snTypingTimer);
-      _snTypingTimer = setTimeout(() => _snTempel(), 900);
-    });
-
-    // Expand on focus — pop up seperti edit modal
-    inp.addEventListener('focus', function(){
-      const card = document.getElementById('stickyNoteWrap');
-      const overlay = document.getElementById('snOverlay');
-      if(card) card.classList.add('sn-expanded');
-      if(overlay) overlay.classList.add('show');
-    });
-
-    // Init reminder on first load only
-    if(!window._snReminderDone) _snScheduleReminder();
-  } else {
-    // Periode sama — hanya update nilai tanpa clone DOM
-    el.value = state.monthlyNotes[period] || '';
+  if(!state.monthlyNotes[period] || typeof state.monthlyNotes[period] !== 'object'){
+    const old = (typeof state.monthlyNotes[period] === 'string') ? state.monthlyNotes[period] : '';
+    state.monthlyNotes[period] = { 0: old, 1: '', 2: '' };
   }
 
-  // Pastikan overlay collapse listener terpasang (sekali saja)
-  if(!window._snOverlayBound){
-    window._snOverlayBound = true;
-    const overlay = document.getElementById('snOverlay');
-    if(overlay){
-      overlay.addEventListener('click', _snCollapse);
+  // Init listener hanya sekali (seumur hidup halaman)
+  if(!_snDeckInited){
+    _snDeckInited = true;
+    _snInitListeners();
+    if(!window._snReminderDone) _snScheduleReminder();
+  }
+
+  _snRenderDeck();
+}
+
+function _snInitListeners(){
+  for(let slot = 0; slot < 3; slot++){
+    const card = document.getElementById('snCard' + slot);
+    if(!card) continue;
+    const ta = card.querySelector('[data-textarea-el]');
+
+    // Textarea — simpan ke slot ini
+    if(ta){
+      ta.addEventListener('input', function(){
+        const period = state.period;
+        if(!state.monthlyNotes[period]) state.monthlyNotes[period] = {0:'',1:'',2:''};
+        state.monthlyNotes[period][slot] = this.value;
+        saveState();
+        clearTimeout(_snTypingTimer);
+        _snTypingTimer = setTimeout(() => _snTempel(slot), 900);
+        _snUpdatePreviewText(slot);
+      });
+      // Cegah klik di textarea ikut memicu klik card (toggle/rotate)
+      ta.addEventListener('click', e => e.stopPropagation());
     }
-    // ESC key juga collapse
-    document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape'){
-        const card = document.getElementById('stickyNoteWrap');
-        if(card && card.classList.contains('sn-expanded')) _snCollapse();
+
+    // Klik card — jika summary, jadikan expanded (rotate ke slot ini)
+    card.addEventListener('click', function(e){
+      if(slot !== _snActiveSlot){
+        _snRotateDeck(slot);
       }
     });
   }
 }
 
-function _snCollapse(){
-  const card = document.getElementById('stickyNoteWrap');
-  const overlay = document.getElementById('snOverlay');
-  const inp = document.getElementById('stickyNoteInput');
-  if(card) card.classList.remove('sn-expanded');
-  if(overlay) overlay.classList.remove('show');
-  if(inp) inp.blur();
+/* Toggle edit mode pada slot — tap ✏️ aktifkan, tap ✅ nonaktifkan */
+function _snToggleEdit(slot, e){
+  if(e) e.stopPropagation();
+  const card = document.getElementById('snCard' + slot);
+  if(!card) return;
+  // Aktifkan card ini dulu jika belum expanded
+  if(slot !== _snActiveSlot){ _snRotateDeck(slot); setTimeout(() => _snEnableEdit(slot), 440); return; }
+  _snEnableEdit(slot);
+}
+function _snEnableEdit(slot){
+  const card = document.getElementById('snCard' + slot);
+  if(!card) return;
+  const ta = card.querySelector('[data-textarea-el]');
+  const btn = document.getElementById('snEditBtn' + slot);
+  if(!ta) return;
+  ta.removeAttribute('readonly');
+  ta.style.caretColor = '';
+  card.classList.add('sn-editing');
+  if(btn) btn.classList.add('editing');
+  setTimeout(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 50);
+}
+function _snDoneEdit(slot, e){
+  if(e) e.stopPropagation();
+  const card = document.getElementById('snCard' + slot);
+  if(!card) return;
+  const ta = card.querySelector('[data-textarea-el]');
+  const btn = document.getElementById('snEditBtn' + slot);
+  if(ta){ ta.setAttribute('readonly', ''); ta.blur(); }
+  card.classList.remove('sn-editing');
+  if(btn) btn.classList.remove('editing');
+  _snTempel(slot);
 }
 
-function _snTempel(){
-  const card = document.getElementById('stickyNoteWrap');
+/* Render ulang seluruh stack berdasarkan _snActiveSlot saat ini.
+   Urutan visual DOM TETAP 0,1,2 — yang berubah hanya class state-nya,
+   sehingga posisi mengikuti pola: [opsional summary di atas] →
+   [expanded] → [opsional summary di bawah], sesuai indeks slot asli. */
+function _snRenderDeck(){
+  const period = state.period;
+  if(!state.monthlyNotes[period]) state.monthlyNotes[period] = {0:'',1:'',2:''};
+  const notes = state.monthlyNotes[period];
+
+  for(let slot = 0; slot < 3; slot++){
+    const card = document.getElementById('snCard' + slot);
+    if(!card) continue;
+    const ta = card.querySelector('[data-textarea-el]');
+    const monthEl = card.querySelector('[data-month-el]');
+    const isActive = (slot === _snActiveSlot);
+
+    card.classList.toggle('sn-st-expanded', isActive);
+    card.classList.toggle('sn-st-summary', !isActive);
+    card.classList.toggle('sn-above', !isActive && slot < _snActiveSlot);
+    card.classList.toggle('sn-below', !isActive && slot > _snActiveSlot);
+
+    if(ta) {
+      ta.value = notes[slot] || '';
+      // Pastikan readonly state konsisten — hanya non-readonly jika card ini sedang sn-editing
+      if(!card.classList.contains('sn-editing')) {
+        ta.setAttribute('readonly', '');
+      }
+    }
+    if(monthEl) monthEl.textContent = period;
+
+    // Dots — tandai slot aktif di semua card (biar konsisten kalau salah satu jadi summary)
+    for(let d = 0; d < 3; d++){
+      const dot = card.querySelector('[data-dot="' + d + '"]');
+      if(dot) dot.classList.toggle('active', d === _snActiveSlot);
+    }
+
+    _snUpdatePreviewText(slot);
+  }
+}
+
+function _snUpdatePreviewText(slot){
+  const period = state.period;
+  const card = document.getElementById('snCard' + slot);
+  if(!card || !state.monthlyNotes[period]) return;
+  const prevEl = card.querySelector('[data-preview-el]');
+  if(!prevEl) return;
+  const txt = (state.monthlyNotes[period][slot] || '').trim();
+  prevEl.textContent = txt ? txt.split('\n')[0].slice(0, 36) : ('Catatan ' + (slot + 1) + ' — kosong');
+}
+
+function _snRotateDeck(targetSlot){
+  if(targetSlot === _snActiveSlot) return;
+  // Exit edit mode pada card sebelumnya
+  const oldCard = document.getElementById('snCard' + _snActiveSlot);
+  if(oldCard){
+    const oldTa = oldCard.querySelector('[data-textarea-el]');
+    const oldBtn = document.getElementById('snEditBtn' + _snActiveSlot);
+    if(oldTa){ oldTa.setAttribute('readonly',''); }
+    oldCard.classList.remove('sn-editing');
+    if(oldBtn) oldBtn.classList.remove('editing');
+  }
+  _snActiveSlot = targetSlot;
+  _snRenderDeck();
+}
+
+function _snTempel(slot){
+  const card = document.getElementById('snCard' + slot);
   if(!card) return;
   card.classList.remove('tempel');
   void card.offsetWidth;
   card.classList.add('tempel');
-  card.addEventListener('animationend', () => card.classList.remove('tempel'), { once: true });
+  card.addEventListener('animationend', () => card.classList.remove('tempel'), {once:true});
 }
 
-/* Reminder: 5 detik fade-in/out, pakai baris pertama catatan bulan ini */
+/* Reminder toast — pakai catatan dari slot yang sedang aktif/expanded */
 function _snScheduleReminder(){
-  // Munculkan 4 detik setelah load, kemudian tiap 5 menit
   setTimeout(_snShowReminder, 4000);
   setInterval(_snShowReminder, 5 * 60 * 1000);
   window._snReminderDone = true;
 }
 function _snShowReminder(){
-  const text = (state.monthlyNotes && state.monthlyNotes[state.period] || '').trim();
-  if(!text) return; // tidak ada catatan = tidak perlu remind
+  const notes = state.monthlyNotes && state.monthlyNotes[state.period];
+  if(!notes) return;
+  const text = (notes[_snActiveSlot] || '').trim();
+  if(!text) return;
   const firstLine = text.split('\n')[0].slice(0, 48);
   const el   = document.getElementById('snReminder');
   const tEl  = document.getElementById('snReminderText');
-  const bell = document.getElementById('snBell');
   if(!el || !tEl) return;
   tEl.textContent = firstLine;
   el.classList.add('show');
-  // Bell ring
-  if(bell){ bell.classList.remove('ring'); void bell.offsetWidth; bell.classList.add('ring'); }
-  setTimeout(() => {
-    el.classList.remove('show');
-    if(bell) bell.classList.remove('ring');
-  }, 5000);
+  setTimeout(() => { el.classList.remove('show'); }, 5000);
 }
 
-/* toggleStickyNote tidak dipakai lagi tapi dibiarkan agar tidak error jika dipanggil */
-function toggleStickyNote(){ /* no-op — collapsed state dihapus */ }
-function _snUpdatePreview(){} // no-op
+/* Legacy no-ops — dijaga agar pemanggilan lama tidak error */
+function toggleStickyNote(){ /* no-op */ }
+function _snCollapse(){ /* no-op — tidak ada lagi mode overlay */ }
+function _snUpdatePreview(){ /* no-op, diganti _snUpdatePreviewText */ }
+
 
 // ─── FITUR BARU: BANNER SALDO MINUS ──────────────────────────────────────────
 function updateSaldoMinusBanner(){
@@ -5921,7 +6280,13 @@ function handleMathInput(el, hintId) {
       }
 
       if (typeof result === 'number' && isFinite(result) && result > 0) {
-        const rounded = Math.round(result);
+        // Deteksi apakah input ini USD (jangan bulatkan ke integer)
+        const currSel = el.id === 'incAmt' ? document.getElementById('incCurrency') : null;
+        const isUSD = currSel && currSel.value === 'USD';
+        const rounded = isUSD ? Math.round(result * 100) / 100 : Math.round(result);
+        const displayInField = isUSD
+          ? result.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})
+          : rounded.toLocaleString('id-ID');
 
         // Catat rumus ke field Catatan (form utama & modal edit)
         const noteFieldMap = {
@@ -5939,9 +6304,14 @@ function handleMathInput(el, hintId) {
           }
         }
 
-        el.value = rounded.toLocaleString('id-ID');
+        el.value = displayInField;
         if (hintEl) {
-          hintEl.textContent = '✅ Hasil: Rp ' + rounded.toLocaleString('id-ID');
+          // Deteksi currency aktif untuk label hint yang tepat
+          const currLabel = isUSD ? '$ ' : 'Rp ';
+          const displayVal = isUSD
+            ? result.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})
+            : rounded.toLocaleString('id-ID');
+          hintEl.textContent = '✅ Hasil: ' + currLabel + displayVal;
           hintEl.classList.add('has-result');
           setTimeout(() => { hintEl.textContent = ''; hintEl.classList.remove('has-result'); }, 2500);
         }
@@ -7996,32 +8366,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.1.5</p>'
-      + '<p style="margin:0 0 4px;">📝 <b>Sticky Note Expand</b> — tap catatan → pop up seperti modal edit, ketik lebih nyaman; tutup dengan tap di luar atau ESC</p>'
-      + '<p style="margin:0 0 4px;">💱 <b>Smart Valas Input</b> — pilih USD/IDR di form Pemasukan; input USD otomatis dikonversi ke IDR dan catatan jejak konversi ditambahkan</p>'
-      + '<p style="margin:0 0 10px;">📉 <b>Kurs Drop Warning</b> — banner amber otomatis muncul jika kurs USD turun ≥2% dalam 7 hari terakhir</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.2.3 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">✏️ <b>Edit Mode Catatan</b> — tap ikon pensil untuk mulai ketik, ✅ untuk selesai; textarea read-only by default</p>'
+      + '<p style="margin:0 0 4px;">📋 <b>Tampilan Catatan Bersih</b> — dots, ikon 🏷️, dan teks "tersimpan per bulan" dihapus; tombol ‹ › ✅ dipusatkan</p>'
+      + '<p style="margin:0 0 10px;">📝 <b>Garis Kertas</b> — textarea kini bergaris tipis seperti buku catatan</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ v3.1.4-4</p>'
-      + '<p style="margin:0 0 4px;">⚡ <b>Snippet-First Reader</b> — Artikel langsung tampil dari ringkasan RSS (0ms), artikel lengkap dimuat di background tanpa spinner menggantung</p>'
-      + '<p style="margin:0 0 4px;">🔄 <b>Multi-layer Fetch</b> — r.jina.ai (layer 1) → allorigins raw HTML (layer 2) → snippet RSS tetap ditampilkan jika semua gagal</p>'
-      + '<p style="margin:0 0 10px;">💾 <b>Cache Artikel</b> — Buka ulang artikel yang sama = instant (sessionStorage)</p>'
-      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ v3.1.4</p>'
-      + '<p style="margin:0 0 4px;">🐛 <b>Perbaikan Bug</b> — DI Workspace real-time setelah tambah/edit/hapus transaksi, sticky note event leak per render, tombol Edit Pengeluaran warna benar, reset achievements ikut reset data, dropdown kurs dapat reinit, input target tabungan konsisten</p>'
-      + '<p style="margin:0 0 10px;">⚡ <b>Performa</b> — initStickyNote tidak clone DOM setiap render, chart bar/donut theme konsisten lintas tema</p>'
-      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ v3.1</p>'
-      + '<p style="margin:0 0 4px;">🗂️ <b>Dynamic Island Workspace</b> — Saldo Bersih, Pemasukan, Pengeluaran &amp; Tabungan real-time</p>'
-      + '<p style="margin:0 0 4px;">📅 <b>Tanggal Header Sementara</b> — dapat diubah untuk input, otomatis reset saat buka ulang</p>'
-      + '<p style="margin:0 0 4px;">💱 <b>Kurs Default</b> — Currency Converter kini default ke USD → IDR</p>'
-      + '<p style="margin:0 0 10px;">🎨 <b>Intro Adaptif Tema</b> — latar pembuka menyesuaikan tema Dark / Light / Old Grey</p>'
-      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">🚀 v3.0</p>'
-      + '<p style="margin:0 0 4px;">⏰ <b>Jam Digital Header</b> — 24/12 jam, zona WIB/WITA/WIT</p>'
-      + '<p style="margin:0 0 4px;">🏝️ <b>Dynamic Island</b> — mengambang, spring animation, Tab Workspace + News</p>'
-      + '<p style="margin:0 0 10px;">📰 <b>Berita Finansial Realtime</b> — Google News RSS, ekonomi, IHSG, emas, kurs</p>'
-      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 4px;font-size:11px;color:var(--text-muted);">Fitur sebelumnya: Edit Riwayat · Workspace Tabs · PIN Lock · Aset Emas · Tagihan Rutin · Target Tabungan · Budget Planner · Analitik · Backup/Restore · CSV · PDF · Pemindai Struk · Transaksi Berulang</p>';
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.2.2 · Versi Sebelumnya</p>'
+      + '<p style="margin:0 0 4px;">🔔 <b>Sticky Note Diperbarui</b> — lonceng & "💾 tersimpan per bulan" dihapus; ikon ✏️ di kiri atas ditambahkan</p>'
+      + '<p style="margin:0 0 10px;">🃏 <b>Layout Kartu Catatan</b> — desain 3 kartu bertumpuk dengan navigasi ‹ › dan tombol ✅</p>';
   }
 });
 
