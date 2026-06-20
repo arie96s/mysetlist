@@ -141,12 +141,15 @@
   .orb-3{width:400px;height:400px;background:radial-gradient(circle,#059669,#0ea5e9);bottom:-100px;left:30%;animation-delay:-5s;}
   .orb-4{width:300px;height:300px;background:radial-gradient(circle,#d97706,#ef4444);top:60%;left:10%;animation-delay:-2s;}
   @keyframes float{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-40px) scale(1.05);}66%{transform:translate(-20px,20px) scale(.97);}}
-  /* PERF FIX v3.3.2: 4 orb blur besar + animasi infinite + 87 panel .glass backdrop-filter
+  /* PERF FIX v3.3.3: 4 orb blur besar + animasi infinite + 87 panel .glass backdrop-filter
      adalah kombinasi yang berat untuk GPU di HP (compositing terus-menerus) → ini akar
      penyebab "app terasa berat". Matikan 2 orb terjauh & kecilkan blur di layar kecil. */
   @media (max-width:768px){
     .orb-3,.orb-4{display:none;}
     .orb{filter:blur(36px);opacity:.28;}
+    /* PERF FIX v3.3.3: turunkan glass blur di mobile dari 28px → 16px
+       untuk mengurangi GPU compositing overhead pada layar kecil */
+    :root{--glass-blur:blur(16px) saturate(140%);}
   }
 
   .app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:24px 20px 80px;}
@@ -157,7 +160,8 @@
   /* ── HEADER ── */
   .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding:20px 28px;}
   .logo-area{display:flex;align-items:center;gap:14px;}
-  .logo-img-wrapper{width:56px;height:56px;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.2);flex-shrink:0;border:1px solid var(--glass-border);animation:logoFloat 3s ease-in-out infinite;}
+  .logo-img-wrapper{width:56px;height:56px;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.2);flex-shrink:0;border:1px solid var(--glass-border);animation:logoFloat 3s ease-in-out infinite;will-change:transform;}
+  body.app-paused .logo-img-wrapper{animation-play-state:paused;}
   .logo-img-wrapper img{width:100%;height:100%;object-fit:cover;transition:opacity .25s ease;}
   @keyframes logoFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
   .logo-text{line-height:1;}
@@ -359,7 +363,7 @@
   .tx-list::-webkit-scrollbar{width:4px;}
   .tx-list::-webkit-scrollbar-track{background:transparent;}
   .tx-list::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:10px;}
-  .tx-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);transition:background .2s var(--spring),transform .2s var(--spring);animation:slideIn .3s var(--spring);gap:10px;min-width:0;position:relative;contain:layout style;}
+  .tx-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);transition:background .2s var(--spring),transform .2s var(--spring);animation:slideIn .3s var(--spring);gap:10px;min-width:0;position:relative;contain:layout style;touch-action:pan-y;}
   .tx-item:hover{background:var(--card-hover-bg);transform:translateX(3px);}
   .tx-info{flex:1;min-width:0;overflow:hidden;}
   .tx-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1863,120 +1867,209 @@
   }
   #dynamicIsland.di-squish { animation: diSquish 0.42s cubic-bezier(0.34,1.56,0.64,1); }
 
-  /* ── FITUR KAMERA: OCR STRUK ── */
+  /* ══ PIMA VISION — OCR ENGINE ══ */
   .btn-camera {
     padding: 0;
-    width: 38px;
-    height: 38px;
+    width: 38px; height: 38px;
     border-radius: 10px;
     border: 1px solid rgba(14,165,233,.4);
     background: rgba(14,165,233,.12);
     color: #38bdf8;
     font-size: 17px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     transition: all .25s var(--spring);
     flex-shrink: 0;
   }
   .btn-camera:hover { background: rgba(14,165,233,.25); transform: scale(1.08); box-shadow: 0 0 14px rgba(14,165,233,.35); }
   .btn-camera:active { transform: scale(.94); }
 
-  /* Camera Modal */
+  /* Camera Modal Overlay */
   .camera-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9100;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,.8);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    position: fixed; inset: 0; z-index: 9100;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.82);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
   }
   .camera-modal-overlay.open { display: flex; animation: fadeIn .25s ease; }
   .camera-modal-box {
-    width: min(480px, 95vw);
+    width: min(500px, 96vw);
     border-radius: 28px;
-    padding: 28px;
-    background: rgba(15,23,42,.9);
-    border: 1px solid rgba(255,255,255,.18);
-    box-shadow: 0 24px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15);
+    padding: 24px 24px 28px;
+    background: var(--modal-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 28px 80px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.12);
     backdrop-filter: blur(40px) saturate(200%);
     -webkit-backdrop-filter: blur(40px) saturate(200%);
     animation: cameraModalIn .4s var(--spring);
+    max-height: 96vh; overflow-y: auto;
   }
   @keyframes cameraModalIn {
     from { transform: scale(.85) translateY(30px); opacity: 0; }
-    to { transform: scale(1) translateY(0); opacity: 1; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
   }
-  .camera-modal-title {
-    font-size: 17px;
-    font-weight: 800;
+
+  /* PIMA Vision Header */
+  .pv-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .pv-title {
+    font-size: 17px; font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 8px;
+    flex: 1;
   }
+  .pv-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: .8px;
+    text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px;
+    background: rgba(14,165,233,.15);
+    border: 1px solid rgba(14,165,233,.35);
+    color: #38bdf8;
+    white-space: nowrap;
+  }
+  .pv-subtitle {
+    font-size: 11px; color: var(--text-muted);
+    letter-spacing: .3px; margin-top: 2px;
+  }
+  .pv-close-btn {
+    background: none; border: none; color: var(--text-muted);
+    font-size: 20px; cursor: pointer; padding: 4px 6px;
+    border-radius: 8px; transition: background .2s, color .2s;
+    flex-shrink: 0;
+  }
+  .pv-close-btn:hover { background: var(--input-bg); color: var(--text-primary); }
+
+  /* Camera Viewport */
   .camera-viewport {
-    width: 100%;
-    border-radius: 18px;
-    overflow: hidden;
-    background: #000;
-    aspect-ratio: 4/3;
-    position: relative;
+    width: 100%; border-radius: 18px; overflow: hidden;
+    background: #000; aspect-ratio: 4/3; position: relative;
     border: 2px solid rgba(14,165,233,.3);
-    box-shadow: 0 0 30px rgba(14,165,233,.15);
+    box-shadow: 0 0 32px rgba(14,165,233,.15);
   }
   .camera-viewport video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+    width: 100%; height: 100%; object-fit: cover; display: block;
   }
   .camera-viewport::after {
     content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg, transparent, transparent 3px,
-      rgba(14,165,233,.04) 3px, rgba(14,165,233,.04) 4px
-    );
-    pointer-events: none;
-    border-radius: 18px;
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(14,165,233,.03) 3px, rgba(14,165,233,.03) 4px);
+    pointer-events: none; border-radius: 18px;
   }
   .camera-scan-line {
-    position: absolute;
-    left: 0; right: 0;
-    height: 2px;
+    position: absolute; left: 0; right: 0; height: 2px;
     background: linear-gradient(90deg, transparent, #38bdf8, transparent);
     box-shadow: 0 0 8px #38bdf8;
-    animation: scanMove 2s ease-in-out infinite;
+    animation: scanMove 2.4s ease-in-out infinite;
     pointer-events: none;
   }
-  @keyframes scanMove { 0%,100%{top:10%;opacity:.8;} 50%{top:85%;opacity:1;} }
+  @keyframes scanMove { 0%,100%{top:8%;opacity:.7;} 50%{top:86%;opacity:1;} }
   .camera-corner {
-    position: absolute;
-    width: 24px; height: 24px;
-    border-color: #38bdf8;
-    border-style: solid;
-    pointer-events: none;
+    position: absolute; width: 26px; height: 26px;
+    border-color: #38bdf8; border-style: solid; pointer-events: none;
+    transition: border-color .3s;
   }
-  .camera-corner.tl { top:10px;left:10px;border-width:2px 0 0 2px;border-radius:4px 0 0 0; }
-  .camera-corner.tr { top:10px;right:10px;border-width:2px 2px 0 0;border-radius:0 4px 0 0; }
-  .camera-corner.bl { bottom:10px;left:10px;border-width:0 0 2px 2px;border-radius:0 0 0 4px; }
-  .camera-corner.br { bottom:10px;right:10px;border-width:0 2px 2px 0;border-radius:0 0 4px 0; }
-  .camera-btn-row { display:flex;gap:10px;margin-top:16px; }
+  .camera-corner.tl { top:10px;left:10px;border-width:2px 0 0 2px;border-radius:5px 0 0 0; }
+  .camera-corner.tr { top:10px;right:10px;border-width:2px 2px 0 0;border-radius:0 5px 0 0; }
+  .camera-corner.bl { bottom:10px;left:10px;border-width:0 0 2px 2px;border-radius:0 0 0 5px; }
+  .camera-corner.br { bottom:10px;right:10px;border-width:0 2px 2px 0;border-radius:0 0 5px 0; }
+
+  /* Camera Controls Row */
+  .camera-controls-row {
+    display: flex; gap: 8px; margin-top: 10px; align-items: center;
+  }
+  .pv-icon-btn {
+    padding: 10px 13px; border-radius: 12px;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    color: var(--text-secondary); font-size: 16px; cursor: pointer;
+    transition: all .2s var(--spring); flex-shrink: 0;
+  }
+  .pv-icon-btn:hover { background: var(--card-hover-bg); color: var(--text-primary); transform: scale(1.06); }
+  .pv-icon-btn:active { transform: scale(.92); }
+
+  /* Thumbnail + status row */
+  .pv-info-row {
+    display: flex; align-items: center; gap: 12px; margin-top: 12px;
+  }
   .thumbnail-preview {
-    display: none;
-    width: 64px; height: 64px;
-    border-radius: 10px;
+    display: none; width: 64px; height: 64px; border-radius: 10px;
     object-fit: cover;
     border: 2px solid rgba(14,165,233,.5);
     box-shadow: 0 3px 12px rgba(14,165,233,.3);
+    flex-shrink: 0;
   }
+
+  /* OCR Progress Bar */
+  .pv-progress-wrap {
+    display: none; margin-top: 12px;
+    background: var(--input-bg); border-radius: 8px; overflow: hidden;
+    height: 6px; position: relative;
+  }
+  .pv-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal));
+    border-radius: 8px;
+    width: 0%; transition: width .3s ease;
+    position: relative; overflow: hidden;
+  }
+  .pv-progress-bar::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.4) 50%, transparent 100%);
+    animation: shimmerBar 1.4s infinite;
+  }
+  @keyframes shimmerBar { 0%{transform:translateX(-100%);} 100%{transform:translateX(200%);} }
+  .pv-progress-label {
+    font-size: 10px; color: var(--text-muted); margin-top: 5px;
+    display: none; text-align: center; letter-spacing: .3px;
+  }
+
+  /* OCR Result Card */
+  .pv-result-card {
+    display: none; margin-top: 14px;
+    background: var(--input-bg); border: 1px solid var(--glass-border);
+    border-radius: 16px; padding: 16px;
+    animation: popIn .4s var(--spring);
+  }
+  .pv-result-title {
+    font-size: 11px; font-weight: 700; letter-spacing: .8px;
+    text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;
+  }
+  .pv-result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid var(--input-border);
+    font-size: 13px;
+  }
+  .pv-result-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .pv-result-label { color: var(--text-secondary); font-size: 11px; }
+  .pv-result-value { color: var(--text-primary); font-weight: 600; text-align: right; max-width: 60%; }
+  .pv-result-value.green { color: var(--accent-green); }
+
+  /* Success animation overlay */
+  .pv-success-overlay {
+    position: absolute; inset: 0; border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(16,185,129,.12); backdrop-filter: blur(4px);
+    animation: fadeIn .3s ease;
+    pointer-events: none;
+  }
+  .pv-success-icon { font-size: 52px; animation: popIn .5s var(--spring); }
+
+  /* OCR Loading Overlay (on viewport) */
+  .ocr-loading-overlay {
+    position: absolute; inset: 0;
+    background: rgba(10,18,36,.88);
+    backdrop-filter: blur(6px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border-radius: 16px; gap: 12px;
+    animation: fadeIn .2s ease;
+  }
+  .ocr-loading-text { font-size:13px;color:var(--accent-teal);font-weight:700;letter-spacing:.5px; }
+  .ocr-skel-row { display:flex;flex-direction:column;gap:7px;width:72%; }
+  .ocr-skel-line { height:9px;border-radius:5px; }
   .skeleton-box {
     border-radius: 10px;
     background: linear-gradient(90deg, var(--input-bg) 25%, rgba(255,255,255,.08) 50%, var(--input-bg) 75%);
@@ -1984,22 +2077,30 @@
     animation: shimmerSkeleton 1.2s infinite;
   }
   @keyframes shimmerSkeleton { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
-  .ocr-loading-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(15,23,42,.85);
-    backdrop-filter: blur(4px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 18px;
-    gap: 14px;
-    animation: fadeIn .2s ease;
+  .ocr-percent { font-size:12px;font-weight:700;color:var(--accent-teal); }
+
+  /* ── Luxury PIMA Vision overrides ── */
+  body.theme-luxury .pv-badge {
+    background: rgba(212,175,112,.15) !important;
+    border-color: rgba(212,175,112,.35) !important;
+    color: #d4af70 !important;
   }
-  .ocr-loading-text { font-size:13px;color:#38bdf8;font-weight:700;letter-spacing:.5px; }
-  .ocr-skel-row { display:flex;flex-direction:column;gap:8px;width:70%; }
-  .ocr-skel-line { height:10px;border-radius:5px; }
+  body.theme-luxury .camera-viewport {
+    border-color: rgba(212,175,112,.35) !important;
+    box-shadow: 0 0 40px rgba(212,175,112,.18) !important;
+  }
+  body.theme-luxury .camera-scan-line {
+    background: linear-gradient(90deg, transparent, #d4af70, transparent) !important;
+    box-shadow: 0 0 10px rgba(212,175,112,.6) !important;
+  }
+  body.theme-luxury .camera-corner { border-color: #d4af70 !important; }
+  body.theme-luxury .pv-progress-bar {
+    background: linear-gradient(90deg, #c9a84c, #d4af70) !important;
+  }
+  body.theme-luxury .thumbnail-preview {
+    border-color: rgba(212,175,112,.5) !important;
+    box-shadow: 0 3px 12px rgba(212,175,112,.3) !important;
+  }
 
   @media(max-width:768px){
     .two-col{grid-template-columns:1fr;gap:28px;}
@@ -2571,7 +2672,7 @@
 // ── Fix: logo header/intro kadang gagal load (race dgn service worker / network blip),
 // baru muncul lagi setelah refresh manual. Solusi: auto-retry dgn cache-busting,
 // dan fallback emoji kalau tetap gagal setelah beberapa kali percobaan.
-// PERF FIX v3.3.2: pause GPU-heavy background animations (orbs) when app is
+// PERF FIX v3.3.3: pause GPU-heavy background animations (orbs) when app is
 // backgrounded/minimized, so resuming the app doesn't feel laggy/heavy.
 document.addEventListener('visibilitychange', function(){
   document.body && document.body.classList.toggle('app-paused', document.hidden);
@@ -2587,7 +2688,7 @@ document.addEventListener('visibilitychange', function(){
       var base = img.getAttribute('data-src-base') || img.src.split('?')[0];
       img.setAttribute('data-src-base', base);
       setTimeout(function(){
-        // BUG FIX v3.3.2: jangan tambahkan query cache-busting di awal — SW sekarang
+        // BUG FIX v3.3.3: jangan tambahkan query cache-busting di awal — SW sekarang
         // cache-first utk gambar dgn ignoreSearch, jadi retry ke base URL yg sama
         // sudah cukup (akan ambil dari cache/network tanpa salah ambil fallback HTML).
         // Query cache-busting hanya dipakai di percobaan terakhir, jika memang stale.
@@ -2902,7 +3003,7 @@ document.addEventListener('visibilitychange', function(){
     <div id="tab-pengeluaran" class="tab-content">
       <div class="two-col">
         <div>
-          <div class="sec-title"><span>🔴</span> Tambah Pengeluaran <button class="btn-camera" onclick="openCameraModal()" title="Scan Struk (Smart OCR)">📷</button></div>
+          <div class="sec-title"><span>🔴</span> Tambah Pengeluaran <button class="btn-camera" onclick="openCameraModal()" title="PIMA Vision — Scan Struk">📷</button></div>
           <div class="input-group">
             <label class="input-label">Keterangan</label>
             <input class="glass-input" id="expName" placeholder="Makan, Tagihan, Transport, dll..." type="text" autocomplete="off">
@@ -3614,46 +3715,83 @@ document.addEventListener('visibilitychange', function(){
   </div>
 </div>
 
-<!-- ══ CAMERA MODAL (Fitur Pemindai Struk) ══ -->
+<!-- ══ PIMA VISION MODAL ══ -->
 <div class="camera-modal-overlay" id="cameraModal">
   <div class="camera-modal-box">
-    <div class="camera-modal-title">
-      <span>📷</span> Pemindai Struk Smart
-      <button onclick="closeCameraModal()" style="margin-left:auto;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;padding:4px;border-radius:8px;" title="Tutup">✕</button>
+
+    <!-- Header -->
+    <div class="pv-header">
+      <div>
+        <div class="pv-title">📸 PIMA Vision <span class="pv-badge">AI Powered OCR</span></div>
+        <div class="pv-subtitle">Foto → Baca → Catat</div>
+      </div>
+      <button class="pv-close-btn" onclick="closeCameraModal()" title="Tutup">✕</button>
     </div>
 
     <!-- Viewport kamera -->
     <div class="camera-viewport" id="cameraViewport">
       <video id="cameraVideo" autoplay playsinline muted></video>
-      <div class="camera-scan-line"></div>
+      <div class="camera-scan-line" id="pvScanLine"></div>
       <div class="camera-corner tl"></div>
       <div class="camera-corner tr"></div>
       <div class="camera-corner bl"></div>
       <div class="camera-corner br"></div>
     </div>
 
-    <!-- Thumbnail + preview hasil -->
-    <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
-      <img id="ocrThumbnail" class="thumbnail-preview" alt="Struk">
-      <div id="ocrStatus" style="font-size:12px;color:var(--text-secondary);flex:1;"></div>
-    </div>
-
-    <!-- Tombol aksi -->
-    <div class="camera-btn-row">
-      <button class="btn btn-primary" id="btnCapture" onclick="captureFrame()" style="flex:1;">
+    <!-- Control row: Capture + Switch + Retake -->
+    <div class="camera-controls-row" style="margin-top:12px;">
+      <button class="btn btn-primary" id="btnCapture" onclick="pvCapture()" style="flex:1;font-weight:700;">
         📸 Tangkap Gambar
       </button>
-      <button class="btn btn-glass" onclick="switchCamera()" title="Ganti kamera depan/belakang" style="padding:12px 14px;">🔄</button>
-      <button class="btn btn-glass" onclick="closeCameraModal()" style="flex:1;">Tutup</button>
+      <button class="pv-icon-btn" onclick="pvSwitchCamera()" title="Ganti kamera">🔄</button>
+      <button class="pv-icon-btn" id="btnRetake" onclick="pvRetake()" title="Ambil ulang" style="display:none;">↩️</button>
     </div>
 
-    <p style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:10px;line-height:1.5;">
-      📌 Simulasi OCR • Arahkan kamera ke struk belanjaan lalu tap "Tangkap Gambar"
+    <!-- Thumbnail + status -->
+    <div class="pv-info-row">
+      <img id="ocrThumbnail" class="thumbnail-preview" alt="Struk">
+      <div id="ocrStatus" style="font-size:12px;color:var(--text-secondary);flex:1;line-height:1.5;"></div>
+    </div>
+
+    <!-- OCR Progress -->
+    <div class="pv-progress-wrap" id="pvProgressWrap">
+      <div class="pv-progress-bar" id="pvProgressBar"></div>
+    </div>
+    <div class="pv-progress-label" id="pvProgressLabel"></div>
+
+    <!-- OCR Result Card -->
+    <div class="pv-result-card" id="pvResultCard">
+      <div class="pv-result-title">📋 Hasil Scan</div>
+      <div class="pv-result-row">
+        <span class="pv-result-label">🏪 Nama Toko</span>
+        <span class="pv-result-value" id="pvResName">—</span>
+      </div>
+      <div class="pv-result-row">
+        <span class="pv-result-label">📅 Tanggal</span>
+        <span class="pv-result-value" id="pvResDate">—</span>
+      </div>
+      <div class="pv-result-row">
+        <span class="pv-result-label">💳 Total</span>
+        <span class="pv-result-value green" id="pvResTotal">—</span>
+      </div>
+      <div class="pv-result-row">
+        <span class="pv-result-label">🏷️ Kategori</span>
+        <span class="pv-result-value" id="pvResCat">—</span>
+      </div>
+      <!-- Confirm button -->
+      <button class="btn btn-primary" id="pvConfirmBtn" onclick="pvConfirmFill()" style="width:100%;margin-top:14px;font-weight:700;">
+        ✅ Simpan ke Pengeluaran
+      </button>
+    </div>
+
+    <p style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:14px;line-height:1.5;">
+      Gunakan kamera untuk memindai struk dan mencatat pengeluaran secara otomatis menggunakan OCR.
     </p>
   </div>
 </div>
-<!-- hidden canvas untuk capture frame -->
+<!-- Hidden canvas untuk capture + preprocessing -->
 <canvas id="cameraCanvas" style="display:none;"></canvas>
+<canvas id="pvProcessCanvas" style="display:none;"></canvas>
 
 <!-- ══════════════════════════ SCRIPT ══════════════════════════ -->
 <script>
@@ -4164,15 +4302,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
   });
   initTabIndicator();
 });
-window.addEventListener('resize', ()=>{
-  const activeBtn = document.querySelector('.tab-btn.active');
-  if(activeBtn) updateTabIndicator(activeBtn, true);
-  const activePeriodBtn = document.querySelector('.period-btn.active');
-  if(activePeriodBtn) updatePeriodIndicator(activePeriodBtn, true);
-  const activeNewsCatBtn = document.querySelector('.news-cat-btn.active');
-  if(activeNewsCatBtn && document.getElementById('newsModal')?.classList.contains('open')) {
-    updateNewsCatIndicator(activeNewsCatBtn, true);
-  }
+// PERF FIX v3.3.3: gabung 2 resize listener → 1, debounce via rAF
+// agar tidak fire ratusan kali saat virtual keyboard muncul/hilang di HP
+let _resizeRaf = null;
+window.addEventListener('resize', () => {
+  if (_resizeRaf) return;
+  _resizeRaf = requestAnimationFrame(() => {
+    _resizeRaf = null;
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if(activeBtn) updateTabIndicator(activeBtn, true);
+    const activePeriodBtn = document.querySelector('.period-btn.active');
+    if(activePeriodBtn) updatePeriodIndicator(activePeriodBtn, true);
+    const activeNewsCatBtn = document.querySelector('.news-cat-btn.active');
+    if(activeNewsCatBtn && document.getElementById('newsModal')?.classList.contains('open')) {
+      updateNewsCatIndicator(activeNewsCatBtn, true);
+    }
+    const activeWsBtn = document.querySelector('.workspace-btn.active');
+    if (activeWsBtn) updateWsIndicator(activeWsBtn, true);
+  });
 });
 
 // ─── FORMAT ───
@@ -6707,42 +6854,59 @@ function addWorkspace() {
   toast(`${icon} Workspace "${next}" ditambahkan!`, 'success');
 }
 
-// Reposition indicator on window resize
-window.addEventListener('resize', () => {
-  const activeWsBtn = document.querySelector('.workspace-btn.active');
-  if (activeWsBtn) updateWsIndicator(activeWsBtn, true);
-});
+// (resize handler merged above - see PERF FIX v3.3.3)
 
-// ─── FITUR KAMERA: PEMINDAI STRUK SMART (Mock OCR) ───────
+// ─── PIMA VISION — REAL OCR ENGINE (Tesseract.js v5) ───────
 
 let _cameraStream = null;
-let _cameraFacingMode = 'environment'; // belakang default
+let _cameraFacingMode = 'environment';
+let _pvLastResult = null; // hasil OCR terakhir untuk konfirmasi
 
-async function openCameraModal() {
-  document.getElementById('cameraModal').classList.add('open');
-  document.getElementById('ocrStatus').textContent = '📡 Mengaktifkan kamera...';
-  document.getElementById('ocrThumbnail').style.display = 'none';
-  document.getElementById('btnCapture').disabled = false;
-  document.getElementById('btnCapture').textContent = '📸 Tangkap Gambar';
-
-  await startCamera();
+// ── Tesseract lazy-load ──────────────────────────────────────
+let _tesseractWorker = null;
+async function _getTesseract() {
+  if (_tesseractWorker) return _tesseractWorker;
+  // Load Tesseract.js dari CDN jika belum ada
+  if (!window.Tesseract) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+  pvSetProgress(5, 'Memuat OCR engine...');
+  _tesseractWorker = await Tesseract.createWorker('ind+eng', 1, {
+    logger: m => {
+      if (m.status === 'recognizing text') {
+        const pct = Math.round(m.progress * 100);
+        pvSetProgress(10 + Math.round(pct * 0.85), `Membaca teks... ${pct}%`);
+      }
+    }
+  });
+  return _tesseractWorker;
 }
 
-async function startCamera() {
-  // Hentikan stream lama jika ada
-  if (_cameraStream) {
-    _cameraStream.getTracks().forEach(t => t.stop());
-    _cameraStream = null;
-  }
+// ── Camera control ───────────────────────────────────────────
+async function openCameraModal() {
+  document.getElementById('cameraModal').classList.add('open');
+  pvResetUI();
+  document.getElementById('ocrStatus').textContent = '📡 Mengaktifkan kamera...';
+  await pvStartCamera();
+}
+
+async function pvStartCamera() {
+  if (_cameraStream) { _cameraStream.getTracks().forEach(t => t.stop()); _cameraStream = null; }
   const video = document.getElementById('cameraVideo');
   try {
     _cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: _cameraFacingMode, width: { ideal: 1280 }, height: { ideal: 960 } },
+      video: { facingMode: _cameraFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
       audio: false
     });
     video.srcObject = _cameraStream;
     await video.play();
     document.getElementById('ocrStatus').textContent = '✅ Kamera aktif. Arahkan ke struk belanjaan.';
+    document.getElementById('pvScanLine').style.display = 'block';
   } catch (err) {
     document.getElementById('ocrStatus').innerHTML =
       '<span style="color:#f87171;">❌ Kamera tidak dapat diakses: ' + (err.message || err) + '</span>' +
@@ -6750,135 +6914,333 @@ async function startCamera() {
   }
 }
 
-async function switchCamera() {
+async function pvSwitchCamera() {
   _cameraFacingMode = _cameraFacingMode === 'environment' ? 'user' : 'environment';
   document.getElementById('ocrStatus').textContent = '🔄 Mengganti kamera...';
-  await startCamera();
+  await pvStartCamera();
 }
 
-function captureFrame() {
+function pvRetake() {
+  pvResetUI();
+  document.getElementById('pvScanLine').style.display = 'block';
+  document.getElementById('ocrStatus').textContent = '✅ Kamera aktif. Arahkan ke struk belanjaan.';
+}
+
+// ── Capture + preprocess + OCR ───────────────────────────────
+async function pvCapture() {
   const video = document.getElementById('cameraVideo');
   const canvas = document.getElementById('cameraCanvas');
   const thumb = document.getElementById('ocrThumbnail');
   const statusEl = document.getElementById('ocrStatus');
   const captureBtn = document.getElementById('btnCapture');
 
-  if (!video.srcObject) {
-    statusEl.textContent = '❌ Kamera belum aktif.';
-    return;
-  }
+  if (!video.srcObject) { statusEl.textContent = '❌ Kamera belum aktif.'; return; }
 
-  // Capture frame ke canvas tersembunyi
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  // Capture ke canvas
+  const W = video.videoWidth || 1280;
+  const H = video.videoHeight || 960;
+  canvas.width = W; canvas.height = H;
+  canvas.getContext('2d').drawImage(video, 0, 0, W, H);
 
-  // Tampilkan thumbnail
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  // Thumbnail
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
   thumb.src = dataUrl;
   thumb.style.display = 'block';
   thumb.style.animation = 'popIn .4s var(--spring)';
 
-  // Nonaktifkan tombol capture sementara
+  // Sembunyikan scan line, disable button
+  document.getElementById('pvScanLine').style.display = 'none';
   captureBtn.disabled = true;
   captureBtn.textContent = '⏳ Memproses...';
+  document.getElementById('btnRetake').style.display = 'block';
 
-  // Tampilkan skeleton loading OCR
-  showOCRSkeleton();
+  // Image preprocessing
+  statusEl.textContent = '🎨 Memproses gambar...';
+  pvSetProgress(2, 'Preprocessing gambar...');
+  document.getElementById('pvProgressWrap').style.display = 'block';
+  document.getElementById('pvProgressLabel').style.display = 'block';
 
-  // Jalankan simulasi OCR setelah 2 detik
-  setTimeout(() => {
-    simulateOCR();
-  }, 2000);
+  const processedDataUrl = pvPreprocessImage(canvas);
+
+  // Tampilkan OCR overlay
+  pvShowOCROverlay();
+
+  // Jalankan OCR
+  try {
+    pvSetProgress(8, 'Memuat OCR engine...');
+    const worker = await _getTesseract();
+    pvSetProgress(10, 'OCR dimulai...');
+
+    const result = await worker.recognize(processedDataUrl);
+    const rawText = result.data.text;
+
+    pvSetProgress(100, 'Selesai!');
+    pvHideOCROverlay();
+
+    // Parse hasil OCR
+    const parsed = pvParseReceipt(rawText);
+    _pvLastResult = parsed;
+
+    // Tampilkan result card
+    pvShowResult(parsed);
+
+    statusEl.innerHTML = '<span style="color:var(--accent-green);font-weight:700;">✅ Struk berhasil dibaca!</span>';
+    captureBtn.textContent = '📸 Tangkap Lagi';
+    captureBtn.disabled = false;
+
+    toast('📸 PIMA Vision berhasil membaca struk!', 'success');
+
+  } catch (err) {
+    pvHideOCROverlay();
+    pvSetProgress(0, '');
+    document.getElementById('pvProgressWrap').style.display = 'none';
+    document.getElementById('pvProgressLabel').style.display = 'none';
+    statusEl.innerHTML = '<span style="color:#f87171;">❌ OCR gagal: ' + (err.message || err) + '</span>';
+    captureBtn.textContent = '📸 Coba Lagi';
+    captureBtn.disabled = false;
+    console.error('[PIMA Vision OCR Error]', err);
+  }
 }
 
-function showOCRSkeleton() {
-  const viewport = document.getElementById('cameraViewport');
-  const existing = viewport.querySelector('.ocr-loading-overlay');
-  if (existing) existing.remove();
+// ── Image Preprocessing (Canvas API) ─────────────────────────
+function pvPreprocessImage(srcCanvas) {
+  const pc = document.getElementById('pvProcessCanvas');
+  const W = srcCanvas.width;
+  const H = srcCanvas.height;
+  pc.width = W; pc.height = H;
+  const ctx = pc.getContext('2d');
 
-  const overlay = document.createElement('div');
+  // Draw source
+  ctx.drawImage(srcCanvas, 0, 0);
+  const imgData = ctx.getImageData(0, 0, W, H);
+  const d = imgData.data;
+
+  // 1. Grayscale + contrast enhancement + sharpen kernel prep
+  const gray = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) {
+    const r = d[i*4], g = d[i*4+1], b = d[i*4+2];
+    gray[i] = 0.299*r + 0.587*g + 0.114*b;
+  }
+
+  // 2. Contrast stretch
+  let mn = 255, mx = 0;
+  for (let i = 0; i < gray.length; i++) { if (gray[i] < mn) mn = gray[i]; if (gray[i] > mx) mx = gray[i]; }
+  const range = mx - mn || 1;
+  for (let i = 0; i < gray.length; i++) gray[i] = ((gray[i] - mn) / range) * 255;
+
+  // 3. Unsharp mask (sharpen)
+  const sharp = new Float32Array(W * H);
+  const kernel = [0,-1,0,-1,5,-1,0,-1,0];
+  for (let y = 1; y < H-1; y++) {
+    for (let x = 1; x < W-1; x++) {
+      let v = 0;
+      for (let ky = -1; ky <= 1; ky++) for (let kx = -1; kx <= 1; kx++)
+        v += gray[(y+ky)*W+(x+kx)] * kernel[(ky+1)*3+(kx+1)];
+      sharp[y*W+x] = Math.max(0, Math.min(255, v));
+    }
+  }
+
+  // 4. Adaptive threshold (local mean per block)
+  const BLOCK = 32;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const x0 = Math.max(0, x - BLOCK), x1 = Math.min(W-1, x + BLOCK);
+      const y0 = Math.max(0, y - BLOCK), y1 = Math.min(H-1, y + BLOCK);
+      let sum = 0, cnt = 0;
+      for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++) { sum += sharp[yy*W+xx]; cnt++; }
+      const localMean = sum / cnt;
+      const pv = sharp[y*W+x] > localMean - 8 ? 255 : 0;
+      const idx = (y*W+x)*4;
+      d[idx] = d[idx+1] = d[idx+2] = pv;
+      d[idx+3] = 255;
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+  return pc.toDataURL('image/png');
+}
+
+// ── Receipt Parser ────────────────────────────────────────────
+function pvParseReceipt(rawText) {
+  const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const fullText = rawText.toUpperCase();
+
+  // ── Total: cari keyword, ambil nominal terbesar ──
+  const totalKeywords = ['GRAND TOTAL','TOTAL BELANJA','TOTAL BAYAR','JUMLAH BAYAR','TOTAL PEMBAYARAN','TOTAL','JUMLAH','SUBTOTAL','AMOUNT'];
+  let amounts = [];
+  // Kumpulkan semua angka dari baris keyword
+  lines.forEach(line => {
+    const up = line.toUpperCase();
+    if (totalKeywords.some(k => up.includes(k))) {
+      const nums = line.match(/[\d.,]{3,}/g);
+      if (nums) nums.forEach(n => {
+        const val = parseInt(n.replace(/[.,]/g, ''));
+        if (val > 1000) amounts.push(val);
+      });
+    }
+  });
+  // Fallback: ambil semua angka >= 1000 di seluruh teks
+  if (amounts.length === 0) {
+    const allNums = rawText.match(/[\d.,]{4,}/g) || [];
+    allNums.forEach(n => { const v = parseInt(n.replace(/[.,]/g,'')); if (v >= 1000 && v <= 99999999) amounts.push(v); });
+  }
+  const total = amounts.length ? Math.max(...amounts) : 0;
+
+  // ── Tanggal ──
+  let date = '';
+  const datePatterns = [
+    /(\d{2})[\/\-\.](\d{2})[\/\-\.](\d{2,4})/,
+    /(\d{1,2})\s+(JAN|FEB|MAR|APR|MEI|JUN|JUL|AGU|SEP|OKT|NOV|DES|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+(\d{2,4})/i
+  ];
+  for (const line of lines) {
+    for (const pat of datePatterns) {
+      const m = line.match(pat);
+      if (m) { date = m[0]; break; }
+    }
+    if (date) break;
+  }
+  if (!date) {
+    const now = new Date();
+    date = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
+  }
+
+  // ── Nama Toko: baris pertama non-angka yang cukup panjang ──
+  let storeName = '';
+  for (const line of lines.slice(0, 6)) {
+    const clean = line.replace(/[^a-zA-Z0-9\s\-&.]/g,'').trim();
+    if (clean.length >= 3 && !/^\d+$/.test(clean)) {
+      storeName = clean; break;
+    }
+  }
+  if (!storeName) storeName = 'Toko / Merchant';
+
+  // ── Auto Kategori ──
+  const catMap = [
+    { keywords:['MAKAN','RESTO','RESTAURANT','CAFE','KAFE','BAKERY','ROTI','AYAM','NASI','MIE','BURGER','PIZZA','SUSHI','KFC','MCDONALD','STARBUCKS','KOPI','COFFEE'], cat:'makan', label:'Makanan & Minum' },
+    { keywords:['INDOMARET','ALFAMART','CARREFOUR','HERO','SUPERMARKET','HYPERMART','GROCERY','SWALAYAN','LOTTEMART','GIANT','SUPERINDO'], cat:'belanja', label:'Belanja' },
+    { keywords:['PERTAMINA','SHELL','BENSIN','SOLAR','GRAB','GOJEK','TAKSI','BUS','KRL','TRANSJAKARTA','PARKIR','TOL'], cat:'transportasi', label:'Transportasi' },
+    { keywords:['TELKOM','LISTRIK','PDAM','PLN','INTERNET','WIFI','TAGIHAN','TOKEN','PULSA','BPJS'], cat:'tagihan', label:'Tagihan' },
+    { keywords:['APOTEK','APOTIK','KIMIA FARMA','GUARDIAN','KLINIK','DOKTER','RUMAH SAKIT','OBAT','VITAMIN','KESEHATAN'], cat:'kesehatan', label:'Kesehatan' },
+    { keywords:['BIOSKOP','CINEMA','XXI','CGVY','GAME','HIBURAN','SPOTIFY','NETFLIX','TIKET'], cat:'hiburan', label:'Hiburan' },
+  ];
+  let detectedCat = 'belanja';
+  let catLabel = 'Belanja';
+  for (const { keywords, cat, label } of catMap) {
+    if (keywords.some(k => fullText.includes(k) || storeName.toUpperCase().includes(k))) {
+      detectedCat = cat; catLabel = label; break;
+    }
+  }
+
+  return { storeName, date, total, detectedCat, catLabel, rawText };
+}
+
+// ── UI Helpers ───────────────────────────────────────────────
+function pvSetProgress(pct, label) {
+  const bar = document.getElementById('pvProgressBar');
+  const lbl = document.getElementById('pvProgressLabel');
+  if (bar) bar.style.width = pct + '%';
+  if (lbl && label) lbl.textContent = label;
+}
+
+function pvShowOCROverlay() {
+  const viewport = document.getElementById('cameraViewport');
+  let overlay = viewport.querySelector('.ocr-loading-overlay');
+  if (overlay) overlay.remove();
+  overlay = document.createElement('div');
   overlay.className = 'ocr-loading-overlay';
   overlay.innerHTML = `
-    <div class="ocr-loading-text">🔍 Membaca Struk...</div>
+    <div class="ocr-loading-text">🔍 PIMA Vision sedang membaca...</div>
     <div class="ocr-skel-row">
-      <div class="ocr-skel-line skeleton-box" style="width:90%;"></div>
-      <div class="ocr-skel-line skeleton-box" style="width:65%;"></div>
-      <div class="ocr-skel-line skeleton-box" style="width:80%;"></div>
+      <div class="ocr-skel-line skeleton-box" style="width:92%;"></div>
+      <div class="ocr-skel-line skeleton-box" style="width:68%;"></div>
+      <div class="ocr-skel-line skeleton-box" style="width:83%;"></div>
       <div class="ocr-skel-line skeleton-box" style="width:55%;"></div>
-      <div class="ocr-skel-line skeleton-box" style="width:75%;"></div>
+      <div class="ocr-skel-line skeleton-box" style="width:77%;"></div>
     </div>
-    <div style="font-size:10px;color:rgba(56,189,248,.6);letter-spacing:.5px;">Simulasi OCR Engine...</div>
+    <div class="ocr-percent" id="pvOcrPct">0%</div>
   `;
   viewport.appendChild(overlay);
 }
 
-function simulateOCR() {
-  // ─── INTEGRASI API SEBENARNYA DI SINI ───
-  // Untuk produksi, kirim `canvas.toDataURL('image/jpeg')` ke:
-  //   Google Cloud Vision API: POST https://vision.googleapis.com/v1/images:annotate
-  //   OpenAI Vision API: POST https://api.openai.com/v1/chat/completions (model: gpt-4o)
-  // Kemudian parse teks OCR untuk ekstrak total belanja, nama merchant, tanggal.
-  // ──────────────────────────────────────────
+function pvHideOCROverlay() {
+  const overlay = document.getElementById('cameraViewport').querySelector('.ocr-loading-overlay');
+  if (overlay) { overlay.style.opacity = '0'; overlay.style.transition = 'opacity .3s'; setTimeout(() => overlay.remove(), 300); }
+}
 
-  // Simulasi: pilih angka realistis secara acak
-  const mockAmounts = [
-    { amt: 45000, name: 'Belanja Indomaret', cat: 'belanja' },
-    { amt: 125000, name: 'Makan Siang Resto', cat: 'makan' },
-    { amt: 87500, name: 'Belanja Alfamart', cat: 'belanja' },
-    { amt: 32000, name: 'Kopi & Snack', cat: 'makan' },
-    { amt: 215000, name: 'Belanja Bulanan', cat: 'belanja' },
-    { amt: 56000, name: 'Makan Malam', cat: 'makan' },
-    { amt: 78500, name: 'Grocery Supermarket', cat: 'belanja' },
-    { amt: 195000, name: 'Belanja Kebutuhan Dapur', cat: 'belanja' },
-  ];
-  const picked = mockAmounts[Math.floor(Math.random() * mockAmounts.length)];
+function pvShowResult(parsed) {
+  const card = document.getElementById('pvResultCard');
+  document.getElementById('pvResName').textContent = parsed.storeName;
+  document.getElementById('pvResDate').textContent = parsed.date;
+  document.getElementById('pvResTotal').textContent = parsed.total ? 'Rp ' + parsed.total.toLocaleString('id-ID') : '—';
+  document.getElementById('pvResCat').textContent = parsed.catLabel;
+  card.style.display = 'block';
 
-  // Hapus skeleton overlay
+  // Sukses overlay sesaat di viewport
   const viewport = document.getElementById('cameraViewport');
-  const overlay = viewport.querySelector('.ocr-loading-overlay');
-  if (overlay) {
-    overlay.style.animation = 'none';
-    overlay.style.opacity = '0';
-    overlay.style.transition = 'opacity .3s';
-    setTimeout(() => overlay.remove(), 300);
-  }
+  const suc = document.createElement('div');
+  suc.className = 'pv-success-overlay';
+  suc.innerHTML = '<div class="pv-success-icon">✅</div>';
+  viewport.appendChild(suc);
+  setTimeout(() => { suc.style.opacity = '0'; suc.style.transition = 'opacity .5s'; setTimeout(() => suc.remove(), 500); }, 1500);
 
-  // Isi form pengeluaran
+  // Progress selesai — sembunyikan setelah 1s
+  setTimeout(() => {
+    document.getElementById('pvProgressWrap').style.display = 'none';
+    document.getElementById('pvProgressLabel').style.display = 'none';
+  }, 1200);
+}
+
+function pvConfirmFill() {
+  if (!_pvLastResult) return;
+  const { storeName, date, total, detectedCat } = _pvLastResult;
+
   const expName = document.getElementById('expName');
-  const expAmt = document.getElementById('expAmt');
-  const expCat = document.getElementById('expCat');
+  const expAmt  = document.getElementById('expAmt');
+  const expCat  = document.getElementById('expCat');
 
-  if (expName) expName.value = picked.name;
-  if (expAmt) expAmt.value = picked.amt.toLocaleString('id-ID');
-  if (expCat) expCat.value = picked.cat;
+  if (expName) expName.value = storeName;
+  if (expAmt)  expAmt.value  = total ? total.toLocaleString('id-ID') : '';
+  if (expCat)  expCat.value  = detectedCat;
 
-  // Update status
-  document.getElementById('ocrStatus').innerHTML = `
-    <span style="color:#34d399;font-weight:700;">✅ Struk terbaca!</span><br>
-    <span style="font-size:10px;color:var(--text-secondary);">${picked.name} · Rp ${picked.amt.toLocaleString('id-ID')}</span>
-  `;
+  // Tanggal: coba parse ke format ISO untuk input date
+  try {
+    const parts = date.match(/(\d+)[\/\-\.](\d+)[\/\-\.](\d+)/);
+    if (parts) {
+      const d = parts[1].padStart(2,'0'), m = parts[2].padStart(2,'0');
+      let y = parts[3]; if (y.length === 2) y = '20' + y;
+      const expDateEl = document.getElementById('expDate');
+      if (expDateEl) expDateEl.value = `${y}-${m}-${d}`;
+    }
+  } catch(e) {}
 
-  const captureBtn = document.getElementById('btnCapture');
-  captureBtn.textContent = '✅ Berhasil! Tangkap Lagi';
-  captureBtn.disabled = false;
+  toast(`📸 PIMA Vision: ${storeName} — Rp ${total ? total.toLocaleString('id-ID') : '0'} berhasil diisi!`, 'success');
+  closeCameraModal();
+}
 
-  toast(`📷 OCR: ${picked.name} — Rp ${picked.amt.toLocaleString('id-ID')} telah diisi!`, 'success');
-
-  // Auto-close modal setelah 1.5 detik
-  setTimeout(() => closeCameraModal(), 1500);
+function pvResetUI() {
+  document.getElementById('ocrThumbnail').style.display = 'none';
+  document.getElementById('ocrStatus').textContent = '';
+  document.getElementById('pvProgressWrap').style.display = 'none';
+  document.getElementById('pvProgressLabel').style.display = 'none';
+  document.getElementById('pvResultCard').style.display = 'none';
+  document.getElementById('btnCapture').disabled = false;
+  document.getElementById('btnCapture').textContent = '📸 Tangkap Gambar';
+  document.getElementById('btnRetake').style.display = 'none';
+  _pvLastResult = null;
+  const overlay = document.getElementById('cameraViewport').querySelector('.ocr-loading-overlay');
+  if (overlay) overlay.remove();
 }
 
 function closeCameraModal() {
   document.getElementById('cameraModal').classList.remove('open');
-  if (_cameraStream) {
-    _cameraStream.getTracks().forEach(t => t.stop());
-    _cameraStream = null;
-  }
+  if (_cameraStream) { _cameraStream.getTracks().forEach(t => t.stop()); _cameraStream = null; }
   const video = document.getElementById('cameraVideo');
-  if (video) { video.srcObject = null; }
+  if (video) video.srcObject = null;
+  pvResetUI();
 }
+
+// Alias backward compat
+function switchCamera() { pvSwitchCamera(); }
 
 // ─── v2.7.1 NEW FEATURES JS ────────────────────────────────
 // ─── v2.7.1: 3-DOT MENU (Edit Riwayat) ──────────────────
@@ -9282,10 +9644,16 @@ function onReady(fn){
 function watchLists(cb){
   onReady(()=>{
     cb(); // run sekali saat pertama
-    // Hanya observe #app / body langsung, bukan documentElement + subtree penuh
-    const target = document.getElementById('app') || document.body;
-    new MutationObserver(()=>{ try{ cb(); }catch(e){} })
-      .observe(target, {childList:true, subtree:true});
+    // PERF FIX v3.3.3: hanya observe #incList dan #expList langsung
+    // (bukan #app subtree penuh) agar tidak fire saat modal/toast/dll render
+    function observeList(id){
+      const el=document.getElementById(id);
+      if(!el) return;
+      new MutationObserver(()=>{ try{ cb(); }catch(e){} })
+        .observe(el, {childList:true});
+    }
+    observeList('incList');
+    observeList('expList');
   });
 }
 
@@ -9345,7 +9713,7 @@ try{(function initGestures(){
       if(Math.abs(dx)>15&&Math.abs(dx)>Math.abs(dy)){
         active.classList.toggle('swipe-left', dx<-15);
         active.classList.toggle('swipe-right',dx> 15);
-        if(e.cancelable) e.preventDefault();
+        // e.preventDefault() removed (listener now passive for scroll perf)
       }
     }catch(e){}
   }
@@ -9366,7 +9734,9 @@ try{(function initGestures(){
   function attachList(listEl){
     if(!listEl||listEl._gi) return; listEl._gi=1;
     listEl.addEventListener('touchstart', onStart, {passive:true});
-    listEl.addEventListener('touchmove',  onMove,  {passive:false});
+    // PERF FIX v3.3.3: passive:true agar browser scroll thread tidak terblok
+    // touch-action:pan-y di CSS memastikan scroll vertikal tetap smooth
+    listEl.addEventListener('touchmove',  onMove,  {passive:true});
     listEl.addEventListener('touchend',   onEnd,   {passive:true});
     // Mouse/trackpad fallback for desktop & iPad pointer mode (no touch events)
     let mouseDown=false;
@@ -9510,13 +9880,18 @@ try{(function initLuxuryGyro(){
   const HOLD=3000;
   let timer=null, gyroOn=false, holdActivated=false;
 
+  let _gyroRaf=null;
   function onOrient(e){
     try{
       if(!gyroOn) return;
-      const gx=Math.max(-45,Math.min(45,e.gamma||0))/45*100;
-      const gy=Math.max(-45,Math.min(45,e.beta ||0))/45*100;
-      document.body.style.setProperty('--gx',gx);
-      document.body.style.setProperty('--gy',gy);
+      if(_gyroRaf) return; // throttle: max 1x per frame (~60fps cap)
+      _gyroRaf=requestAnimationFrame(()=>{
+        _gyroRaf=null;
+        const gx=Math.max(-45,Math.min(45,e.gamma||0))/45*100;
+        const gy=Math.max(-45,Math.min(45,e.beta ||0))/45*100;
+        document.body.style.setProperty('--gx',gx);
+        document.body.style.setProperty('--gy',gy);
+      });
     }catch(err){}
   }
 
