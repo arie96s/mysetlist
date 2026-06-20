@@ -2420,6 +2420,29 @@
       rgba(0,0,0,0.07) calc(1.65em - 1px),
       rgba(0,0,0,0.07) 1.65em
     );
+    background-attachment: local;
+  }
+  /* [v3.3.1] Ruled lines — Luxury Mode: garis emas tipis */
+  body.theme-luxury .sn-deck-textarea {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(1.65em - 1px),
+      rgba(212,175,112,0.18) calc(1.65em - 1px),
+      rgba(212,175,112,0.18) 1.65em
+    );
+    background-attachment: local;
+  }
+  /* [v3.3.1] Ruled lines — Old Grey Flow: garis putih redup */
+  body.theme-oldgrey .sn-deck-textarea {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(1.65em - 1px),
+      rgba(200,200,210,0.09) calc(1.65em - 1px),
+      rgba(200,200,210,0.09) 1.65em
+    );
+    background-attachment: local;
   }
   /* Textarea read-only state — kursor tidak ber-blink */
   .sn-deck-textarea[readonly] { caret-color: transparent; }
@@ -9084,6 +9107,52 @@ body.theme-luxury ::-webkit-scrollbar-thumb {
 }
 
 /* ── Glare gyroscope overlay ── */
+/* [v3.3.1] Sticky Notes — Luxury Mode: card warna emas premium per slot */
+body.theme-luxury .sn-deck-card[data-slot="0"] {
+  background: rgba(40,30,8,0.82) !important;
+  border: 1px solid rgba(212,175,112,0.45) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+body.theme-luxury .sn-deck-card[data-slot="1"] {
+  background: rgba(30,22,55,0.82) !important;
+  border: 1px solid rgba(162,138,210,0.40) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+body.theme-luxury .sn-deck-card[data-slot="2"] {
+  background: rgba(10,35,22,0.82) !important;
+  border: 1px solid rgba(52,211,153,0.32) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+/* Luxury: judul CATATAN tampil emas */
+body.theme-luxury .sn-slot-label {
+  color: rgba(212,175,112,0.90) !important;
+  text-shadow: 0 0 12px rgba(212,175,112,0.3);
+}
+/* Luxury: textarea background transparan agar garis terlihat pada background gelap card */
+body.theme-luxury .sn-deck-textarea {
+  background-color: transparent !important;
+  color: rgba(255,245,200,0.88) !important;
+}
+/* Luxury: summary strip warna konsisten */
+body.theme-luxury .sn-deck-card.sn-st-summary {
+  background: rgba(20,15,4,0.75) !important;
+}
+body.theme-luxury .sn-summary-label {
+  color: rgba(212,175,112,0.70) !important;
+}
+body.theme-luxury .sn-summary-preview {
+  color: rgba(255,245,200,0.50) !important;
+}
+/* Luxury: done/nav buttons emas */
+body.theme-luxury .sn-nav-btn.sn-done-btn {
+  background: rgba(212,175,112,0.20) !important;
+  border-color: rgba(212,175,112,0.50) !important;
+  color: rgb(212,175,112) !important;
+}
+
 body.theme-luxury::after {
   content: '';
   position: fixed;
@@ -9415,13 +9484,17 @@ try{(function initLuxuryGyro(){
 
   <!-- ─── PWA v3.3.1: Service Worker + Install Prompt ───────────────────── -->
   <script>
-  // Service Worker registration
-  if ('serviceWorker' in navigator) {
+  // Service Worker registration — hanya aktif jika di-serve via HTTP/S
+  // (tidak bisa bekerja di file://, claudeusercontent.com, atau preview URL)
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').then(reg => {
         console.log('[PMPK SW] Registered:', reg.scope);
       }).catch(err => {
-        console.warn('[PMPK SW] Registration failed:', err);
+        // Hanya log jika bukan domain deployment (tidak perlu user lihat)
+        if (location.hostname === 'localhost' || location.hostname.endsWith('github.io')) {
+          console.warn('[PMPK SW] Registration failed:', err.message);
+        }
       });
     });
   }
