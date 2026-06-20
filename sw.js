@@ -4,13 +4,14 @@
  * Offline fallback: tampilkan UI dari cache jika jaringan gagal
  */
 
-const CACHE_NAME   = 'pimapika-v3.3.1';
+const CACHE_NAME   = 'pimapika-v3.3.2';
 const OFFLINE_URL  = './PIMAPIKA-Pro-v3_3_1.html';
 
 // Asset yang di-pre-cache saat install
 const PRECACHE_ASSETS = [
   './PIMAPIKA-Pro-v3_3_1.html',
   './manifest.json',
+  './PMPK.webp',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
@@ -69,6 +70,28 @@ self.addEventListener('fetch', event => {
           headers: { 'Content-Type': 'application/json' }
         })
       )
+    );
+    return;
+  }
+
+  // Gambar lokal (logo, dll) → Cache-first, abaikan query string cache-busting.
+  // BUG FIX v3.3.2: sebelumnya request gambar (mis. PMPK.webp?r=12345 dari retry
+  // cache-busting di header/intro logo) jatuh ke cabang "HTML app utama" di bawah,
+  // yang saat gagal/miss akan fallback ke OFFLINE_URL (file HTML!) sebagai response
+  // gambar → <img> menerima HTML, gagal render → onerror lagi → logo flicker/hilang
+  // berulang. Sekarang gambar lokal selalu cache-first & match tanpa query string.
+  if (/\.(webp|png|jpe?g|gif|svg|ico)$/i.test(url.pathname) && url.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(request, { ignoreSearch: true }).then(cached => {
+        if (cached) return cached;
+        return fetch(request).then(resp => {
+          if (resp && resp.status === 200) {
+            const clone = resp.clone();
+            caches.open(CACHE_NAME).then(c => c.put(new Request(url.origin + url.pathname), clone));
+          }
+          return resp;
+        }).catch(() => caches.match(request, { ignoreSearch: true }));
+      })
     );
     return;
   }
