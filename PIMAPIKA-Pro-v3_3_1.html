@@ -132,14 +132,22 @@
   .preview-oldgrey{background:linear-gradient(135deg,#3a3c40 0%,#2e3034 28%,#1c1d20 55%,#0c0c0e 100%);}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Outfit',sans-serif;background:var(--bg-grad1);min-height:100vh;color:var(--text-primary);overflow-x:hidden;transition:background .3s,color .3s;}
-  .bg-orbs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-  .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.45;animation:float 8s ease-in-out infinite;will-change:transform;}
+  .bg-orbs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;contain:strict;}
+  .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.45;animation:float 8s ease-in-out infinite;will-change:transform;}
   body.light-mode .orb{opacity:.2;}
+  body.app-paused .orb{animation-play-state:paused;}
   .orb-1{width:600px;height:600px;background:radial-gradient(circle,#1d4ed8,#0ea5e9);top:-200px;left:-150px;animation-delay:0s;}
   .orb-2{width:500px;height:500px;background:radial-gradient(circle,#7c3aed,#db2777);top:30%;right:-100px;animation-delay:-3s;}
   .orb-3{width:400px;height:400px;background:radial-gradient(circle,#059669,#0ea5e9);bottom:-100px;left:30%;animation-delay:-5s;}
   .orb-4{width:300px;height:300px;background:radial-gradient(circle,#d97706,#ef4444);top:60%;left:10%;animation-delay:-2s;}
   @keyframes float{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-40px) scale(1.05);}66%{transform:translate(-20px,20px) scale(.97);}}
+  /* PERF FIX v3.3.2: 4 orb blur besar + animasi infinite + 87 panel .glass backdrop-filter
+     adalah kombinasi yang berat untuk GPU di HP (compositing terus-menerus) → ini akar
+     penyebab "app terasa berat". Matikan 2 orb terjauh & kecilkan blur di layar kecil. */
+  @media (max-width:768px){
+    .orb-3,.orb-4{display:none;}
+    .orb{filter:blur(36px);opacity:.28;}
+  }
 
   .app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:24px 20px 80px;}
   .glass{background:var(--glass-white);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius-lg);box-shadow:0 8px 32px var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .3s var(--spring),box-shadow .3s,background .3s,border .3s;}
@@ -150,7 +158,7 @@
   .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding:20px 28px;}
   .logo-area{display:flex;align-items:center;gap:14px;}
   .logo-img-wrapper{width:56px;height:56px;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.2);flex-shrink:0;border:1px solid var(--glass-border);animation:logoFloat 3s ease-in-out infinite;}
-  .logo-img-wrapper img{width:100%;height:100%;object-fit:cover;}
+  .logo-img-wrapper img{width:100%;height:100%;object-fit:cover;transition:opacity .25s ease;}
   @keyframes logoFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
   .logo-text{line-height:1;}
   .logo-name{font-size:22px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(90deg,var(--text-primary),#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
@@ -2563,6 +2571,12 @@
 // ── Fix: logo header/intro kadang gagal load (race dgn service worker / network blip),
 // baru muncul lagi setelah refresh manual. Solusi: auto-retry dgn cache-busting,
 // dan fallback emoji kalau tetap gagal setelah beberapa kali percobaan.
+// PERF FIX v3.3.2: pause GPU-heavy background animations (orbs) when app is
+// backgrounded/minimized, so resuming the app doesn't feel laggy/heavy.
+document.addEventListener('visibilitychange', function(){
+  document.body && document.body.classList.toggle('app-paused', document.hidden);
+});
+
 (function(){
   var attempts = {};
   var MAX_RETRY = 4;
@@ -2573,7 +2587,11 @@
       var base = img.getAttribute('data-src-base') || img.src.split('?')[0];
       img.setAttribute('data-src-base', base);
       setTimeout(function(){
-        img.src = base + '?r=' + Date.now() + '-' + attempts[key];
+        // BUG FIX v3.3.2: jangan tambahkan query cache-busting di awal — SW sekarang
+        // cache-first utk gambar dgn ignoreSearch, jadi retry ke base URL yg sama
+        // sudah cukup (akan ambil dari cache/network tanpa salah ambil fallback HTML).
+        // Query cache-busting hanya dipakai di percobaan terakhir, jika memang stale.
+        img.src = (attempts[key] === MAX_RETRY) ? (base + '?r=' + Date.now()) : base;
       }, 300 * attempts[key]); // backoff: 300ms,600ms,900ms,1200ms
     } else {
       // Sudah gagal berkali-kali → tampilkan fallback alih-alih kosong/icon rusak
@@ -2592,7 +2610,7 @@
 <!-- ── INTRO SCREEN ── -->
 <div id="introScreen">
   <div class="intro-logo-wrap" id="introLogoWrap">
-    <img src="PMPK.webp" alt="PIMAPIKA Logo" class="intro-logo-img" id="introLogoImg" onerror="window._logoRetry && window._logoRetry(this)">
+    <img src="PMPK.webp" alt="PIMAPIKA Logo" class="intro-logo-img" id="introLogoImg" onerror="this.style.opacity=.25;window._logoRetry && window._logoRetry(this)" onload="this.style.opacity=1">
     <div class="intro-logo-name">PIMAPIKA.ID</div>
     <div class="intro-logo-tag">Pitih Masuak Pitih Kalua</div>
     <div class="intro-dots">
@@ -2611,7 +2629,7 @@
   <div class="header glass">
     <div class="logo-area">
       <div class="logo-img-wrapper" id="headerLogoWrapper">
-        <img src="PMPK.webp" alt="Logo PIMAPIKA" id="headerLogoImg" onerror="window._logoRetry && window._logoRetry(this)">
+        <img src="PMPK.webp" alt="Logo PIMAPIKA" id="headerLogoImg" onerror="this.style.opacity=.25;window._logoRetry && window._logoRetry(this)" onload="this.style.opacity=1">
       </div>
       <div class="logo-text">
         <div class="logo-name">PIMAPIKA.ID</div>
