@@ -2559,11 +2559,40 @@
 </style>
 </head>
 <body>
+<script>
+// ── Fix: logo header/intro kadang gagal load (race dgn service worker / network blip),
+// baru muncul lagi setelah refresh manual. Solusi: auto-retry dgn cache-busting,
+// dan fallback emoji kalau tetap gagal setelah beberapa kali percobaan.
+(function(){
+  var attempts = {};
+  var MAX_RETRY = 4;
+  window._logoRetry = function(img){
+    var key = img.id || img.src;
+    attempts[key] = (attempts[key] || 0) + 1;
+    if (attempts[key] <= MAX_RETRY) {
+      var base = img.getAttribute('data-src-base') || img.src.split('?')[0];
+      img.setAttribute('data-src-base', base);
+      setTimeout(function(){
+        img.src = base + '?r=' + Date.now() + '-' + attempts[key];
+      }, 300 * attempts[key]); // backoff: 300ms,600ms,900ms,1200ms
+    } else {
+      // Sudah gagal berkali-kali → tampilkan fallback alih-alih kosong/icon rusak
+      img.style.display = 'none';
+      var fallback = document.createElement('div');
+      fallback.textContent = '💰';
+      fallback.style.cssText = img.id === 'introLogoImg'
+        ? 'width:130px;height:130px;border-radius:32px;display:flex;align-items:center;justify-content:center;font-size:60px;background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 0 80px rgba(37,99,235,.5);'
+        : 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(135deg,#6366f1,#8b5cf6);';
+      img.parentNode.insertBefore(fallback, img);
+    }
+  };
+})();
+</script>
 
 <!-- ── INTRO SCREEN ── -->
 <div id="introScreen">
   <div class="intro-logo-wrap" id="introLogoWrap">
-    <img src="PMPK.webp" alt="PIMAPIKA Logo" class="intro-logo-img">
+    <img src="PMPK.webp" alt="PIMAPIKA Logo" class="intro-logo-img" id="introLogoImg" onerror="window._logoRetry && window._logoRetry(this)">
     <div class="intro-logo-name">PIMAPIKA.ID</div>
     <div class="intro-logo-tag">Pitih Masuak Pitih Kalua</div>
     <div class="intro-dots">
@@ -2581,8 +2610,8 @@
   <!-- ── HEADER ── -->
   <div class="header glass">
     <div class="logo-area">
-      <div class="logo-img-wrapper">
-        <img src="PMPK.webp" alt="Logo PIMAPIKA">
+      <div class="logo-img-wrapper" id="headerLogoWrapper">
+        <img src="PMPK.webp" alt="Logo PIMAPIKA" id="headerLogoImg" onerror="window._logoRetry && window._logoRetry(this)">
       </div>
       <div class="logo-text">
         <div class="logo-name">PIMAPIKA.ID</div>
