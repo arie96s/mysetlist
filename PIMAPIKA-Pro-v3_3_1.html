@@ -808,7 +808,7 @@
   .edit-modal-overlay { position: fixed; inset: 0; z-index: 9200; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
   #pinSetupModal { z-index: 9700; }
   .edit-modal-overlay.open { display: flex; animation: fadeIn .2s ease; }
-  .edit-modal-box { width: min(480px, 95vw); border-radius: 28px; padding: 28px; background: rgba(15,23,42,.95); border: 1px solid rgba(255,255,255,.18); box-shadow: 0 24px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); animation: popIn .35s var(--spring); max-height: 90vh; overflow-y: auto; }
+  .edit-modal-box { width: min(480px, 95vw); border-radius: 28px; padding: 28px; background: var(--modal-bg, rgba(15,23,42,.95)); border: 1px solid var(--glass-border, rgba(255,255,255,.18)); box-shadow: 0 24px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); animation: popIn .35s var(--spring); max-height: 90vh; overflow-y: auto; }
   body.light-mode .edit-modal-box { background: rgba(255,255,255,.97); border-color: rgba(0,0,0,.1); }
   .edit-modal-title { font-size: 17px; font-weight: 800; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 
@@ -9018,10 +9018,11 @@ body.theme-luxury .ws-indicator {
 
 /* ── Cards & glass panels ── */
 body.theme-luxury .glass-card,
-body.theme-luxury .summary-card,
-body.theme-luxury .modal-sheet,
-body.theme-luxury .bottom-sheet,
-body.theme-luxury .floating-panel {
+body.theme-luxury .sum-card,
+body.theme-luxury .gold-stat-card,
+body.theme-luxury .conv-card,
+body.theme-luxury .target-card,
+body.theme-luxury .bank-card {
   background: rgba(255,255,255,.042) !important;
   border-color: rgba(212,175,112,.14) !important;
   box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 1px 0 rgba(212,175,112,.08) inset !important;
@@ -9095,10 +9096,47 @@ body.theme-luxury .quick-preset-btn {
 }
 
 /* ── Dropdown menu items ── */
-body.theme-luxury .tx-dropdown-menu,
+body.theme-luxury .tx-dropdown,
 body.theme-luxury .dropdown-menu {
   background: rgba(10,9,8,.97) !important;
   border-color: rgba(212,175,112,.18) !important;
+}
+body.theme-luxury .tx-dropdown-item:hover {
+  background: rgba(212,175,112,.1) !important;
+}
+body.theme-luxury .tx-dropdown-item.danger {
+  color: #f0867a !important;
+}
+body.theme-luxury .tx-dropdown-item.danger:hover {
+  background: rgba(239,68,68,.14) !important;
+}
+
+/* ── Edit modal (Edit Pemasukan / Edit Pengeluaran) & generic modals ── */
+body.theme-luxury .edit-modal-box,
+body.theme-luxury .modal-box {
+  background: rgba(10,9,7,.97) !important;
+  border-color: rgba(212,175,112,.22) !important;
+  box-shadow: 0 24px 80px rgba(0,0,0,.7), inset 0 1px 0 rgba(212,175,112,.1) !important;
+}
+body.theme-luxury .edit-modal-title,
+body.theme-luxury .modal-title {
+  color: rgba(255,245,200,.92) !important;
+}
+body.theme-luxury .input-label {
+  color: rgba(212,175,112,.75) !important;
+}
+body.theme-luxury .currency-prefix {
+  color: rgba(212,175,112,.8) !important;
+}
+body.theme-luxury .btn-success {
+  background: linear-gradient(135deg, #c9a84c, #a07830) !important;
+  box-shadow: 0 4px 14px rgba(180,130,40,.3) !important;
+  color: #fff !important;
+}
+body.theme-luxury .btn-glass {
+  background: rgba(255,255,255,.04) !important;
+  border-color: rgba(212,175,112,.2) !important;
+  color: rgba(255,245,200,.85) !important;
 }
 
 /* ── Scrollbar ── */
@@ -9241,7 +9279,9 @@ try{(function initGestures(){
   function onStart(e){
     try{
       const item=e.target.closest('.tx-item'); if(!item) return;
-      active=item; sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+      active=item;
+      const pt = e.touches ? e.touches[0] : e;
+      sx=pt.clientX; sy=pt.clientY;
       lpTimer=setTimeout(()=>{
         try{ item.classList.toggle('selected'); }catch(e){}
         if(navigator.vibrate) navigator.vibrate(30);
@@ -9252,12 +9292,13 @@ try{(function initGestures(){
   function onMove(e){
     try{
       if(!active||sx===null) return;
-      const dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
+      const pt = e.touches ? e.touches[0] : e;
+      const dx=pt.clientX-sx, dy=pt.clientY-sy;
       if(Math.abs(dx)>10||Math.abs(dy)>10){ clearTimeout(lpTimer); lpTimer=null; }
       if(Math.abs(dx)>15&&Math.abs(dx)>Math.abs(dy)){
         active.classList.toggle('swipe-left', dx<-15);
         active.classList.toggle('swipe-right',dx> 15);
-        e.preventDefault();
+        if(e.cancelable) e.preventDefault();
       }
     }catch(e){}
   }
@@ -9265,7 +9306,7 @@ try{(function initGestures(){
     try{
       clearTimeout(lpTimer);
       if(!active||sx===null) return;
-      const ct=e.changedTouches[0];
+      const ct = e.changedTouches ? e.changedTouches[0] : e;
       const dx=(ct?ct.clientX:sx)-sx;
       active.classList.remove('swipe-left','swipe-right');
       if(Math.abs(dx)>=THRESH && active.id){
@@ -9280,6 +9321,15 @@ try{(function initGestures(){
     listEl.addEventListener('touchstart', onStart, {passive:true});
     listEl.addEventListener('touchmove',  onMove,  {passive:false});
     listEl.addEventListener('touchend',   onEnd,   {passive:true});
+    // Mouse/trackpad fallback for desktop & iPad pointer mode (no touch events)
+    let mouseDown=false;
+    listEl.addEventListener('mousedown', e=>{
+      if(e.target.closest('input,select,textarea,button,a')) return;
+      mouseDown=true; onStart(e);
+    });
+    listEl.addEventListener('mousemove', e=>{ if(mouseDown) onMove(e); });
+    window.addEventListener('mouseup', e=>{ if(mouseDown){ mouseDown=false; onEnd(e); } });
+    listEl.addEventListener('mouseleave', ()=>{ if(mouseDown){ mouseDown=false; active=null; sx=null; sy=null; clearTimeout(lpTimer); } });
   }
 
   watchLists(()=>{
