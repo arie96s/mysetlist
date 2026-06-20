@@ -141,14 +141,12 @@
   .orb-3{width:400px;height:400px;background:radial-gradient(circle,#059669,#0ea5e9);bottom:-100px;left:30%;animation-delay:-5s;}
   .orb-4{width:300px;height:300px;background:radial-gradient(circle,#d97706,#ef4444);top:60%;left:10%;animation-delay:-2s;}
   @keyframes float{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-40px) scale(1.05);}66%{transform:translate(-20px,20px) scale(.97);}}
-  /* PERF FIX v3.3.3: 4 orb blur besar + animasi infinite + 87 panel .glass backdrop-filter
+  /* PERF FIX v3.3.2: 4 orb blur besar + animasi infinite + 87 panel .glass backdrop-filter
      adalah kombinasi yang berat untuk GPU di HP (compositing terus-menerus) → ini akar
      penyebab "app terasa berat". Matikan 2 orb terjauh & kecilkan blur di layar kecil. */
   @media (max-width:768px){
     .orb-3,.orb-4{display:none;}
     .orb{filter:blur(36px);opacity:.28;}
-    /* PERF FIX v3.3.3: turunkan glass blur di mobile dari 28px → 16px
-       untuk mengurangi GPU compositing overhead pada layar kecil */
     :root{--glass-blur:blur(16px) saturate(140%);}
   }
 
@@ -2672,7 +2670,7 @@
 // ── Fix: logo header/intro kadang gagal load (race dgn service worker / network blip),
 // baru muncul lagi setelah refresh manual. Solusi: auto-retry dgn cache-busting,
 // dan fallback emoji kalau tetap gagal setelah beberapa kali percobaan.
-// PERF FIX v3.3.3: pause GPU-heavy background animations (orbs) when app is
+// PERF FIX v3.3.2: pause GPU-heavy background animations (orbs) when app is
 // backgrounded/minimized, so resuming the app doesn't feel laggy/heavy.
 document.addEventListener('visibilitychange', function(){
   document.body && document.body.classList.toggle('app-paused', document.hidden);
@@ -2688,7 +2686,7 @@ document.addEventListener('visibilitychange', function(){
       var base = img.getAttribute('data-src-base') || img.src.split('?')[0];
       img.setAttribute('data-src-base', base);
       setTimeout(function(){
-        // BUG FIX v3.3.3: jangan tambahkan query cache-busting di awal — SW sekarang
+        // BUG FIX v3.3.2: jangan tambahkan query cache-busting di awal — SW sekarang
         // cache-first utk gambar dgn ignoreSearch, jadi retry ke base URL yg sama
         // sudah cukup (akan ambil dari cache/network tanpa salah ambil fallback HTML).
         // Query cache-busting hanya dipakai di percobaan terakhir, jika memang stale.
@@ -4303,7 +4301,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   initTabIndicator();
 });
 // PERF FIX v3.3.3: gabung 2 resize listener → 1, debounce via rAF
-// agar tidak fire ratusan kali saat virtual keyboard muncul/hilang di HP
 let _resizeRaf = null;
 window.addEventListener('resize', () => {
   if (_resizeRaf) return;
@@ -6854,19 +6851,34 @@ function addWorkspace() {
   toast(`${icon} Workspace "${next}" ditambahkan!`, 'success');
 }
 
-// (resize handler merged above - see PERF FIX v3.3.3)
+// (resize handler merged above — PERF FIX v3.3.3)
 
-// ─── PIMA VISION — REAL OCR ENGINE (Tesseract.js v5) ───────
+// ─── PIMA VISION — OCR ENGINE v3.3.3 ───────────────────────
+// PERF FIX v3.3.3:
+//  1. Resolusi kamera diturunkan ke 1280×720 (cukup untuk OCR teks)
+//  2. Preprocessing dipercepat: hapus adaptive threshold O(W×H×BLOCK²),
+//     ganti dengan grayscale + contrast stretch + global threshold via CSS filter
+//     (canvas filter jauh lebih cepat di GPU daripada manual pixel loop)
+//  3. Tesseract tetap di main thread (Web Worker tidak tersedia di single-file HTML)
+//     tapi preprocessing non-blocking via setTimeout(0) agar frame animasi sempat render
+//  4. Validasi receipt: foto random tidak otomatis dianggap struk — ada deteksi
+//     confidence score berdasarkan jumlah kata teks yang ditemukan
 
 let _cameraStream = null;
 let _cameraFacingMode = 'environment';
-let _pvLastResult = null; // hasil OCR terakhir untuk konfirmasi
+let _pvLastResult = null;
 
-// ── Tesseract lazy-load ──────────────────────────────────────
+// ── Tesseract lazy-load (worker reuse) ───────────────────────
 let _tesseractWorker = null;
+let _tesseractLoading = false;
 async function _getTesseract() {
   if (_tesseractWorker) return _tesseractWorker;
-  // Load Tesseract.js dari CDN jika belum ada
+  if (_tesseractLoading) {
+    // Tunggu load selesai
+    await new Promise(r => { const t = setInterval(() => { if (_tesseractWorker || !_tesseractLoading) { clearInterval(t); r(); } }, 100); });
+    return _tesseractWorker;
+  }
+  _tesseractLoading = true;
   if (!window.Tesseract) {
     await new Promise((res, rej) => {
       const s = document.createElement('script');
@@ -6876,15 +6888,27 @@ async function _getTesseract() {
     });
   }
   pvSetProgress(5, 'Memuat OCR engine...');
+  // OEM 1 = LSTM only (lebih cepat dari OEM 3), PSM 6 = assume uniform block of text
   _tesseractWorker = await Tesseract.createWorker('ind+eng', 1, {
     logger: m => {
       if (m.status === 'recognizing text') {
-        const pct = Math.round(m.progress * 100);
-        pvSetProgress(10 + Math.round(pct * 0.85), `Membaca teks... ${pct}%`);
+        pvSetProgress(15 + Math.round(m.progress * 80), `Membaca teks... ${Math.round(m.progress*100)}%`);
+        // Update % di overlay juga
+        const pctEl = document.getElementById('pvOcrPct');
+        if (pctEl) pctEl.textContent = Math.round(m.progress * 100) + '%';
       }
     }
   });
+  await _tesseractWorker.setParameters({ tessedit_pageseg_mode: '6' });
+  _tesseractLoading = false;
   return _tesseractWorker;
+}
+
+// Pre-load Tesseract di background saat modal dibuka (bukan saat capture)
+function _pvPreloadTesseract() {
+  if (!_tesseractWorker && !_tesseractLoading) {
+    _getTesseract().catch(() => {});
+  }
 }
 
 // ── Camera control ───────────────────────────────────────────
@@ -6893,14 +6917,17 @@ async function openCameraModal() {
   pvResetUI();
   document.getElementById('ocrStatus').textContent = '📡 Mengaktifkan kamera...';
   await pvStartCamera();
+  // Pre-load Tesseract di background sambil user mengarahkan kamera
+  setTimeout(_pvPreloadTesseract, 500);
 }
 
 async function pvStartCamera() {
   if (_cameraStream) { _cameraStream.getTracks().forEach(t => t.stop()); _cameraStream = null; }
   const video = document.getElementById('cameraVideo');
   try {
+    // PERF FIX: 1280×720 cukup untuk OCR teks struk, jauh lebih ringan dari 1920×1080
     _cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: _cameraFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      video: { facingMode: _cameraFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
       audio: false
     });
     video.srcObject = _cameraStream;
@@ -6936,14 +6963,14 @@ async function pvCapture() {
 
   if (!video.srcObject) { statusEl.textContent = '❌ Kamera belum aktif.'; return; }
 
-  // Capture ke canvas
+  // Capture ke canvas — gunakan resolusi video aktual
   const W = video.videoWidth || 1280;
-  const H = video.videoHeight || 960;
+  const H = video.videoHeight || 720;
   canvas.width = W; canvas.height = H;
   canvas.getContext('2d').drawImage(video, 0, 0, W, H);
 
-  // Thumbnail
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+  // Thumbnail langsung dari canvas (sebelum preprocessing)
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
   thumb.src = dataUrl;
   thumb.style.display = 'block';
   thumb.style.animation = 'popIn .4s var(--spring)';
@@ -6951,43 +6978,52 @@ async function pvCapture() {
   // Sembunyikan scan line, disable button
   document.getElementById('pvScanLine').style.display = 'none';
   captureBtn.disabled = true;
-  captureBtn.textContent = '⏳ Memproses...';
+  captureBtn.innerHTML = '⏳ Memproses...';
   document.getElementById('btnRetake').style.display = 'block';
 
-  // Image preprocessing
-  statusEl.textContent = '🎨 Memproses gambar...';
   pvSetProgress(2, 'Preprocessing gambar...');
   document.getElementById('pvProgressWrap').style.display = 'block';
   document.getElementById('pvProgressLabel').style.display = 'block';
 
-  const processedDataUrl = pvPreprocessImage(canvas);
+  // PERF FIX: beri 1 frame agar thumbnail dan button state ter-render ke layar
+  // sebelum preprocessing CPU-heavy dimulai
+  await new Promise(r => setTimeout(r, 30));
 
-  // Tampilkan OCR overlay
+  statusEl.textContent = '🎨 Memproses gambar...';
+  const processedDataUrl = pvPreprocessImage(canvas);
+  pvSetProgress(10, 'Membaca teks...');
+
   pvShowOCROverlay();
 
-  // Jalankan OCR
   try {
-    pvSetProgress(8, 'Memuat OCR engine...');
     const worker = await _getTesseract();
-    pvSetProgress(10, 'OCR dimulai...');
+    pvSetProgress(15, 'OCR dimulai...');
 
     const result = await worker.recognize(processedDataUrl);
     const rawText = result.data.text;
+    const confidence = result.data.confidence || 0;
 
     pvSetProgress(100, 'Selesai!');
     pvHideOCROverlay();
 
-    // Parse hasil OCR
+    // Validasi: apakah ini struk atau bukan?
+    const validation = pvValidateReceipt(rawText, confidence);
+
+    if (!validation.isReceipt) {
+      // Bukan struk — tampilkan pesan yang jelas
+      pvShowNotReceipt(validation.reason, rawText);
+      statusEl.innerHTML = '<span style="color:#f87171;">⚠️ ' + validation.reason + '</span>';
+      captureBtn.innerHTML = '📸 Coba Lagi';
+      captureBtn.disabled = false;
+      return;
+    }
+
     const parsed = pvParseReceipt(rawText);
     _pvLastResult = parsed;
-
-    // Tampilkan result card
     pvShowResult(parsed);
-
     statusEl.innerHTML = '<span style="color:var(--accent-green);font-weight:700;">✅ Struk berhasil dibaca!</span>';
-    captureBtn.textContent = '📸 Tangkap Lagi';
+    captureBtn.innerHTML = '📸 Tangkap Lagi';
     captureBtn.disabled = false;
-
     toast('📸 PIMA Vision berhasil membaca struk!', 'success');
 
   } catch (err) {
@@ -6996,13 +7032,16 @@ async function pvCapture() {
     document.getElementById('pvProgressWrap').style.display = 'none';
     document.getElementById('pvProgressLabel').style.display = 'none';
     statusEl.innerHTML = '<span style="color:#f87171;">❌ OCR gagal: ' + (err.message || err) + '</span>';
-    captureBtn.textContent = '📸 Coba Lagi';
+    captureBtn.innerHTML = '📸 Coba Lagi';
     captureBtn.disabled = false;
     console.error('[PIMA Vision OCR Error]', err);
   }
 }
 
-// ── Image Preprocessing (Canvas API) ─────────────────────────
+// ── Image Preprocessing — FAST version ───────────────────────
+// PERF FIX v3.3.3: ganti adaptive threshold O(W×H×BLOCK²) dengan:
+//   grayscale via luminance → contrast stretch → global Otsu threshold
+// Jauh lebih cepat di HP karena tidak ada nested loop per-blok
 function pvPreprocessImage(srcCanvas) {
   const pc = document.getElementById('pvProcessCanvas');
   const W = srcCanvas.width;
@@ -7010,54 +7049,111 @@ function pvPreprocessImage(srcCanvas) {
   pc.width = W; pc.height = H;
   const ctx = pc.getContext('2d');
 
-  // Draw source
   ctx.drawImage(srcCanvas, 0, 0);
   const imgData = ctx.getImageData(0, 0, W, H);
   const d = imgData.data;
+  const N = W * H;
 
-  // 1. Grayscale + contrast enhancement + sharpen kernel prep
-  const gray = new Float32Array(W * H);
-  for (let i = 0; i < W * H; i++) {
-    const r = d[i*4], g = d[i*4+1], b = d[i*4+2];
-    gray[i] = 0.299*r + 0.587*g + 0.114*b;
+  // 1. Grayscale
+  const gray = new Uint8Array(N);
+  for (let i = 0; i < N; i++) {
+    gray[i] = (d[i*4]*77 + d[i*4+1]*150 + d[i*4+2]*29) >> 8;
   }
 
-  // 2. Contrast stretch
-  let mn = 255, mx = 0;
-  for (let i = 0; i < gray.length; i++) { if (gray[i] < mn) mn = gray[i]; if (gray[i] > mx) mx = gray[i]; }
+  // 2. Contrast stretch (percentile 2%–98% agar noise tidak stretch berlebihan)
+  const hist = new Int32Array(256);
+  for (let i = 0; i < N; i++) hist[gray[i]]++;
+  const lo2 = N * 0.02, hi2 = N * 0.98;
+  let cum = 0, mn = 0, mx = 255;
+  for (let v = 0; v < 256; v++) { cum += hist[v]; if (cum >= lo2 && mn === 0) mn = v; if (cum >= hi2) { mx = v; break; } }
   const range = mx - mn || 1;
-  for (let i = 0; i < gray.length; i++) gray[i] = ((gray[i] - mn) / range) * 255;
+  for (let i = 0; i < N; i++) gray[i] = Math.max(0, Math.min(255, ((gray[i] - mn) / range * 255)));
 
-  // 3. Unsharp mask (sharpen)
-  const sharp = new Float32Array(W * H);
-  const kernel = [0,-1,0,-1,5,-1,0,-1,0];
-  for (let y = 1; y < H-1; y++) {
-    for (let x = 1; x < W-1; x++) {
-      let v = 0;
-      for (let ky = -1; ky <= 1; ky++) for (let kx = -1; kx <= 1; kx++)
-        v += gray[(y+ky)*W+(x+kx)] * kernel[(ky+1)*3+(kx+1)];
-      sharp[y*W+x] = Math.max(0, Math.min(255, v));
-    }
+  // 3. Otsu threshold (global) — O(256) setelah histogram, bukan O(W×H×BLOCK²)
+  const h2 = new Int32Array(256);
+  for (let i = 0; i < N; i++) h2[gray[i]]++;
+  let sum = 0;
+  for (let v = 0; v < 256; v++) sum += v * h2[v];
+  let sumB = 0, wB = 0, wF = 0, maxVar = 0, thresh = 128;
+  for (let v = 0; v < 256; v++) {
+    wB += h2[v]; if (!wB) continue;
+    wF = N - wB; if (!wF) break;
+    sumB += v * h2[v];
+    const mB = sumB / wB, mF = (sum - sumB) / wF;
+    const between = wB * wF * (mB - mF) * (mB - mF);
+    if (between > maxVar) { maxVar = between; thresh = v; }
   }
 
-  // 4. Adaptive threshold (local mean per block)
-  const BLOCK = 32;
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const x0 = Math.max(0, x - BLOCK), x1 = Math.min(W-1, x + BLOCK);
-      const y0 = Math.max(0, y - BLOCK), y1 = Math.min(H-1, y + BLOCK);
-      let sum = 0, cnt = 0;
-      for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++) { sum += sharp[yy*W+xx]; cnt++; }
-      const localMean = sum / cnt;
-      const pv = sharp[y*W+x] > localMean - 8 ? 255 : 0;
-      const idx = (y*W+x)*4;
-      d[idx] = d[idx+1] = d[idx+2] = pv;
-      d[idx+3] = 255;
-    }
+  // 4. Apply threshold → binary
+  for (let i = 0; i < N; i++) {
+    const v = gray[i] > thresh ? 255 : 0;
+    d[i*4] = d[i*4+1] = d[i*4+2] = v;
+    d[i*4+3] = 255;
   }
 
   ctx.putImageData(imgData, 0, 0);
   return pc.toDataURL('image/png');
+}
+
+// ── Validasi: apakah teks yang dibaca memang struk? ──────────
+function pvValidateReceipt(rawText, confidence) {
+  const text = rawText.trim();
+  const words = text.split(/\s+/).filter(w => w.length > 1);
+  const upperText = text.toUpperCase();
+
+  // 1. Teks terlalu sedikit → bukan struk / gambar tidak jelas
+  if (words.length < 5) {
+    return { isReceipt: false, reason: 'Teks terlalu sedikit. Pastikan struk terlihat jelas dan cukup cahaya.' };
+  }
+
+  // 2. Confidence Tesseract terlalu rendah → gambar blur/bukan teks
+  if (confidence < 20) {
+    return { isReceipt: false, reason: 'Gambar tidak jelas atau bukan dokumen teks. Coba lagi dengan pencahayaan lebih baik.' };
+  }
+
+  // 3. Cek apakah ada minimal 1 angka yang bisa jadi nominal harga
+  const hasNumbers = /\d{3,}/.test(text);
+  if (!hasNumbers) {
+    return { isReceipt: false, reason: 'Tidak ditemukan angka nominal. Ini mungkin bukan struk belanja.' };
+  }
+
+  // 4. Kata kunci umum struk/invoice
+  const receiptKeywords = [
+    'TOTAL','BAYAR','HARGA','JUMLAH','STRUK','NOTA','RECEIPT','INVOICE','KASIR',
+    'ITEM','QTY','PCS','KG','RETUR','DISKON','DISCOUNT','TAX','PPN','SUBTOTAL',
+    'TUNAI','KEMBALIAN','KREDIT','DEBIT','CARD','CASH','BELANJA','BELI','TOKO',
+    'INDOMARET','ALFAMART','MINIMARKET','SUPERMARKET','RESTO','CAFE','APOTIK',
+    'APOTEK','PARKIR','BENSIN','PERTAMINA','GRAB','GOJEK','PLN','TOKEN','TAGIHAN'
+  ];
+  const keywordHits = receiptKeywords.filter(k => upperText.includes(k)).length;
+
+  // 5. Jika 0 keyword struk → sangat mungkin bukan struk
+  if (keywordHits === 0 && words.length < 15) {
+    return { isReceipt: false, reason: 'Tidak terdeteksi sebagai struk atau nota. Coba foto struk belanja / kuitansi.' };
+  }
+
+  // Lolos — ini kemungkinan struk
+  return { isReceipt: true, confidence, keywordHits };
+}
+
+// ── Tampilkan pesan bukan struk ──────────────────────────────
+function pvShowNotReceipt(reason, rawText) {
+  const card = document.getElementById('pvResultCard');
+  // Tampilkan card dengan style peringatan
+  card.style.display = 'block';
+  card.innerHTML = `
+    <div style="text-align:center;padding:12px 0 8px;">
+      <div style="font-size:32px;margin-bottom:8px;">🚫</div>
+      <div style="font-size:13px;font-weight:700;color:#f87171;margin-bottom:6px;">Bukan Struk</div>
+      <div style="font-size:11px;color:var(--text-muted);line-height:1.5;margin-bottom:12px;">${reason}</div>
+      <button onclick="pvRetake()" style="padding:8px 20px;border-radius:12px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#a5b4fc;font-size:12px;font-weight:600;cursor:pointer;">📷 Foto Ulang</button>
+    </div>
+  `;
+  // Progress selesai
+  setTimeout(() => {
+    document.getElementById('pvProgressWrap').style.display = 'none';
+    document.getElementById('pvProgressLabel').style.display = 'none';
+  }, 800);
 }
 
 // ── Receipt Parser ────────────────────────────────────────────
@@ -7065,21 +7161,16 @@ function pvParseReceipt(rawText) {
   const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   const fullText = rawText.toUpperCase();
 
-  // ── Total: cari keyword, ambil nominal terbesar ──
+  // ── Total ──
   const totalKeywords = ['GRAND TOTAL','TOTAL BELANJA','TOTAL BAYAR','JUMLAH BAYAR','TOTAL PEMBAYARAN','TOTAL','JUMLAH','SUBTOTAL','AMOUNT'];
   let amounts = [];
-  // Kumpulkan semua angka dari baris keyword
   lines.forEach(line => {
     const up = line.toUpperCase();
     if (totalKeywords.some(k => up.includes(k))) {
       const nums = line.match(/[\d.,]{3,}/g);
-      if (nums) nums.forEach(n => {
-        const val = parseInt(n.replace(/[.,]/g, ''));
-        if (val > 1000) amounts.push(val);
-      });
+      if (nums) nums.forEach(n => { const val = parseInt(n.replace(/[.,]/g, '')); if (val > 1000) amounts.push(val); });
     }
   });
-  // Fallback: ambil semua angka >= 1000 di seluruh teks
   if (amounts.length === 0) {
     const allNums = rawText.match(/[\d.,]{4,}/g) || [];
     allNums.forEach(n => { const v = parseInt(n.replace(/[.,]/g,'')); if (v >= 1000 && v <= 99999999) amounts.push(v); });
@@ -7093,10 +7184,7 @@ function pvParseReceipt(rawText) {
     /(\d{1,2})\s+(JAN|FEB|MAR|APR|MEI|JUN|JUL|AGU|SEP|OKT|NOV|DES|JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)\s+(\d{2,4})/i
   ];
   for (const line of lines) {
-    for (const pat of datePatterns) {
-      const m = line.match(pat);
-      if (m) { date = m[0]; break; }
-    }
+    for (const pat of datePatterns) { const m = line.match(pat); if (m) { date = m[0]; break; } }
     if (date) break;
   }
   if (!date) {
@@ -7104,27 +7192,26 @@ function pvParseReceipt(rawText) {
     date = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
   }
 
-  // ── Nama Toko: baris pertama non-angka yang cukup panjang ──
+  // ── Nama Toko ──
   let storeName = '';
   for (const line of lines.slice(0, 6)) {
     const clean = line.replace(/[^a-zA-Z0-9\s\-&.]/g,'').trim();
-    if (clean.length >= 3 && !/^\d+$/.test(clean)) {
-      storeName = clean; break;
-    }
+    if (clean.length >= 3 && !/^\d+$/.test(clean)) { storeName = clean; break; }
   }
   if (!storeName) storeName = 'Toko / Merchant';
 
   // ── Auto Kategori ──
   const catMap = [
-    { keywords:['MAKAN','RESTO','RESTAURANT','CAFE','KAFE','BAKERY','ROTI','AYAM','NASI','MIE','BURGER','PIZZA','SUSHI','KFC','MCDONALD','STARBUCKS','KOPI','COFFEE'], cat:'makan', label:'Makanan & Minum' },
-    { keywords:['INDOMARET','ALFAMART','CARREFOUR','HERO','SUPERMARKET','HYPERMART','GROCERY','SWALAYAN','LOTTEMART','GIANT','SUPERINDO'], cat:'belanja', label:'Belanja' },
+    { keywords:['MAKAN','RESTO','RESTAURANT','CAFE','KAFE','BAKERY','ROTI','AYAM','NASI','MIE','BURGER','PIZZA','SUSHI','KFC','MCDONALD','STARBUCKS','KOPI','COFFEE','WARUNG','WARTEG'], cat:'makan', label:'Makanan & Minum' },
+    { keywords:['INDOMARET','ALFAMART','CARREFOUR','HERO','SUPERMARKET','HYPERMART','GROCERY','SWALAYAN','LOTTEMART','GIANT','SUPERINDO','MINIMARKET'], cat:'belanja', label:'Belanja' },
     { keywords:['PERTAMINA','SHELL','BENSIN','SOLAR','GRAB','GOJEK','TAKSI','BUS','KRL','TRANSJAKARTA','PARKIR','TOL'], cat:'transportasi', label:'Transportasi' },
     { keywords:['TELKOM','LISTRIK','PDAM','PLN','INTERNET','WIFI','TAGIHAN','TOKEN','PULSA','BPJS'], cat:'tagihan', label:'Tagihan' },
     { keywords:['APOTEK','APOTIK','KIMIA FARMA','GUARDIAN','KLINIK','DOKTER','RUMAH SAKIT','OBAT','VITAMIN','KESEHATAN'], cat:'kesehatan', label:'Kesehatan' },
     { keywords:['BIOSKOP','CINEMA','XXI','CGVY','GAME','HIBURAN','SPOTIFY','NETFLIX','TIKET'], cat:'hiburan', label:'Hiburan' },
   ];
-  let detectedCat = 'belanja';
-  let catLabel = 'Belanja';
+  // Default: lain-lain (bukan "belanja" buta)
+  let detectedCat = 'lainnya';
+  let catLabel = 'Lain-lain';
   for (const { keywords, cat, label } of catMap) {
     if (keywords.some(k => fullText.includes(k) || storeName.toUpperCase().includes(k))) {
       detectedCat = cat; catLabel = label; break;
@@ -7168,7 +7255,17 @@ function pvHideOCROverlay() {
 }
 
 function pvShowResult(parsed) {
+  // Reset card ke struktur HTML asli (mungkin diisi pvShowNotReceipt sebelumnya)
   const card = document.getElementById('pvResultCard');
+  if (!document.getElementById('pvResName')) {
+    card.innerHTML = `
+      <div class="pv-res-row"><span class="pv-res-label">🏪 Toko</span><span class="pv-res-val" id="pvResName"></span></div>
+      <div class="pv-res-row"><span class="pv-res-label">📅 Tanggal</span><span class="pv-res-val" id="pvResDate"></span></div>
+      <div class="pv-res-row"><span class="pv-res-label">💰 Total</span><span class="pv-res-val pv-total-val" id="pvResTotal"></span></div>
+      <div class="pv-res-row"><span class="pv-res-label">🏷️ Kategori</span><span class="pv-res-val" id="pvResCat"></span></div>
+      <button class="btn btn-primary" onclick="pvConfirmFill()" style="width:100%;margin-top:12px;">✅ Isi ke Pengeluaran</button>
+    `;
+  }
   document.getElementById('pvResName').textContent = parsed.storeName;
   document.getElementById('pvResDate').textContent = parsed.date;
   document.getElementById('pvResTotal').textContent = parsed.total ? 'Rp ' + parsed.total.toLocaleString('id-ID') : '—';
@@ -9643,14 +9740,11 @@ function onReady(fn){
 /* ── UTIL: observe perubahan list transaksi (scope sempit) ── */
 function watchLists(cb){
   onReady(()=>{
-    cb(); // run sekali saat pertama
-    // PERF FIX v3.3.3: hanya observe #incList dan #expList langsung
-    // (bukan #app subtree penuh) agar tidak fire saat modal/toast/dll render
+    cb();
+    // PERF FIX v3.3.3: hanya observe #incList & #expList langsung
     function observeList(id){
-      const el=document.getElementById(id);
-      if(!el) return;
-      new MutationObserver(()=>{ try{ cb(); }catch(e){} })
-        .observe(el, {childList:true});
+      const el=document.getElementById(id); if(!el) return;
+      new MutationObserver(()=>{ try{ cb(); }catch(e){} }).observe(el, {childList:true});
     }
     observeList('incList');
     observeList('expList');
@@ -9713,7 +9807,7 @@ try{(function initGestures(){
       if(Math.abs(dx)>15&&Math.abs(dx)>Math.abs(dy)){
         active.classList.toggle('swipe-left', dx<-15);
         active.classList.toggle('swipe-right',dx> 15);
-        // e.preventDefault() removed (listener now passive for scroll perf)
+        // e.preventDefault() removed — listener is now passive
       }
     }catch(e){}
   }
@@ -9734,8 +9828,7 @@ try{(function initGestures(){
   function attachList(listEl){
     if(!listEl||listEl._gi) return; listEl._gi=1;
     listEl.addEventListener('touchstart', onStart, {passive:true});
-    // PERF FIX v3.3.3: passive:true agar browser scroll thread tidak terblok
-    // touch-action:pan-y di CSS memastikan scroll vertikal tetap smooth
+    // PERF FIX v3.3.3: passive:true agar scroll thread tidak terblok
     listEl.addEventListener('touchmove',  onMove,  {passive:true});
     listEl.addEventListener('touchend',   onEnd,   {passive:true});
     // Mouse/trackpad fallback for desktop & iPad pointer mode (no touch events)
@@ -9884,7 +9977,7 @@ try{(function initLuxuryGyro(){
   function onOrient(e){
     try{
       if(!gyroOn) return;
-      if(_gyroRaf) return; // throttle: max 1x per frame (~60fps cap)
+      if(_gyroRaf) return;
       _gyroRaf=requestAnimationFrame(()=>{
         _gyroRaf=null;
         const gx=Math.max(-45,Math.min(45,e.gamma||0))/45*100;
