@@ -3,7 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PIMAPIKA.ID v3.2.4 — Manajemen Keuangan</title>
+<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PIMAPIKA">
+<meta name="application-name" content="PIMAPIKA">
+<meta name="description" content="PIMAPIKA.ID — Aplikasi manajemen keuangan pribadi cerdas.">
+<link rel="manifest" href="manifest.json">
+<title>PIMAPIKA.ID v3.3.1 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -125,7 +133,7 @@
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Outfit',sans-serif;background:var(--bg-grad1);min-height:100vh;color:var(--text-primary);overflow-x:hidden;transition:background .3s,color .3s;}
   .bg-orbs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
-  .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.45;animation:float 8s ease-in-out infinite;}
+  .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.45;animation:float 8s ease-in-out infinite;will-change:transform;}
   body.light-mode .orb{opacity:.2;}
   .orb-1{width:600px;height:600px;background:radial-gradient(circle,#1d4ed8,#0ea5e9);top:-200px;left:-150px;animation-delay:0s;}
   .orb-2{width:500px;height:500px;background:radial-gradient(circle,#7c3aed,#db2777);top:30%;right:-100px;animation-delay:-3s;}
@@ -343,7 +351,7 @@
   .tx-list::-webkit-scrollbar{width:4px;}
   .tx-list::-webkit-scrollbar-track{background:transparent;}
   .tx-list::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:10px;}
-  .tx-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);transition:all .2s var(--spring);animation:slideIn .3s var(--spring);gap:10px;min-width:0;position:relative;}
+  .tx-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:14px;background:var(--input-bg);border:1px solid var(--input-border);transition:background .2s var(--spring),transform .2s var(--spring);animation:slideIn .3s var(--spring);gap:10px;min-width:0;position:relative;contain:layout style;}
   .tx-item:hover{background:var(--card-hover-bg);transform:translateX(3px);}
   .tx-info{flex:1;min-width:0;overflow:hidden;}
   .tx-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -2511,6 +2519,20 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+  /* ─── PERFORMANCE v3.3.1: reduced-motion + low-end device ─────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+    .orb { animation: none !important; }
+  }
+  @media (max-width: 480px) and (hover: none) {
+    .tab-bar, .period-bar, .workspace-bar { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .orb { opacity: 0.2; filter: blur(50px); }
+    .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  }
+
 </style>
 </head>
 <body>
@@ -3476,7 +3498,7 @@
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;">VERSI 3.2.4</div>
+            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.1</div>
           </div>
         </div>
 
@@ -3636,8 +3658,9 @@ function _applyWorkspace(ws){
 }
 
 function loadState(){
-  const s = localStorage.getItem('pimapika_state');
-  if(s){ try{ const parsed = JSON.parse(s); state = {...state, ...parsed}; }catch(e){} }
+  _restoreBackupIfNeeded();
+  const s = localStorage.getItem(PMPK_STORE_KEY);
+  if(s){ try{ const parsed = JSON.parse(s); state = {...state, ...parsed}; }catch(e){ console.warn('[PMPK] loadState parse error',e); } }
 
   // Header date selalu di-reset ke tanggal hari ini saat app dibuka/refresh
   // (perubahan tanggal di header hanya berlaku sementara untuk sesi berjalan,
@@ -3660,14 +3683,14 @@ function loadState(){
   // BUG FIX 5: Validate goldPortfolio integrity — ensure every gold entry has a stable goldKey string.
   // This preserves the delete-link between goldPortfolio entries and their matching expenses
   // across export/import JSON cycles (where numeric object references reset but string keys survive).
-  if (Array.isArray(state.goldPortfolio)) {
-    state.goldPortfolio.forEach(g => {
-      // If goldKey is missing (e.g. old backup), reconstruct it from the numeric id
-      if (!g.goldKey) {
-        g.goldKey = 'gold_' + g.id;
-      }
-    });
-  }
+  if (!Array.isArray(state.goldPortfolio)) state.goldPortfolio = [];
+  state.goldPortfolio = state.goldPortfolio.filter(g => g && typeof g==='object' && !Array.isArray(g));
+  state.goldPortfolio.forEach(g => {
+    if (!g.goldKey) g.goldKey = 'gold_' + g.id;
+    // [v3.3.1] Ensure numeric fields tidak NaN (data corruption guard)
+    if (typeof g.weight  !== 'number' || isNaN(g.weight))   g.weight   = 0;
+    if (typeof g.buyPrice!== 'number' || isNaN(g.buyPrice)) g.buyPrice = 0;
+  });
   // Similarly ensure linked expenses have goldKey set (back-fill from goldRef for old backups)
   const allExpensesArrays = [];
   if (Array.isArray(state.expenses)) allExpensesArrays.push(state.expenses);
@@ -3715,6 +3738,11 @@ function loadState(){
   if(!state.workspaceData[ws]) state.workspaceData[ws] = {incomes:[],expenses:[],banks:[],budgets:[],notes:'',targets:[],bills:[]};
   _applyWorkspace(ws);
 }
+// ─── STORAGE CONSTANTS v3.3.1 ──────────────────────────────────────────────
+const PMPK_STORE_KEY  = 'pimapika_state';
+const PMPK_BACKUP_KEY = 'pimapika_backup';
+const PMPK_SCHEMA_VER = '3.3.1';
+
 function saveState(){
   const ws = state.activeWorkspace || 'Personal';
   if(!state.workspaceData) state.workspaceData = {};
@@ -3727,7 +3755,36 @@ function saveState(){
   d.notes    = state.notes || '';
   d.targets  = state.targets;
   d.bills    = state.bills;
-  localStorage.setItem('pimapika_state', JSON.stringify(state));
+  // [v3.3.1] stamp schema version + timestamp
+  state._schemaVersion = PMPK_SCHEMA_VER;
+  state._savedAt = Date.now();
+  try {
+    const serialized = JSON.stringify(state);
+    JSON.parse(serialized); // validate sebelum tulis
+    localStorage.setItem(PMPK_STORE_KEY, serialized);
+    // Auto-backup 1× per 24 jam
+    const lastTs = parseInt(localStorage.getItem('pimapika_backup_ts')||'0');
+    if (Date.now() - lastTs > 86400000) {
+      localStorage.setItem(PMPK_BACKUP_KEY, serialized);
+      localStorage.setItem('pimapika_backup_ts', String(Date.now()));
+    }
+  } catch(e) {
+    console.warn('[PMPK] saveState failed:', e);
+  }
+}
+
+// [v3.3.1] Restore backup jika primary state corrupt
+function _restoreBackupIfNeeded() {
+  try {
+    const raw = localStorage.getItem(PMPK_STORE_KEY);
+    if (raw) JSON.parse(raw);
+  } catch(e) {
+    console.warn('[PMPK] State corrupt → restore backup');
+    try {
+      const bk = localStorage.getItem(PMPK_BACKUP_KEY);
+      if (bk) { JSON.parse(bk); localStorage.setItem(PMPK_STORE_KEY, bk); }
+    } catch(e2) { localStorage.removeItem(PMPK_STORE_KEY); }
+  }
 }
 
 // ─── CURRENCY ───
@@ -3735,6 +3792,10 @@ function formatCurrencyInput(el){
   // PENTING: Jika ada operator matematika, jangan format — serahkan ke handleMathInput
   const hasMathOp = /[+\-*\/]/.test(el.value.replace(/\./g,''));
   if(hasMathOp) return;
+
+  // [v3.3.0] Jika mengandung suffix k/jt/m → biarkan user mengetik dulu, jangan strip
+  // Suffix akan diproses saat user mengetik '=' di akhir
+  if(/[kjmt]/i.test(el.value.replace(/\./g,'').replace(/[0-9\s\+\-\*\/]/g,''))) return;
 
   const cur = el.selectionStart, prev = el.value.length;
   let raw = el.value.replace(/\D/g,'');
@@ -3747,18 +3808,17 @@ function formatCurrencyInput(el){
 function getCurrencyValue(id){
   const el = document.getElementById(id);
   const rawVal = el ? el.value : '';
-  // Deteksi apakah field ini menggunakan USD (incAmt dengan incCurrency=USD)
   const currSel = id === 'incAmt' ? document.getElementById('incCurrency') : null;
   const isUSD = currSel && currSel.value === 'USD';
   let raw;
   if (isUSD) {
-    // Format en-US: koma = pemisah ribuan, titik = desimal → buang koma saja
     raw = rawVal.replace(/,/g,'').replace(/=/g,'').trim();
   } else {
-    // Format id-ID: titik = pemisah ribuan, koma = desimal → buang titik & koma
     raw = rawVal.replace(/\./g,'').replace(/,/g,'').replace(/=/g,'').trim();
   }
-  // BUG FIX: Evaluasi ekspresi matematika jika ada operator (user lupa tekan '=')
+  // [v3.3.0] Expand suffix k/jt/m sebelum apapun
+  raw = _expandSuffix(raw);
+  // Evaluasi ekspresi matematika jika ada operator
   if (/[+\-*\/]/.test(raw)) {
     try {
       const safe = raw.replace(/[^0-9+\-*\/().\s]/g,'');
@@ -4047,6 +4107,24 @@ window.addEventListener('resize', ()=>{
 
 // ─── FORMAT ───
 function fmt(n){ return 'Rp '+Math.abs(n).toLocaleString('id-ID'); }
+
+// ─── SECURITY v3.3.1: HTML escape — cegah XSS pada semua user-data di innerHTML ─
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+// ─── PERFORMANCE v3.3.1: Debounced render via rAF ─────────────────────────────
+let _renderRafId = null;
+function renderDebounced() {
+  if (_renderRafId) cancelAnimationFrame(_renderRafId);
+  _renderRafId = requestAnimationFrame(() => { _renderRafId = null; render(); });
+}
 function fmtShort(n){
   if(n>=1e9) return 'Rp '+(n/1e9).toFixed(1)+'M';
   if(n>=1e6) return 'Rp '+(n/1e6).toFixed(1)+'jt';
@@ -4118,7 +4196,9 @@ function addIncome(){
   const date=document.getElementById('incDate').value;
   const rawNote=document.getElementById('incNote').value.trim();
   if(!name){ toast('Masukkan nama pemasukan!','error'); return; }
+  if(name.length>100){ toast('Nama terlalu panjang (max 100 karakter)!','error'); return; }
   if(!rawAmt||rawAmt<=0){ toast('Masukkan jumlah yang valid!','error'); return; }
+  if(rawAmt>999999999999){ toast('Jumlah terlalu besar!','error'); return; }
   if(!date){ toast('Pilih tanggal!','error'); return; }
 
   const cur = (document.getElementById('incCurrency') || {}).value || 'IDR';
@@ -4194,7 +4274,9 @@ function addExpense(){
   const date=document.getElementById('expDate').value;
   const note=document.getElementById('expNote').value.trim();
   if(!name){ toast('Masukkan keterangan!','error'); return; }
+  if(name.length>100){ toast('Keterangan terlalu panjang (max 100 karakter)!','error'); return; }
   if(!amt||amt<=0){ toast('Masukkan jumlah yang valid!','error'); return; }
+  if(amt>999999999999){ toast('Jumlah terlalu besar!','error'); return; }
   if(!date){ toast('Pilih tanggal!','error'); return; }
   const expIsRec=document.getElementById('expRecurring').checked;
   const expFreqVal=expIsRec?document.getElementById('expFreq').value:'';
@@ -4491,10 +4573,10 @@ function render(){
       <div class="glass bank-card ${getBankClass(b.name)}">
         <button class="bank-del" onclick="deleteBank(${b.id})">✕</button>
         <div class="bank-logo">${getBankEmoji(b.name)}</div>
-        <div class="bank-name">${b.name}</div>
+        <div class="bank-name">${escapeHtml(b.name)}</div>
         <div class="bank-pct">${getPriorityBadge(b.priority)}</div>
         <div class="bank-amt">${fmtShort(b.amt)}</div>
-        <div class="bank-purpose">${b.purpose||'—'}</div>
+        <div class="bank-purpose">${escapeHtml(b.purpose||'—')}</div>
       </div>`).join('')
     : '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏦</div>Belum ada alokasi bank</div>';
 
@@ -4573,8 +4655,8 @@ function renderRingkasan(){
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:20px;">${getBankEmoji(b.name)}</span>
             <div>
-              <div style="font-size:13px;font-weight:600;">${b.name}</div>
-              <div style="font-size:11px;color:var(--text-secondary);">${b.purpose||'—'} · ${getPriorityBadge(b.priority)}</div>
+              <div style="font-size:13px;font-weight:600;">${escapeHtml(b.name)}</div>
+              <div style="font-size:11px;color:var(--text-secondary);">${escapeHtml(b.purpose||'—')} · ${getPriorityBadge(b.priority)}</div>
             </div>
           </div>
           <div style="text-align:right;">
@@ -4880,14 +4962,15 @@ function checkKursDropWarning(){
 
 // ─── THEME ───
 function applyAppTheme(theme){
-  document.body.classList.remove('light-mode','theme-oldgrey');
+  document.body.classList.remove('light-mode','theme-oldgrey','theme-luxury');
   if(theme==='light') document.body.classList.add('light-mode');
   else if(theme==='oldgrey') document.body.classList.add('theme-oldgrey');
+  else if(theme==='luxury') document.body.classList.add('theme-luxury');
   ['swatchDark','swatchLight','swatchOldgrey'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.classList.remove('active');
   });
-  const map={dark:'swatchDark',light:'swatchLight',oldgrey:'swatchOldgrey'};
+  const map={dark:'swatchDark',light:'swatchLight',oldgrey:'swatchOldgrey',luxury:'swatchOldgrey'};
   const active=document.getElementById(map[theme]);
   if(active) active.classList.add('active');
 }
@@ -4953,11 +5036,18 @@ function toast(msg,type='info'){
   const el=document.createElement('div');
   const icons={success:'✅',error:'❌',info:'💡'};
   el.className='toast '+type;
-  el.innerHTML='<span>'+(icons[type]||'💡')+'</span><span>'+msg+'</span>';
-  document.getElementById('toastContainer').appendChild(el);
+  // [v3.3.1] DOM construction — cegah XSS dari msg yang berisi HTML
+  const iconSpan=document.createElement('span');
+  iconSpan.textContent=icons[type]||'💡';
+  const msgSpan=document.createElement('span');
+  msgSpan.textContent=String(msg);
+  el.appendChild(iconSpan);
+  el.appendChild(msgSpan);
+  const container=document.getElementById('toastContainer');
+  if(container) container.appendChild(el);
   setTimeout(()=>{
     el.style.opacity='0'; el.style.transform='translateY(10px) scale(.9)'; el.style.transition='all .3s';
-    setTimeout(()=>el.remove(),300);
+    setTimeout(()=>{ try{el.remove();}catch(e){} },300);
   },3000);
 }
 
@@ -5069,8 +5159,8 @@ function renderIncome(){
     ? filtered.slice().reverse().map(i=>`
       <div class="tx-item" id="txinc-${i.id}">
         <div class="tx-info">
-          <div class="tx-name">${i.name}${i.isRecurring?'<span class="recurring-icon">🔁 '+i.frequency+'</span>':''}</div>
-          <div class="tx-meta">${getCatLabel(i.cat)} · ${formatDate(i.date)}${i.note?' · <em>'+i.note+'</em>':''}</div>
+          <div class="tx-name">${escapeHtml(i.name)}${i.isRecurring?'<span class="recurring-icon">🔁 '+escapeHtml(i.frequency||'')+'</span>':''}</div>
+          <div class="tx-meta">${getCatLabel(i.cat)} · ${formatDate(i.date)}${i.note?' · <em>'+escapeHtml(i.note)+'</em>':''}</div>
         </div>
         <div class="tx-amount inc">${fmt(i.amt)}</div>
         <div class="tx-menu-wrap">
@@ -5091,8 +5181,8 @@ function renderExpense(){
     ? filtered.slice().reverse().map(i=>`
       <div class="tx-item" id="txexp-${i.id}">
         <div class="tx-info">
-          <div class="tx-name">${i.name}${i.isRecurring?'<span class="recurring-icon">🔁 '+i.frequency+'</span>':''}</div>
-          <div class="tx-meta">${getCatLabel(i.cat)} · ${formatDate(i.date)}${i.note?' · <em>'+i.note+'</em>':''}</div>
+          <div class="tx-name">${escapeHtml(i.name)}${i.isRecurring?'<span class="recurring-icon">🔁 '+escapeHtml(i.frequency||'')+'</span>':''}</div>
+          <div class="tx-meta">${getCatLabel(i.cat)} · ${formatDate(i.date)}${i.note?' · <em>'+escapeHtml(i.note)+'</em>':''}</div>
         </div>
         <div class="tx-amount exp">-${fmt(i.amt)}</div>
         <div class="tx-menu-wrap">
@@ -5175,10 +5265,10 @@ function renderTargets(){
     }
     return `<div class="target-card">
       <div class="target-top">
-        <div class="target-emoji">${done?'🏆':t.emoji}</div>
+        <div class="target-emoji">${done?'🏆':escapeHtml(t.emoji||'🎯')}</div>
         <div class="target-meta">
-          <div class="target-name">${t.name}${done?' ✅':''}</div>
-          <div class="target-deadline">${deadlineStr}</div>
+          <div class="target-name">${escapeHtml(t.name)}${done?' ✅':''}</div>
+          <div class="target-deadline">${escapeHtml(deadlineStr)}</div>
         </div>
         <button class="tx-del" onclick="deleteTarget(${t.id})">✕</button>
       </div>
@@ -5254,7 +5344,7 @@ function renderBills(){
       :`<span style="font-size:10px;color:var(--text-muted);display:block;margin-top:4px;">Tgl ${b.dueDay} tiap bulan</span>`;
     return `<div class="bill-card${dueSoon||overdue?' due-soon':''}">
       <div class="bill-info">
-        <div class="bill-name">${b.name}</div>
+        <div class="bill-name">${escapeHtml(b.name)}</div>
         <div class="bill-meta">${b.freq==='tahunan'?'🗓️ Tahunan':'📅 Bulanan'} · Jatuh tempo tgl ${b.dueDay}</div>
         ${badge}
       </div>
@@ -5336,6 +5426,7 @@ function toggleRecurringExp() {
  * frekuensi dan tanggal terakhir app dibuka.
  */
 function processRecurringTransactions() {
+  try {
   const todayDate = new Date();
   todayDate.setHours(0, 0, 0, 0);
   const todayStr = todayDate.toISOString().split('T')[0];
@@ -5430,6 +5521,7 @@ function processRecurringTransactions() {
   } else {
     saveState(); // simpan lastOpenDate
   }
+  } catch(e) { console.warn('[PMPK] processRecurringTransactions error:', e); }
 }
 
 // ─── FITUR 2: BACKUP DATA (.json) & EKSPOR EXCEL (.csv) ──
@@ -5456,17 +5548,27 @@ function exportJSON() {
 function importJSON(input) {
   const file = input.files[0];
   if (!file) return;
+  // [v3.3.1] Validasi file sebelum baca
+  if (file.size > 10*1024*1024) { toast('❌ File terlalu besar (max 10MB)!','error'); input.value=''; return; }
+  if (!file.name.endsWith('.json') && file.type !== 'application/json') {
+    toast('❌ Hanya file .json yang diterima!','error'); input.value=''; return;
+  }
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const imported = JSON.parse(e.target.result);
-      // Validasi minimal: harus punya field incomes & expenses
-      if (!imported.incomes || !imported.expenses) {
-        toast('❌ Format file tidak valid!', 'error');
+      // [v3.3.1] Validasi strict: harus array
+      if (!Array.isArray(imported.incomes) || !Array.isArray(imported.expenses)) {
+        toast('❌ Format file tidak valid (incomes/expenses bukan array)!', 'error');
         return;
       }
-      // Merge fields
-      state = { ...state, ...imported };
+      // [v3.3.1] Allowlist key — cegah overwrite field tersembunyi
+      const ALLOWED = ['incomes','expenses','banks','budgets','notes','targets','bills',
+        'period','workspaceData','activeWorkspace','workspaces','goldPortfolio','goldRefPrice',
+        'achievements','appTheme','privacyMode','monthlyNotes','lastOpenDate'];
+      const safe = {};
+      ALLOWED.forEach(k => { if (k in imported) safe[k] = imported[k]; });
+      state = { ...state, ...safe };
       // Re-apply active workspace data to root state refs after import
       const wsAfterImport = state.activeWorkspace || 'Personal';
       if (state.workspaceData && state.workspaceData[wsAfterImport]) {
@@ -5853,7 +5955,7 @@ function renderGold() {
     const gPnl = curVal - g.buyPrice;
     return `<div class="gold-item">
       <div class="gold-info">
-        <div class="gold-name">${g.name}</div>
+        <div class="gold-name">${escapeHtml(g.name)}</div>
         <div class="gold-meta">Beli: ${fmtShort(g.buyPrice)} · ${pricePerGram.toLocaleString('id-ID')}/g · ${formatDate(g.date)}</div>
         <div class="gold-meta" style="color:${gPnl>=0?'#34d399':'#f87171'};">Nilai kini: ${fmtShort(Math.round(curVal))} (${gPnl>=0?'+':''}${fmtShort(Math.round(gPnl))})</div>
       </div>
@@ -6233,13 +6335,27 @@ function togglePrivacy() {
  * Ekspresi HANYA dievaluasi saat karakter '=' diketik di akhir input.
  * Sebelum '=' diketik, field berperilaku normal (format angka biasa).
  */
+// [v3.3.0] Expand suffix k/jt/m ke angka penuh SEBELUM evaluasi
+// Contoh: "2k" → "2000", "1.5jt/3" → "1500000/3", "2m+500jt" → "2000000000+500000000"
+function _expandSuffix(expr) {
+  // Lookahead (?=[^a-zA-Z]|$) → cocok k/jt/m di akhir string atau sebelum non-huruf
+  // Urutan: m (miliar) → jt (juta) → k (ribu); HARUS jt sebelum k agar "jt" tidak dibaca "j"+"t"
+  expr = expr.replace(/(\d+(?:[.,]\d+)?)\s*m(?=[^a-zA-Z]|$)/gi,  function(_,n){ return String(Math.round(parseFloat(n.replace(',','.'))*1e9)); });
+  expr = expr.replace(/(\d+(?:[.,]\d+)?)\s*jt(?=[^a-zA-Z]|$)/gi, function(_,n){ return String(Math.round(parseFloat(n.replace(',','.'))*1e6)); });
+  expr = expr.replace(/(\d+(?:[.,]\d+)?)\s*k(?=[^a-zA-Z]|$)/gi,  function(_,n){ return String(Math.round(parseFloat(n.replace(',','.'))*1e3)); });
+  return expr;
+}
+
 function _formatMathSegments(raw) {
-  // Split berdasarkan operator, pertahankan operator di hasil
+  // [v3.3.0] Expand suffix per-segmen SEBELUM format ribuan
+  // Contoh: "2k+1.5jt" → split → ["2k","+","1.5jt"] → expand → ["2.000","+","1.500.000"]
   const parts = raw.split(/([\+\-\*\/])/);
   return parts.map((part, i) => {
-    if (i % 2 === 1) return part; // indeks ganjil = operator, kembalikan apa adanya
-    // indeks genap = segmen angka
-    const digits = part.replace(/\./g, ''); // hapus titik separator lama
+    if (i % 2 === 1) return part; // operator, kembalikan apa adanya
+    // Expand suffix di segmen ini dulu
+    const expanded = _expandSuffix(part.trim());
+    // Hapus titik separator lama lalu format ulang
+    const digits = expanded.replace(/\./g, '');
     if (!digits) return part;
     const num = parseInt(digits, 10);
     return isNaN(num) ? part : num.toLocaleString('id-ID');
@@ -6253,7 +6369,10 @@ function handleMathInput(el, hintId) {
 
   // ── EVALUASI: user mengetik '=' di akhir ──
   if (el.value.endsWith('=')) {
-    const expr = el.value.slice(0, -1).replace(/\./g, '').trim();
+    // [v3.3.0] Expand suffix SEBELUM strip titik, agar "1.5jt" → "1500000"
+    let raw = el.value.slice(0, -1).trim();
+    raw = _expandSuffix(raw);                // k / jt / m → angka
+    const expr = raw.replace(/\./g, '').trim();  // hapus titik pemisah ribuan
 
     if (!expr || !/[0-9]/.test(expr)) {
       if (hintEl) { hintEl.textContent = '⚠️ Masukkan angka terlebih dahulu'; hintEl.classList.remove('has-result'); }
@@ -6280,7 +6399,6 @@ function handleMathInput(el, hintId) {
       }
 
       if (typeof result === 'number' && isFinite(result) && result > 0) {
-        // Deteksi apakah input ini USD (jangan bulatkan ke integer)
         const currSel = el.id === 'incAmt' ? document.getElementById('incCurrency') : null;
         const isUSD = currSel && currSel.value === 'USD';
         const rounded = isUSD ? Math.round(result * 100) / 100 : Math.round(result);
@@ -6288,7 +6406,6 @@ function handleMathInput(el, hintId) {
           ? result.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})
           : rounded.toLocaleString('id-ID');
 
-        // Catat rumus ke field Catatan (form utama & modal edit)
         const noteFieldMap = {
           incAmt: 'incNote',
           expAmt: 'expNote',
@@ -6306,7 +6423,6 @@ function handleMathInput(el, hintId) {
 
         el.value = displayInField;
         if (hintEl) {
-          // Deteksi currency aktif untuk label hint yang tepat
           const currLabel = isUSD ? '$ ' : 'Rp ';
           const displayVal = isUSD
             ? result.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})
@@ -6330,15 +6446,19 @@ function handleMathInput(el, hintId) {
   const hasMathOp = /[+\-*\/]/.test(el.value.replace(/\./g, ''));
 
   if (hasMathOp) {
-    // Format tiap segmen angka dengan titik ribuan, pertahankan operator
-    const formatted = _formatMathSegments(el.value);
-    if (formatted !== el.value) {
-      el.value = formatted;
-      const diff = formatted.length - prevLen;
-      try { el.setSelectionRange(cursorPos + diff, cursorPos + diff); } catch(e) {}
+    // Jika segmen terakhir masih diketik (berakhir huruf suffix atau kosong setelah operator)
+    // → jangan reformat, biarkan user selesai mengetik suffinya
+    const lastSegment = el.value.split(/[\+\-\*\/]/).pop() || '';
+    const stillTypingSuffix = /[kjmt]$/i.test(lastSegment.trim());
+    if (!stillTypingSuffix) {
+      const formatted = _formatMathSegments(el.value);
+      if (formatted !== el.value) {
+        el.value = formatted;
+        const diff = formatted.length - prevLen;
+        try { el.setSelectionRange(cursorPos + diff, cursorPos + diff); } catch(e) {}
+      }
     }
   } else {
-    // Tidak ada operator → format angka biasa
     formatCurrencyInput(el);
   }
 }
@@ -6900,9 +7020,25 @@ let _pinSetupPhase = 'create'; // 'create' | 'confirm'
 let _pinFirstEntry = '';
 let _pinSetupBuffer = '';
 
-function getPinHash(pin) {
-  // Simple btoa hash (not cryptographic, but obfuscated in storage)
-  return btoa('pmpk_' + pin + '_salt');
+// ─── PIN SECURITY v3.3.1: SHA-256 via Web Crypto (tidak reversible) ───────
+async function getPinHash(pin) {
+  try {
+    const buf = new TextEncoder().encode('pmpk_v2_' + String(pin) + '_s@lt#pmpk');
+    const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hashBuf))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch(e) {
+    // Sangat jarang: fallback untuk env tanpa WebCrypto
+    return 'fallback_' + btoa('pmpk_' + pin);
+  }
+}
+// Migrasi otomatis: btoa lama (≤60 char, base64) → hapus & minta PIN baru
+async function _migratePinIfNeeded() {
+  const stored = localStorage.getItem('pimapika_pin') || '';
+  if (stored && stored.length < 64 && /^[A-Za-z0-9+/=]+$/.test(stored)) {
+    localStorage.removeItem('pimapika_pin');
+    try { toast('🔐 Keamanan PIN diperbarui. Silakan buat PIN baru.', 'info'); } catch(e) {}
+  }
 }
 
 function loadPinState() {
@@ -6940,9 +7076,10 @@ function pinDel() {
   updatePinDots('pd', _pinBuffer, '');
 }
 
-function checkPin() {
+async function checkPin() {
   const stored = loadPinState();
-  if (getPinHash(_pinBuffer) === stored) {
+  const hashed = await getPinHash(_pinBuffer);
+  if (hashed === stored) {
     // Correct
     const overlay = document.getElementById('pinLockOverlay');
     if (overlay) overlay.classList.remove('active');
@@ -7022,11 +7159,12 @@ function setupPinDel() {
 }
 
 let _pinSetupMode = 'create';
-function processSetupPin() {
+async function processSetupPin() {
   if (_pinSetupMode === 'remove') {
     // Verify old PIN before removing
     const stored = loadPinState();
-    if (getPinHash(_pinSetupBuffer) !== stored) {
+    const removeHash = await getPinHash(_pinSetupBuffer);
+    if (removeHash !== stored) {
       updatePinDots('sp', '1234', 'error');
       document.getElementById('pinSetupErr').textContent = '❌ PIN salah!';
       setTimeout(() => { _pinSetupBuffer=''; updatePinDots('sp','',''); document.getElementById('pinSetupErr').textContent=''; }, 800);
@@ -7046,8 +7184,9 @@ function processSetupPin() {
     document.getElementById('pinSetupErr').textContent = '';
     updatePinDots('sp', '', '');
   } else {
+    const newHash = await getPinHash(_pinSetupBuffer);
     if (_pinSetupBuffer === _pinFirstEntry) {
-      savePinHash(getPinHash(_pinSetupBuffer));
+      savePinHash(newHash);
       closePinSetup();
       updatePinSettingUI();
       toast('🔐 PIN berhasil dibuat! App akan terkunci saat dibuka ulang.', 'success');
@@ -7455,6 +7594,22 @@ const DI_NEWS_FALLBACK = [
 // Catatan: r.jina.ai TIDAK dipakai di sini karena mengonversi RSS XML menjadi
 // markdown (bukan XML asli), sehingga DOMParser gagal mem-parsing <item>.
 // r.jina.ai hanya dipakai khusus untuk ekstraksi isi artikel (lihat openNewsReaderArticle).
+// ─── RELIABILITY v3.3.1: fetch dengan timeout + exponential-backoff retry ──────
+async function fetchWithRetry(url, opts={}, retries=2, timeoutMs=8000) {
+  for (let attempt=0; attempt<=retries; attempt++) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(()=>ctrl.abort(), timeoutMs);
+      const resp = await fetch(url, {...opts, signal: ctrl.signal});
+      clearTimeout(timer);
+      return resp;
+    } catch(e) {
+      if (attempt===retries) throw e;
+      await new Promise(r=>setTimeout(r, 500 * Math.pow(2, attempt)));
+    }
+  }
+}
+
 const DI_NEWS_PROXIES = [
   url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url) + '&nocache=' + Date.now(),
   url => 'https://corsproxy.io/?url=' + encodeURIComponent(url) + '&nocache=' + Date.now(),
@@ -7564,11 +7719,11 @@ function diRenderNews() {
   if (toolbar) toolbar.style.display = 'flex';
   if (updatedEl) updatedEl.textContent = '🟢 Update ' + diNewsTimeAgo();
   list.innerHTML = _diNews.map(n => {
-    const safeUrl = n.url.replace(/'/g, '%27');
+    const safeUrl = encodeURI(n.url||'').replace(/'/g,'%27');
     return '<div class="di-news-item" onclick="window.open(\'' + safeUrl + '\',\'_blank\',\'noopener\')">'
-      + '<div class="di-news-item-cat">' + n.cat + '</div>'
-      + '<div class="di-news-item-title">' + n.title + '</div>'
-      + '<div class="di-news-item-src"><span class="di-news-g-icon">G</span>Google News · ' + n.source + '</div>'
+      + '<div class="di-news-item-cat">' + escapeHtml(n.cat) + '</div>'
+      + '<div class="di-news-item-title">' + escapeHtml(n.title) + '</div>'
+      + '<div class="di-news-item-src"><span class="di-news-g-icon">G</span>Google News · ' + escapeHtml(n.source||'') + '</div>'
       + '</div>';
   }).join('');
   list.style.display = 'flex';
@@ -7733,8 +7888,8 @@ function newsHubRenderList(cat) {
     }
     return '<div class="news-card" onclick="openNewsReader(\'' + cat + '\',' + i + ')">'
       + '<div class="news-card-cat">' + catLabel + '</div>'
-      + '<div class="news-card-title">' + n.title + '</div>'
-      + '<div class="news-card-meta"><span class="g-icon">G</span>' + n.source + timeStr + '</div>'
+      + '<div class="news-card-title">' + escapeHtml(n.title) + '</div>'
+      + '<div class="news-card-meta"><span class="g-icon">G</span>' + escapeHtml(n.source||'') + escapeHtml(timeStr) + '</div>'
       + '</div>';
   }).join('');
 }
@@ -7793,18 +7948,18 @@ function _textToHtml(text) {
 function _renderArticleContent(article, bodyHtml, timeStr, isSnippet) {
   const content = document.getElementById('newsReaderContent');
   if (!content) return;
-  const safeUrl = article.url.replace(/'/g,'%27');
+  const safeUrl = encodeURI(article.url||'').replace(/'/g,'%27');
   const fetchingBadge = isSnippet
     ? '<div id="newsReaderFetchBadge" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--accent-teal);margin-bottom:10px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:2px solid var(--accent-teal);border-top-color:transparent;animation:spin .8s linear infinite;"></span>Memuat artikel lengkap…</div>'
     : '';
   content.innerHTML =
-    '<div class="news-reader-title">' + article.title + '</div>'
+    '<div class="news-reader-title">' + escapeHtml(article.title) + '</div>'
     + '<div class="news-reader-meta"><span class="g-icon" style="background:#fff;width:14px;height:14px;border-radius:50%;color:#4285F4;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;">G</span>'
-    + article.source + (timeStr ? (' · ' + timeStr) : '') + '</div>'
+    + escapeHtml(article.source||'') + (timeStr ? (' · ' + escapeHtml(timeStr)) : '') + '</div>'
     + fetchingBadge
     + '<div class="news-reader-body">' + bodyHtml + '</div>'
     + '<div class="news-reader-meta" style="margin-top:16px;border-top:1px solid var(--input-border);padding-top:12px;">'
-    + 'Sumber: <a href="' + safeUrl + '" target="_blank" rel="noopener">' + article.source + ' ↗</a></div>';
+    + 'Sumber: <a href="' + safeUrl + '" target="_blank" rel="noopener">' + escapeHtml(article.source||'') + ' ↗</a></div>';
 }
 
 async function openNewsReaderArticle(article) {
@@ -7850,7 +8005,7 @@ async function openNewsReaderArticle(article) {
   // ── LAYER B1: r.jina.ai background fetch ──
   let fullHtml = '';
   try {
-    const resp = await fetch('https://r.jina.ai/' + article.url, { signal: AbortSignal.timeout(6000), cache: 'no-store' });
+    const resp = await fetchWithRetry('https://r.jina.ai/' + article.url, { cache: 'no-store' }, 1, 8000);
     if (!resp.ok) throw new Error('jina fail');
     let text = await resp.text();
     text = text.replace(/^Title:.*\n/im, '').replace(/^URL Source:.*\n/im, '').replace(/^Markdown Content:\s*\n*/im, '').trim();
@@ -7944,7 +8099,7 @@ function kursTimeAgo() {
 // Ambil semua kurs sekaligus (basis USD) dari open.er-api.com — gratis, CORS-enabled, tanpa API key.
 async function kursFetchRates() {
   try {
-    const resp = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(8000), cache: 'no-store' });
+    const resp = await fetchWithRetry('https://open.er-api.com/v6/latest/USD', { cache: 'no-store' }, 2, 8000);
     if (!resp.ok) return null;
     const data = await resp.json();
     if (!data || data.result !== 'success' || !data.rates) return null;
@@ -8366,16 +8521,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.2.4 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.0 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">🧮 <b>Math Suffix</b> — ketik <code style="font-family:monospace;background:rgba(255,255,255,.1);padding:0 4px;border-radius:4px;">1.5jt/3=</code> otomatis jadi 500.000; support k, jt, m</p>'
+      + '<p style="margin:0 0 4px;">👆 <b>Touch Gestures</b> — swipe kiri hapus, swipe kanan ulangi transaksi; long-press 800ms untuk seleksi</p>'
+      + '<p style="margin:0 0 4px;">🖱️ <b>Drag &amp; Drop</b> — seret transaksi ke tab workspace untuk memindahkannya antar-workspace</p>'
+      + '<p style="margin:0 0 4px;">⚡ <b>God Mode</b> — tap badge versi 5× cepat untuk membuka panel tersembunyi</p>'
+      + '<p style="margin:0 0 10px;">🖤 <b>Luxury Gyro Theme</b> — tahan swatch Old Grey 3 detik; tema hitam elegan dengan efek glare gyroscope</p>'
+      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.2.4 · Versi Sebelumnya</p>'
       + '<p style="margin:0 0 4px;">🗑️ <b>Tombol ‹ › Dihapus</b> — sticky notes lebih bersih; navigasi tetap via tap kartu summary</p>'
       + '<p style="margin:0 0 4px;">📌 <b>Tombol ✅ Pindah</b> — kini di sudut kanan bawah kartu, posisi lebih natural</p>'
       + '<p style="margin:0 0 4px;">📄 <b>Ruang Catatan Diperluas</b> — textarea satu baris lebih tinggi untuk lebih banyak teks</p>'
-      + '<p style="margin:0 0 10px;">🔤 <b>Fix PDF Emoji</b> — nama transaksi berisi emoji kini tampil bersih di output PDF</p>'
-      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.2.3 · Versi Sebelumnya</p>'
-      + '<p style="margin:0 0 4px;">✏️ <b>Edit Mode Catatan</b> — tap ikon pensil untuk mulai ketik, ✅ untuk selesai; textarea read-only by default</p>'
-      + '<p style="margin:0 0 4px;">📋 <b>Tampilan Catatan Bersih</b> — dots, ikon 🏷️, dan teks "tersimpan per bulan" dihapus; tombol ‹ › dipusatkan</p>'
-      + '<p style="margin:0 0 10px;">📝 <b>Garis Kertas</b> — textarea bergaris tipis seperti buku catatan</p>';
+      + '<p style="margin:0 0 10px;">🔤 <b>Fix PDF Emoji</b> — nama transaksi berisi emoji kini tampil bersih di output PDF</p>';
   }
 });
 
@@ -8707,6 +8864,596 @@ document.addEventListener('DOMContentLoaded', () => {
   </div>
 </div>
 
+<!-- ══ GOD MODE PANEL (v3.3.0) ══ -->
+<div id="godModePanel" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.97);flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="font-size:48px;animation:godPulse 1.5s ease-in-out infinite;">⚡</div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:#d4af70;letter-spacing:3px;">GOD MODE</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.5);letter-spacing:1px;">PIMAPIKA v3.3.0 · Internal Debug Panel</div>
+  <div style="display:flex;flex-direction:column;gap:10px;width:260px;margin-top:8px;">
+    <button onclick="try{console.log('%c⚡ PIMAPIKA STATE','color:#d4af70;font-weight:bold;font-size:14px');console.table(window._pmpkState||{});console.log('Full object:',window._pmpkState);}catch(e){alert('State tidak tersedia: '+e)}" style="background:rgba(212,175,112,.12);border:1px solid rgba(212,175,112,.3);color:#d4af70;padding:10px 16px;border-radius:12px;font-size:13px;cursor:pointer;font-family:inherit;">🗃️ Log State ke Console</button>
+    <button onclick="if(confirm('Reset semua data?')){localStorage.clear();location.reload();}" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171;padding:10px 16px;border-radius:12px;font-size:13px;cursor:pointer;font-family:inherit;">🗑️ Clear localStorage + Reload</button>
+    <button onclick="document.getElementById('godModePanel').style.display='none'" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);padding:10px 16px;border-radius:12px;font-size:13px;cursor:pointer;font-family:inherit;">✕ Tutup</button>
+  </div>
+</div>
 
+<!-- ══ LUXURY GYRO HINT ══ -->
+<div id="luxuryGyroHint" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(212,175,112,.15);border:1px solid rgba(212,175,112,.3);color:rgba(255,245,200,.85);font-size:11px;padding:6px 14px;border-radius:20px;pointer-events:none;opacity:0;transition:opacity .4s;z-index:10000;backdrop-filter:blur(10px);white-space:nowrap;">✨ Luxury Mode — miringkan HP untuk efek kaca</div>
+
+<!-- ══ POWER MODULES CSS (v3.3.0) ══ -->
+<style>
+/* [1] God Mode keyframe */
+@keyframes godPulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.15);opacity:.7} }
+
+/* [2] Touch gesture feedback */
+.tx-item { overflow:hidden; }
+.tx-item.swipe-left  { transform:translateX(-60px) !important; background:rgba(239,68,68,.2) !important; transition:transform .15s ease,background .15s ease !important; }
+.tx-item.swipe-right { transform:translateX( 60px) !important; background:rgba(16,185,129,.2) !important; transition:transform .15s ease,background .15s ease !important; }
+.tx-item.selected    { outline:2px solid var(--accent-purple); background:rgba(139,92,246,.15) !important; }
+
+/* [3] Drag-over workspace btn */
+.workspace-btn.drag-over { outline:2px solid var(--accent-teal); background:rgba(14,165,233,.22) !important; transform:scale(1.08); transition:all .15s ease; }
+
+
+/* ══ [5] LUXURY BLACK GYROSCOPE THEME ══ */
+body.theme-luxury {
+  /* CSS vars — override semua warna app */
+  --bg-grad1:#050505;
+  --glass-white:rgba(255,255,255,.055);
+  --glass-border:rgba(212,175,112,.18);
+  --glass-shadow:rgba(0,0,0,.7);
+  --text-primary:rgba(255,255,255,.95);
+  --text-secondary:rgba(212,175,112,.7);
+  --text-muted:rgba(180,170,150,.35);
+  --input-bg:rgba(255,255,255,.04);
+  --input-border:rgba(212,175,112,.18);
+  --card-hover-bg:rgba(255,255,255,.07);
+  --modal-bg:rgba(6,6,8,.98);
+  --accent-blue:#c9a84c;
+  --accent-teal:#d4af70;
+  --accent-green:#a8c4a0;
+  --accent-red:#c87a7a;
+  --accent-amber:#d4b060;
+  --accent-purple:#b0a0cc;
+
+  background:
+    radial-gradient(ellipse at 15% 8%,  rgba(212,175,112,.09), transparent 50%),
+    radial-gradient(ellipse at 85% 92%, rgba(120,90,50,.13),   transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(30,20,10,.4),     transparent 80%),
+    linear-gradient(160deg, #0e0d0c 0%, #060605 45%, #020201 100%) !important;
+  background-attachment:fixed !important;
+  color: var(--text-primary) !important;
+}
+
+/* Sembunyikan orbs */
+body.theme-luxury .orb { display:none !important; }
+
+/* ── Logo PIMAPIKA.ID di header ── */
+body.theme-luxury .logo-name {
+  background: linear-gradient(90deg, #d4af70, #f5e6c0, #c9a84c) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ── Intro / Splash screen ── */
+body.theme-luxury #introScreen {
+  background: linear-gradient(160deg, #0e0d0c 0%, #060605 50%, #020201 100%) !important;
+}
+body.theme-luxury .intro-logo-name {
+  background: linear-gradient(90deg, #d4af70, #f5e6c0, #c9a84c) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+body.theme-luxury .intro-logo-tag { color: rgba(212,175,112,.5) !important; }
+body.theme-luxury .intro-logo-img {
+  box-shadow: 0 0 80px rgba(212,175,112,.35), 0 0 40px rgba(180,140,60,.2) !important;
+  border-color: rgba(212,175,112,.3) !important;
+}
+body.theme-luxury .intro-dot { background: rgba(212,175,112,.4) !important; }
+
+/* ── Tab navigation buttons ── */
+body.theme-luxury .tab-btn {
+  color: rgba(212,175,112,.5) !important;
+}
+body.theme-luxury .tab-btn.active {
+  color: rgba(255,240,200,.95) !important;
+  text-shadow: 0 0 16px rgba(212,175,112,.5) !important;
+}
+body.theme-luxury .tab-indicator {
+  background: linear-gradient(90deg, #c9a84c, #d4af70) !important;
+  box-shadow: 0 0 14px rgba(212,175,112,.45) !important;
+}
+
+/* ── Period bar (bulan) ── */
+body.theme-luxury .period-bar {
+  background: rgba(255,255,255,.03) !important;
+  border-color: rgba(212,175,112,.12) !important;
+}
+body.theme-luxury .period-btn {
+  color: rgba(212,175,112,.5) !important;
+}
+body.theme-luxury .period-btn.active {
+  background: rgba(212,175,112,.18) !important;
+  color: rgba(255,240,200,.95) !important;
+  box-shadow: none !important;
+}
+
+/* ── Workspace bar ── */
+body.theme-luxury .workspace-btn {
+  color: rgba(212,175,112,.55) !important;
+}
+body.theme-luxury .workspace-btn.active {
+  color: rgba(255,240,200,.95) !important;
+  text-shadow: 0 0 14px rgba(212,175,112,.5) !important;
+}
+body.theme-luxury #wsIndicator,
+body.theme-luxury .ws-indicator {
+  background: linear-gradient(90deg, #c9a84c, #d4af70) !important;
+  box-shadow: 0 0 12px rgba(212,175,112,.4) !important;
+}
+
+/* ── Cards & glass panels ── */
+body.theme-luxury .glass-card,
+body.theme-luxury .summary-card,
+body.theme-luxury .modal-sheet,
+body.theme-luxury .bottom-sheet,
+body.theme-luxury .floating-panel {
+  background: rgba(255,255,255,.042) !important;
+  border-color: rgba(212,175,112,.14) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 1px 0 rgba(212,175,112,.08) inset !important;
+}
+
+/* ── Inputs ── */
+body.theme-luxury .glass-input,
+body.theme-luxury input,
+body.theme-luxury textarea,
+body.theme-luxury select {
+  background: rgba(255,255,255,.04) !important;
+  border-color: rgba(212,175,112,.2) !important;
+  color: var(--text-primary) !important;
+}
+body.theme-luxury .glass-input:focus,
+body.theme-luxury input:focus {
+  border-color: rgba(212,175,112,.5) !important;
+  box-shadow: 0 0 0 3px rgba(212,175,112,.1) !important;
+}
+
+/* ── Primary buttons ── */
+body.theme-luxury .btn-primary,
+body.theme-luxury .add-btn {
+  background: linear-gradient(135deg, #c9a84c, #a07830) !important;
+  border-color: rgba(212,175,112,.3) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px rgba(180,130,40,.3) !important;
+}
+
+/* ── Bottom nav ── */
+body.theme-luxury .bottom-nav,
+body.theme-luxury nav {
+  background: rgba(8,7,6,.93) !important;
+  border-top-color: rgba(212,175,112,.12) !important;
+}
+
+/* ── Header ── */
+body.theme-luxury .app-header,
+body.theme-luxury #mainHeader {
+  background: rgba(8,7,6,.88) !important;
+  border-bottom-color: rgba(212,175,112,.12) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* ── Dynamic Island ── */
+body.theme-luxury #dynamicIsland,
+body.theme-luxury .di-pill {
+  background: rgba(8,7,6,.96) !important;
+  border-color: rgba(212,175,112,.2) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.8), 0 0 20px rgba(212,175,112,.07) !important;
+}
+
+/* ── Summary card amount text ── */
+body.theme-luxury .summary-card .amount,
+body.theme-luxury .card-amount {
+  color: #d4af70 !important;
+}
+
+/* ── Toast ── */
+body.theme-luxury .toast {
+  background: rgba(212,175,112,.15) !important;
+  border-color: rgba(212,175,112,.3) !important;
+  color: rgba(255,245,200,.9) !important;
+}
+
+/* ── Quick preset buttons ── */
+body.theme-luxury .quick-preset-btn {
+  background: rgba(212,175,112,.1) !important;
+  border-color: rgba(212,175,112,.25) !important;
+  color: rgba(212,175,112,.85) !important;
+}
+
+/* ── Dropdown menu items ── */
+body.theme-luxury .tx-dropdown-menu,
+body.theme-luxury .dropdown-menu {
+  background: rgba(10,9,8,.97) !important;
+  border-color: rgba(212,175,112,.18) !important;
+}
+
+/* ── Scrollbar ── */
+body.theme-luxury ::-webkit-scrollbar-thumb {
+  background: rgba(212,175,112,.25) !important;
+}
+
+/* ── Glare gyroscope overlay ── */
+body.theme-luxury::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(
+    ellipse 55% 35% at
+      calc(50% + var(--gx, 0) * 1px)
+      calc(35% + var(--gy, 0) * 1px),
+    rgba(255,245,200,.06),
+    transparent 68%
+  );
+  mix-blend-mode: screen;
+  transition: background .07s linear;
+}
+#luxuryGyroHint.show { opacity:1 !important; }
+</style>
+
+<!-- ══ POWER MODULES JS (v3.3.0) ══ -->
+<script>
+/* Semua modul dibungkus try-catch global agar error satu modul
+   tidak menghentikan modul lain atau kode app yang sudah ada.   */
+(function(){
+'use strict';
+
+/* ── UTIL: jalankan fn setelah DOM ready, aman dipanggil kapanpun ── */
+function onReady(fn){
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+  else fn();
+}
+
+/* ── UTIL: observe perubahan list transaksi (scope sempit) ── */
+function watchLists(cb){
+  onReady(()=>{
+    cb(); // run sekali saat pertama
+    // Hanya observe #app / body langsung, bukan documentElement + subtree penuh
+    const target = document.getElementById('app') || document.body;
+    new MutationObserver(()=>{ try{ cb(); }catch(e){} })
+      .observe(target, {childList:true, subtree:true});
+  });
+}
+
+
+/* [1] MATH SUFFIX — diintegrasikan langsung ke _expandSuffix + handleMathInput (v3.3.0) */
+
+
+/* ────────────────────────────────────────────────────────────
+   [2] TOUCH GESTURES pada .tx-item
+   Swipe kiri >50px → delete | Swipe kanan → repeat
+   Long-press 800ms → toggle .selected                         */
+try{(function initGestures(){
+  const THRESH=50, LP=800;
+  let sx=null, sy=null, lpTimer=null, active=null;
+
+  function resolveId(id){
+    const isInc = id.startsWith('txinc');
+    const num   = +(id.split('-')[1]||0);
+    return {isInc, num};
+  }
+  function doDelete(id){
+    try{
+      const {isInc,num}=resolveId(id);
+      if(typeof window.deleteTx==='function') return window.deleteTx(id);
+      if(isInc && typeof deleteIncome==='function') deleteIncome(num);
+      else if(typeof deleteExpense==='function') deleteExpense(num);
+    }catch(e){}
+  }
+  function doRepeat(id){
+    try{
+      const {isInc}=resolveId(id);
+      if(typeof window.repeatTx==='function') return window.repeatTx(id);
+      if(isInc && typeof repeatLastIncome==='function') repeatLastIncome();
+      else if(typeof repeatLastExpense==='function') repeatLastExpense();
+    }catch(e){}
+  }
+
+  function onStart(e){
+    try{
+      const item=e.target.closest('.tx-item'); if(!item) return;
+      active=item; sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+      lpTimer=setTimeout(()=>{
+        try{ item.classList.toggle('selected'); }catch(e){}
+        if(navigator.vibrate) navigator.vibrate(30);
+        lpTimer=null;
+      }, LP);
+    }catch(e){}
+  }
+  function onMove(e){
+    try{
+      if(!active||sx===null) return;
+      const dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
+      if(Math.abs(dx)>10||Math.abs(dy)>10){ clearTimeout(lpTimer); lpTimer=null; }
+      if(Math.abs(dx)>15&&Math.abs(dx)>Math.abs(dy)){
+        active.classList.toggle('swipe-left', dx<-15);
+        active.classList.toggle('swipe-right',dx> 15);
+        e.preventDefault();
+      }
+    }catch(e){}
+  }
+  function onEnd(e){
+    try{
+      clearTimeout(lpTimer);
+      if(!active||sx===null) return;
+      const ct=e.changedTouches[0];
+      const dx=(ct?ct.clientX:sx)-sx;
+      active.classList.remove('swipe-left','swipe-right');
+      if(Math.abs(dx)>=THRESH && active.id){
+        if(dx<0) doDelete(active.id); else doRepeat(active.id);
+      }
+    }catch(e){}
+    active=null; sx=null; sy=null;
+  }
+
+  function attachList(listEl){
+    if(!listEl||listEl._gi) return; listEl._gi=1;
+    listEl.addEventListener('touchstart', onStart, {passive:true});
+    listEl.addEventListener('touchmove',  onMove,  {passive:false});
+    listEl.addEventListener('touchend',   onEnd,   {passive:true});
+  }
+
+  watchLists(()=>{
+    ['incList','expList'].forEach(id=>{
+      const el=document.getElementById(id); if(el) attachList(el);
+    });
+  });
+})()}catch(e){ console.warn('[PMPK][2] gesture error',e); }
+
+
+/* ────────────────────────────────────────────────────────────
+   [3] DRAG & DROP .tx-item → .workspace-btn                  */
+try{(function initDragDrop(){
+  let dragId=null;
+
+  function makeItemDraggable(item){
+    if(!item||item._di) return; item._di=1;
+    item.setAttribute('draggable','true');
+    item.addEventListener('dragstart', e=>{
+      dragId=item.id;
+      try{ e.dataTransfer.effectAllowed='move'; }catch(err){}
+      setTimeout(()=>{ try{item.classList.add('swipe-left');}catch(err){} }, 0);
+    });
+    item.addEventListener('dragend', ()=>{
+      try{ item.classList.remove('swipe-left'); }catch(err){}
+      dragId=null;
+    });
+  }
+
+  function attachDropBtn(btn){
+    if(!btn||btn._dd) return; btn._dd=1;
+    btn.addEventListener('dragover', e=>{ e.preventDefault(); try{btn.classList.add('drag-over');}catch(err){} });
+    btn.addEventListener('dragleave', ()=>{ try{btn.classList.remove('drag-over');}catch(err){} });
+    btn.addEventListener('drop', e=>{
+      e.preventDefault();
+      try{ btn.classList.remove('drag-over'); }catch(err){}
+      if(!dragId) return;
+      try{
+        const wsName=(btn.id||'').replace('ws-','');
+        if(!wsName) return;
+        if(typeof window.moveWs==='function') return window.moveWs(dragId, wsName);
+        // Built-in fallback
+        const isInc=dragId.startsWith('txinc');
+        const num=+(dragId.split('-')[1]||0);
+        if(typeof state==='undefined') return;
+        const arr=isInc?state.incomes:state.expenses;
+        const tx=arr&&arr.find(x=>x.id===num);
+        if(!tx) return;
+        if(isInc) state.incomes  = state.incomes .filter(x=>x.id!==num);
+        else      state.expenses = state.expenses.filter(x=>x.id!==num);
+        if(!state.workspaceData) state.workspaceData={};
+        if(!state.workspaceData[wsName]) state.workspaceData[wsName]={incomes:[],expenses:[],banks:[],budgets:[],notes:'',targets:[],bills:[]};
+        (isInc?state.workspaceData[wsName].incomes:state.workspaceData[wsName].expenses).push(tx);
+        if(typeof saveState==='function') saveState();
+        if(typeof render==='function') render();
+        if(typeof diUpdateWorkspace==='function') diUpdateWorkspace();
+        if(typeof toast==='function') toast(`Dipindah ke ${wsName}`,'success');
+      }catch(err){ console.warn('[PMPK][3] drop error',err); }
+    });
+  }
+
+  watchLists(()=>{
+    document.querySelectorAll('.tx-item').forEach(makeItemDraggable);
+    document.querySelectorAll('.workspace-btn:not(.workspace-btn-add)').forEach(attachDropBtn);
+  });
+})()}catch(e){ console.warn('[PMPK][3] dragdrop error',e); }
+
+
+/* ────────────────────────────────────────────────────────────
+   [4] GOD MODE
+   Tap #versionBadge 5× dalam 2 detik → #godModePanel        */
+try{(function initGodMode(){
+  const N=5, WIN=2000;
+  let taps=[], on=false;
+
+  // Expose state ke window agar tombol inline onclick bisa akses
+  // (state adalah var di scope global app, tapi onclick string perlu window scope)
+  onReady(()=>{
+    try{
+      if(typeof state!=='undefined') window._pmpkState = state;
+      // Sync referensi setiap kali state berubah lewat saveState
+      if(typeof saveState==='function'){
+        const origSave=saveState;
+        window.saveState=function(){ window._pmpkState=state; return origSave.apply(this,arguments); };
+      }
+    }catch(e){}
+  });
+
+  function activate(){
+    if(on) return; on=true;
+    try{
+      const p=document.getElementById('godModePanel');
+      if(p){ p.style.display='flex'; }
+    }catch(err){}
+    try{ if(typeof toast==='function') toast('⚡ God Mode aktif','success'); }catch(err){}
+    try{ if(navigator.vibrate) navigator.vibrate([40,30,80]); }catch(err){}
+  }
+
+  function tap(){
+    const now=Date.now();
+    taps.push(now);
+    taps=taps.filter(t=>now-t<=WIN);
+    if(taps.length>=N){ taps=[]; activate(); }
+  }
+
+  function attach(){
+    try{
+      const el=document.getElementById('versionBadge');
+      if(!el||el._gm) return; el._gm=1;
+      el.addEventListener('click', tap);
+      el.addEventListener('touchend', e=>{ try{e.preventDefault();}catch(err){} tap(); });
+    }catch(err){}
+  }
+
+  onReady(attach);
+  onReady(()=>{
+    const settingsModal=document.getElementById('settingModal');
+    if(settingsModal){
+      new MutationObserver(attach).observe(settingsModal,{childList:true,subtree:true});
+    }
+  });
+})()}catch(e){ console.warn('[PMPK][4] godmode error',e); }
+
+
+/* ────────────────────────────────────────────────────────────
+   [5] LUXURY GYROSCOPE THEME
+   Long-press #swatchOldgrey 3 detik → body.theme-luxury
+   Persist via state.appTheme = 'luxury'
+   Gyro di-restore otomatis saat reload jika tema luxury       */
+try{(function initLuxuryGyro(){
+  const HOLD=3000;
+  let timer=null, gyroOn=false;
+
+  function onOrient(e){
+    try{
+      if(!gyroOn) return;
+      const gx=Math.max(-45,Math.min(45,e.gamma||0))/45*100;
+      const gy=Math.max(-45,Math.min(45,e.beta ||0))/45*100;
+      document.body.style.setProperty('--gx',gx);
+      document.body.style.setProperty('--gy',gy);
+    }catch(err){}
+  }
+
+  function startGyro(){
+    if(gyroOn) return;
+    function go(){
+      gyroOn=true;
+      window.addEventListener('deviceorientation',onOrient,{passive:true});
+      try{
+        const h=document.getElementById('luxuryGyroHint');
+        if(h){ h.style.opacity='1'; setTimeout(()=>{ try{h.style.opacity='0';}catch(e){} },3500); }
+      }catch(err){}
+    }
+    if(typeof DeviceOrientationEvent!=='undefined'&&
+       typeof DeviceOrientationEvent.requestPermission==='function'){
+      // iOS: harus dari user gesture — gyro aktif langsung saat long-press
+      DeviceOrientationEvent.requestPermission()
+        .then(r=>{ if(r==='granted') go(); })
+        .catch(()=>go());
+    } else { go(); }
+  }
+
+  function activate(silent){
+    try{
+      // Pakai setAppTheme agar tersimpan ke state + localStorage
+      if(typeof setAppTheme==='function'){
+        setAppTheme('luxury'); // ini memanggil applyAppTheme + saveState
+      } else {
+        document.body.classList.remove('light-mode','theme-oldgrey');
+        document.body.classList.add('theme-luxury');
+      }
+      startGyro();
+      if(!silent && typeof toast==='function') toast('🖤 Luxury Mode aktif','success');
+    }catch(err){}
+  }
+
+  function startHold(){ timer=setTimeout(()=>activate(false), HOLD); }
+  function cancelHold(){ clearTimeout(timer); timer=null; }
+
+  onReady(()=>{
+    try{
+      // Restore tema luxury saat reload tanpa minta izin gyro lagi
+      // (applyAppTheme sudah dipatch untuk mengenali 'luxury')
+      if(typeof state!=='undefined' && state.appTheme==='luxury'){
+        document.body.classList.add('theme-luxury');
+        // Gyro: tidak bisa auto-start di iOS tanpa gesture, tapi Android bisa
+        if(typeof DeviceOrientationEvent==='undefined'||
+           typeof DeviceOrientationEvent.requestPermission!=='function'){
+          startGyro(); // Android / non-iOS: langsung aktif
+        }
+        // iOS: gyro akan aktif lagi saat user long-press berikutnya
+      }
+
+      const s=document.getElementById('swatchOldgrey');
+      if(!s) return;
+      s.addEventListener('touchstart', startHold, {passive:true});
+      s.addEventListener('touchend',   cancelHold,{passive:true});
+      s.addEventListener('touchmove',  cancelHold,{passive:true});
+      s.addEventListener('mousedown',  startHold);
+      s.addEventListener('mouseup',    cancelHold);
+      s.addEventListener('mouseleave', cancelHold);
+    }catch(err){}
+  });
+})()}catch(e){ console.warn('[PMPK][5] luxury gyro error',e); }
+
+
+})(); // end IIFE
+</script>
+
+
+  <!-- ─── PWA v3.3.1: Service Worker + Install Prompt ───────────────────── -->
+  <script>
+  // Service Worker registration
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        console.log('[PMPK SW] Registered:', reg.scope);
+      }).catch(err => {
+        console.warn('[PMPK SW] Registration failed:', err);
+      });
+    });
+  }
+
+  // PWA Install Prompt (A2HS)
+  let _pwaInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _pwaInstallPrompt = e;
+    // Tampilkan tombol install jika ada
+    const btn = document.getElementById('pwaInstallBtn');
+    if (btn) btn.style.display = 'flex';
+  });
+  window.addEventListener('appinstalled', () => {
+    _pwaInstallPrompt = null;
+    const btn = document.getElementById('pwaInstallBtn');
+    if (btn) btn.style.display = 'none';
+    try { toast('✅ PIMAPIKA berhasil diinstal!', 'success'); } catch(e){}
+  });
+  function triggerPwaInstall() {
+    if (!_pwaInstallPrompt) { toast('App sudah terinstal atau browser tidak mendukung install.','info'); return; }
+    _pwaInstallPrompt.prompt();
+    _pwaInstallPrompt.userChoice.then(r => {
+      if (r.outcome === 'accepted') toast('🎉 PIMAPIKA sedang diinstal…','success');
+      _pwaInstallPrompt = null;
+    });
+  }
+
+  // PIN migration on first boot
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (typeof _migratePinIfNeeded === 'function') await _migratePinIfNeeded();
+  }, { once: true });
+  </script>
 </body>
 </html>
