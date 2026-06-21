@@ -11,7 +11,7 @@
 <meta name="application-name" content="PIMAPIKA">
 <meta name="description" content="PIMAPIKA.ID — Aplikasi manajemen keuangan pribadi cerdas.">
 <link rel="manifest" href="manifest.json">
-<title>PIMAPIKA.ID v3.3.1 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.3.4 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2663,6 +2663,240 @@
     .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
   }
 
+  /* ══ PIMA VISION v3.3.4: GALLERY UPLOAD BUTTON ══ */
+  .pv-upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 14px;
+    border: 1.5px dashed var(--accent-teal);
+    background: rgba(14,165,233,0.07);
+    color: var(--accent-teal);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s var(--ease-out), transform .15s var(--spring);
+    font-family: inherit;
+    letter-spacing: 0.2px;
+    margin-top: 8px;
+  }
+  .pv-upload-btn:active { transform: scale(0.97); background: rgba(14,165,233,0.14); }
+  .pv-upload-btn:hover { background: rgba(14,165,233,0.12); }
+  .pv-upload-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0 4px;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+  .pv-upload-divider::before, .pv-upload-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--input-border);
+  }
+
+  /* Luxury theme overrides for upload btn */
+  body.theme-luxury .pv-upload-btn {
+    border-color: rgba(212,175,112,0.5) !important;
+    background: rgba(212,175,112,0.07) !important;
+    color: #d4af70 !important;
+  }
+
+  /* ══ FEEDBACK / REVIEW MADING ══ */
+  .mading-board {
+    padding: 4px 0 8px;
+  }
+  .mading-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 6px;
+  }
+  .mading-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .mading-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 20px;
+    padding: 2px 8px;
+  }
+
+  /* Rating stars */
+  .star-row {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin: 4px 0 8px;
+  }
+  .star-btn {
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform .2s var(--spring), filter .15s;
+    line-height: 1;
+    background: none;
+    border: none;
+    padding: 2px;
+  }
+  .star-btn:hover, .star-btn.active { transform: scale(1.2); filter: drop-shadow(0 0 4px rgba(251,191,36,0.7)); }
+  .star-btn.inactive { filter: grayscale(1) opacity(0.35); }
+
+  /* Compose box */
+  .mading-compose {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 0 0 10px;
+    transition: border-color .2s;
+  }
+  .mading-compose:focus-within {
+    border-color: var(--accent-teal);
+  }
+  .mading-compose-name {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: inherit;
+    margin-bottom: 4px;
+  }
+  .mading-compose-name::placeholder { color: var(--text-muted); font-weight: 500; }
+  .mading-compose-text {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    line-height: 1.6;
+    min-height: 56px;
+    max-height: 100px;
+  }
+  .mading-compose-text::placeholder { color: var(--text-muted); }
+  .mading-compose-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--input-border);
+  }
+  .mading-char-count { font-size: 10px; color: var(--text-muted); }
+  .mading-submit-btn {
+    padding: 5px 14px;
+    border-radius: 10px;
+    background: var(--accent-teal);
+    color: #fff;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity .15s, transform .15s var(--spring);
+  }
+  .mading-submit-btn:disabled { opacity: 0.45; cursor: default; }
+  .mading-submit-btn:not(:disabled):active { transform: scale(0.95); }
+
+  /* Pin cards (postcard mading style) */
+  .mading-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mading-card {
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    position: relative;
+    animation: madingSlideIn .35s var(--ease-out);
+    overflow: hidden;
+  }
+  .mading-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 14px 0 0 14px;
+    background: var(--mading-accent, var(--accent-teal));
+  }
+  @keyframes madingSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .mading-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  .mading-card-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .mading-card-stars {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #fbbf24;
+  }
+  .mading-card-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    word-break: break-word;
+  }
+  .mading-card-meta {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .mading-card-delete {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity .15s;
+  }
+  .mading-card:hover .mading-card-delete { opacity: 1; }
+  .mading-empty {
+    text-align: center;
+    padding: 20px 0 12px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  .mading-empty-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+
+  /* Luxury & theme overrides for mading */
+  body.theme-luxury .mading-submit-btn { background: #c9a84c !important; }
+  body.theme-luxury .mading-card::before { background: #d4af70 !important; }
+  body.light-mode .mading-compose { border-color: rgba(15,23,42,0.12); }
+
 </style>
 </head>
 <body>
@@ -3667,7 +3901,7 @@ document.addEventListener('visibilitychange', function(){
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.1</div>
+            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.4</div>
           </div>
         </div>
 
@@ -3709,6 +3943,60 @@ document.addEventListener('visibilitychange', function(){
       </div>
     </div>
 
+    <!-- ── ULASAN & FEEDBACK accordion ── -->
+    <div class="setting-collapse" style="margin-top:8px;margin-bottom:8px;">
+      <div class="collapse-head" onclick="toggleCollapse('feedbackCollapse')" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>⭐ Ulasan &amp; Feedback</span>
+        <span id="feedbackCollapseChevron" style="transition:transform 0.25s;display:inline-block;">▼</span>
+      </div>
+      <div class="collapse-body" id="feedbackCollapse" style="padding:0;">
+        <div class="mading-board" id="madingBoard">
+
+          <!-- Compose area -->
+          <div style="padding:0 14px 8px;">
+            <!-- Star rating -->
+            <div style="text-align:center;padding:10px 0 2px;">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;letter-spacing:0.3px;">Rate Aplikasi Ini</div>
+              <div class="star-row" id="starRow">
+                <button class="star-btn" data-star="1" onclick="pvSetStar(1)">⭐</button>
+                <button class="star-btn inactive" data-star="2" onclick="pvSetStar(2)">⭐</button>
+                <button class="star-btn inactive" data-star="3" onclick="pvSetStar(3)">⭐</button>
+                <button class="star-btn inactive" data-star="4" onclick="pvSetStar(4)">⭐</button>
+                <button class="star-btn inactive" data-star="5" onclick="pvSetStar(5)">⭐</button>
+              </div>
+            </div>
+
+            <!-- Compose box -->
+            <div class="mading-compose">
+              <input class="mading-compose-name" id="madingName" type="text" placeholder="Nama / nickname (opsional)" maxlength="30">
+              <textarea class="mading-compose-text" id="madingText" placeholder="Tulis ulasan, saran, atau feedback kamu di sini..." maxlength="200" oninput="pvMadingCount(this)"></textarea>
+              <div class="mading-compose-footer">
+                <span class="mading-char-count" id="madingCharCount">0/200</span>
+                <button class="mading-submit-btn" id="madingSubmitBtn" onclick="pvSubmitReview()" disabled>Kirim ✨</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mading header -->
+          <div class="mading-header-bar">
+            <span class="mading-title">📌 Papan Mading</span>
+            <span class="mading-count" id="madingCount">0 ulasan</span>
+          </div>
+
+          <!-- Cards list -->
+          <div style="padding:0 14px 10px;">
+            <div class="mading-cards" id="madingCards">
+              <!-- empty state -->
+              <div class="mading-empty" id="madingEmpty">
+                <span class="mading-empty-icon">📋</span>
+                Belum ada ulasan.<br>Jadilah yang pertama!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <button class="btn btn-primary" onclick="closeSettingModal()" style="width:100%;margin-top:16px;">Selesai</button>
   </div>
 </div>
@@ -3744,6 +4032,15 @@ document.addEventListener('visibilitychange', function(){
       <button class="pv-icon-btn" onclick="pvSwitchCamera()" title="Ganti kamera">🔄</button>
       <button class="pv-icon-btn" id="btnRetake" onclick="pvRetake()" title="Ambil ulang" style="display:none;">↩️</button>
     </div>
+
+    <!-- Gallery upload divider -->
+    <div class="pv-upload-divider">atau</div>
+    <!-- Upload from gallery -->
+    <button class="pv-upload-btn" onclick="pvUploadFromGallery()" title="Pilih foto dari galeri">
+      🖼️ Pilih Foto dari Galeri / File
+    </button>
+    <!-- Hidden file input -->
+    <input type="file" id="pvGalleryInput" accept="image/*" style="display:none;" onchange="pvHandleGalleryFile(this)">
 
     <!-- Thumbnail + status -->
     <div class="pv-info-row">
@@ -5203,7 +5500,7 @@ function toggleCollapse(id){
   // tutup semua
   document.querySelectorAll('.collapse-body').forEach(b=>b.style.display='none');
   // reset semua chevron
-  document.querySelectorAll('.collapse-head [id$="Chevron"], #aboutCollapseChevron').forEach(c=>c.style.transform='rotate(0deg)');
+  document.querySelectorAll('.collapse-head [id$="Chevron"], #aboutCollapseChevron, #feedbackCollapseChevron').forEach(c=>c.style.transform='rotate(0deg)');
   if(hidden){
     el.style.display='block';
     // rotate chevron milik accordion ini
@@ -5212,7 +5509,136 @@ function toggleCollapse(id){
       const chev=head.querySelector('[id$="Chevron"]')||head.querySelector('span:last-child');
       if(chev) chev.style.transform='rotate(180deg)';
     }
+    // Jika feedback, render cards
+    if(id==='feedbackCollapse') pvMadingRender();
   }
+}
+
+// ════════════════════════════════════════════════
+//  FEEDBACK / REVIEW MADING  (v3.3.4)
+// ════════════════════════════════════════════════
+const MADING_KEY = 'pimapika_reviews_v1';
+let _pvStarSelected = 1; // default 1 bintang
+
+// FIX v3.3.4: CSS custom property cannot be set to var(--x) as a value (nested var invalid).
+// Use actual hex values that visually match the theme accent tokens.
+const MADING_ACCENT_COLORS = ['#0ea5e9','#8b5cf6','#f59e0b','#10b981','#2563eb'];
+
+function pvLoadReviews() {
+  try { return JSON.parse(localStorage.getItem(MADING_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function pvSaveReviews(arr) {
+  try { localStorage.setItem(MADING_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+
+function pvSetStar(n) {
+  _pvStarSelected = n;
+  document.querySelectorAll('#starRow .star-btn').forEach((btn, i) => {
+    if (i < n) { btn.classList.add('active'); btn.classList.remove('inactive'); }
+    else { btn.classList.remove('active'); btn.classList.add('inactive'); }
+  });
+  // Enable submit if text is filled too
+  pvMadingValidate();
+}
+
+function pvMadingCount(el) {
+  const len = el.value.length;
+  const countEl = document.getElementById('madingCharCount');
+  if (countEl) countEl.textContent = len + '/200';
+  pvMadingValidate();
+}
+
+function pvMadingValidate() {
+  const text = (document.getElementById('madingText') || {}).value || '';
+  const btn = document.getElementById('madingSubmitBtn');
+  if (btn) btn.disabled = text.trim().length < 3;
+}
+
+function pvSubmitReview() {
+  const nameEl = document.getElementById('madingName');
+  const textEl = document.getElementById('madingText');
+  const name = (nameEl ? nameEl.value.trim() : '') || 'Pengguna Anonim';
+  const text = textEl ? textEl.value.trim() : '';
+  if (!text || text.length < 3) return;
+
+  const reviews = pvLoadReviews();
+  const newReview = {
+    id: Date.now(),
+    name,
+    text,
+    stars: _pvStarSelected,
+    ts: new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }),
+    accentIdx: Math.floor(Math.random() * MADING_ACCENT_COLORS.length)
+  };
+  reviews.unshift(newReview); // newest first
+  // Batasi 50 ulasan
+  if (reviews.length > 50) reviews.length = 50;
+  pvSaveReviews(reviews);
+
+  // Reset form
+  if (nameEl) nameEl.value = '';
+  if (textEl) { textEl.value = ''; }
+  const countEl = document.getElementById('madingCharCount');
+  if (countEl) countEl.textContent = '0/200';
+  pvSetStar(1);
+  const btn = document.getElementById('madingSubmitBtn');
+  if (btn) btn.disabled = true;
+
+  pvMadingRender();
+  toast('⭐ Ulasan berhasil dikirim! Terima kasih!', 'success');
+}
+
+function pvMadingRender() {
+  const reviews = pvLoadReviews();
+  const container = document.getElementById('madingCards');
+  const emptyEl = document.getElementById('madingEmpty');
+  const countEl = document.getElementById('madingCount');
+  if (!container) return;
+
+  if (countEl) countEl.textContent = reviews.length + ' ulasan';
+
+  if (reviews.length === 0) {
+    if (emptyEl) emptyEl.style.display = 'block';
+    // Remove any existing cards
+    container.querySelectorAll('.mading-card').forEach(c => c.remove());
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  // Re-render all cards
+  container.querySelectorAll('.mading-card').forEach(c => c.remove());
+
+  reviews.forEach(r => {
+    const accent = MADING_ACCENT_COLORS[r.accentIdx % MADING_ACCENT_COLORS.length];
+    const stars = '⭐'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
+    const card = document.createElement('div');
+    card.className = 'mading-card';
+    card.style.setProperty('--mading-accent', accent);
+    card.innerHTML = `
+      <div class="mading-card-header">
+        <span class="mading-card-name">${pvEscapeHtml(r.name)}</span>
+        <span class="mading-card-stars">${'⭐'.repeat(r.stars)}</span>
+      </div>
+      <div class="mading-card-text">${pvEscapeHtml(r.text)}</div>
+      <div class="mading-card-meta">${r.ts}</div>
+      <button class="mading-card-delete" onclick="pvDeleteReview(${r.id})" title="Hapus">✕</button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function pvDeleteReview(id) {
+  const reviews = pvLoadReviews().filter(r => r.id !== id);
+  pvSaveReviews(reviews);
+  pvMadingRender();
+  toast('🗑️ Ulasan dihapus.', 'info');
+}
+
+function pvEscapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ─── HELPERS ───
@@ -6948,9 +7374,23 @@ async function pvSwitchCamera() {
 }
 
 function pvRetake() {
+  // Remove gallery preview image if exists (v3.3.4)
+  const vp = document.getElementById('cameraViewport');
+  const prev = vp && vp.querySelector('.pv-gallery-preview');
+  if (prev) prev.remove();
+
+  // Reset gallery file input so same file can be re-selected
+  const galleryInput = document.getElementById('pvGalleryInput');
+  if (galleryInput) galleryInput.value = '';
+
   pvResetUI();
-  document.getElementById('pvScanLine').style.display = 'block';
-  document.getElementById('ocrStatus').textContent = '✅ Kamera aktif. Arahkan ke struk belanjaan.';
+  // Restart camera (works both from capture and gallery upload)
+  pvStartCamera().then(() => {
+    document.getElementById('pvScanLine').style.display = 'block';
+    document.getElementById('ocrStatus').textContent = '✅ Kamera aktif. Arahkan ke struk belanjaan.';
+  }).catch(() => {
+    document.getElementById('pvScanLine').style.display = 'none';
+  });
 }
 
 // ── Capture + preprocess + OCR ───────────────────────────────
@@ -7259,10 +7699,11 @@ function pvShowResult(parsed) {
   const card = document.getElementById('pvResultCard');
   if (!document.getElementById('pvResName')) {
     card.innerHTML = `
-      <div class="pv-res-row"><span class="pv-res-label">🏪 Toko</span><span class="pv-res-val" id="pvResName"></span></div>
-      <div class="pv-res-row"><span class="pv-res-label">📅 Tanggal</span><span class="pv-res-val" id="pvResDate"></span></div>
-      <div class="pv-res-row"><span class="pv-res-label">💰 Total</span><span class="pv-res-val pv-total-val" id="pvResTotal"></span></div>
-      <div class="pv-res-row"><span class="pv-res-label">🏷️ Kategori</span><span class="pv-res-val" id="pvResCat"></span></div>
+      <div class="pv-result-title">📋 Hasil Scan</div>
+      <div class="pv-result-row"><span class="pv-result-label">🏪 Toko</span><span class="pv-result-value" id="pvResName"></span></div>
+      <div class="pv-result-row"><span class="pv-result-label">📅 Tanggal</span><span class="pv-result-value" id="pvResDate"></span></div>
+      <div class="pv-result-row"><span class="pv-result-label">💰 Total</span><span class="pv-result-value green" id="pvResTotal"></span></div>
+      <div class="pv-result-row"><span class="pv-result-label">🏷️ Kategori</span><span class="pv-result-value" id="pvResCat"></span></div>
       <button class="btn btn-primary" onclick="pvConfirmFill()" style="width:100%;margin-top:12px;">✅ Isi ke Pengeluaran</button>
     `;
   }
@@ -7320,8 +7761,10 @@ function pvResetUI() {
   document.getElementById('pvProgressWrap').style.display = 'none';
   document.getElementById('pvProgressLabel').style.display = 'none';
   document.getElementById('pvResultCard').style.display = 'none';
-  document.getElementById('btnCapture').disabled = false;
-  document.getElementById('btnCapture').textContent = '📸 Tangkap Gambar';
+  const captureBtn = document.getElementById('btnCapture');
+  captureBtn.disabled = false;
+  captureBtn.textContent = '📸 Tangkap Gambar';
+  captureBtn.onclick = pvCapture; // FIX: restore to camera capture mode
   document.getElementById('btnRetake').style.display = 'none';
   _pvLastResult = null;
   const overlay = document.getElementById('cameraViewport').querySelector('.ocr-loading-overlay');
@@ -7333,11 +7776,138 @@ function closeCameraModal() {
   if (_cameraStream) { _cameraStream.getTracks().forEach(t => t.stop()); _cameraStream = null; }
   const video = document.getElementById('cameraVideo');
   if (video) video.srcObject = null;
+  // Remove gallery preview if exists
+  const vp = document.getElementById('cameraViewport');
+  const prev = vp && vp.querySelector('.pv-gallery-preview');
+  if (prev) prev.remove();
   pvResetUI();
 }
 
 // Alias backward compat
 function switchCamera() { pvSwitchCamera(); }
+
+// ── Gallery Upload (v3.3.4) ──────────────────────────────────
+// Upload foto dari galeri/file → jalankan OCR yang sama seperti capture kamera
+function pvUploadFromGallery() {
+  const input = document.getElementById('pvGalleryInput');
+  if (input) { input.value = ''; input.click(); }
+}
+
+function pvHandleGalleryFile(inputEl) {
+  const file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+
+  const statusEl = document.getElementById('ocrStatus');
+  const thumb = document.getElementById('ocrThumbnail');
+  const captureBtn = document.getElementById('btnCapture');
+
+  // FIX BUG 3: Reset UI state first (clear previous OCR result if any)
+  pvResetUI();
+
+  statusEl.textContent = '🖼️ Memuat gambar dari galeri...';
+
+  // Stop kamera sementara biar hemat memori
+  if (_cameraStream) {
+    _cameraStream.getTracks().forEach(t => t.stop());
+    _cameraStream = null;
+  }
+  const video = document.getElementById('cameraVideo');
+  if (video) video.srcObject = null;
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const img = new Image();
+    img.onload = async () => {
+      const canvas = document.getElementById('cameraCanvas');
+      const W = img.naturalWidth;
+      const H = img.naturalHeight;
+      canvas.width = W; canvas.height = H;
+      canvas.getContext('2d').drawImage(img, 0, 0, W, H);
+
+      // Thumbnail
+      thumb.src = e.target.result;
+      thumb.style.display = 'block';
+      thumb.style.animation = 'popIn .4s var(--spring)';
+
+      // Show in viewport as preview
+      const vp = document.getElementById('cameraViewport');
+      let preview = vp.querySelector('.pv-gallery-preview');
+      if (!preview) {
+        preview = document.createElement('img');
+        preview.className = 'pv-gallery-preview';
+        preview.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:inherit;background:#000;z-index:1;';
+        vp.appendChild(preview);
+      }
+      preview.src = e.target.result;
+
+      document.getElementById('pvScanLine').style.display = 'none';
+      captureBtn.disabled = true;
+      captureBtn.innerHTML = '⏳ Memproses...';
+      document.getElementById('btnRetake').style.display = 'block';
+
+      pvSetProgress(2, 'Preprocessing gambar...');
+      document.getElementById('pvProgressWrap').style.display = 'block';
+      document.getElementById('pvProgressLabel').style.display = 'block';
+
+      await new Promise(r => setTimeout(r, 30));
+      statusEl.textContent = '🎨 Preprocessing gambar...';
+
+      const processedDataUrl = pvPreprocessImage(canvas);
+      pvSetProgress(10, 'Membaca teks OCR...');
+      pvShowOCROverlay();
+
+      try {
+        const worker = await _getTesseract();
+        pvSetProgress(15, 'OCR dimulai...');
+        const result = await worker.recognize(processedDataUrl);
+        const rawText = result.data.text;
+        const confidence = result.data.confidence || 0;
+
+        pvSetProgress(100, 'Selesai!');
+        pvHideOCROverlay();
+
+        const validation = pvValidateReceipt(rawText, confidence);
+        if (!validation.isReceipt) {
+          pvShowNotReceipt(validation.reason, rawText);
+          statusEl.innerHTML = '<span style="color:#f87171;">⚠️ ' + validation.reason + '</span>';
+          // FIX BUG 2: Camera is stopped - button should restart camera, not pvCapture
+          captureBtn.innerHTML = '📷 Pakai Kamera';
+          captureBtn.disabled = false;
+          captureBtn.onclick = pvRetake;
+          return;
+        }
+
+        const parsed = pvParseReceipt(rawText);
+        _pvLastResult = parsed;
+        pvShowResult(parsed);
+        statusEl.innerHTML = '<span style="color:var(--accent-green);font-weight:700;">✅ Foto berhasil dibaca!</span>';
+        // FIX BUG 2: Camera stopped - show "Pakai Kamera" to restart it
+        captureBtn.innerHTML = '📷 Pakai Kamera';
+        captureBtn.disabled = false;
+        captureBtn.onclick = pvRetake;
+        toast('🖼️ PIMA Vision berhasil membaca foto!', 'success');
+
+      } catch (err) {
+        pvHideOCROverlay();
+        pvSetProgress(0, '');
+        document.getElementById('pvProgressWrap').style.display = 'none';
+        document.getElementById('pvProgressLabel').style.display = 'none';
+        statusEl.innerHTML = '<span style="color:#f87171;">❌ OCR gagal: ' + (err.message || err) + '</span>';
+        // FIX BUG 2: Restart camera on error too
+        captureBtn.innerHTML = '📷 Pakai Kamera';
+        captureBtn.disabled = false;
+        captureBtn.onclick = pvRetake;
+      }
+    };
+    img.onerror = () => { statusEl.textContent = '❌ Gagal memuat gambar.'; };
+    img.src = e.target.result;
+  };
+  reader.onerror = () => { statusEl.textContent = '❌ Gagal membaca file.'; };
+  reader.readAsDataURL(file);
+}
+
+// Override pvRetake to also remove gallery preview
+// (merged into pvRetake at line 7377 — gallery logic handled here inline)
 
 // ─── v2.7.1 NEW FEATURES JS ────────────────────────────────
 // ─── v2.7.1: 3-DOT MENU (Edit Riwayat) ──────────────────
@@ -9050,18 +9620,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.0 · Versi Saat Ini</p>'
-      + '<p style="margin:0 0 4px;">🧮 <b>Math Suffix</b> — ketik <code style="font-family:monospace;background:rgba(255,255,255,.1);padding:0 4px;border-radius:4px;">1.5jt/3=</code> otomatis jadi 500.000; support k, jt, m</p>'
-      + '<p style="margin:0 0 4px;">👆 <b>Touch Gestures</b> — swipe kiri hapus, swipe kanan ulangi transaksi; long-press 800ms untuk seleksi</p>'
-      + '<p style="margin:0 0 4px;">🖱️ <b>Drag &amp; Drop</b> — seret transaksi ke tab workspace untuk memindahkannya antar-workspace</p>'
-      + '<p style="margin:0 0 4px;">⚡ <b>God Mode</b> — tap badge versi 5× cepat untuk membuka panel tersembunyi</p>'
-      + '<p style="margin:0 0 10px;">🖤 <b>Luxury Gyro Theme</b> — tahan swatch Old Grey 3 detik; tema hitam elegan dengan efek glare gyroscope</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.4 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">🖼️ <b>PIMA Vision: Upload dari Galeri</b> — scan struk dari foto yang sudah ada di HP, tanpa harus foto ulang</p>'
+      + '<p style="margin:0 0 10px;">⭐ <b>Papan Mading Ulasan</b> — kirim feedback & rating langsung dari Settings; tampil seperti papan mading interaktif</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.2.4 · Versi Sebelumnya</p>'
-      + '<p style="margin:0 0 4px;">🗑️ <b>Tombol ‹ › Dihapus</b> — sticky notes lebih bersih; navigasi tetap via tap kartu summary</p>'
-      + '<p style="margin:0 0 4px;">📌 <b>Tombol ✅ Pindah</b> — kini di sudut kanan bawah kartu, posisi lebih natural</p>'
-      + '<p style="margin:0 0 4px;">📄 <b>Ruang Catatan Diperluas</b> — textarea satu baris lebih tinggi untuk lebih banyak teks</p>'
-      + '<p style="margin:0 0 10px;">🔤 <b>Fix PDF Emoji</b> — nama transaksi berisi emoji kini tampil bersih di output PDF</p>';
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.0–3.3.3 · Versi Sebelumnya</p>'
+      + '<p style="margin:0 0 4px;">🧮 <b>Math Suffix</b> — ketik <code style="font-family:monospace;background:rgba(255,255,255,.1);padding:0 4px;border-radius:4px;">1.5jt/3=</code> otomatis jadi 500.000</p>'
+      + '<p style="margin:0 0 4px;">👆 <b>Touch Gestures</b> — swipe kiri hapus, swipe kanan ulangi; long-press 800ms untuk seleksi</p>'
+      + '<p style="margin:0 0 4px;">🖱️ <b>Drag &amp; Drop</b> — seret transaksi ke tab workspace</p>'
+      + '<p style="margin:0 0 4px;">⚡ <b>God Mode</b> — tap badge versi 5× cepat untuk panel tersembunyi</p>'
+      + '<p style="margin:0 0 10px;">🖤 <b>Luxury Gyro Theme</b> — tahan swatch Old Grey 3 detik; tema hitam elegan dengan efek glare gyroscope</p>';
   }
 });
 
