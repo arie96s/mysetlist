@@ -11,7 +11,7 @@
 <meta name="application-name" content="PIMAPIKA">
 <meta name="description" content="PIMAPIKA.ID — Aplikasi manajemen keuangan pribadi cerdas.">
 <link rel="manifest" href="manifest.json">
-<title>PIMAPIKA.ID v3.3.4 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.3.5 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -3901,7 +3901,7 @@ document.addEventListener('visibilitychange', function(){
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.4</div>
+            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.5</div>
           </div>
         </div>
 
@@ -7793,20 +7793,33 @@ function pvUploadFromGallery() {
   if (input) { input.value = ''; input.click(); }
 }
 
-function pvHandleGalleryFile(inputEl) {
+// ── v3.3.5: PIMA Vision Gallery — proteksi resize + anti-freeze + cancel token ──
+// Token cancel: setiap pemanggilan baru akan membatalkan proses lama sebelum OCR dimulai
+let _pvGalleryToken = 0;
+
+async function pvHandleGalleryFile(inputEl) {
   const file = inputEl.files && inputEl.files[0];
   if (!file) return;
 
-  const statusEl = document.getElementById('ocrStatus');
-  const thumb = document.getElementById('ocrThumbnail');
+  // ── [8] Token cancel: batalkan proses OCR lama jika ada ──────────────────
+  const myToken = ++_pvGalleryToken;
+
+  const statusEl   = document.getElementById('ocrStatus');
+  const thumb      = document.getElementById('ocrThumbnail');
   const captureBtn = document.getElementById('btnCapture');
 
-  // FIX BUG 3: Reset UI state first (clear previous OCR result if any)
+  // Reset UI state (bersihkan hasil OCR sebelumnya)
   pvResetUI();
+
+  // ── [6] Peringatan file besar (>15 MB) — proses tetap lanjut ─────────────
+  const FILE_WARN_MB = 15;
+  if (file.size > FILE_WARN_MB * 1024 * 1024) {
+    toast(`⚠️ File besar (${(file.size/1024/1024).toFixed(1)} MB). Gambar akan diresize otomatis.`, 'info');
+  }
 
   statusEl.textContent = '🖼️ Memuat gambar dari galeri...';
 
-  // Stop kamera sementara biar hemat memori
+  // Stop kamera untuk hemat memori
   if (_cameraStream) {
     _cameraStream.getTracks().forEach(t => t.stop());
     _cameraStream = null;
@@ -7814,96 +7827,167 @@ function pvHandleGalleryFile(inputEl) {
   const video = document.getElementById('cameraVideo');
   if (video) video.srcObject = null;
 
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const img = new Image();
-    img.onload = async () => {
-      const canvas = document.getElementById('cameraCanvas');
-      const W = img.naturalWidth;
-      const H = img.naturalHeight;
-      canvas.width = W; canvas.height = H;
-      canvas.getContext('2d').drawImage(img, 0, 0, W, H);
+  // ── Buat Object URL — lebih ringan dari readAsDataURL (tidak decode ke base64) ──
+  let imageUrl = null;
+  try {
+    imageUrl = URL.createObjectURL(file);
+  } catch (e) {
+    statusEl.textContent = '❌ Gagal membaca file.';
+    return;
+  }
 
-      // Thumbnail
-      thumb.src = e.target.result;
-      thumb.style.display = 'block';
-      thumb.style.animation = 'popIn .4s var(--spring)';
+  // ── [5] Load gambar dengan error handling + cleanup ───────────────────────
+  const img = new Image();
 
-      // Show in viewport as preview
-      const vp = document.getElementById('cameraViewport');
-      let preview = vp.querySelector('.pv-gallery-preview');
-      if (!preview) {
-        preview = document.createElement('img');
-        preview.className = 'pv-gallery-preview';
-        preview.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:inherit;background:#000;z-index:1;';
-        vp.appendChild(preview);
-      }
-      preview.src = e.target.result;
+  const loadResult = await new Promise(resolve => {
+    img.onload  = () => resolve({ ok: true });
+    img.onerror = () => resolve({ ok: false });
+    img.src = imageUrl;
+  });
 
-      document.getElementById('pvScanLine').style.display = 'none';
-      captureBtn.disabled = true;
-      captureBtn.innerHTML = '⏳ Memproses...';
-      document.getElementById('btnRetake').style.display = 'block';
+  // ── [4] Revoke Object URL segera setelah load selesai (cegah memory leak) ─
+  URL.revokeObjectURL(imageUrl);
+  imageUrl = null;
 
-      pvSetProgress(2, 'Preprocessing gambar...');
-      document.getElementById('pvProgressWrap').style.display = 'block';
-      document.getElementById('pvProgressLabel').style.display = 'block';
+  if (!loadResult.ok) {
+    statusEl.innerHTML = '<span style="color:#f87171;">❌ Gagal memuat gambar. Pastikan file adalah foto yang valid.</span>';
+    try { toast('❌ Gagal memuat gambar dari galeri.', 'error'); } catch(e) {}
+    return;
+  }
 
-      await new Promise(r => setTimeout(r, 30));
-      statusEl.textContent = '🎨 Preprocessing gambar...';
+  // ── Cek cancel setelah async operation pertama ────────────────────────────
+  if (myToken !== _pvGalleryToken) return;
 
-      const processedDataUrl = pvPreprocessImage(canvas);
-      pvSetProgress(10, 'Membaca teks OCR...');
-      pvShowOCROverlay();
+  // ── [1][2] Resize proporsional — maks 1280px di sisi terpanjang ───────────
+  const MAX_DIMENSION = 1280;
+  const scale = Math.min(
+    MAX_DIMENSION / img.naturalWidth,
+    MAX_DIMENSION / img.naturalHeight,
+    1  // jangan perbesar gambar kecil
+  );
+  const targetWidth  = Math.round(img.naturalWidth  * scale);
+  const targetHeight = Math.round(img.naturalHeight * scale);
 
-      try {
-        const worker = await _getTesseract();
-        pvSetProgress(15, 'OCR dimulai...');
-        const result = await worker.recognize(processedDataUrl);
-        const rawText = result.data.text;
-        const confidence = result.data.confidence || 0;
+  // ── [9] Bersihkan canvas lama + draw SEKALI ke canvas OCR ────────────────
+  const canvas = document.getElementById('cameraCanvas');
+  const ctx    = canvas.getContext('2d');
 
-        pvSetProgress(100, 'Selesai!');
-        pvHideOCROverlay();
+  // Reset canvas ukuran baru (otomatis clear isi lama)
+  canvas.width  = targetWidth;
+  canvas.height = targetHeight;
 
-        const validation = pvValidateReceipt(rawText, confidence);
-        if (!validation.isReceipt) {
-          pvShowNotReceipt(validation.reason, rawText);
-          statusEl.innerHTML = '<span style="color:#f87171;">⚠️ ' + validation.reason + '</span>';
-          // FIX BUG 2: Camera is stopped - button should restart camera, not pvCapture
-          captureBtn.innerHTML = '📷 Pakai Kamera';
-          captureBtn.disabled = false;
-          captureBtn.onclick = pvRetake;
-          return;
-        }
+  // ── [3] imageSmoothingQuality high untuk hasil OCR optimal ───────────────
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
-        const parsed = pvParseReceipt(rawText);
-        _pvLastResult = parsed;
-        pvShowResult(parsed);
-        statusEl.innerHTML = '<span style="color:var(--accent-green);font-weight:700;">✅ Foto berhasil dibaca!</span>';
-        // FIX BUG 2: Camera stopped - show "Pakai Kamera" to restart it
-        captureBtn.innerHTML = '📷 Pakai Kamera';
-        captureBtn.disabled = false;
-        captureBtn.onclick = pvRetake;
-        toast('🖼️ PIMA Vision berhasil membaca foto!', 'success');
+  // Draw gambar ke canvas sudah-resize — hanya SEKALI, tidak diulang
+  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
-      } catch (err) {
-        pvHideOCROverlay();
-        pvSetProgress(0, '');
-        document.getElementById('pvProgressWrap').style.display = 'none';
-        document.getElementById('pvProgressLabel').style.display = 'none';
-        statusEl.innerHTML = '<span style="color:#f87171;">❌ OCR gagal: ' + (err.message || err) + '</span>';
-        // FIX BUG 2: Restart camera on error too
-        captureBtn.innerHTML = '📷 Pakai Kamera';
-        captureBtn.disabled = false;
-        captureBtn.onclick = pvRetake;
-      }
-    };
-    img.onerror = () => { statusEl.textContent = '❌ Gagal memuat gambar.'; };
-    img.src = e.target.result;
-  };
-  reader.onerror = () => { statusEl.textContent = '❌ Gagal membaca file.'; };
-  reader.readAsDataURL(file);
+  // Cek cancel setelah draw
+  if (myToken !== _pvGalleryToken) {
+    canvas.width = 1; canvas.height = 1; // bebaskan memory GPU
+    return;
+  }
+
+  // ── Tampilkan preview di viewport — render SEKALI ─────────────────────────
+  // Gunakan canvas.toDataURL hanya untuk thumbnail (kecil, bukan full-res)
+  // Preview besar pakai ObjectURL yang sudah direvoke → fallback ke canvas
+  const thumbDataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% quality cukup untuk preview
+
+  thumb.src = thumbDataUrl;
+  thumb.style.display = 'block';
+  thumb.style.animation = 'popIn .4s var(--spring)';
+
+  const vp = document.getElementById('cameraViewport');
+  let preview = vp.querySelector('.pv-gallery-preview');
+  if (!preview) {
+    preview = document.createElement('img');
+    preview.className = 'pv-gallery-preview';
+    preview.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:inherit;background:#000;z-index:1;';
+    vp.appendChild(preview);
+  }
+  // Assign sekali, tidak di-loop
+  preview.src = thumbDataUrl;
+
+  document.getElementById('pvScanLine').style.display = 'none';
+  captureBtn.disabled = true;
+  captureBtn.innerHTML = '⏳ Memproses...';
+  document.getElementById('btnRetake').style.display = 'block';
+
+  pvSetProgress(2, 'Preprocessing gambar...');
+  document.getElementById('pvProgressWrap').style.display = 'block';
+  document.getElementById('pvProgressLabel').style.display = 'block';
+
+  // ── Yield ke event loop — beri browser napas sebelum preprocessing ────────
+  await new Promise(r => setTimeout(r, 30));
+  if (myToken !== _pvGalleryToken) return;
+
+  statusEl.textContent = '🎨 Preprocessing gambar...';
+
+  // ── [7] pvPreprocessImage dipanggil SETELAH resize 100% selesai ──────────
+  const processedDataUrl = pvPreprocessImage(canvas);
+  if (myToken !== _pvGalleryToken) return;
+
+  pvSetProgress(10, 'Membaca teks OCR...');
+  pvShowOCROverlay();
+
+  // ── [8] Pastikan hanya satu OCR aktif (cancel check sebelum recognize) ────
+  try {
+    const worker = await _getTesseract();
+    if (myToken !== _pvGalleryToken) {
+      pvHideOCROverlay();
+      pvSetProgress(0, '');
+      return;
+    }
+
+    pvSetProgress(15, 'OCR dimulai...');
+    const result = await worker.recognize(processedDataUrl);
+
+    // Cek cancel setelah OCR selesai (user mungkin pilih foto baru saat OCR jalan)
+    if (myToken !== _pvGalleryToken) {
+      pvHideOCROverlay();
+      pvSetProgress(0, '');
+      return;
+    }
+
+    const rawText    = result.data.text;
+    const confidence = result.data.confidence || 0;
+
+    pvSetProgress(100, 'Selesai!');
+    pvHideOCROverlay();
+
+    const validation = pvValidateReceipt(rawText, confidence);
+    if (!validation.isReceipt) {
+      pvShowNotReceipt(validation.reason, rawText);
+      statusEl.innerHTML = '<span style="color:#f87171;">⚠️ ' + validation.reason + '</span>';
+      captureBtn.innerHTML = '📷 Pakai Kamera';
+      captureBtn.disabled = false;
+      captureBtn.onclick = pvRetake;
+      return;
+    }
+
+    const parsed = pvParseReceipt(rawText);
+    _pvLastResult = parsed;
+    pvShowResult(parsed);
+    statusEl.innerHTML = '<span style="color:var(--accent-green);font-weight:700;">✅ Foto berhasil dibaca!</span>';
+    captureBtn.innerHTML = '📷 Pakai Kamera';
+    captureBtn.disabled = false;
+    captureBtn.onclick = pvRetake;
+    toast('🖼️ PIMA Vision berhasil membaca foto!', 'success');
+
+  } catch (err) {
+    // ── [5] Error handling: toast + reset progress, tidak freeze ─────────────
+    if (myToken !== _pvGalleryToken) return; // abaikan error dari proses yang sudah dibatalkan
+    pvHideOCROverlay();
+    pvSetProgress(0, '');
+    document.getElementById('pvProgressWrap').style.display = 'none';
+    document.getElementById('pvProgressLabel').style.display = 'none';
+    statusEl.innerHTML = '<span style="color:#f87171;">❌ OCR gagal: ' + escapeHtml(err.message || String(err)) + '</span>';
+    captureBtn.innerHTML = '📷 Pakai Kamera';
+    captureBtn.disabled = false;
+    captureBtn.onclick = pvRetake;
+    try { toast('❌ OCR gagal. Coba foto ulang dengan pencahayaan lebih baik.', 'error'); } catch(e) {}
+  }
 }
 
 // Override pvRetake to also remove gallery preview
@@ -9620,16 +9704,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.4 · Versi Saat Ini</p>'
-      + '<p style="margin:0 0 4px;">🖼️ <b>PIMA Vision: Upload dari Galeri</b> — scan struk dari foto yang sudah ada di HP, tanpa harus foto ulang</p>'
-      + '<p style="margin:0 0 10px;">⭐ <b>Papan Mading Ulasan</b> — kirim feedback & rating langsung dari Settings; tampil seperti papan mading interaktif</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.5 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">🛡️ <b>PIMA Vision Gallery Anti-Freeze</b> — foto 12MP–64MP kini di-resize otomatis ke maks 1280px sebelum OCR; eliminasi blank screen, flicker &amp; crash di Android WebView</p>'
+      + '<p style="margin:0 0 10px;">⚡ <b>Cancel Token OCR</b> — pilih foto baru saat OCR berjalan otomatis membatalkan proses lama; tidak ada race condition atau memory leak</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.0–3.3.3 · Versi Sebelumnya</p>'
-      + '<p style="margin:0 0 4px;">🧮 <b>Math Suffix</b> — ketik <code style="font-family:monospace;background:rgba(255,255,255,.1);padding:0 4px;border-radius:4px;">1.5jt/3=</code> otomatis jadi 500.000</p>'
-      + '<p style="margin:0 0 4px;">👆 <b>Touch Gestures</b> — swipe kiri hapus, swipe kanan ulangi; long-press 800ms untuk seleksi</p>'
-      + '<p style="margin:0 0 4px;">🖱️ <b>Drag &amp; Drop</b> — seret transaksi ke tab workspace</p>'
-      + '<p style="margin:0 0 4px;">⚡ <b>God Mode</b> — tap badge versi 5× cepat untuk panel tersembunyi</p>'
-      + '<p style="margin:0 0 10px;">🖤 <b>Luxury Gyro Theme</b> — tahan swatch Old Grey 3 detik; tema hitam elegan dengan efek glare gyroscope</p>';
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.4 · Versi Sebelumnya</p>'
+      + '<p style="margin:0 0 4px;">🖼️ <b>PIMA Vision: Upload dari Galeri</b> — scan struk dari foto yang sudah ada di HP, tanpa harus foto ulang</p>'
+      + '<p style="margin:0 0 10px;">⭐ <b>Papan Mading Ulasan</b> — kirim feedback &amp; rating langsung dari Settings; tampil seperti papan mading interaktif</p>'
   }
 });
 
