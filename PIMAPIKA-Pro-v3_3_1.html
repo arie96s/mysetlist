@@ -3041,10 +3041,10 @@ document.addEventListener('visibilitychange', function(){
       <div class="sum-val" id="sumAllocated">Rp 0</div>
       <div class="sum-sub" id="sumAllocatedPct">0% dari pemasukan</div>
     </div>
-    <!-- Health Score card (standalone) -->
-    <div class="glass sum-card sum-health" style="cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat Health Score">
+    <!-- PIMA Health card (standalone) -->
+    <div class="glass sum-card sum-health" style="cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat PIMA Health">
       <span class="sum-icon">💡</span>
-      <div class="sum-label">Health Score</div>
+      <div class="sum-label">PIMA Health</div>
       <div class="sum-val" id="sumHealthScore">—</div>
       <div class="sum-sub" id="sumHealthLabel">Klik lihat detail</div>
     </div>
@@ -3135,7 +3135,7 @@ document.addEventListener('visibilitychange', function(){
       <button class="tab-btn" onclick="switchTab('target',this)">🎯 Target</button>
       <button class="tab-btn" onclick="switchTab('tagihan',this)">🔔 Tagihan</button>
       <button class="tab-btn" onclick="switchTab('ringkasan',this)">📋 Ringkasan</button>
-      <button class="tab-btn" onclick="switchTab('emas',this)">🪙 Aset Emas</button>
+      <button class="tab-btn" onclick="switchTab('emas',this)">🪙 PIMA Vault</button>
       <button class="tab-btn" onclick="switchTab('kurs',this)">💱 Kurs</button>
 
     </div>
@@ -3253,7 +3253,7 @@ document.addEventListener('visibilitychange', function(){
               <option value="tabungan">💎 Tabungan / Investasi</option>
               <option value="lainnya">✨ Lainnya</option>
             </select>
-            <!-- FITUR BARU 1: Smart Budget Alert -->
+            <!-- FITUR BARU 1: PIMA Guard -->
             <div id="expBudgetAlert" style="display:none;margin-top:8px;"></div>
           </div>
           <div class="input-group">
@@ -3392,7 +3392,7 @@ document.addEventListener('visibilitychange', function(){
     <div id="tab-budget" class="tab-content">
       <div class="two-col">
         <div>
-          <div class="sec-title"><span>🎯</span> Atur Batas Anggaran</div>
+          <div class="sec-title"><span>🎯</span> Atur PIMA Guard</div>
           <p style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6;">Tetapkan batas maksimal pengeluaran per kategori. Sistem otomatis memperingatkan jika melebihi batas.</p>
           <div class="input-group">
             <label class="input-label">Kategori Pengeluaran</label>
@@ -3426,7 +3426,7 @@ document.addEventListener('visibilitychange', function(){
           </div>
         </div>
         <div>
-          <div class="sec-title"><span>📊</span> Status Anggaran <span class="sec-badge" id="budgetBadge">0</span></div>
+          <div class="sec-title"><span>📊</span> Status PIMA Guard <span class="sec-badge" id="budgetBadge">0</span></div>
           <div id="budgetList">
             <div class="empty-state"><div class="empty-icon">🎯</div>Belum ada anggaran ditetapkan</div>
           </div>
@@ -3436,8 +3436,8 @@ document.addEventListener('visibilitychange', function(){
 
     <!-- ══ TAB ANALITIK (FITUR BARU 2 & 3) ══ -->
     <div id="tab-analitik" class="tab-content">
-      <!-- Financial Health Score -->
-      <div class="sec-title"><span>💡</span> Financial Health Score — <span id="analitikPeriod" style="color:#fbbf24;font-size:14px;"></span></div>
+      <!-- PIMA Health -->
+      <div class="sec-title"><span>💡</span> PIMA Health — <span id="analitikPeriod" style="color:#fbbf24;font-size:14px;"></span></div>
       <div class="glass" style="padding:22px;margin-bottom:20px;">
         <div class="health-score-wrap" id="healthScoreWrap">
           <div class="health-gauge-wrap">
@@ -3492,9 +3492,9 @@ document.addEventListener('visibilitychange', function(){
           </div>
         </div>
       </div>
-      <!-- Smart Stats -->
+      <!-- PIMA Pulse -->
       <div class="glass" style="padding:22px;margin-top:20px;">
-        <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>🧠</span>Statistik Cerdas</div>
+        <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>🧠</span>PIMA Pulse</div>
         <div id="smartStats" class="health-metrics" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));">
           <div style="color:var(--text-muted);font-size:13px;">Belum ada data untuk dianalisis.</div>
         </div>
@@ -3532,8 +3532,8 @@ document.addEventListener('visibilitychange', function(){
       </div>
       <!-- Data Management Area (Fitur 2) -->
       <div class="glass" style="padding:20px;margin-bottom:20px;">
-        <div class="sec-title" style="margin-bottom:4px;font-size:13px;"><span>💾</span>Manajemen Data</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Backup & restore data, atau ekspor ke Excel.</div>
+        <div class="sec-title" style="margin-bottom:4px;font-size:13px;"><span>💾</span>PIMA Sync</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Backup, restore data, atau ekspor ke Excel via PIMA Sync.</div>
         <div class="data-mgmt-area">
           <button class="btn-data btn-json-exp" onclick="exportJSON()">📥 Ekspor Data (.json)</button>
           <label class="btn-data btn-json-imp" style="cursor:pointer;" title="Impor backup .json">
@@ -3553,7 +3553,7 @@ document.addEventListener('visibilitychange', function(){
     <div id="tab-target" class="tab-content">
       <div class="two-col">
         <div>
-          <div class="sec-title"><span>🎯</span> Buat Target Tabungan</div>
+          <div class="sec-title"><span>🎯</span> Buat PIMA Goals</div>
           <div class="input-group">
             <label class="input-label">Nama Target</label>
             <input class="glass-input" id="targetName" placeholder="Liburan, Beli HP, Dana Darurat..." type="text" autocomplete="off">
@@ -3598,7 +3598,7 @@ document.addEventListener('visibilitychange', function(){
     <div id="tab-tagihan" class="tab-content">
       <div class="two-col">
         <div>
-          <div class="sec-title"><span>🔔</span> Tambah Tagihan Rutin</div>
+          <div class="sec-title"><span>🔔</span> Tambah PIMA Loop</div>
           <div class="input-group">
             <label class="input-label">Nama Tagihan</label>
             <input class="glass-input" id="billName" placeholder="Listrik, Wifi, Netflix, Kost..." type="text" autocomplete="off">
@@ -3651,7 +3651,7 @@ document.addEventListener('visibilitychange', function(){
       <div class="two-col">
         <!-- Form tambah emas -->
         <div>
-          <div class="sec-title"><span>🪙</span> Tambah Aset Emas</div>
+          <div class="sec-title"><span>🪙</span> Tambah PIMA Vault</div>
           <div class="input-group">
             <label class="input-label">Nama / Keterangan</label>
             <input class="glass-input" id="goldName" placeholder="Beli LM Antam 1gr, Top-up Pegadaian..." type="text" autocomplete="off">
@@ -3671,7 +3671,7 @@ document.addEventListener('visibilitychange', function(){
             <label class="input-label">Tanggal Beli</label>
             <input class="glass-input" id="goldDate" type="date">
           </div>
-          <button class="btn btn-amber" onclick="addGold()" style="width:100%">🪙 Tambah Aset Emas</button>
+          <button class="btn btn-amber" onclick="addGold()" style="width:100%">🪙 Tambah PIMA Vault</button>
           <div class="gold-price-note">
             💡 <b>Harga Emas Referensi:</b> Rp <span id="goldRefPriceDisplay">1.550.000</span>/gram
             <br>Nilai aset dihitung dari harga referensi ini.
@@ -3687,7 +3687,7 @@ document.addEventListener('visibilitychange', function(){
         </div>
         <!-- Ringkasan portofolio emas -->
         <div>
-          <div class="sec-title"><span>📊</span> Portofolio Emas</div>
+          <div class="sec-title"><span>📊</span> PIMA Vault</div>
           <div class="gold-summary-grid" id="goldSummaryGrid">
             <div class="gold-stat-card">
               <div class="gold-stat-val" id="goldTotalGram">0 g</div>
@@ -3708,16 +3708,16 @@ document.addEventListener('visibilitychange', function(){
           </div>
           <div class="sec-title" style="font-size:13px;margin-bottom:8px;"><span>📋</span> Riwayat Beli</div>
           <div class="gold-list" id="goldList">
-            <div class="empty-state"><div class="empty-icon">🪙</div>Belum ada aset emas</div>
+            <div class="empty-state"><div class="empty-icon">🪙</div>Belum ada aset PIMA Vault</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ══ TAB KURS — Currency Converter (Real-time) ══ -->
+    <!-- ══ TAB PIMA EXCHANGE ══ -->
     <div id="tab-kurs" class="tab-content">
       <div class="sec-title">
-        <span>💱</span> Currency Converter
+        <span>💱</span> PIMA Exchange
       </div>
       <div class="kurs-status-row">
         <span class="kurs-updated" id="kursPageUpdated"></span>
@@ -3849,7 +3849,7 @@ document.addEventListener('visibilitychange', function(){
     <!-- PIN Setting -->
     <div class="setting-row" style="margin-bottom:0;">
       <div class="setting-info">
-        <div class="title">🔐 Kunci PIN</div>
+        <div class="title">🔐 PIMA Shield</div>
         <div class="desc">Lindungi data dengan PIN 4 digit saat buka app</div>
       </div>
     </div>
@@ -3873,10 +3873,10 @@ document.addEventListener('visibilitychange', function(){
         <p><b>2. Pengeluaran:</b> Masukkan setiap pengeluaran beserta kategorinya.</p>
         <p><b>3. Alokasi Bank:</b> Pindahkan uang sisa ke rekening/e-wallet khusus.</p>
         <p><b>4. Budget Planner:</b> Tetapkan batas anggaran per kategori; ada indikator merah jika over.</p>
-        <p><b>5. Analitik:</b> Lihat Health Score, grafik tren 12 bulan, dan distribusi pengeluaran.</p>
-        <p><b>6. Target Tabungan:</b> Buat target dengan nominal & tenggat, pantau progresnya setiap saat.</p>
+        <p><b>5. Analitik:</b> Lihat PIMA Health, grafik tren 12 bulan, dan distribusi pengeluaran.</p>
+        <p><b>6. PIMA Goals:</b> Buat target dengan nominal & tenggat, pantau progresnya setiap saat.</p>
         <p><b>7. Pencarian Transaksi:</b> Cari cepat riwayat pemasukan/pengeluaran berdasarkan nama.</p>
-        <p><b>8. Catatan Cepat:</b> Gunakan catatan per transaksi untuk dokumentasi lebih detail.</p>
+        <p><b>8. PIMA Memo:</b> Gunakan catatan per transaksi untuk dokumentasi lebih detail.</p>
       </div>
     </div>
 
@@ -3920,7 +3920,7 @@ document.addEventListener('visibilitychange', function(){
             <span style="font-size:12px;color:#34d399;font-weight:700;">Lokal · Privat 🔒</span>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--input-border);">
-            <span style="font-size:12px;color:var(--text-muted);">Manajemen Data</span>
+            <span style="font-size:12px;color:var(--text-muted);">PIMA Spaces</span>
             <button onclick="closeSettingModal();switchTab('ringkasan',document.querySelector('[onclick*=ringkasan]'))"
                     style="background:none;border:none;font-size:12px;color:#818cf8;font-weight:700;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;">
               Export / Import <span style="font-size:14px;">→</span>
@@ -3937,7 +3937,10 @@ document.addEventListener('visibilitychange', function(){
             Data keuangan Anda tersimpan sepenuhnya di perangkat ini.<br>
             Tidak ada data yang dikirim ke server manapun.
           </div>
-          <div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,0.2);font-weight:500;">© 2025–2026 PIMAPIKA.ID · All rights reserved</div>
+          <div style="margin-top:6px;font-size:10px;color:var(--text-muted);font-weight:500;line-height:1.6;">
+  © 2026 PIMAPIKA.ID<br>
+  Designed and developed by Fajri Salam. All rights reserved.
+</div>
         </div>
 
       </div>
@@ -4725,7 +4728,7 @@ function addIncome(){
       } catch(e){}
     }
     const rate = convPairRate('USD','IDR');
-    if(!rate){ toast('Rate USD belum tersedia. Tunggu sebentar atau buka tab Kurs sekali.','error'); return; }
+    if(!rate){ toast('Rate USD belum tersedia. Tunggu sebentar atau buka tab PIMA Exchange sekali.','error'); return; }
     amt = Math.round(rawAmt * rate);
     const rateStr = rate.toLocaleString('id-ID',{maximumFractionDigits:0});
     const usdStr = rawAmt.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -4867,12 +4870,12 @@ function addBudget(){
   state.budgets.push({id:Date.now(),cat,limit,period:state.period});
   clearCurrencyInput('budgetLimit');
   saveState(); renderBudget();
-  toast(`Anggaran ${getCatLabel(cat)}: ${fmt(limit)}`,'success');
+  toast(`PIMA Guard ${getCatLabel(cat)}: ${fmt(limit)}`,'success');
 }
 function deleteBudget(id){
   state.budgets=state.budgets.filter(b=>b.id!==id);
   saveState(); renderBudget();
-  toast('Anggaran dihapus','info');
+  toast('PIMA Guard dihapus','info');
 }
 function renderBudget(){
   const pExp=state.expenses.filter(e=>e.period===state.period);
@@ -4955,7 +4958,7 @@ function calcHealthScore(){
 function renderAnalitik(){
   document.getElementById('analitikPeriod').textContent=state.period+' '+new Date().getFullYear();
 
-  // Health Score
+  // PIMA Health
   const hs=calcHealthScore();
   document.getElementById('healthScoreNum').textContent=hs.score;
   // gauge arc: circumference 326.7, offset = 326.7 * (1 - score/100)
@@ -4976,7 +4979,7 @@ function renderAnalitik(){
   metricAR.textContent=hs.allocRate.toFixed(1)+'%';
   metricAR.style.color=hs.allocRate>=10?'#34d399':hs.allocRate>0?'#fbbf24':'#f87171';
 
-  // Health Score in summary card
+  // PIMA Health in summary card
   document.getElementById('sumHealthScore').textContent=hs.score+'/100';
   const hl=hs.score>=80?'😄 Sangat Baik':hs.score>=60?'🙂 Baik':hs.score>=40?'😐 Cukup':'😟 Perlu Perbaikan';
   document.getElementById('sumHealthLabel').textContent=hl;
@@ -4990,7 +4993,7 @@ function renderAnalitik(){
   try { renderBarChart(); } catch(e) { console.warn('renderBarChart error:', e.message); }
   // Donut Chart
   try { renderDonutChart(); } catch(e) { console.warn('renderDonutChart error:', e.message); }
-  // Smart Stats
+  // PIMA Pulse
   renderSmartStats();
 }
 
@@ -5127,7 +5130,7 @@ function render(){
   updateSaldoMinusBanner();
   checkKursDropWarning();
 
-  // BUG FIX: update Health Score card di summary — selalu visible di semua tab
+  // BUG FIX: update PIMA Health card di summary — selalu visible di semua tab
   // tapi hanya diupdate di renderAnalitik/renderRingkasan sebelumnya
   const _hs = calcHealthScore();
   const _hsEl = document.getElementById('sumHealthScore');
@@ -5849,7 +5852,7 @@ function addTarget(){
   document.getElementById('targetDeadline').value='';
   document.getElementById('targetEmoji').value='';
   saveState(); renderTargets();
-  toast(`Target "${name}" ditambahkan! 🎯`,'success');
+  toast(`PIMA Goals "${name}" ditambahkan! 🎯`,'success');
 }
 function updateTargetSaved(id){
   const el=document.getElementById('targetAddSaved_'+id);
@@ -5860,13 +5863,13 @@ function updateTargetSaved(id){
   t.saved=Math.min((t.saved||0)+add,t.goal);
   el.value='';
   saveState(); renderTargets();
-  if(t.saved>=t.goal) toast(`Target "${t.name}" TERCAPAI! 🎉🎉`,'success');
+  if(t.saved>=t.goal) toast(`PIMA Goals "${t.name}" TERCAPAI! 🎉🎉`,'success');
   else toast(`+${fmt(add)} ditambahkan ke target`,'success');
 }
 function deleteTarget(id){
   state.targets=state.targets.filter(t=>t.id!==id);
   saveState(); renderTargets();
-  toast('Target dihapus','info');
+  toast('PIMA Goals dihapus','info');
 }
 function renderTargets(){
   if(!state.targets) state.targets=[];
@@ -5946,19 +5949,22 @@ function addBill(){
   clearCurrencyInput('billAmt');
   document.getElementById('billDueDay').value='';
   saveState(); renderBills();
-  toast(`Tagihan "${name}" ditambahkan! 🔔`,'success');
+  toast(`PIMA Loop "${name}" ditambahkan! 🔔`,'success');
 }
 function toggleBillPaid(id){
   const b=state.bills.find(b=>b.id===id);
   if(!b) return;
-  b.paid=!b.paid;
+  // [v3.3.2] paid tracking per periode — otomatis reset saat ganti bulan
+  const isPaidThisMonth = b.paid && b.paidMonth === state.period;
+  b.paid = !isPaidThisMonth;
+  b.paidMonth = b.paid ? state.period : '';
   saveState(); renderBills();
   toast(b.paid?`✅ ${b.name} ditandai lunas`:`↩️ ${b.name} ditandai belum lunas`,'info');
 }
 function deleteBill(id){
   state.bills=state.bills.filter(b=>b.id!==id);
   saveState(); renderBills();
-  toast('Tagihan dihapus','info');
+  toast('PIMA Loop dihapus','info');
 }
 function renderBills(){
   if(!state.bills) state.bills=[];
@@ -5974,10 +5980,12 @@ function renderBills(){
   const curDay=today.getDate();
   const sorted=[...state.bills].sort((a,b)=>a.dueDay-b.dueDay);
   list.innerHTML=sorted.map(b=>{
+    // [v3.3.2] paid hanya berlaku untuk bulan/periode yang aktif
+    const isPaid = b.paid && b.paidMonth === state.period;
     const diff=b.dueDay-curDay;
-    const dueSoon=!b.paid&&diff>=0&&diff<=5;
-    const overdue=!b.paid&&diff<0;
-    let badge=b.paid
+    const dueSoon=!isPaid&&diff>=0&&diff<=5;
+    const overdue=!isPaid&&diff<0;
+    let badge=isPaid
       ?'<span class="bill-ok-badge">✅ Lunas</span>'
       :overdue?'<span class="bill-due-badge">⛔ Terlewat</span>'
       :dueSoon?`<span class="bill-due-badge">⏰ ${diff===0?'Hari ini':diff+' hari lagi'}</span>`
@@ -5991,7 +5999,7 @@ function renderBills(){
       <div class="bill-right">
         <div class="bill-amt">-${fmt(b.amt)}</div>
         <div style="display:flex;gap:4px;margin-top:6px;justify-content:flex-end;">
-          <button class="btn btn-glass" onclick="toggleBillPaid(${b.id})" style="padding:4px 8px;font-size:11px;">${b.paid?'↩️':'✅'}</button>
+          <button class="btn btn-glass" onclick="toggleBillPaid(${b.id})" style="padding:4px 8px;font-size:11px;">${isPaid?'↩️':'✅'}</button>
           <button class="bill-del" onclick="deleteBill(${b.id})">✕</button>
         </div>
       </div>
@@ -5999,7 +6007,7 @@ function renderBills(){
   }).join('');
   // Summary
   const totalBills=state.bills.reduce((s,b)=>s+(b.freq==='tahunan'?b.amt/12:b.amt),0);
-  const unpaid=state.bills.filter(b=>!b.paid&&b.freq!=='tahunan').length;
+  const unpaid=state.bills.filter(b=>!(b.paid&&b.paidMonth===state.period)&&b.freq!=='tahunan').length;
   const summaryBox=document.getElementById('billSummaryBox');
   summaryBox.style.display='block';
   document.getElementById('billSummaryText').innerHTML=`
@@ -6476,7 +6484,7 @@ function spawnConfetti() {
 // ─── FITUR 4: GOLD PORTFOLIO ──────────────────────────────
 
 /**
- * Tambah aset emas baru dan sinkronkan sebagai pengeluaran tabungan
+ * Tambah aset PIMA Vault baru dan sinkronkan sebagai pengeluaran tabungan
  */
 function addGold() {
   const name = document.getElementById('goldName').value.trim();
@@ -6519,11 +6527,11 @@ function addGold() {
   saveState();
   render();
   renderGold();
-  toast(`🪙 ${weight}g emas ditambahkan ke portofolio!`, 'success');
+  toast(`🪙 ${weight}g emas ditambahkan ke PIMA Vault!`, 'success');
 }
 
 /**
- * Hapus aset emas dan pengeluaran terkait
+ * Hapus aset PIMA Vault dan pengeluaran terkait
  */
 function deleteGold(id) {
   // Find the gold record first to get the stable goldKey
@@ -6543,7 +6551,7 @@ function deleteGold(id) {
   saveState();
   render();
   renderGold();
-  toast('Aset emas dihapus', 'info');
+  toast('Aset PIMA Vault dihapus', 'info');
 }
 
 /**
@@ -6585,7 +6593,7 @@ function renderGold() {
 
   const list = document.getElementById('goldList');
   if (!state.goldPortfolio.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🪙</div>Belum ada aset emas</div>';
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🪙</div>Belum ada aset PIMA Vault</div>';
     return;
   }
 
@@ -7252,7 +7260,7 @@ function switchWorkspace(ws, btn, e) {
   diUpdateWorkspace(); // BUG FIX: update DI workspace panel setelah switch
 
   const icon = WORKSPACE_ICONS[ws] || '📂';
-  toast(`${icon} Workspace: ${ws}`, 'success');
+  toast(`${icon} PIMA Spaces: ${ws}`, 'success');
 }
 
 function addWorkspace() {
@@ -7260,7 +7268,7 @@ function addWorkspace() {
   const available = ['Bisnis', 'Keluarga'].filter(w => !state.workspaces.includes(w));
 
   if (available.length === 0) {
-    toast('Semua workspace tersedia sudah ditambahkan!', 'info');
+    toast('Semua PIMA Spaces tersedia sudah ditambahkan!', 'info');
     return;
   }
 
@@ -7274,7 +7282,7 @@ function addWorkspace() {
   renderWorkspaceBar();
 
   const icon = WORKSPACE_ICONS[next] || '📂';
-  toast(`${icon} Workspace "${next}" ditambahkan!`, 'success');
+  toast(`${icon} PIMA Spaces "${next}" ditambahkan!`, 'success');
 }
 
 // (resize handler merged above — PERF FIX v3.3.3)
@@ -7362,7 +7370,7 @@ async function pvStartCamera() {
     document.getElementById('pvScanLine').style.display = 'block';
   } catch (err) {
     document.getElementById('ocrStatus').innerHTML =
-      '<span style="color:#f87171;">❌ Kamera tidak dapat diakses: ' + (err.message || err) + '</span>' +
+      '<span style="color:#f87171;">❌ Kamera tidak dapat diakses: ' + escapeHtml(err.message || String(err)) + '</span>' +
       '<br><span style="font-size:10px;color:var(--text-muted);">Pastikan izin kamera diberikan di browser.</span>';
   }
 }
@@ -7471,7 +7479,7 @@ async function pvCapture() {
     pvSetProgress(0, '');
     document.getElementById('pvProgressWrap').style.display = 'none';
     document.getElementById('pvProgressLabel').style.display = 'none';
-    statusEl.innerHTML = '<span style="color:#f87171;">❌ OCR gagal: ' + (err.message || err) + '</span>';
+    statusEl.innerHTML = '<span style="color:#f87171;">❌ OCR gagal: ' + escapeHtml(err.message || String(err)) + '</span>';
     captureBtn.innerHTML = '📸 Coba Lagi';
     captureBtn.disabled = false;
     console.error('[PIMA Vision OCR Error]', err);
@@ -8180,7 +8188,7 @@ function removeWorkspace(ws, e) {
   saveState();
   renderWorkspaceBar();
   render();
-  toast(`Workspace "${ws}" dihapus`, 'info');
+  toast(`PIMA Spaces "${ws}" dihapus`, 'info');
 }
 
 // Override renderWorkspaceBar to handle add btn visibility
@@ -8220,7 +8228,7 @@ async function _migratePinIfNeeded() {
   const stored = localStorage.getItem('pimapika_pin') || '';
   if (stored && stored.length < 64 && /^[A-Za-z0-9+/=]+$/.test(stored)) {
     localStorage.removeItem('pimapika_pin');
-    try { toast('🔐 Keamanan PIN diperbarui. Silakan buat PIN baru.', 'info'); } catch(e) {}
+    try { toast('🔐 PIMA Shield diperbarui. Silakan buat PIN baru.', 'info'); } catch(e) {}
   }
 }
 
@@ -8289,7 +8297,7 @@ function pinForgot() {
   if (overlay) overlay.classList.remove('active');
   _pinBuffer = '';
   updatePinSettingUI();
-  toast('🔓 PIN berhasil direset', 'info');
+  toast('🔓 PIMA Shield berhasil direset', 'info');
 }
 
 function updatePinDots(prefix, filled, dotState) {
@@ -8356,7 +8364,7 @@ async function processSetupPin() {
     savePinHash('');
     closePinSetup();
     updatePinSettingUI();
-    toast('🔓 PIN berhasil dihapus', 'success');
+    toast('🔓 PIMA Shield berhasil dihapus', 'success');
     return;
   }
   if (_pinSetupPhase === 'create') {
@@ -8372,7 +8380,7 @@ async function processSetupPin() {
       savePinHash(newHash);
       closePinSetup();
       updatePinSettingUI();
-      toast('🔐 PIN berhasil dibuat! App akan terkunci saat dibuka ulang.', 'success');
+      toast('🔐 PIMA Shield aktif! App akan terkunci saat dibuka ulang.', 'success');
     } else {
       updatePinDots('sp', '1234', 'error');
       document.getElementById('pinSetupErr').textContent = '❌ PIN tidak cocok, ulangi';
@@ -8933,7 +8941,7 @@ let _newsHubCurrentArticle = null;
 
 function openNewsModal(e) {
   if (e) e.stopPropagation();
-  // Tutup/kecilkan Dynamic Island agar tidak menumpuk di atas modal News
+  // Tutup/kecilkan PIMA Flow agar tidak menumpuk di atas modal News
   if (typeof _diExpanded !== 'undefined' && _diExpanded) {
     diClose();
   }
@@ -9231,7 +9239,7 @@ function closeNewsReader(silent) {
 }
 
 // ══════════════════════════════════════════════════════
-// ─── TAB KURS — Currency Converter (Real-time) ───
+// ─── TAB PIMA EXCHANGE ───
 // Powered by Open Exchange Rates API (open.er-api.com)
 // ══════════════════════════════════════════════════════
 // Katalog mata uang: kode ISO -> { name, flag }
@@ -10300,7 +10308,7 @@ body.theme-luxury ::-webkit-scrollbar-thumb {
 }
 
 /* ── Glare gyroscope overlay ── */
-/* [v3.3.1] Sticky Notes — Luxury Mode: card warna emas premium per slot */
+/* [v3.3.1] PIMA Memo — Luxury Mode: card warna emas premium per slot */
 body.theme-luxury .sn-deck-card[data-slot="0"] {
   background: rgba(40,30,8,0.82) !important;
   border: 1px solid rgba(212,175,112,0.45) !important;
