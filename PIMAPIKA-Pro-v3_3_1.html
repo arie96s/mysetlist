@@ -11,7 +11,7 @@
 <meta name="application-name" content="PIMAPIKA">
 <meta name="description" content="PIMAPIKA.ID — Aplikasi manajemen keuangan pribadi cerdas.">
 <link rel="manifest" href="manifest.json">
-<title>PIMAPIKA.ID v3.3.5 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.3.4 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2708,194 +2708,112 @@
     color: #d4af70 !important;
   }
 
-  /* ══ FEEDBACK / REVIEW MADING ══ */
-  .mading-board {
-    padding: 4px 0 8px;
+  /* ══ PIMA LEDGER ══ */
+  .ledger-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 6px;
   }
-  .mading-header-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px 6px;
-  }
-  .mading-title {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-secondary);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .mading-count {
-    font-size: 11px;
-    color: var(--text-muted);
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 20px;
-    padding: 2px 8px;
-  }
-
-  /* Rating stars */
-  .star-row {
-    display: flex;
-    gap: 4px;
-    justify-content: center;
-    margin: 4px 0 8px;
-  }
-  .star-btn {
-    font-size: 22px;
-    cursor: pointer;
-    transition: transform .2s var(--spring), filter .15s;
-    line-height: 1;
-    background: none;
-    border: none;
-    padding: 2px;
-  }
-  .star-btn:hover, .star-btn.active { transform: scale(1.2); filter: drop-shadow(0 0 4px rgba(251,191,36,0.7)); }
-  .star-btn.inactive { filter: grayscale(1) opacity(0.35); }
-
-  /* Compose box */
-  .mading-compose {
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 14px;
-    padding: 12px 14px;
-    margin: 0 0 10px;
-    transition: border-color .2s;
-  }
-  .mading-compose:focus-within {
-    border-color: var(--accent-teal);
-  }
-  .mading-compose-name {
-    width: 100%;
-    background: none;
-    border: none;
-    outline: none;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-primary);
-    font-family: inherit;
-    margin-bottom: 4px;
-  }
-  .mading-compose-name::placeholder { color: var(--text-muted); font-weight: 500; }
-  .mading-compose-text {
-    width: 100%;
-    background: none;
-    border: none;
-    outline: none;
-    resize: none;
-    font-size: 12px;
-    color: var(--text-primary);
-    font-family: inherit;
-    line-height: 1.6;
-    min-height: 56px;
-    max-height: 100px;
-  }
-  .mading-compose-text::placeholder { color: var(--text-muted); }
-  .mading-compose-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--input-border);
-  }
-  .mading-char-count { font-size: 10px; color: var(--text-muted); }
-  .mading-submit-btn {
-    padding: 5px 14px;
-    border-radius: 10px;
-    background: var(--accent-teal);
-    color: #fff;
-    border: none;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: opacity .15s, transform .15s var(--spring);
-  }
-  .mading-submit-btn:disabled { opacity: 0.45; cursor: default; }
-  .mading-submit-btn:not(:disabled):active { transform: scale(0.95); }
-
-  /* Pin cards (postcard mading style) */
-  .mading-cards {
+  .ledger-form-row.full { grid-template-columns: 1fr; }
+  .ledger-list {
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
-  .mading-card {
-    border-radius: 14px;
-    padding: 12px 14px;
+  .ledger-item {
     background: var(--input-bg);
     border: 1px solid var(--input-border);
-    position: relative;
-    animation: madingSlideIn .35s var(--ease-out);
-    overflow: hidden;
-  }
-  .mading-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    border-radius: 14px 0 0 14px;
-    background: var(--mading-accent, var(--accent-teal));
-  }
-  @keyframes madingSlideIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .mading-card-header {
+    border-radius: 13px;
+    padding: 10px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 5px;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    animation: ledgerSlideIn .3s var(--ease-out);
   }
-  .mading-card-name {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-primary);
+  @keyframes ledgerSlideIn {
+    from { opacity:0; transform:translateY(-6px); }
+    to   { opacity:1; transform:translateY(0); }
   }
-  .mading-card-stars {
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: #fbbf24;
+  .ledger-item::before {
+    content:'';
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:3px;
+    border-radius:13px 0 0 13px;
   }
-  .mading-card-text {
-    font-size: 12px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    word-break: break-word;
+  .ledger-item.utang::before { background:#f87171; }
+  .ledger-item.piutang::before { background:#34d399; }
+  .ledger-item-info { flex:1; min-width:0; padding-left:6px; }
+  .ledger-item-name {
+    font-size:12px; font-weight:700;
+    color:var(--text-primary);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .mading-card-meta {
-    font-size: 10px;
-    color: var(--text-muted);
-    margin-top: 6px;
+  .ledger-item-type {
+    font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.5px;
+    margin-top:1px;
   }
-  .mading-card-delete {
-    position: absolute;
-    top: 8px; right: 8px;
-    background: none;
-    border: none;
-    font-size: 12px;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 6px;
-    opacity: 0;
-    transition: opacity .15s;
+  .ledger-item.utang .ledger-item-type { color:#f87171; }
+  .ledger-item.piutang .ledger-item-type { color:#34d399; }
+  .ledger-item-amount { font-size:12px; font-weight:700; color:var(--text-primary); }
+  .ledger-item-due { font-size:10px; color:var(--text-muted); margin-top:1px; }
+  .ledger-lunas-btn {
+    flex-shrink:0;
+    background:none;
+    border:1px solid var(--input-border);
+    border-radius:8px;
+    padding:4px 8px;
+    font-size:11px;
+    cursor:pointer;
+    color:var(--text-secondary);
+    font-family:inherit;
+    transition: background .15s, color .15s;
   }
-  .mading-card:hover .mading-card-delete { opacity: 1; }
-  .mading-empty {
-    text-align: center;
-    padding: 20px 0 12px;
-    color: var(--text-muted);
-    font-size: 12px;
-    line-height: 1.8;
+  .ledger-lunas-btn:active { background:rgba(52,211,153,0.15); color:#34d399; }
+  .ledger-empty {
+    text-align:center;
+    padding:14px 0 8px;
+    color:var(--text-muted);
+    font-size:12px;
+    line-height:1.8;
   }
-  .mading-empty-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  body.theme-luxury .ledger-lunas-btn:active { background:rgba(201,168,76,0.15); color:#c9a84c; }
 
-  /* Luxury & theme overrides for mading */
-  body.theme-luxury .mading-submit-btn { background: #c9a84c !important; }
-  body.theme-luxury .mading-card::before { background: #d4af70 !important; }
-  body.light-mode .mading-compose { border-color: rgba(15,23,42,0.12); }
+  /* ══ PIMA SIMULATOR ══ */
+  .sim-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .sim-divider {
+    border: none;
+    border-top: 1px solid var(--input-border);
+    margin: 12px 0;
+  }
+  .sim-result {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sim-result-icon { font-size: 18px; line-height: 1; }
+  .sim-result-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; flex:1; }
+  .sim-result-value { font-size: 13px; font-weight: 700; color: var(--accent-teal); }
+  body.theme-luxury .sim-result-value { color: #c9a84c !important; }
 
 </style>
 </head>
@@ -3499,6 +3417,42 @@ document.addEventListener('visibilitychange', function(){
           <div style="color:var(--text-muted);font-size:13px;">Belum ada data untuk dianalisis.</div>
         </div>
       </div>
+
+      <!-- PIMA Simulator -->
+      <div class="glass" style="padding:22px;margin-top:20px;">
+        <div class="sec-title" style="margin-bottom:4px;font-size:13px;"><span>🧮</span>PIMA Simulator <span style="font-size:11px;font-weight:500;color:var(--text-muted);text-transform:none;letter-spacing:0;">— Kalkulator Finansial</span></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Hitung dana darurat &amp; proyeksi investasi berdasarkan kondisi keuangan kamu.</div>
+
+        <!-- Kalkulator 1: Dana Darurat -->
+        <div class="sim-label">🛡️ Dana Darurat</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <input class="glass-input" id="simExpense" type="number" placeholder="Pengeluaran bulanan rata-rata (Rp)" min="0" style="font-size:12px;padding:8px 10px;" oninput="psCalcEmergency()">
+          <input class="glass-input" id="simSaving" type="number" placeholder="Saldo dana darurat saat ini (Rp)" min="0" style="font-size:12px;padding:8px 10px;" oninput="psCalcEmergency()">
+        </div>
+        <div class="sim-result" id="simEmergencyResult" style="margin-top:8px;">
+          <span class="sim-result-icon">💡</span>
+          <span class="sim-result-text" id="simEmergencyText">Isi input di atas untuk melihat hasil.</span>
+        </div>
+
+        <hr class="sim-divider">
+
+        <!-- Kalkulator 2: Bunga Majemuk -->
+        <div class="sim-label">📈 Bunga Majemuk</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <input class="glass-input" id="simPrincipal" type="number" placeholder="Modal awal (Rp)" min="0" style="font-size:12px;padding:8px 10px;" oninput="psCalcCompound()">
+            <input class="glass-input" id="simMonthly" type="number" placeholder="Tambahan/bulan (Rp)" min="0" style="font-size:12px;padding:8px 10px;" oninput="psCalcCompound()">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <input class="glass-input" id="simRate" type="number" placeholder="Bunga tahunan (%)" min="0" max="100" step="0.1" style="font-size:12px;padding:8px 10px;" oninput="psCalcCompound()">
+            <input class="glass-input" id="simYears" type="number" placeholder="Tenor (tahun)" min="1" max="50" style="font-size:12px;padding:8px 10px;" oninput="psCalcCompound()">
+          </div>
+        </div>
+        <div class="sim-result" id="simCompoundResult" style="margin-top:8px;">
+          <span class="sim-result-icon">💡</span>
+          <span class="sim-result-text" id="simCompoundText">Isi input di atas untuk melihat hasil.</span>
+        </div>
+      </div>
     </div>
 
     <!-- ══ TAB RINGKASAN ══ -->
@@ -3530,6 +3484,31 @@ document.addEventListener('visibilitychange', function(){
         <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>📝</span>Catatan</div>
         <textarea class="glass-input" id="globalNotes" placeholder="Tambahkan catatan, target, atau rencana keuangan Anda di sini..." style="width:100%;min-height:80px;resize:vertical;"></textarea>
       </div>
+      <!-- PIMA Ledger -->
+      <div class="glass" style="padding:20px;margin-bottom:20px;">
+        <div class="sec-title" style="margin-bottom:4px;font-size:13px;"><span>📓</span>PIMA Ledger <span style="font-size:11px;font-weight:500;color:var(--text-muted);text-transform:none;letter-spacing:0;">— Utang &amp; Piutang</span></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Catat utang &amp; piutang yang belum lunas.</div>
+
+        <!-- Form -->
+        <div class="ledger-form-row" style="margin-bottom:6px;">
+          <input class="glass-input" id="ledgerName" type="text" placeholder="Nama orang" maxlength="40" style="font-size:12px;padding:8px 10px;">
+          <select class="glass-input" id="ledgerType" style="font-size:12px;padding:8px 10px;">
+            <option value="utang">💸 Utang</option>
+            <option value="piutang">💰 Piutang</option>
+          </select>
+        </div>
+        <div class="ledger-form-row" style="margin-bottom:8px;">
+          <input class="glass-input" id="ledgerAmount" type="number" placeholder="Nominal (Rp)" min="0" style="font-size:12px;padding:8px 10px;">
+          <input class="glass-input" id="ledgerDue" type="date" style="font-size:12px;padding:8px 10px;">
+        </div>
+        <button class="btn btn-primary" onclick="plAddEntry()" style="width:100%;font-size:12px;padding:8px 0;border-radius:12px;">+ Catat</button>
+
+        <!-- List -->
+        <div class="ledger-list" id="ledgerList" style="margin-top:10px;">
+          <div class="ledger-empty" id="ledgerEmpty">📋 Belum ada catatan.<br>Tambahkan utang atau piutang di atas.</div>
+        </div>
+      </div>
+
       <!-- Data Management Area (Fitur 2) -->
       <div class="glass" style="padding:20px;margin-bottom:20px;">
         <div class="sec-title" style="margin-bottom:4px;font-size:13px;"><span>💾</span>PIMA Sync</div>
@@ -3901,7 +3880,7 @@ document.addEventListener('visibilitychange', function(){
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.5</div>
+            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.4</div>
           </div>
         </div>
 
@@ -3943,60 +3922,6 @@ document.addEventListener('visibilitychange', function(){
 </div>
         </div>
 
-      </div>
-    </div>
-
-    <!-- ── ULASAN & FEEDBACK accordion ── -->
-    <div class="setting-collapse" style="margin-top:8px;margin-bottom:8px;">
-      <div class="collapse-head" onclick="toggleCollapse('feedbackCollapse')" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>⭐ Ulasan &amp; Feedback</span>
-        <span id="feedbackCollapseChevron" style="transition:transform 0.25s;display:inline-block;">▼</span>
-      </div>
-      <div class="collapse-body" id="feedbackCollapse" style="padding:0;">
-        <div class="mading-board" id="madingBoard">
-
-          <!-- Compose area -->
-          <div style="padding:0 14px 8px;">
-            <!-- Star rating -->
-            <div style="text-align:center;padding:10px 0 2px;">
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;letter-spacing:0.3px;">Rate Aplikasi Ini</div>
-              <div class="star-row" id="starRow">
-                <button class="star-btn" data-star="1" onclick="pvSetStar(1)">⭐</button>
-                <button class="star-btn inactive" data-star="2" onclick="pvSetStar(2)">⭐</button>
-                <button class="star-btn inactive" data-star="3" onclick="pvSetStar(3)">⭐</button>
-                <button class="star-btn inactive" data-star="4" onclick="pvSetStar(4)">⭐</button>
-                <button class="star-btn inactive" data-star="5" onclick="pvSetStar(5)">⭐</button>
-              </div>
-            </div>
-
-            <!-- Compose box -->
-            <div class="mading-compose">
-              <input class="mading-compose-name" id="madingName" type="text" placeholder="Nama / nickname (opsional)" maxlength="30">
-              <textarea class="mading-compose-text" id="madingText" placeholder="Tulis ulasan, saran, atau feedback kamu di sini..." maxlength="200" oninput="pvMadingCount(this)"></textarea>
-              <div class="mading-compose-footer">
-                <span class="mading-char-count" id="madingCharCount">0/200</span>
-                <button class="mading-submit-btn" id="madingSubmitBtn" onclick="pvSubmitReview()" disabled>Kirim ✨</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Mading header -->
-          <div class="mading-header-bar">
-            <span class="mading-title">📌 Papan Mading</span>
-            <span class="mading-count" id="madingCount">0 ulasan</span>
-          </div>
-
-          <!-- Cards list -->
-          <div style="padding:0 14px 10px;">
-            <div class="mading-cards" id="madingCards">
-              <!-- empty state -->
-              <div class="mading-empty" id="madingEmpty">
-                <span class="mading-empty-icon">📋</span>
-                Belum ada ulasan.<br>Jadilah yang pertama!
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -4564,7 +4489,7 @@ function switchTab(t, btn, e){
     updateTabIndicator(btn, false);
   }
 
-  if(t==='ringkasan') renderRingkasan();
+  if(t==='ringkasan') { renderRingkasan(); plRender(); }
   if(t==='budget') renderBudget();
   if(t==='analitik') renderAnalitik();
   if(t==='emas') renderGold();
@@ -5141,6 +5066,7 @@ function render(){
 
 // ─── RINGKASAN ───
 function renderRingkasan(){
+  plRender(); // sync PIMA Ledger list setiap kali tab Ringkasan dirender
   const pInc=state.incomes.filter(i=>i.period===state.period);
   const pExp=state.expenses.filter(e=>e.period===state.period);
   const pBanks=state.banks.filter(b=>b.period===state.period);
@@ -5503,7 +5429,7 @@ function toggleCollapse(id){
   // tutup semua
   document.querySelectorAll('.collapse-body').forEach(b=>b.style.display='none');
   // reset semua chevron
-  document.querySelectorAll('.collapse-head [id$="Chevron"], #aboutCollapseChevron, #feedbackCollapseChevron').forEach(c=>c.style.transform='rotate(0deg)');
+  document.querySelectorAll('.collapse-head [id$="Chevron"], #aboutCollapseChevron').forEach(c=>c.style.transform='rotate(0deg)');
   if(hidden){
     el.style.display='block';
     // rotate chevron milik accordion ini
@@ -5512,137 +5438,155 @@ function toggleCollapse(id){
       const chev=head.querySelector('[id$="Chevron"]')||head.querySelector('span:last-child');
       if(chev) chev.style.transform='rotate(180deg)';
     }
-    // Jika feedback, render cards
-    if(id==='feedbackCollapse') pvMadingRender();
   }
 }
 
 // ════════════════════════════════════════════════
-//  FEEDBACK / REVIEW MADING  (v3.3.4)
+//  PIMA LEDGER  — Manajemen Utang & Piutang
 // ════════════════════════════════════════════════
-const MADING_KEY = 'pimapika_reviews_v1';
-let _pvStarSelected = 1; // default 1 bintang
+const LEDGER_KEY = 'pimapika_ledger';
 
-// FIX v3.3.4: CSS custom property cannot be set to var(--x) as a value (nested var invalid).
-// Use actual hex values that visually match the theme accent tokens.
-const MADING_ACCENT_COLORS = ['#0ea5e9','#8b5cf6','#f59e0b','#10b981','#2563eb'];
-
-function pvLoadReviews() {
-  try { return JSON.parse(localStorage.getItem(MADING_KEY) || '[]'); }
+function plLoad() {
+  try { return JSON.parse(localStorage.getItem(LEDGER_KEY) || '[]'); }
   catch(e) { return []; }
 }
-function pvSaveReviews(arr) {
-  try { localStorage.setItem(MADING_KEY, JSON.stringify(arr)); } catch(e) {}
+function plSave(arr) {
+  try { localStorage.setItem(LEDGER_KEY, JSON.stringify(arr)); } catch(e) {}
 }
 
-function pvSetStar(n) {
-  _pvStarSelected = n;
-  document.querySelectorAll('#starRow .star-btn').forEach((btn, i) => {
-    if (i < n) { btn.classList.add('active'); btn.classList.remove('inactive'); }
-    else { btn.classList.remove('active'); btn.classList.add('inactive'); }
-  });
-  // Enable submit if text is filled too
-  pvMadingValidate();
+function plFmtRp(n) {
+  return 'Rp ' + Number(n).toLocaleString('id-ID');
 }
 
-function pvMadingCount(el) {
-  const len = el.value.length;
-  const countEl = document.getElementById('madingCharCount');
-  if (countEl) countEl.textContent = len + '/200';
-  pvMadingValidate();
-}
+function plAddEntry() {
+  const nameEl  = document.getElementById('ledgerName');
+  const typeEl  = document.getElementById('ledgerType');
+  const amtEl   = document.getElementById('ledgerAmount');
+  const dueEl   = document.getElementById('ledgerDue');
 
-function pvMadingValidate() {
-  const text = (document.getElementById('madingText') || {}).value || '';
-  const btn = document.getElementById('madingSubmitBtn');
-  if (btn) btn.disabled = text.trim().length < 3;
-}
+  const name   = (nameEl ? nameEl.value.trim() : '');
+  const type   = typeEl ? typeEl.value : 'utang';
+  const amount = amtEl  ? parseFloat(amtEl.value) : 0;
+  const due    = dueEl  ? dueEl.value : '';
 
-function pvSubmitReview() {
-  const nameEl = document.getElementById('madingName');
-  const textEl = document.getElementById('madingText');
-  const name = (nameEl ? nameEl.value.trim() : '') || 'Pengguna Anonim';
-  const text = textEl ? textEl.value.trim() : '';
-  if (!text || text.length < 3) return;
+  if (!name)       { toast('⚠️ Nama orang harus diisi.', 'warning'); return; }
+  if (!amount || amount <= 0) { toast('⚠️ Nominal harus lebih dari 0.', 'warning'); return; }
 
-  const reviews = pvLoadReviews();
-  const newReview = {
+  const entries = plLoad();
+  entries.unshift({
     id: Date.now(),
-    name,
-    text,
-    stars: _pvStarSelected,
-    ts: new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }),
-    accentIdx: Math.floor(Math.random() * MADING_ACCENT_COLORS.length)
-  };
-  reviews.unshift(newReview); // newest first
-  // Batasi 50 ulasan
-  if (reviews.length > 50) reviews.length = 50;
-  pvSaveReviews(reviews);
+    name, type, amount,
+    due: due || null,
+    ts: new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' })
+  });
+  plSave(entries);
 
   // Reset form
-  if (nameEl) nameEl.value = '';
-  if (textEl) { textEl.value = ''; }
-  const countEl = document.getElementById('madingCharCount');
-  if (countEl) countEl.textContent = '0/200';
-  pvSetStar(1);
-  const btn = document.getElementById('madingSubmitBtn');
-  if (btn) btn.disabled = true;
+  if (nameEl)  nameEl.value  = '';
+  if (amtEl)   amtEl.value   = '';
+  if (dueEl)   dueEl.value   = '';
+  if (typeEl)  typeEl.value  = 'utang';
 
-  pvMadingRender();
-  toast('⭐ Ulasan berhasil dikirim! Terima kasih!', 'success');
+  plRender();
+  toast('✅ Entri berhasil dicatat!', 'success');
 }
 
-function pvMadingRender() {
-  const reviews = pvLoadReviews();
-  const container = document.getElementById('madingCards');
-  const emptyEl = document.getElementById('madingEmpty');
-  const countEl = document.getElementById('madingCount');
-  if (!container) return;
+function plLunas(id) {
+  const entries = plLoad().filter(e => e.id !== id);
+  plSave(entries);
+  plRender();
+  toast('🎉 Ditandai lunas & dihapus dari daftar.', 'success');
+}
 
-  if (countEl) countEl.textContent = reviews.length + ' ulasan';
+function plRender() {
+  const entries  = plLoad();
+  const list     = document.getElementById('ledgerList');
+  const emptyEl  = document.getElementById('ledgerEmpty');
+  if (!list) return;
 
-  if (reviews.length === 0) {
+  // Hapus item lama (bukan empty state)
+  list.querySelectorAll('.ledger-item').forEach(el => el.remove());
+
+  if (entries.length === 0) {
     if (emptyEl) emptyEl.style.display = 'block';
-    // Remove any existing cards
-    container.querySelectorAll('.mading-card').forEach(c => c.remove());
     return;
   }
   if (emptyEl) emptyEl.style.display = 'none';
 
-  // Re-render all cards
-  container.querySelectorAll('.mading-card').forEach(c => c.remove());
-
-  reviews.forEach(r => {
-    const accent = MADING_ACCENT_COLORS[r.accentIdx % MADING_ACCENT_COLORS.length];
-    const stars = '⭐'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
-    const card = document.createElement('div');
-    card.className = 'mading-card';
-    card.style.setProperty('--mading-accent', accent);
-    card.innerHTML = `
-      <div class="mading-card-header">
-        <span class="mading-card-name">${pvEscapeHtml(r.name)}</span>
-        <span class="mading-card-stars">${'⭐'.repeat(r.stars)}</span>
+  entries.forEach(e => {
+    const item = document.createElement('div');
+    item.className = 'ledger-item ' + (e.type === 'utang' ? 'utang' : 'piutang');
+    const typeLabel = e.type === 'utang' ? '💸 Utang' : '💰 Piutang';
+    const dueLabel  = e.due
+      ? '📅 Jatuh tempo: ' + new Date(e.due + 'T00:00:00').toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' })
+      : '📅 Tanpa jatuh tempo';
+    item.innerHTML = `
+      <div class="ledger-item-info">
+        <div class="ledger-item-name">${pvEscapeHtml(e.name)}</div>
+        <div class="ledger-item-type">${typeLabel}</div>
+        <div class="ledger-item-due">${dueLabel}</div>
       </div>
-      <div class="mading-card-text">${pvEscapeHtml(r.text)}</div>
-      <div class="mading-card-meta">${r.ts}</div>
-      <button class="mading-card-delete" onclick="pvDeleteReview(${r.id})" title="Hapus">✕</button>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="ledger-item-amount">${plFmtRp(e.amount)}</div>
+        <button class="ledger-lunas-btn" onclick="plLunas(${e.id})" style="margin-top:4px;">✅ Lunas</button>
+      </div>
     `;
-    container.appendChild(card);
+    list.appendChild(item);
   });
 }
 
-function pvDeleteReview(id) {
-  const reviews = pvLoadReviews().filter(r => r.id !== id);
-  pvSaveReviews(reviews);
-  pvMadingRender();
-  toast('🗑️ Ulasan dihapus.', 'info');
+// ════════════════════════════════════════════════
+//  PIMA SIMULATOR  — Kalkulator Finansial Mini
+// ════════════════════════════════════════════════
+
+function psCalcEmergency() {
+  const expense = parseFloat(document.getElementById('simExpense')?.value) || 0;
+  const saving  = parseFloat(document.getElementById('simSaving')?.value)  || 0;
+  const textEl  = document.getElementById('simEmergencyText');
+  if (!textEl) return;
+
+  if (!expense) { textEl.innerHTML = 'Isi pengeluaran bulanan terlebih dahulu.'; return; }
+
+  const months = saving / expense;
+  let verdict, color;
+  if (months >= 6)       { verdict = '✅ Aman — rekomendasi minimal 6 bulan tercapai.'; color = '#34d399'; }
+  else if (months >= 3)  { verdict = '⚠️ Cukup, tapi belum ideal. Target 6 bulan.'; color = '#f59e0b'; }
+  else                   { verdict = '🚨 Kurang aman. Tingkatkan dana darurat segera.'; color = '#f87171'; }
+
+  textEl.innerHTML = `Dana darurat Anda cukup untuk <b style="color:${color}">${months.toFixed(1)} bulan</b> pengeluaran. ${verdict}`;
 }
 
-function pvEscapeHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function psCalcCompound() {
+  const P = parseFloat(document.getElementById('simPrincipal')?.value) || 0;
+  const M = parseFloat(document.getElementById('simMonthly')?.value)   || 0;
+  const r = (parseFloat(document.getElementById('simRate')?.value)     || 0) / 100 / 12;
+  const n = (parseFloat(document.getElementById('simYears')?.value)    || 0) * 12;
+  const textEl = document.getElementById('simCompoundText');
+  if (!textEl) return;
+
+  if (!P && !M)   { textEl.innerHTML = 'Isi modal awal atau tambahan bulanan.'; return; }
+  if (!n)         { textEl.innerHTML = 'Isi tenor (tahun) terlebih dahulu.'; return; }
+
+  let finalBalance;
+  if (r === 0) {
+    // Tanpa bunga: hanya penjumlahan linear
+    finalBalance = P + M * n;
+  } else {
+    // FV modal awal: P*(1+r)^n
+    // FV anuitas tambahan bulanan: M * [((1+r)^n - 1) / r]
+    finalBalance = P * Math.pow(1 + r, n) + M * ((Math.pow(1 + r, n) - 1) / r);
+  }
+
+  const totalInvested = P + M * n;
+  const gain = finalBalance - totalInvested;
+  const gainPct = totalInvested > 0 ? (gain / totalInvested * 100).toFixed(1) : '0';
+
+  textEl.innerHTML = `Estimasi saldo akhir: <b style="color:var(--accent-teal)">${plFmtRp(Math.round(finalBalance))}</b><br>
+    <span style="font-size:11px;color:var(--text-muted);">Total investasi: ${plFmtRp(totalInvested)} · Keuntungan: ${plFmtRp(Math.round(gain))} (+${gainPct}%)</span>`;
 }
+
+// pvEscapeHtml — alias ke escapeHtml yang sudah ada (anti-XSS)
+const pvEscapeHtml = escapeHtml;
 
 // ─── HELPERS ───
 function getCatLabel(cat){
@@ -9712,13 +9656,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.5 · Versi Saat Ini</p>'
-      + '<p style="margin:0 0 4px;">🛡️ <b>PIMA Vision Gallery Anti-Freeze</b> — foto 12MP–64MP kini di-resize otomatis ke maks 1280px sebelum OCR; eliminasi blank screen, flicker &amp; crash di Android WebView</p>'
-      + '<p style="margin:0 0 10px;">⚡ <b>Cancel Token OCR</b> — pilih foto baru saat OCR berjalan otomatis membatalkan proses lama; tidak ada race condition atau memory leak</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.4 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">📓 <b>PIMA Ledger</b> — catat utang &amp; piutang langsung dari tab Ringkasan; tandai lunas dengan satu tap</p>'
+      + '<p style="margin:0 0 4px;">🧮 <b>PIMA Simulator</b> — kalkulator dana darurat &amp; bunga majemuk real-time, terintegrasi di tab Analitik</p>'
+      + '<p style="margin:0 0 4px;">🖼️ <b>PIMA Vision Gallery Anti-Freeze</b> — foto 12MP–64MP di-resize otomatis ke maks 1280px sebelum OCR; eliminasi blank screen &amp; crash di Android WebView</p>'
+      + '<p style="margin:0 0 10px;">⚡ <b>Cancel Token OCR</b> — pilih foto baru saat OCR berjalan otomatis membatalkan proses lama; bebas race condition &amp; memory leak</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.4 · Versi Sebelumnya</p>'
-      + '<p style="margin:0 0 4px;">🖼️ <b>PIMA Vision: Upload dari Galeri</b> — scan struk dari foto yang sudah ada di HP, tanpa harus foto ulang</p>'
-      + '<p style="margin:0 0 10px;">⭐ <b>Papan Mading Ulasan</b> — kirim feedback &amp; rating langsung dari Settings; tampil seperti papan mading interaktif</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.3 · Versi Sebelumnya</p>'
+      + '<p style="margin:0 0 10px;">🖼️ <b>PIMA Vision: Upload dari Galeri</b> — scan struk dari foto yang sudah ada di HP, tanpa harus foto ulang</p>'
   }
 });
 
