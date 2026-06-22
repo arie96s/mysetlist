@@ -11,7 +11,7 @@
 <meta name="application-name" content="PIMAPIKA">
 <meta name="description" content="PIMAPIKA.ID — Aplikasi manajemen keuangan pribadi cerdas.">
 <link rel="manifest" href="manifest.json">
-<title>PIMAPIKA.ID v3.3.4 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.3.5 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -118,6 +118,29 @@
   body.theme-oldgrey .sum-balance{background:rgba(154,160,166,.14);}
   body.theme-oldgrey .sum-saved{background:rgba(189,184,214,.10);}
   body.theme-oldgrey .sum-health{background:rgba(224,192,138,.10);}
+
+  /* ── [v3.3.5] Old Grey: komponen hardcoded yg belum ikut tema ── */
+  /* Dropdown 3-titik (Edit / Hapus) */
+  body.theme-oldgrey .tx-dropdown {
+    background: rgba(42,44,48,0.97);
+    border-color: rgba(255,255,255,0.14);
+  }
+  body.theme-oldgrey .tx-dropdown-item { color: var(--text-primary); }
+  body.theme-oldgrey .tx-dropdown-item:hover { background: rgba(255,255,255,0.08); }
+  body.theme-oldgrey .tx-dropdown-item.danger { color: var(--accent-red); }
+  body.theme-oldgrey .tx-dropdown-item.danger:hover { background: rgba(242,155,155,0.10); }
+
+  /* Dynamic Island expanded (PIMAPIKA LIVE / News panel) */
+  body.theme-oldgrey #dynamicIsland.di-expanded {
+    background: rgba(36,38,42,0.88);
+    border-color: rgba(255,255,255,0.14);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.50), 0 1px 0 rgba(255,255,255,0.10) inset;
+  }
+
+  /* PIMA Vision — OCR loading overlay on camera viewport */
+  body.theme-oldgrey .ocr-loading-overlay {
+    background: rgba(28,29,32,0.88);
+  }
 
   /* ── Theme picker swatches ── */
   .theme-picker{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
@@ -3880,7 +3903,7 @@ document.addEventListener('visibilitychange', function(){
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.4</div>
+            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.5</div>
           </div>
         </div>
 
@@ -9656,14 +9679,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.4 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.5 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 10px;">🎨 <b>Tema Old Grey — Perbaikan Warna Menyeluruh</b> — dropdown Edit/Hapus, panel PIMAPIKA LIVE, dan PIMA Vision OCR overlay kini mengikuti palet Old Grey secara konsisten</p>'
+      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.4 · Versi Sebelumnya</p>'
       + '<p style="margin:0 0 4px;">📓 <b>PIMA Ledger</b> — catat utang &amp; piutang langsung dari tab Ringkasan; tandai lunas dengan satu tap</p>'
       + '<p style="margin:0 0 4px;">🧮 <b>PIMA Simulator</b> — kalkulator dana darurat &amp; bunga majemuk real-time, terintegrasi di tab Analitik</p>'
       + '<p style="margin:0 0 4px;">🖼️ <b>PIMA Vision Gallery Anti-Freeze</b> — foto 12MP–64MP di-resize otomatis ke maks 1280px sebelum OCR; eliminasi blank screen &amp; crash di Android WebView</p>'
       + '<p style="margin:0 0 10px;">⚡ <b>Cancel Token OCR</b> — pilih foto baru saat OCR berjalan otomatis membatalkan proses lama; bebas race condition &amp; memory leak</p>'
-      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.3 · Versi Sebelumnya</p>'
-      + '<p style="margin:0 0 10px;">🖼️ <b>PIMA Vision: Upload dari Galeri</b> — scan struk dari foto yang sudah ada di HP, tanpa harus foto ulang</p>'
   }
 });
 
