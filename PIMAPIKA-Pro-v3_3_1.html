@@ -11,7 +11,7 @@
 <meta name="application-name" content="PIMAPIKA">
 <meta name="description" content="PIMAPIKA.ID — Aplikasi manajemen keuangan pribadi cerdas.">
 <link rel="manifest" href="manifest.json">
-<title>PIMAPIKA.ID v3.3.5 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.5.0 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -406,6 +406,34 @@
   .bank-card .bank-purpose{font-size:11px;color:var(--text-muted);margin-top:3px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .bank-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;transition:all .2s;padding:3px;border-radius:6px;}
   .bank-del:hover{color:#f87171;background:rgba(239,68,68,.15);}
+  /* ── Bank Kebab Menu (v3.4.0) ── */
+  .bank-menu-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.08);border:none;color:var(--text-secondary);cursor:pointer;font-size:16px;transition:all .2s;padding:4px 7px;border-radius:8px;line-height:1;z-index:2;}
+  .bank-menu-btn:hover{background:rgba(255,255,255,.18);color:var(--text-primary);}
+  .bank-ctx-menu{position:absolute;top:36px;right:8px;background:var(--modal-bg,rgba(15,23,42,.97));border:1px solid var(--glass-border);border-radius:14px;padding:6px;box-shadow:0 12px 40px rgba(0,0,0,.45);z-index:999;min-width:130px;backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);animation:popIn .2s var(--spring);}
+  .bank-ctx-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;font-size:13px;cursor:pointer;transition:background .15s;white-space:nowrap;color:var(--text-primary);}
+  .bank-ctx-item:hover{background:rgba(255,255,255,.1);}
+  .bank-ctx-item.danger{color:#f87171;}
+  .bank-ctx-item.danger:hover{background:rgba(239,68,68,.15);}
+  body.light-mode .bank-ctx-menu{background:rgba(255,255,255,.98);border-color:rgba(0,0,0,.1);}
+  /* ── Bill Date Badge (v3.4.0) ── */
+  .bill-overdue-badge{font-size:10px;padding:2px 8px;border-radius:6px;background:rgba(239,68,68,.2);color:#f87171;font-weight:600;margin-top:4px;display:inline-block;}
+  .bill-today-badge{font-size:10px;padding:2px 8px;border-radius:6px;background:rgba(245,158,11,.2);color:#fbbf24;font-weight:700;margin-top:4px;display:inline-block;animation:pulse 1.5s infinite;}
+  /* ── Upcoming Bills Widget (v3.4.0) ── */
+  .upcoming-bill-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);margin-bottom:6px;cursor:pointer;transition:all .2s;}
+  .upcoming-bill-item:hover{transform:translateX(3px);background:var(--card-hover-bg);}
+  .upcoming-bill-item.ub-urgent{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06);}
+  .upcoming-bill-item.ub-soon{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.06);}
+  /* ── Notification Settings (v3.4.0) ── */
+  .notif-setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--input-border);}
+  .notif-setting-row:last-child{border-bottom:none;}
+  .notif-toggle{position:relative;width:42px;height:24px;flex-shrink:0;}
+  .notif-toggle input{opacity:0;width:0;height:0;}
+  .notif-slider{position:absolute;inset:0;background:rgba(255,255,255,.15);border-radius:24px;cursor:pointer;transition:.3s;}
+  .notif-slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+  .notif-toggle input:checked+.notif-slider{background:linear-gradient(135deg,#6366f1,#8b5cf6);}
+  .notif-toggle input:checked+.notif-slider:before{transform:translateX(18px);}
+  body.light-mode .notif-slider{background:rgba(0,0,0,.2);}
+  body.light-mode .notif-toggle input:checked+.notif-slider{background:linear-gradient(135deg,#6366f1,#8b5cf6);}
   .bank-bca{background:linear-gradient(135deg,rgba(0,87,161,.35),rgba(0,120,220,.2));border-color:rgba(0,120,220,.3)!important;}
   .bank-bni{background:linear-gradient(135deg,rgba(255,140,0,.3),rgba(255,165,0,.15));border-color:rgba(255,165,0,.3)!important;}
   .bank-bri{background:linear-gradient(135deg,rgba(0,100,0,.3),rgba(0,150,0,.15));border-color:rgba(0,150,0,.3)!important;}
@@ -2838,6 +2866,220 @@
   .sim-result-value { font-size: 13px; font-weight: 700; color: var(--accent-teal); }
   body.theme-luxury .sim-result-value { color: #c9a84c !important; }
 
+  /* ══ PIMA EXCHANGE WIDGET (v3.5.0) ══════════════════════════════════════ */
+  .exchange-widget {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    animation: exchangeWidgetIn 0.45s var(--ease-out) both;
+  }
+  @keyframes exchangeWidgetIn {
+    from { opacity:0; transform:translateY(10px) scale(0.98); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  /* Liquid glass shimmer overlay */
+  .exchange-widget::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      115deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.07) 48%,
+      rgba(255,255,255,0.13) 50%,
+      rgba(255,255,255,0.07) 52%,
+      rgba(255,255,255,0) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.3s;
+  }
+  .exchange-widget:active { transform: scale(0.985) translateY(0) !important; }
+
+  .exchange-widget-inner { position: relative; z-index: 1; }
+
+  /* Header row */
+  .exw-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .exw-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: -0.2px;
+  }
+  .exw-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .exw-live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 0 rgba(16,185,129,0.6);
+    animation: exwPulse 2s ease-in-out infinite;
+  }
+  @keyframes exwPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.55); }
+    50%      { box-shadow: 0 0 0 4px rgba(16,185,129,0); }
+  }
+  .exw-live-text { color: #10b981; }
+  .exw-updated-text { color: var(--text-muted); }
+
+  /* Currency rows — 3-kolom: [flag+code] [spacer] [rate + change] */
+  .exw-rates {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 0;
+  }
+  .exw-rate-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 8px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    animation: exwRowIn 0.35s var(--ease-out) both;
+    overflow: hidden;
+  }
+  .exw-rate-row:nth-child(1) { animation-delay: 0.05s; }
+  .exw-rate-row:nth-child(2) { animation-delay: 0.10s; }
+  .exw-rate-row:nth-child(3) { animation-delay: 0.15s; }
+  .exw-rate-row:nth-child(4) { animation-delay: 0.20s; }
+  @keyframes exwRowIn {
+    from { opacity:0; transform:translateX(-8px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+
+  /* Kolom kiri: bendera + kode */
+  .exw-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+  }
+  .exw-flag { font-size: 17px; line-height: 1; }
+  .exw-code {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  /* Kolom kanan: rate + change badge stacked */
+  .exw-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    min-width: 0;
+  }
+  .exw-rate-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    letter-spacing: -0.3px;
+  }
+  .exw-change {
+    font-size: 9px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+  .exw-change.up   { color: #10b981; }
+  .exw-change.down { color: #ef4444; }
+  .exw-change.flat { color: var(--text-muted); opacity: 0; } /* hide flat — cleaner */
+
+  /* Hint di header bahwa tap = shortcut */
+  .exw-tap-hint {
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+    opacity: 0.7;
+  }
+
+  /* Skeleton loading */
+  .exw-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 0;
+  }
+  .exw-skel-row {
+    height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(90deg,
+      var(--input-bg) 25%,
+      var(--card-hover-bg) 50%,
+      var(--input-bg) 75%
+    );
+    background-size: 200% 100%;
+    animation: exwSkelShimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes exwSkelShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Error state */
+  .exw-error {
+    text-align: center;
+    padding: 12px 0 4px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  /* Settings modal: favorite currency selector */
+  .exw-fav-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .exw-fav-chip {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--text-secondary);
+    transition: all 0.18s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .exw-fav-chip:hover { background: var(--card-hover-bg); color: var(--text-primary); }
+  .exw-fav-chip.selected {
+    background: rgba(37,99,235,0.18);
+    border-color: rgba(37,99,235,0.5);
+    color: #93c5fd;
+  }
+  body.light-mode .exw-fav-chip.selected { background:rgba(37,99,235,0.1); border-color:rgba(37,99,235,0.4); color:#1d4ed8; }
+  body.theme-oldgrey .exw-fav-chip.selected { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:var(--text-primary); }
+
 </style>
 </head>
 <body>
@@ -2988,6 +3230,43 @@ document.addEventListener('visibilitychange', function(){
       <div class="sum-label">PIMA Health</div>
       <div class="sum-val" id="sumHealthScore">—</div>
       <div class="sum-sub" id="sumHealthLabel">Klik lihat detail</div>
+    </div>
+
+    <!-- ── Tagihan Mendatang Widget (v3.4.0) ── -->
+    <div class="glass sum-card" id="upcomingBillsWidget" style="cursor:default;min-height:80px;">
+      <span class="sum-icon">🔔</span>
+      <div class="sum-label">Tagihan Mendatang</div>
+      <div id="upcomingBillsList" style="margin-top:8px;">
+        <div style="font-size:12px;color:var(--text-muted);">Tidak ada tagihan mendatang</div>
+      </div>
+    </div>
+
+    <!-- ── PIMA Exchange Widget (v3.5.0) ── -->
+    <div class="glass sum-card exchange-widget" id="exchangeWidget"
+         onclick="switchTabByName('kurs')" title="Buka PIMA Exchange">
+      <div class="exchange-widget-inner">
+        <div class="exw-header">
+          <div class="exw-title">🌍 PIMA Exchange</div>
+          <div class="exw-status" id="exwStatus">
+            <div class="exw-live-dot" id="exwLiveDot" style="display:none;"></div>
+            <span id="exwStatusText" class="exw-updated-text">—</span>
+          </div>
+        </div>
+        <!-- Skeleton (saat loading) -->
+        <div class="exw-skeleton" id="exwSkeleton">
+          <div class="exw-skel-row"></div>
+          <div class="exw-skel-row"></div>
+          <div class="exw-skel-row"></div>
+          <div class="exw-skel-row"></div>
+        </div>
+        <!-- Rates list (diisi JS) -->
+        <div class="exw-rates" id="exwRates" style="display:none;"></div>
+        <!-- Error state -->
+        <div class="exw-error" id="exwError" style="display:none;">
+          ⚠️ Data tidak tersedia<br>
+          <span style="font-size:11px;">Tap untuk buka Exchange</span>
+        </div>
+      </div>
     </div>
 
     <!-- Sticky Note — Vertical Stack (3 catatan aktif, liquid glass) -->
@@ -3623,13 +3902,15 @@ document.addEventListener('visibilitychange', function(){
             </div>
           </div>
           <div class="input-group">
-            <label class="input-label">Jatuh Tempo (Tanggal dalam bulan)</label>
-            <input class="glass-input" id="billDueDay" placeholder="1 – 31" type="number" min="1" max="31">
+            <label class="input-label">Jatuh Tempo (Tanggal)</label>
+            <input class="glass-input" id="billDueDay" type="date">
           </div>
           <div class="input-group">
             <label class="input-label">Frekuensi</label>
             <select class="glass-input" id="billFreq">
-              <option value="bulanan">📅 Bulanan</option>
+              <option value="sekali">🔂 Sekali</option>
+              <option value="mingguan">📆 Mingguan</option>
+              <option value="bulanan" selected>📅 Bulanan</option>
               <option value="tahunan">🗓️ Tahunan</option>
             </select>
           </div>
@@ -3903,7 +4184,7 @@ document.addEventListener('visibilitychange', function(){
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.3.5</div>
+            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.5.0</div>
           </div>
         </div>
 
@@ -3948,11 +4229,108 @@ document.addEventListener('visibilitychange', function(){
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="closeSettingModal()" style="width:100%;margin-top:16px;">Selesai</button>
+    <button class="btn btn-glass" onclick="closeSettingModal();openNotifModal();" style="width:100%;margin-top:12px;">🔔 Pengaturan Notifikasi</button>
+    <!-- PIMA Exchange Favorite Currencies Setting -->
+    <div class="setting-row" style="flex-direction:column;align-items:stretch;margin-top:12px;">
+      <div class="setting-info" style="margin-bottom:4px;">
+        <div class="title">🌍 Mata Uang Favorit (Exchange Widget)</div>
+        <div class="desc">Pilih 4 mata uang yang ditampilkan di widget dashboard</div>
+      </div>
+      <div class="exw-fav-grid" id="exwFavGrid"></div>
+    </div>
+    <button class="btn btn-primary" onclick="closeSettingModal()" style="width:100%;margin-top:10px;">Selesai</button>
+  </div>
+</div>
+<div class="modal-overlay" id="notifModal">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-title">🔔 Pengaturan Notifikasi</div>
+    <div id="notifPermBanner" style="display:none;padding:10px 14px;border-radius:12px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);font-size:12px;color:#fbbf24;margin-bottom:16px;">
+      ⚠️ Izin notifikasi belum diberikan. Klik Aktifkan untuk mengizinkan.
+    </div>
+    <div class="notif-setting-row">
+      <div>
+        <div style="font-size:14px;font-weight:600;">Aktifkan Notifikasi</div>
+        <div style="font-size:11px;color:var(--text-muted);">Izinkan PIMAPIKA mengirim pengingat</div>
+      </div>
+      <label class="notif-toggle">
+        <input type="checkbox" id="notifEnabled" onchange="saveNotifSettings()">
+        <span class="notif-slider"></span>
+      </label>
+    </div>
+    <div style="margin:12px 0 8px;font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;">Reminder Jatuh Tempo</div>
+    <div class="notif-setting-row">
+      <div style="font-size:13px;">⏰ H-7 (7 hari sebelum)</div>
+      <label class="notif-toggle"><input type="checkbox" id="notifH7" onchange="saveNotifSettings()"><span class="notif-slider"></span></label>
+    </div>
+    <div class="notif-setting-row">
+      <div style="font-size:13px;">⏰ H-3 (3 hari sebelum)</div>
+      <label class="notif-toggle"><input type="checkbox" id="notifH3" onchange="saveNotifSettings()"><span class="notif-slider"></span></label>
+    </div>
+    <div class="notif-setting-row">
+      <div style="font-size:13px;">⏰ H-1 (1 hari sebelum)</div>
+      <label class="notif-toggle"><input type="checkbox" id="notifH1" onchange="saveNotifSettings()"><span class="notif-slider"></span></label>
+    </div>
+    <div class="notif-setting-row">
+      <div style="font-size:13px;">🔔 Hari H (hari jatuh tempo)</div>
+      <label class="notif-toggle"><input type="checkbox" id="notifH0" onchange="saveNotifSettings()"><span class="notif-slider"></span></label>
+    </div>
+    <div class="notif-setting-row">
+      <div style="font-size:13px;">⛔ Terlewat (sudah lewat jatuh tempo)</div>
+      <label class="notif-toggle"><input type="checkbox" id="notifOverdue" onchange="saveNotifSettings()"><span class="notif-slider"></span></label>
+    </div>
+    <button class="btn btn-primary" onclick="closeNotifModal()" style="width:100%;margin-top:16px;">Simpan & Tutup</button>
   </div>
 </div>
 
-<!-- ══ PIMA VISION MODAL ══ -->
+<!-- ══ MODAL EDIT BANK (v3.4.0) ══ -->
+<div class="modal-overlay" id="editBankModal">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-title">✏️ Edit Alokasi Bank</div>
+    <input type="hidden" id="editBankId">
+    <div class="input-group">
+      <label class="input-label">Bank / Dompet Digital</label>
+      <select class="glass-input" id="editBankName" onchange="document.getElementById('editBankCustomGroup').style.display=this.value==='custom'?'block':'none'">
+        <option value="BCA">🏦 BCA</option>
+        <option value="BNI">🏦 BNI</option>
+        <option value="BRI">🏦 BRI</option>
+        <option value="Mandiri">🏦 Mandiri</option>
+        <option value="GoPay">📱 GoPay</option>
+        <option value="OVO">📱 OVO</option>
+        <option value="DANA">📱 DANA</option>
+        <option value="ShopeePay">📱 ShopeePay</option>
+        <option value="custom">✏️ Lainnya...</option>
+      </select>
+    </div>
+    <div class="input-group" id="editBankCustomGroup" style="display:none">
+      <label class="input-label">Nama Bank/Dompet</label>
+      <input class="glass-input" id="editBankCustomName" placeholder="Nama bank atau dompet...">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Tujuan Alokasi</label>
+      <input class="glass-input" id="editBankPurpose" placeholder="Dana darurat, Liburan, Operasional...">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Jumlah Alokasi (Rp)</label>
+      <div class="currency-wrapper">
+        <span class="currency-prefix">Rp</span>
+        <input class="glass-input" id="editBankAmt" placeholder="0" type="text" inputmode="numeric" oninput="formatCurrencyInput(this)">
+      </div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Prioritas</label>
+      <select class="glass-input" id="editBankPriority">
+        <option value="Wajib">🔴 Wajib</option>
+        <option value="Penting">🟠 Penting</option>
+        <option value="Menabung">🟢 Menabung</option>
+        <option value="Cadangan">🔵 Cadangan</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-primary" onclick="saveEditBank()" style="flex:1">💾 Simpan</button>
+      <button class="btn btn-glass" onclick="closeEditBankModal()" style="flex:1">Batal</button>
+    </div>
+  </div>
+</div>
 <div class="camera-modal-overlay" id="cameraModal">
   <div class="camera-modal-box">
 
@@ -4195,7 +4573,7 @@ function loadState(){
 // ─── STORAGE CONSTANTS v3.3.1 ──────────────────────────────────────────────
 const PMPK_STORE_KEY  = 'pimapika_state';
 const PMPK_BACKUP_KEY = 'pimapika_backup';
-const PMPK_SCHEMA_VER = '3.3.1';
+const PMPK_SCHEMA_VER = '3.4.0';
 
 function saveState(){
   const ws = state.activeWorkspace || 'Personal';
@@ -5032,8 +5410,12 @@ function render(){
   const bankGrid=document.getElementById('bankGrid');
   bankGrid.innerHTML=pBanks.length
     ? pBanks.map(b=>`
-      <div class="glass bank-card ${getBankClass(b.name)}">
-        <button class="bank-del" onclick="deleteBank(${b.id})">✕</button>
+      <div class="glass bank-card ${getBankClass(b.name)}" style="position:relative;">
+        <button class="bank-menu-btn" onclick="toggleBankMenu(event,${b.id})" aria-label="Menu">⋮</button>
+        <div class="bank-ctx-menu" id="bankMenu_${b.id}" style="display:none;">
+          <div class="bank-ctx-item" onclick="openEditBankModal(${b.id})">✏️ Edit</div>
+          <div class="bank-ctx-item danger" onclick="confirmDeleteBank(${b.id})">🗑️ Hapus</div>
+        </div>
         <div class="bank-logo">${getBankEmoji(b.name)}</div>
         <div class="bank-name">${escapeHtml(b.name)}</div>
         <div class="bank-pct">${getPriorityBadge(b.priority)}</div>
@@ -5072,6 +5454,7 @@ function render(){
   // (misalnya setelah refresh halaman).
   renderTargets();
   renderBills();
+  renderUpcomingBills();
 
   // FITUR BARU
   initStickyNote();
@@ -5906,32 +6289,67 @@ function addBill(){
   const name=document.getElementById('billName').value.trim();
   const cat=document.getElementById('billCat').value;
   const amt=getCurrencyValue('billAmt');
-  const dueDay=parseInt(document.getElementById('billDueDay').value)||1;
+  const dueDateVal=document.getElementById('billDueDay').value;
   const freq=document.getElementById('billFreq').value;
   if(!name){ toast('Masukkan nama tagihan!','error'); return; }
-  if(!amt||amt<=0){ toast('Masukkan jumlah yang valid!','error'); return; }
+  if(!dueDateVal){ toast('Pilih tanggal jatuh tempo!','error'); return; }
+  if(!amt||amt<=0){ toast('Masukkan jumlah valid!','error'); return; }
   if(!state.bills) state.bills=[];
-  state.bills.push({id:Date.now(),name,cat,amt,dueDay:Math.max(1,Math.min(31,dueDay)),freq,paid:false});
+  state.bills.push({id:Date.now(),name,cat,amt,dueDate:dueDateVal,freq,paid:false,paidMonth:null});
   document.getElementById('billName').value='';
   clearCurrencyInput('billAmt');
   document.getElementById('billDueDay').value='';
-  saveState(); renderBills();
-  toast(`PIMA Loop "${name}" ditambahkan! 🔔`,'success');
+  saveState(); renderBills(); renderUpcomingBills();
+  toast(`🔔 Tagihan "${name}" ditambahkan`,'success');
 }
 function toggleBillPaid(id){
   const b=state.bills.find(b=>b.id===id);
   if(!b) return;
-  // [v3.3.2] paid tracking per periode — otomatis reset saat ganti bulan
-  const isPaidThisMonth = b.paid && b.paidMonth === state.period;
-  b.paid = !isPaidThisMonth;
-  b.paidMonth = b.paid ? state.period : '';
-  saveState(); renderBills();
-  toast(b.paid?`✅ ${b.name} ditandai lunas`:`↩️ ${b.name} ditandai belum lunas`,'info');
+  const wasPaid=b.paid&&b.paidMonth===state.period;
+  if(!wasPaid){
+    b.paid=true; b.paidMonth=state.period;
+    if(b.freq!=='sekali'){
+      const next=new Date(b.dueDate+'T00:00:00');
+      if(b.freq==='mingguan') next.setDate(next.getDate()+7);
+      else if(b.freq==='bulanan') next.setMonth(next.getMonth()+1);
+      else if(b.freq==='tahunan') next.setFullYear(next.getFullYear()+1);
+      const nextStr=next.toISOString().split('T')[0];
+      const alreadyExists=state.bills.some(x=>x.name===b.name&&x.dueDate===nextStr);
+      if(!alreadyExists){
+        state.bills.push({id:Date.now()+1,name:b.name,cat:b.cat,amt:b.amt,dueDate:nextStr,freq:b.freq,paid:false,paidMonth:null});
+      }
+    }
+  } else {
+    b.paid=false; b.paidMonth=null;
+  }
+  saveState(); renderBills(); renderUpcomingBills();
+  toast(b.paid?`✅ ${b.name} lunas`:`↩️ ${b.name} belum lunas`,'info');
 }
 function deleteBill(id){
   state.bills=state.bills.filter(b=>b.id!==id);
-  saveState(); renderBills();
+  saveState(); renderBills(); renderUpcomingBills();
   toast('PIMA Loop dihapus','info');
+}
+function _billDaysUntil(dueDate){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const due=new Date(dueDate+'T00:00:00'); due.setHours(0,0,0,0);
+  return Math.round((due-today)/(1000*60*60*24));
+}
+function _billStatusBadge(b){
+  const isPaid=b.paid&&b.paidMonth===state.period;
+  if(isPaid) return '<span class="bill-ok-badge">✅ Lunas</span>';
+  const diff=_billDaysUntil(b.dueDate);
+  if(diff<0) return `<span class="bill-overdue-badge">⛔ Terlewat ${Math.abs(diff)} hari</span>`;
+  if(diff===0) return '<span class="bill-today-badge">🔔 Hari ini!</span>';
+  if(diff<=7) return `<span class="bill-due-badge">⏰ ${diff} hari lagi</span>`;
+  return `<span style="font-size:10px;color:var(--text-muted);display:block;margin-top:4px;">${_formatDueDate(b.dueDate)}</span>`;
+}
+function _formatDueDate(d){
+  if(!d) return '—';
+  return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+}
+function _freqLabel(freq){
+  return {sekali:'🔂 Sekali',mingguan:'📆 Mingguan',bulanan:'📅 Bulanan',tahunan:'🗓️ Tahunan'}[freq]||freq;
 }
 function renderBills(){
   if(!state.bills) state.bills=[];
@@ -5943,25 +6361,19 @@ function renderBills(){
     document.getElementById('billSummaryBox').style.display='none';
     return;
   }
-  const today=new Date();
-  const curDay=today.getDate();
-  const sorted=[...state.bills].sort((a,b)=>a.dueDay-b.dueDay);
+  const sorted=[...state.bills].sort((a,b)=>{
+    return new Date(a.dueDate+'T00:00:00')-new Date(b.dueDate+'T00:00:00');
+  });
   list.innerHTML=sorted.map(b=>{
-    // [v3.3.2] paid hanya berlaku untuk bulan/periode yang aktif
-    const isPaid = b.paid && b.paidMonth === state.period;
-    const diff=b.dueDay-curDay;
+    const isPaid=b.paid&&b.paidMonth===state.period;
+    const diff=_billDaysUntil(b.dueDate);
     const dueSoon=!isPaid&&diff>=0&&diff<=5;
     const overdue=!isPaid&&diff<0;
-    let badge=isPaid
-      ?'<span class="bill-ok-badge">✅ Lunas</span>'
-      :overdue?'<span class="bill-due-badge">⛔ Terlewat</span>'
-      :dueSoon?`<span class="bill-due-badge">⏰ ${diff===0?'Hari ini':diff+' hari lagi'}</span>`
-      :`<span style="font-size:10px;color:var(--text-muted);display:block;margin-top:4px;">Tgl ${b.dueDay} tiap bulan</span>`;
     return `<div class="bill-card${dueSoon||overdue?' due-soon':''}">
       <div class="bill-info">
         <div class="bill-name">${escapeHtml(b.name)}</div>
-        <div class="bill-meta">${b.freq==='tahunan'?'🗓️ Tahunan':'📅 Bulanan'} · Jatuh tempo tgl ${b.dueDay}</div>
-        ${badge}
+        <div class="bill-meta">${_freqLabel(b.freq)} · ${_formatDueDate(b.dueDate)}</div>
+        ${_billStatusBadge(b)}
       </div>
       <div class="bill-right">
         <div class="bill-amt">-${fmt(b.amt)}</div>
@@ -5972,15 +6384,341 @@ function renderBills(){
       </div>
     </div>`;
   }).join('');
-  // Summary
-  const totalBills=state.bills.reduce((s,b)=>s+(b.freq==='tahunan'?b.amt/12:b.amt),0);
-  const unpaid=state.bills.filter(b=>!(b.paid&&b.paidMonth===state.period)&&b.freq!=='tahunan').length;
+  const totalBills=state.bills.reduce((s,b)=>s+(b.freq==='tahunan'?b.amt/12:b.freq==='mingguan'?b.amt*4.33:b.freq==='sekali'?0:b.amt),0);
+  const unpaid=state.bills.filter(b=>!(b.paid&&b.paidMonth===state.period)&&b.freq!=='sekali').length;
   const summaryBox=document.getElementById('billSummaryBox');
   summaryBox.style.display='block';
   document.getElementById('billSummaryText').innerHTML=`
-    🔔 <b>Total tagihan bulanan:</b> ${fmt(Math.round(totalBills))}<br>
-    ⏳ <b>Belum lunas bulan ini:</b> ${unpaid} tagihan<br>
+    🔔 <b>Estimasi tagihan bulanan:</b> ${fmt(Math.round(totalBills))}<br>
+    ⏳ <b>Belum lunas:</b> ${unpaid} tagihan<br>
     💡 Tandai ✅ setelah membayar tagihan`;
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// PIMAPIKA v3.4.0 — NEW FEATURES
+// ═══════════════════════════════════════════════════════════════
+
+// ── FITUR 1: BANK MENU (Edit & Hapus) ──────────────────────────
+let _activeBankMenuId = null;
+
+function toggleBankMenu(e, id){
+  e.stopPropagation();
+  // Tutup semua menu lain
+  document.querySelectorAll('.bank-ctx-menu').forEach(m=>{
+    if(m.id!=='bankMenu_'+id) m.style.display='none';
+  });
+  const menu=document.getElementById('bankMenu_'+id);
+  if(!menu) return;
+  const isOpen=menu.style.display==='block';
+  menu.style.display=isOpen?'none':'block';
+  _activeBankMenuId=isOpen?null:id;
+}
+
+// Tutup menu saat klik di luar
+document.addEventListener('click',function(e){
+  if(_activeBankMenuId!==null){
+    const menu=document.getElementById('bankMenu_'+_activeBankMenuId);
+    if(menu&&!menu.contains(e.target)){
+      menu.style.display='none';
+      _activeBankMenuId=null;
+    }
+  }
+},{passive:true});
+
+function openEditBankModal(id){
+  const b=state.banks.find(x=>x.id===id);
+  if(!b) return;
+  // Tutup menu
+  if(_activeBankMenuId!==null){
+    const m=document.getElementById('bankMenu_'+_activeBankMenuId);
+    if(m) m.style.display='none';
+    _activeBankMenuId=null;
+  }
+  document.getElementById('editBankId').value=id;
+  const nameSelect=document.getElementById('editBankName');
+  const knownBanks=['BCA','BNI','BRI','Mandiri','GoPay','OVO','DANA','ShopeePay'];
+  if(knownBanks.includes(b.name)){
+    nameSelect.value=b.name;
+    document.getElementById('editBankCustomGroup').style.display='none';
+  } else {
+    nameSelect.value='custom';
+    document.getElementById('editBankCustomName').value=b.name;
+    document.getElementById('editBankCustomGroup').style.display='block';
+  }
+  document.getElementById('editBankPurpose').value=b.purpose||'';
+  // Set formatted amount
+  const amtInput=document.getElementById('editBankAmt');
+  amtInput.value=b.amt.toLocaleString('id-ID');
+  document.getElementById('editBankPriority').value=b.priority||'Penting';
+  document.getElementById('editBankModal').classList.add('open');
+}
+
+function closeEditBankModal(){
+  document.getElementById('editBankModal').classList.remove('open');
+}
+
+function saveEditBank(){
+  const id=parseInt(document.getElementById('editBankId').value);
+  const b=state.banks.find(x=>x.id===id);
+  if(!b){ toast('Data bank tidak ditemukan!','error'); return; }
+  let name=document.getElementById('editBankName').value;
+  if(name==='custom') name=document.getElementById('editBankCustomName').value.trim();
+  const purpose=document.getElementById('editBankPurpose').value.trim();
+  const amt=getCurrencyValue('editBankAmt');
+  const priority=document.getElementById('editBankPriority').value;
+  if(!name){ toast('Pilih atau masukkan nama bank!','error'); return; }
+  if(!amt||amt<=0){ toast('Masukkan nominal valid!','error'); return; }
+  // Cek total alokasi tidak melebihi income (kecuali amount sendiri)
+  const pInc=state.incomes.filter(i=>i.period===state.period);
+  const totalInc=pInc.reduce((s,i)=>s+i.amt,0);
+  const otherBanks=state.banks.filter(x=>x.id!==id&&x.period===state.period);
+  const otherTotal=otherBanks.reduce((s,x)=>s+x.amt,0);
+  if(totalInc>0&&otherTotal+amt>totalInc){
+    toast(`Melebihi sisa! Tersedia: ${fmt(totalInc-otherTotal)}`,'error'); return;
+  }
+  b.name=name; b.purpose=purpose; b.amt=amt; b.priority=priority;
+  saveState(); render();
+  closeEditBankModal();
+  toast(`✅ Alokasi ${name} diperbarui`,'success');
+}
+
+function confirmDeleteBank(id){
+  // Tutup menu
+  if(_activeBankMenuId!==null){
+    const m=document.getElementById('bankMenu_'+_activeBankMenuId);
+    if(m) m.style.display='none';
+    _activeBankMenuId=null;
+  }
+  const b=state.banks.find(x=>x.id===id);
+  if(!b) return;
+  if(confirm(`Hapus alokasi "${b.name}" (${fmt(b.amt)})?`)){
+    state.banks=state.banks.filter(x=>x.id!==id);
+    saveState(); render();
+    toast(`🗑️ Alokasi ${b.name} dihapus`,'info');
+  }
+}
+
+// ── FITUR 7: UPCOMING BILLS WIDGET ─────────────────────────────
+function renderUpcomingBills(){
+  const el=document.getElementById('upcomingBillsList');
+  if(!el) return;
+  if(!state.bills||!state.bills.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text-muted);">Tidak ada tagihan mendatang</div>';
+    return;
+  }
+  const today=new Date(); today.setHours(0,0,0,0);
+  // Filter: belum lunas, tampilkan semua yg belum paid, sort by date
+  const upcoming=[...state.bills]
+    .filter(b=>!(b.paid&&b.paidMonth===state.period))
+    .sort((a,b)=>new Date(a.dueDate+'T00:00:00')-new Date(b.dueDate+'T00:00:00'))
+    .slice(0,5);
+  if(!upcoming.length){
+    el.innerHTML='<div style="font-size:12px;color:#34d399;">✅ Semua tagihan sudah lunas!</div>';
+    return;
+  }
+  el.innerHTML=upcoming.map(b=>{
+    const diff=_billDaysUntil(b.dueDate);
+    let cls='';
+    let badge='';
+    if(diff<0){ cls=' ub-urgent'; badge=`<span style="font-size:10px;color:#f87171;">⛔ ${Math.abs(diff)}h lalu</span>`; }
+    else if(diff===0){ cls=' ub-urgent'; badge='<span style="font-size:10px;color:#fbbf24;font-weight:700;">🔔 Hari ini</span>'; }
+    else if(diff<=3){ cls=' ub-soon'; badge=`<span style="font-size:10px;color:#fbbf24;">${diff}h lagi</span>`; }
+    else { badge=`<span style="font-size:10px;color:var(--text-muted);">${_formatDueDate(b.dueDate)}</span>`; }
+    return `<div class="upcoming-bill-item${cls}" onclick="switchTabByName('tagihan')">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(b.name)}</div>
+        ${badge}
+      </div>
+      <div style="font-size:12px;font-weight:700;color:#f87171;flex-shrink:0;margin-left:8px;">${fmtShort(b.amt)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── FITUR 8: DATA MIGRATION (dueDay → dueDate) ─────────────────
+function _migrateBillDates(){
+  const MIGRATION_KEY='pmpk_billdate_migration_v1';
+  if(localStorage.getItem(MIGRATION_KEY)==='done') return 0;
+  if(!state.bills||!state.bills.length){ localStorage.setItem(MIGRATION_KEY,'done'); return 0; }
+  let migrated=0;
+  const today=new Date(); today.setHours(0,0,0,0);
+  state.bills.forEach(b=>{
+    // Migrasi hanya jika ada dueDay (lama) dan tidak ada dueDate (baru)
+    if(b.dueDay&&!b.dueDate){
+      const day=Math.max(1,Math.min(31,parseInt(b.dueDay)||1));
+      const tryDate=new Date(today.getFullYear(),today.getMonth(),day);
+      tryDate.setHours(0,0,0,0);
+      // Jika tgl ini bulan berjalan sudah lewat → bulan depan
+      if(tryDate<today) tryDate.setMonth(tryDate.getMonth()+1);
+      b.dueDate=tryDate.toISOString().split('T')[0];
+      // Migrasi freq: tidak ada sekali/mingguan di v3.3.x
+      if(!b.freq||b.freq==='bulanan') b.freq='bulanan';
+      if(b.freq==='tahunan') b.freq='tahunan';
+      migrated++;
+    }
+  });
+  if(migrated>0) saveState();
+  localStorage.setItem(MIGRATION_KEY,'done');
+  return migrated;
+}
+
+// ── FITUR 4+5+6: NOTIFICATION MANAGER ──────────────────────────
+const PimaNM = (function(){
+  const NOTIF_STORE='pmpk_notif_settings';
+
+  function _defaultSettings(){
+    return {enabled:false,h7:true,h3:true,h1:true,h0:true,overdue:true};
+  }
+
+  function loadSettings(){
+    try{
+      const s=localStorage.getItem(NOTIF_STORE);
+      if(s) return {..._defaultSettings(),...JSON.parse(s)};
+    }catch(e){}
+    return _defaultSettings();
+  }
+
+  function saveSettings(s){
+    try{ localStorage.setItem(NOTIF_STORE,JSON.stringify(s)); }catch(e){}
+  }
+
+  async function requestPermission(){
+    if(!('Notification' in window)) return 'unsupported';
+    if(Notification.permission==='granted') return 'granted';
+    if(Notification.permission==='denied') return 'denied';
+    const result=await Notification.requestPermission();
+    return result;
+  }
+
+  function _getPermission(){
+    if(!('Notification' in window)) return 'unsupported';
+    return Notification.permission;
+  }
+
+  function _showNotification(title,body,tag){
+    if(_getPermission()!=='granted') return;
+    try{
+      if(navigator.serviceWorker&&navigator.serviceWorker.controller){
+        navigator.serviceWorker.ready.then(reg=>{
+          reg.showNotification(title,{body,icon:'PMPK.webp',badge:'PMPK.webp',tag:tag||'pimapika-bill',vibrate:[200,100,200],data:{url:location.href}});
+        });
+      } else {
+        new Notification(title,{body,icon:'PMPK.webp',tag:tag||'pimapika-bill'});
+      }
+    }catch(e){ console.warn('[PMPK NM] Notification error',e); }
+  }
+
+  function checkAndNotify(bills,period){
+    const cfg=loadSettings();
+    if(!cfg.enabled||_getPermission()!=='granted') return;
+    if(!bills||!bills.length) return;
+    const today=new Date(); today.setHours(0,0,0,0);
+    const todayStr=today.toISOString().split('T')[0];
+    const NOTIF_LOG='pmpk_notif_log';
+    let log={};
+    try{ log=JSON.parse(localStorage.getItem(NOTIF_LOG)||'{}'); }catch(e){}
+    bills.forEach(b=>{
+      if(b.paid&&b.paidMonth===period) return; // sudah lunas
+      if(!b.dueDate) return;
+      const diff=Math.round((new Date(b.dueDate+'T00:00:00')-today)/(1000*60*60*24));
+      let type=null;
+      if(cfg.h7&&diff===7) type='h7';
+      else if(cfg.h3&&diff===3) type='h3';
+      else if(cfg.h1&&diff===1) type='h1';
+      else if(cfg.h0&&diff===0) type='h0';
+      else if(cfg.overdue&&diff<0&&diff>=-3) type='overdue_'+Math.abs(diff);
+      if(!type) return;
+      const logKey=`${b.id}_${todayStr}_${type}`;
+      if(log[logKey]) return; // sudah notif hari ini
+      const titles={h7:`⏰ Tagihan 7 hari lagi`,h3:`⚠️ Tagihan 3 hari lagi`,h1:`🔔 Tagihan besok!`,h0:`🚨 Tagihan hari ini!`};
+      const title=type.startsWith('overdue')?`⛔ Tagihan Terlewat`:(titles[type]||'🔔 Reminder Tagihan');
+      const days=diff<0?Math.abs(diff):null;
+      const body=type.startsWith('overdue')
+        ?`${b.name} sudah terlewat ${days} hari (${_formatDueDate(b.dueDate)}) — ${fmt(b.amt)}`
+        :type==='h0'?`${b.name} jatuh tempo hari ini — ${fmt(b.amt)}`
+        :`${b.name} jatuh tempo ${_formatDueDate(b.dueDate)} — ${fmt(b.amt)}`;
+      _showNotification(title,body,'pmpk_'+b.id+'_'+type);
+      log[logKey]=Date.now();
+    });
+    try{ localStorage.setItem(NOTIF_LOG,JSON.stringify(log)); }catch(e){}
+  }
+
+  return {loadSettings,saveSettings,requestPermission,checkAndNotify,getPermission:_getPermission};
+})();
+
+function openNotifModal(){
+  const cfg=PimaNM.loadSettings();
+  document.getElementById('notifEnabled').checked=cfg.enabled;
+  document.getElementById('notifH7').checked=cfg.h7;
+  document.getElementById('notifH3').checked=cfg.h3;
+  document.getElementById('notifH1').checked=cfg.h1;
+  document.getElementById('notifH0').checked=cfg.h0;
+  document.getElementById('notifOverdue').checked=cfg.overdue;
+  // Banner izin
+  const banner=document.getElementById('notifPermBanner');
+  if(banner) banner.style.display=PimaNM.getPermission()==='granted'?'none':'block';
+  document.getElementById('notifModal').classList.add('open');
+}
+
+function closeNotifModal(){
+  document.getElementById('notifModal').classList.remove('open');
+}
+
+async function saveNotifSettings(){
+  const enabled=document.getElementById('notifEnabled').checked;
+  if(enabled&&PimaNM.getPermission()!=='granted'){
+    const result=await PimaNM.requestPermission();
+    if(result!=='granted'){
+      document.getElementById('notifEnabled').checked=false;
+      toast('Izin notifikasi ditolak oleh browser','error');
+      return;
+    }
+  }
+  const cfg={
+    enabled:document.getElementById('notifEnabled').checked,
+    h7:document.getElementById('notifH7').checked,
+    h3:document.getElementById('notifH3').checked,
+    h1:document.getElementById('notifH1').checked,
+    h0:document.getElementById('notifH0').checked,
+    overdue:document.getElementById('notifOverdue').checked
+  };
+  PimaNM.saveSettings(cfg);
+  const banner=document.getElementById('notifPermBanner');
+  if(banner) banner.style.display=PimaNM.getPermission()==='granted'?'none':'block';
+  if(cfg.enabled) toast('🔔 Notifikasi aktif','success');
+}
+
+// ── Auto-check notifications once per day ──────────────────────
+function _autoCheckNotifications(){
+  const LAST_KEY='pmpk_notif_lastcheck';
+  const todayStr=new Date().toISOString().split('T')[0];
+  if(localStorage.getItem(LAST_KEY)===todayStr) return;
+  PimaNM.checkAndNotify(state.bills,state.period);
+  localStorage.setItem(LAST_KEY,todayStr);
+}
+
+// ── FITUR 9: Onboarding notifikasi ─────────────────────────────
+function _onboardingNotifPrompt(){
+  const KEY='pmpk_notif_onboarded';
+  if(localStorage.getItem(KEY)) return;
+  if(!('Notification' in window)||Notification.permission==='denied') return;
+  if(Notification.permission==='granted'){ localStorage.setItem(KEY,'1'); return; }
+  // Tampilkan prompt setelah 3 detik pertama kali
+  setTimeout(()=>{
+    if(localStorage.getItem(KEY)) return;
+    const confirmed=confirm('🔔 PIMAPIKA bisa mengirim pengingat tagihan jatuh tempo.\nAktifkan notifikasi sekarang?');
+    localStorage.setItem(KEY,'1');
+    if(confirmed){
+      PimaNM.requestPermission().then(r=>{
+        if(r==='granted'){
+          const cfg=PimaNM.loadSettings();
+          cfg.enabled=true;
+          PimaNM.saveSettings(cfg);
+          toast('🔔 Notifikasi tagihan diaktifkan!','success');
+        }
+      });
+    }
+  },3000);
 }
 
 // ─── FITUR BARU 5: KOMPARASI BULAN (di tab Ringkasan) ───
@@ -9679,14 +10417,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.3.5 · Versi Saat Ini</p>'
-      + '<p style="margin:0 0 10px;">🎨 <b>Tema Old Grey — Perbaikan Warna Menyeluruh</b> — dropdown Edit/Hapus, panel PIMAPIKA LIVE, dan PIMA Vision OCR overlay kini mengikuti palet Old Grey secara konsisten</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.5.0 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">🌍 <b>PIMA Exchange Widget</b> — shortcut kurs 4 mata uang favorit (USD, EUR, SGD, JPY) langsung di dashboard; tap card untuk buka Exchange</p>'
+      + '<p style="margin:0 0 4px;">📊 <b>Indikator Perubahan Kurs</b> — ▲/▼ hijau &amp; merah otomatis dibanding sesi sebelumnya; status <i>Live</i> / <i>Updated HH:MM</i></p>'
+      + '<p style="margin:0 0 10px;">⚙️ <b>Pengaturan Mata Uang Favorit</b> — pilih hingga 4 mata uang yang tampil di widget melalui menu Pengaturan</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.4 · Versi Sebelumnya</p>'
-      + '<p style="margin:0 0 4px;">📓 <b>PIMA Ledger</b> — catat utang &amp; piutang langsung dari tab Ringkasan; tandai lunas dengan satu tap</p>'
-      + '<p style="margin:0 0 4px;">🧮 <b>PIMA Simulator</b> — kalkulator dana darurat &amp; bunga majemuk real-time, terintegrasi di tab Analitik</p>'
-      + '<p style="margin:0 0 4px;">🖼️ <b>PIMA Vision Gallery Anti-Freeze</b> — foto 12MP–64MP di-resize otomatis ke maks 1280px sebelum OCR; eliminasi blank screen &amp; crash di Android WebView</p>'
-      + '<p style="margin:0 0 10px;">⚡ <b>Cancel Token OCR</b> — pilih foto baru saat OCR berjalan otomatis membatalkan proses lama; bebas race condition &amp; memory leak</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.4.0</p>'
+      + '<p style="margin:0 0 4px;">🔔 <b>Tagihan Mendatang Widget</b> — ringkasan tagihan jatuh tempo tampil di summary grid</p>'
+      + '<p style="margin:0 0 4px;">✏️ <b>Edit Alokasi Bank</b> — ubah nama, nominal &amp; tujuan alokasi tanpa hapus &amp; buat ulang</p>'
+      + '<p style="margin:0 0 10px;">📅 <b>Tanggal Jatuh Tempo Tagihan</b> — migrasi otomatis format dueDay → dueDate; badge Overdue &amp; Hari H</p>'
+      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.3.5</p>'
+      + '<p style="margin:0 0 4px;">🎨 <b>Tema Old Grey</b> — perbaikan warna menyeluruh pada dropdown, panel LIVE, dan OCR overlay</p>'
+      + '<p style="margin:0 0 4px;">📓 <b>PIMA Ledger</b> — catat utang &amp; piutang; tandai lunas dengan satu tap</p>'
+      + '<p style="margin:0 0 4px;">🧮 <b>PIMA Simulator</b> — kalkulator dana darurat &amp; bunga majemuk real-time</p>'
+      + '<p style="margin:0 0 4px;">🖼️ <b>PIMA Vision Gallery</b> — anti-freeze resize 12–64MP; cancel token OCR bebas memory leak</p>'
   }
 });
 
@@ -10690,19 +11435,42 @@ try{(function initLuxuryGyro(){
 </script>
 
 
-  <!-- ─── PWA v3.3.1: Service Worker + Install Prompt ───────────────────── -->
+  <!-- ─── PWA v3.4.0: Service Worker + Install Prompt ───────────────────── -->
   <script>
-  // Service Worker registration — hanya aktif jika di-serve via HTTP/S
-  // (tidak bisa bekerja di file://, claudeusercontent.com, atau preview URL)
+  // Service Worker registration
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').then(reg => {
+      navigator.serviceWorker.register('sw.js').then(async reg => {
         console.log('[PMPK SW] Registered:', reg.scope);
+
+        // Periodic Background Sync — Android Chrome 80+
+        if ('periodicSync' in reg) {
+          try {
+            const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+            if (status.state === 'granted') {
+              await reg.periodicSync.register('pmpk-daily-reminder', { minInterval: 24 * 60 * 60 * 1000 });
+              console.log('[PMPK SW] PeriodicSync registered');
+            }
+          } catch(e) { /* Not supported — silent fail */ }
+        }
+
+        // Background Sync — fallback
+        if ('sync' in reg) {
+          try { await reg.sync.register('pmpk-bill-check'); } catch(e) {}
+        }
       }).catch(err => {
-        // Hanya log jika bukan domain deployment (tidak perlu user lihat)
         if (location.hostname === 'localhost' || location.hostname.endsWith('github.io')) {
           console.warn('[PMPK SW] Registration failed:', err.message);
         }
+      });
+
+      // Dengarkan pesan dari SW (notif click → buka tab tagihan)
+      navigator.serviceWorker.addEventListener('message', e => {
+        const { type } = e.data || {};
+        if (type === 'NOTIF_CLICK' || type === 'BG_SYNC_BILL_CHECK') {
+          try { if(typeof switchTabByName==='function') switchTabByName('tagihan'); } catch(ex){}
+        }
+        if (type === 'PONG') console.log('[PMPK SW] Pong v'+e.data.version);
       });
     });
   }
@@ -10734,7 +11502,264 @@ try{(function initLuxuryGyro(){
   // PIN migration on first boot
   document.addEventListener('DOMContentLoaded', async () => {
     if (typeof _migratePinIfNeeded === 'function') await _migratePinIfNeeded();
+    // v3.4.0: migrasi dueDay → dueDate
+    const migCount = _migrateBillDates();
+    if(migCount>0) { renderBills(); renderUpcomingBills(); toast(`📅 ${migCount} tagihan dimigrasi ke format tanggal`,'info'); }
+    // v3.4.0: onboarding notifikasi
+    _onboardingNotifPrompt();
+    // v3.4.0: auto-check notifikasi
+    _autoCheckNotifications();
+    // v3.4.0: close notif & editbank modal on backdrop click
+    const _nm=document.getElementById('notifModal');
+    if(_nm) _nm.addEventListener('click',function(e){ if(e.target===this) closeNotifModal(); });
+    const _em=document.getElementById('editBankModal');
+    if(_em) _em.addEventListener('click',function(e){ if(e.target===this) closeEditBankModal(); });
   }, { once: true });
+
+/* ══════════════════════════════════════════════════════════════
+   PIMA EXCHANGE WIDGET — v3.5.0
+   Dashboard shortcut card showing live rates for favorite currencies.
+   Reads from _convRates (already fetched by kursFetchAll) — zero extra
+   network calls. Falls back to localStorage snapshot if rates not ready.
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+  const EXW_FAV_KEY      = 'pimapika_exw_favorites';
+  const EXW_PREV_KEY     = 'pimapika_exw_prev_rates';
+  const DEFAULT_FAVS     = ['USD','EUR','SGD','JPY'];
+  const MAX_FAVS         = 4;
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function exwLoadFavs() {
+    try {
+      const raw = localStorage.getItem(EXW_FAV_KEY);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr) && arr.length >= 1) return arr.slice(0, MAX_FAVS);
+      }
+    } catch(e) {}
+    return [...DEFAULT_FAVS];
+  }
+
+  function exwSaveFavs(arr) {
+    try { localStorage.setItem(EXW_FAV_KEY, JSON.stringify(arr)); } catch(e) {}
+  }
+
+  function exwLoadPrevRates() {
+    try {
+      const raw = localStorage.getItem(EXW_PREV_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e) { return {}; }
+  }
+
+  function exwSavePrevRates(obj) {
+    try { localStorage.setItem(EXW_PREV_KEY, JSON.stringify(obj)); } catch(e) {}
+  }
+
+  // Get rate: 1 code = X IDR
+  function exwGetRate(code) {
+    const rates = (typeof _convRates !== 'undefined' && _convRates) || (function(){
+      try {
+        const raw = localStorage.getItem('pimapika_kurs_rates_usd');
+        if (raw) { const d = JSON.parse(raw); return d && d.rates ? d.rates : null; }
+      } catch(e) {} return null;
+    })();
+    if (!rates) return null;
+    if (code === 'IDR') return 1;
+    const rCode = rates[code];
+    const rIDR  = rates['IDR'];
+    if (!rCode || !rIDR || rCode === 0) return null;
+    return rIDR / rCode; // 1 code = ? IDR
+  }
+
+  function exwFormatRate(code, rate) {
+    if (rate === null) return '—';
+    // JPY, KRW etc may show as smaller numbers to IDR — but still large
+    if (code === 'IDR') return '1';
+    // Format nicely with thousand separator
+    if (rate >= 1000) {
+      return Math.round(rate).toLocaleString('id-ID');
+    } else if (rate >= 1) {
+      return rate.toFixed(2);
+    } else {
+      return rate.toFixed(4);
+    }
+  }
+
+  function exwChangeLabel(code, rate, prev) {
+    if (prev === null || rate === null) return { text:'—', cls:'flat' };
+    const pct = ((rate - prev) / prev) * 100;
+    if (Math.abs(pct) < 0.005) return { text:'—', cls:'flat' };
+    const sign = pct > 0 ? '▲' : '▼';
+    return {
+      text: sign + ' ' + Math.abs(pct).toFixed(2) + '%',
+      cls: pct > 0 ? 'up' : 'down'
+    };
+  }
+
+  // ── Main render ───────────────────────────────────────────────
+  function exwRender() {
+    const skelEl   = document.getElementById('exwSkeleton');
+    const ratesEl  = document.getElementById('exwRates');
+    const errorEl  = document.getElementById('exwError');
+    const statusEl = document.getElementById('exwStatusText');
+    const dotEl    = document.getElementById('exwLiveDot');
+    if (!skelEl || !ratesEl || !errorEl) return;
+
+    const favs    = exwLoadFavs();
+    const prev    = exwLoadPrevRates();
+    const newPrev = {};
+    let   anyRate = false;
+
+    // Check if we have rates
+    const sampleRate = exwGetRate('USD');
+    if (sampleRate === null) {
+      // Still loading or failed — show skeleton for a bit, then error
+      skelEl.style.display  = 'flex';
+      ratesEl.style.display = 'none';
+      errorEl.style.display = 'none';
+      if (statusEl) { statusEl.textContent = 'Memuat…'; statusEl.className = 'exw-updated-text'; }
+      if (dotEl) dotEl.style.display = 'none';
+      return;
+    }
+
+    // Build rows
+    const catalog = (typeof CURRENCY_CATALOG !== 'undefined') ? CURRENCY_CATALOG : {};
+    let html = '';
+    favs.forEach(code => {
+      const info = catalog[code] || { name: code, flag: '🏳️' };
+      const rate = exwGetRate(code);
+      if (rate !== null) anyRate = true;
+      newPrev[code] = rate;
+      const rateStr = exwFormatRate(code, rate);
+      const chg     = exwChangeLabel(code, rate, prev[code] || null);
+      html += `
+        <div class="exw-rate-row">
+          <div class="exw-left">
+            <span class="exw-flag">${info.flag}</span>
+            <span class="exw-code">${code}</span>
+          </div>
+          <span></span>
+          <div class="exw-right">
+            <span class="exw-rate-val">Rp ${rateStr}</span>
+            <span class="exw-change ${chg.cls}">${chg.text}</span>
+          </div>
+        </div>`;
+    });
+
+    if (!anyRate) {
+      skelEl.style.display  = 'none';
+      ratesEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      if (statusEl) { statusEl.textContent = 'Gagal'; statusEl.className = 'exw-updated-text'; }
+      if (dotEl) dotEl.style.display = 'none';
+      return;
+    }
+
+    ratesEl.innerHTML     = html;
+    skelEl.style.display  = 'none';
+    ratesEl.style.display = 'flex';
+    errorEl.style.display = 'none';
+
+    // Save prev rates for change indicator next render
+    exwSavePrevRates(newPrev);
+
+    // Status
+    if (statusEl && dotEl) {
+      const fetched = (typeof _kursFetchedAt !== 'undefined') ? _kursFetchedAt : 0;
+      if (fetched && (Date.now() - fetched) < 5 * 60 * 1000) {
+        // fresh — show Live
+        dotEl.style.display = 'inline-block';
+        statusEl.textContent = 'Live';
+        statusEl.className = 'exw-live-text';
+      } else if (fetched) {
+        dotEl.style.display = 'none';
+        // Show HH:MM
+        const d = new Date(fetched);
+        const hh = String(d.getHours()).padStart(2,'0');
+        const mm = String(d.getMinutes()).padStart(2,'0');
+        statusEl.textContent = `Updated ${hh}:${mm}`;
+        statusEl.className = 'exw-updated-text';
+      } else {
+        dotEl.style.display = 'none';
+        statusEl.textContent = 'Cache';
+        statusEl.className = 'exw-updated-text';
+      }
+    }
+  }
+
+  // ── Settings: favorite currency picker ───────────────────────
+  function exwRenderFavGrid() {
+    const grid = document.getElementById('exwFavGrid');
+    if (!grid) return;
+    const catalog = (typeof CURRENCY_CATALOG !== 'undefined') ? CURRENCY_CATALOG : {};
+    const current = exwLoadFavs();
+    const codes   = Object.keys(catalog).filter(c => c !== 'IDR');
+    let html = '';
+    codes.forEach(code => {
+      const info   = catalog[code] || { name: code, flag:'🏳️' };
+      const active = current.includes(code);
+      html += `<div class="exw-fav-chip${active?' selected':''}" data-code="${code}"
+                    onclick="exwToggleFav('${code}',this)">
+                 ${info.flag} ${code}
+               </div>`;
+    });
+    grid.innerHTML = html;
+    _exwUpdateFavHint();
+  }
+
+  function _exwUpdateFavHint() {
+    // no-op: max-limit feedback handled via toast in exwToggleFav
+  }
+
+  // Expose globally for onclick
+  window.exwToggleFav = function(code, el) {
+    const current = exwLoadFavs();
+    const idx = current.indexOf(code);
+    if (idx >= 0) {
+      if (current.length <= 1) return; // keep at least 1
+      current.splice(idx, 1);
+      el.classList.remove('selected');
+    } else {
+      if (current.length >= MAX_FAVS) {
+        toast(`Maksimal ${MAX_FAVS} mata uang favorit`, 'info');
+        return;
+      }
+      current.push(code);
+      el.classList.add('selected');
+    }
+    exwSaveFavs(current);
+    _exwUpdateFavHint();
+    exwRender(); // live update widget
+  };
+
+  // ── Hook into app lifecycle ───────────────────────────────────
+  // 1. When settings modal opens, render the fav grid
+  const _origOpenSetting = window.openSettingModal;
+  window.openSettingModal = function() {
+    if (typeof _origOpenSetting === 'function') _origOpenSetting.apply(this, arguments);
+    setTimeout(exwRenderFavGrid, 50);
+  };
+
+  // 2. After kursFetchAll resolves, re-render widget
+  const _origKursFetchAll = window.kursFetchAll;
+  window.kursFetchAll = async function(force) {
+    const result = await _origKursFetchAll.apply(this, arguments);
+    exwRender();
+    return result;
+  };
+
+  // 3. Boot: try to render immediately from cache, then wait for fresh data
+  document.addEventListener('DOMContentLoaded', function() {
+    // Slight delay so _convRates may have loaded from localStorage already
+    setTimeout(exwRender, 300);
+    // Retry if still skeleton after 4s
+    setTimeout(function(){
+      const skelEl = document.getElementById('exwSkeleton');
+      if (skelEl && skelEl.style.display !== 'none') exwRender();
+    }, 4000);
+  }, { once: true });
+
+})(); /* end PIMA Exchange Widget */
   </script>
 </body>
 </html>
