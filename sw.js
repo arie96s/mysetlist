@@ -1,142 +1,226 @@
-/**
- * PIMAPIKA Pro v3.3.1 — Service Worker
- * Strategy: Cache-first untuk asset statis, Network-first untuk data API
- * Offline fallback: tampilkan UI dari cache jika jaringan gagal
- */
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  PIMAPIKA Pro — Service Worker v3.4.0                       ║
+// ║  Android Chrome · Samsung Internet · Edge Mobile            ║
+// ║  Notification API · Push API · Background Sync              ║
+// ║  FCM-ready architecture                                     ║
+// ╚══════════════════════════════════════════════════════════════╝
 
-const CACHE_NAME   = 'pimapika-v3.3.2';
-const OFFLINE_URL  = './PIMAPIKA-Pro-v3_3_1.html';
+'use strict';
 
-// Asset yang di-pre-cache saat install
+const SW_VERSION   = '3.4.0';
+const CACHE_NAME   = `pimapika-v${SW_VERSION}`;
+const OFFLINE_URL  = './';
+
+// ─── Assets to pre-cache ───────────────────────────────────────
 const PRECACHE_ASSETS = [
-  './PIMAPIKA-Pro-v3_3_1.html',
-  './manifest.json',
+  './',
   './PMPK.webp',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/Tesseract.js/4.1.1/tesseract.min.js',
+  // Tambahkan aset statis lain jika diperlukan
 ];
 
-// ─── INSTALL: pre-cache aset utama ─────────────────────────────────────────
+// ─── INSTALL ──────────────────────────────────────────────────
 self.addEventListener('install', event => {
+  console.log(`[PMPK SW ${SW_VERSION}] Installing…`);
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      // Buka satu per satu agar 1 CDN gagal tidak block semua
-      return Promise.allSettled(
-        PRECACHE_ASSETS.map(url =>
-          cache.add(url).catch(e => console.warn('[SW] Precache skip:', url, e.message))
-        )
-      );
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE_ASSETS.map(u => new Request(u, { cache: 'reload' }))))
+      .then(() => {
+        console.log(`[PMPK SW] Pre-cache done`);
+        return self.skipWaiting(); // Activate immediately
+      })
+      .catch(err => console.warn('[PMPK SW] Pre-cache partial failure:', err))
   );
 });
 
-// ─── ACTIVATE: hapus cache versi lama ──────────────────────────────────────
+// ─── ACTIVATE ─────────────────────────────────────────────────
 self.addEventListener('activate', event => {
+  console.log(`[PMPK SW ${SW_VERSION}] Activating…`);
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => {
-          console.log('[SW] Deleting old cache:', k);
-          return caches.delete(k);
-        })
-      )
-    ).then(() => self.clients.claim())
+    Promise.all([
+      // Hapus cache versi lama
+      caches.keys().then(keys =>
+        Promise.all(
+          keys
+            .filter(key => key.startsWith('pimapika-') && key !== CACHE_NAME)
+            .map(key => {
+              console.log(`[PMPK SW] Deleting old cache: ${key}`);
+              return caches.delete(key);
+            })
+        )
+      ),
+      // Ambil alih semua client tanpa reload
+      self.clients.claim()
+    ])
   );
 });
 
-// ─── FETCH: strategi hybrid ─────────────────────────────────────────────────
+// ─── FETCH — Cache-first untuk aset, Network-first untuk API ──
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET dan chrome-extension
+  // Skip non-GET dan cross-origin (kecuali CDN tertentu)
   if (request.method !== 'GET') return;
-  if (url.protocol === 'chrome-extension:') return;
+  if (url.origin !== self.location.origin &&
+      !url.hostname.endsWith('cdnjs.cloudflare.com') &&
+      !url.hostname.endsWith('fonts.googleapis.com') &&
+      !url.hostname.endsWith('fonts.gstatic.com')) return;
 
-  // API calls (exchange rate, news, jina) → Network-first, no offline cache
-  const isApiCall = [
-    'open.er-api.com', 'api.exchangerate-api.com',
-    'api.allorigins.win', 'corsproxy.io', 'api.codetabs.com',
-    'r.jina.ai', 'news.google.com'
-  ].some(h => url.hostname.includes(h));
-
-  if (isApiCall) {
-    // Network-only — jangan cache respons API (data berubah terus)
+  // Network-first untuk navigasi utama (biar selalu fresh)
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() =>
-        new Response(JSON.stringify({ error: 'offline' }), {
-          headers: { 'Content-Type': 'application/json' }
-        })
-      )
-    );
-    return;
-  }
-
-  // Gambar lokal (logo, dll) → Cache-first, abaikan query string cache-busting.
-  // BUG FIX v3.3.2: sebelumnya request gambar (mis. PMPK.webp?r=12345 dari retry
-  // cache-busting di header/intro logo) jatuh ke cabang "HTML app utama" di bawah,
-  // yang saat gagal/miss akan fallback ke OFFLINE_URL (file HTML!) sebagai response
-  // gambar → <img> menerima HTML, gagal render → onerror lagi → logo flicker/hilang
-  // berulang. Sekarang gambar lokal selalu cache-first & match tanpa query string.
-  if (/\.(webp|png|jpe?g|gif|svg|ico)$/i.test(url.pathname) && url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(request, { ignoreSearch: true }).then(cached => {
-        if (cached) return cached;
-        return fetch(request).then(resp => {
-          if (resp && resp.status === 200) {
-            const clone = resp.clone();
-            caches.open(CACHE_NAME).then(c => c.put(new Request(url.origin + url.pathname), clone));
+      fetch(request)
+        .then(res => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(request, clone));
           }
-          return resp;
-        }).catch(() => caches.match(request, { ignoreSearch: true }));
-      })
+          return res;
+        })
+        .catch(() => caches.match(request).then(cached => cached || caches.match(OFFLINE_URL)))
     );
     return;
   }
 
-  // Google Fonts & CDN → Cache-first
-  if (url.hostname.includes('fonts.googleapis.com') ||
-      url.hostname.includes('fonts.gstatic.com') ||
-      url.hostname.includes('cdnjs.cloudflare.com') ||
-      url.hostname.includes('cdn.jsdelivr.net')) {
+  // Cache-first untuk aset statis (.webp, font, icon)
+  if (/\.(webp|png|jpg|jpeg|svg|ico|woff2?|ttf)$/.test(url.pathname)) {
     event.respondWith(
       caches.match(request).then(cached => {
         if (cached) return cached;
-        return fetch(request).then(resp => {
-          if (resp && resp.status === 200) {
-            const clone = resp.clone();
+        return fetch(request).then(res => {
+          if (res.ok) {
+            const clone = res.clone();
             caches.open(CACHE_NAME).then(c => c.put(request, clone));
           }
-          return resp;
-        }).catch(() => new Response('', { status: 503 }));
+          return res;
+        }).catch(() => cached);
       })
     );
     return;
   }
+});
 
-  // HTML app utama → Network-first dengan offline fallback ke cache
-  event.respondWith(
-    fetch(request).then(resp => {
-      if (resp && resp.status === 200) {
-        const clone = resp.clone();
-        caches.open(CACHE_NAME).then(c => c.put(request, clone));
-      }
-      return resp;
-    }).catch(() =>
-      caches.match(request).then(cached =>
-        cached || caches.match(OFFLINE_URL)
-      )
-    )
+// ─── PUSH (FCM-ready) ─────────────────────────────────────────
+self.addEventListener('push', event => {
+  let data = { title: '🔔 PIMAPIKA', body: 'Ada pengingat tagihan baru.', tag: 'pimpk-push' };
+  try {
+    if (event.data) {
+      const parsed = event.data.json();
+      data = { ...data, ...parsed };
+    }
+  } catch (e) {
+    if (event.data) data.body = event.data.text();
+  }
+
+  const options = {
+    body      : data.body,
+    icon      : data.icon  || './PMPK.webp',
+    badge     : data.badge || './PMPK.webp',
+    tag       : data.tag   || 'pmpk-push',
+    vibrate   : [200, 100, 200, 100, 200],
+    requireInteraction: false,
+    data      : { url: data.url || self.location.origin, timestamp: Date.now() },
+    actions   : [
+      { action: 'open',    title: '📂 Buka Tagihan' },
+      { action: 'dismiss', title: '✕ Tutup'         }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
   );
 });
 
-// ─── SYNC: background sync untuk kirim data tertunda (future) ──────────────
+// ─── NOTIFICATION CLICK ───────────────────────────────────────
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+
+  if (event.action === 'dismiss') return;
+
+  const targetUrl = (event.notification.data && event.notification.data.url)
+    ? event.notification.data.url
+    : self.location.origin;
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(windowClients => {
+        // Fokus tab yang sudah terbuka jika ada
+        for (const client of windowClients) {
+          if (client.url === targetUrl && 'focus' in client) {
+            client.postMessage({ type: 'NOTIF_CLICK', action: 'openTagihan' });
+            return client.focus();
+          }
+        }
+        // Buka tab baru
+        if (clients.openWindow) return clients.openWindow(targetUrl);
+      })
+  );
+});
+
+// ─── NOTIFICATION CLOSE ───────────────────────────────────────
+self.addEventListener('notificationclose', event => {
+  // Analytics hook (optional)
+  console.log('[PMPK SW] Notification closed:', event.notification.tag);
+});
+
+// ─── BACKGROUND SYNC ──────────────────────────────────────────
 self.addEventListener('sync', event => {
-  if (event.tag === 'pmpk-sync') {
-    console.log('[SW] Background sync triggered');
+  if (event.tag === 'pmpk-bill-check') {
+    event.waitUntil(_backgroundBillCheck());
   }
 });
 
-console.log('[PMPK SW] v3.3.1 loaded');
+async function _backgroundBillCheck() {
+  // Background sync: kirim notifikasi tagihan mendatang jika ada
+  // Data dibaca dari IndexedDB / message dari client (arsitektur ringan)
+  const windowClients = await clients.matchAll({ type: 'window' });
+  for (const client of windowClients) {
+    client.postMessage({ type: 'BG_SYNC_BILL_CHECK' });
+  }
+}
+
+// ─── MESSAGE (komunikasi 2-arah dengan halaman) ───────────────
+self.addEventListener('message', event => {
+  const { type, payload } = event.data || {};
+
+  switch (type) {
+    // Halaman meminta SW untuk menampilkan notifikasi
+    case 'SHOW_NOTIFICATION': {
+      const { title, body, tag, billId } = payload || {};
+      if (!title) break;
+      self.registration.showNotification(title, {
+        body      : body || '',
+        icon      : './PMPK.webp',
+        badge     : './PMPK.webp',
+        tag       : tag  || `pmpk-bill-${billId || Date.now()}`,
+        vibrate   : [200, 100, 200],
+        data      : { url: self.location.origin, billId }
+      });
+      break;
+    }
+
+    // Skip waiting — halaman meminta aktifkan SW baru segera
+    case 'SKIP_WAITING': {
+      self.skipWaiting();
+      break;
+    }
+
+    // Ping — health check dari halaman
+    case 'PING': {
+      event.source && event.source.postMessage({ type: 'PONG', version: SW_VERSION });
+      break;
+    }
+
+    default:
+      break;
+  }
+});
+
+// ─── PERIODIC BACKGROUND SYNC (Chrome 80+ Android) ───────────
+self.addEventListener('periodicsync', event => {
+  if (event.tag === 'pmpk-daily-reminder') {
+    event.waitUntil(_backgroundBillCheck());
+  }
+});
+
+console.log(`[PMPK SW ${SW_VERSION}] Script parsed OK`);
