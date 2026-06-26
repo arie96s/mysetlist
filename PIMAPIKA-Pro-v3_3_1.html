@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+/* Global error shield — tangkap error dari CDN script yang gagal load */
+window.addEventListener('error', function(e){
+  if(e && e.filename && !e.filename.includes(location.hostname)){
+    // Error dari script eksternal — abaikan, tidak ganggu app
+    e.preventDefault();
+    return true;
+  }
+}, true);
+</script>
 <script>/* Anti-FOUC PIMAPIKA — harus paling awal di <head> */(function(){try{var s=localStorage.getItem('pimapika_state');if(!s)return;var t=JSON.parse(s).appTheme;var m={light:'light-mode',oldgrey:'theme-oldgrey',luxury:'theme-luxury'};var c=m[t];if(c)document.documentElement.classList.add(c);}catch(e){}})();</script>
 <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
@@ -16,8 +26,8 @@
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PMPK] jsPDF gagal dimuat')"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PMPK] Chart.js gagal dimuat')"></script>
 <style>
   /* ── Anti-FOUC: background instan sebelum body ter-render ── */
   html.light-mode    { background: #f1f5f9; color-scheme: light; }
@@ -691,7 +701,7 @@
   .health-tip-icon{flex-shrink:0;font-size:14px;}
   .health-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;}
   .health-metric{padding:12px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);text-align:center;}
-  .health-metric .mval{font-size:17px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .health-metric .mval{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:normal;overflow:hidden;word-break:break-word;line-height:1.3;}
   .health-metric .mlabel{font-size:10px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
 
   /* ── PDF/BOTTOM BAR ── */
@@ -3779,9 +3789,11 @@ document.addEventListener('visibilitychange', function(){
 
     <!-- ── Tagihan Mendatang Widget (v3.4.0) ── -->
     <div class="glass sum-card" id="upcomingBillsWidget" style="cursor:default;min-height:80px;">
-      <span class="sum-icon">🔔</span>
-      <div class="sum-label">Tagihan Mendatang</div>
-      <div id="upcomingBillsList" style="margin-top:8px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+        <span style="font-size:20px;">🔔</span>
+        <div class="sum-label" style="margin:0;font-size:11px;">TAGIHAN MENDATANG</div>
+      </div>
+      <div id="upcomingBillsList" style="margin-top:8px;max-height:174px;overflow-y:auto;overflow-x:hidden;padding-right:2px;">
         <div style="font-size:12px;color:var(--text-muted);">Tidak ada tagihan mendatang</div>
       </div>
     </div>
@@ -4260,7 +4272,7 @@ document.addEventListener('visibilitychange', function(){
       <!-- PIMA Pulse -->
       <div class="glass" style="padding:22px;margin-top:20px;">
         <div class="sec-title" style="margin-bottom:14px;font-size:13px;"><span>🧠</span>PIMA Pulse</div>
-        <div id="smartStats" class="health-metrics" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));">
+        <div id="smartStats" class="health-metrics" style="grid-template-columns:repeat(2,1fr);">
           <div style="color:var(--text-muted);font-size:13px;">Belum ada data untuk dianalisis.</div>
         </div>
       </div>
@@ -4464,7 +4476,7 @@ document.addEventListener('visibilitychange', function(){
         <div>
           <div class="sec-title"><span>📋</span> Daftar Tagihan <span class="sec-badge" id="billBadge">0</span></div>
           <div id="billList">
-            <div class="empty-state"><div class="empty-icon">🔔</div>Belum ada tagihan rutin</div>
+            <div class="empty-state" style="padding:24px 0;"><div style="font-size:56px;margin-bottom:12px;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.4));">🔔</div><div style="font-weight:700;font-size:15px;margin-bottom:6px;">Belum ada tagihan</div><div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Tambahkan tagihan rutin agar tidak pernah<br>lewat jatuh tempo.</div><button class="btn btn-primary" style="padding:10px 24px;border-radius:999px;font-size:13px;" onclick="document.getElementById('billName').focus();document.getElementById('billName').scrollIntoView({behavior:'smooth',block:'center'});">+ Tambah Tagihan</button></div>
           </div>
           <div style="margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);font-size:12px;color:var(--text-secondary);line-height:1.8;" id="billSummaryBox" style="display:none;">
             <div id="billSummaryText"></div>
@@ -5460,23 +5472,34 @@ function tourRender(idx){
     // Tooltip
     const tip = document.getElementById('tourTip');
     if(tip){
-      tip.className = 'tour-tooltip arrow-'+step.arrow;
-      const tipW = Math.min(280, vw - 24), tipH = 160;
-      let tipTop, tipLeft;
-
-      if(step.arrow==='bottom'){
-        tipTop = rect.top - tipH - 16;
-      } else {
-        tipTop = rect.bottom + 16;
-      }
-      tipLeft = Math.max(12, Math.min(rect.left, vw - tipW - 12));
-      tipTop = Math.max(12, Math.min(tipTop, vh - tipH - 12));
-
-      tip.style.top  = tipTop+'px';
-      tip.style.left = tipLeft+'px';
+      const tipW = Math.min(280, vw - 24);
       tip.style.width = tipW+'px';
-      tip.style.animation = 'none';
-      requestAnimationFrame(()=>{ tip.style.animation=''; });
+      tip.style.top = '-9999px';
+      tip.style.left = '-9999px';
+      tip.style.display = 'block';
+      // Measure actual height after render
+      requestAnimationFrame(()=>{
+        const tipH = tip.offsetHeight || 180;
+        let tipTop, tipLeft;
+        let arrow = step.arrow;
+
+        // Try preferred position, fallback if out of bounds
+        if(arrow==='bottom'){
+          tipTop = rect.top - tipH - 16;
+          if(tipTop < 8){ arrow='top'; tipTop = rect.bottom + 16; }
+        } else {
+          tipTop = rect.bottom + 16;
+          if(tipTop + tipH > vh - 8){ arrow='bottom'; tipTop = rect.top - tipH - 16; }
+        }
+        tipLeft = Math.max(12, Math.min(rect.left, vw - tipW - 12));
+        tipTop  = Math.max(8, Math.min(tipTop, vh - tipH - 8));
+
+        tip.className = 'tour-tooltip arrow-'+arrow;
+        tip.style.top  = tipTop+'px';
+        tip.style.left = tipLeft+'px';
+        tip.style.animation = 'none';
+        requestAnimationFrame(()=>{ tip.style.animation='obFadeUp .3s var(--ease-out) both'; });
+      });
     }
 
     document.getElementById('tourTipStep').textContent  = `${idx+1} / ${TOUR_STEPS.length}`;
@@ -7327,7 +7350,7 @@ function renderBills(){
   if(!list) return;
   document.getElementById('billBadge').textContent=state.bills.length;
   if(!state.bills.length){
-    list.innerHTML='<div class="empty-state"><div class="empty-icon">🔔</div>Belum ada tagihan rutin</div>';
+    list.innerHTML='<div class="empty-state" style="padding:24px 0;"><div style="font-size:56px;margin-bottom:12px;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.4));">🔔</div><div style="font-weight:700;font-size:15px;margin-bottom:6px;">Belum ada tagihan</div><div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Tambahkan tagihan rutin agar tidak pernah<br>lewat jatuh tempo.</div><button class="btn btn-primary" style="padding:10px 24px;border-radius:999px;font-size:13px;" onclick="document.getElementById(\'billName\').focus();document.getElementById(\'billName\').scrollIntoView({behavior:\'smooth\',block:\'center\'});">+ Tambah Tagihan</button></div>';
     document.getElementById('billSummaryBox').style.display='none';
     return;
   }
@@ -7482,7 +7505,7 @@ function renderUpcomingBills(){
   const upcoming=[...state.bills]
     .filter(b=>!(b.paid&&b.paidMonth===state.period))
     .sort((a,b)=>new Date(a.dueDate+'T00:00:00')-new Date(b.dueDate+'T00:00:00'))
-    .slice(0,5);
+    .slice(0,3);
   if(!upcoming.length){
     el.innerHTML='<div style="font-size:12px;color:#34d399;">✅ Semua tagihan sudah lunas!</div>';
     return;
@@ -12514,8 +12537,22 @@ try{(function initLuxuryGyro(){
     } catch(e) { return {}; }
   }
 
+  const EXW_PREV_TS_KEY = 'pimapika_exw_prev_rates_ts';
+
   function exwSavePrevRates(obj) {
     try { localStorage.setItem(EXW_PREV_KEY, JSON.stringify(obj)); } catch(e) {}
+  }
+
+  function exwMaybeSnapshotPrev(newRates) {
+    // Snapshot prev rates only once per 30 minutes so delta is meaningful
+    try {
+      const lastTs = parseInt(localStorage.getItem(EXW_PREV_TS_KEY) || '0');
+      const now = Date.now();
+      if (now - lastTs > 30 * 60 * 1000) {
+        exwSavePrevRates(newRates);
+        localStorage.setItem(EXW_PREV_TS_KEY, String(now));
+      }
+    } catch(e) {}
   }
 
   // Get rate: 1 code = X IDR
@@ -12623,8 +12660,8 @@ try{(function initLuxuryGyro(){
     ratesEl.style.display = 'flex';
     errorEl.style.display = 'none';
 
-    // Save prev rates for change indicator next render
-    exwSavePrevRates(newPrev);
+    // Save prev rates for change indicator next render (throttled to 30min)
+    exwMaybeSnapshotPrev(newPrev);
 
     // Status
     if (statusEl && dotEl) {
@@ -12714,7 +12751,26 @@ try{(function initLuxuryGyro(){
   // 3. Boot: try to render immediately from cache, then wait for fresh data
   document.addEventListener('DOMContentLoaded', function() {
     // Slight delay so _convRates may have loaded from localStorage already
-    setTimeout(exwRender, 300);
+    setTimeout(function() {
+      // On very first boot: if no prev rates exist yet, seed them immediately
+      // so the NEXT refresh (after 30min) can show a real delta
+      try {
+        const hasPrev = localStorage.getItem(EXW_PREV_KEY);
+        if (!hasPrev) {
+          // Seed with current rates so next comparison works
+          const seed = {};
+          ['USD','EUR','SGD','JPY','GBP','AUD','MYR','SAR'].forEach(c => {
+            const r = exwGetRate(c);
+            if (r !== null) seed[c] = r;
+          });
+          if (Object.keys(seed).length > 0) {
+            exwSavePrevRates(seed);
+            try { localStorage.setItem(EXW_PREV_TS_KEY, String(Date.now())); } catch(e) {}
+          }
+        }
+      } catch(e) {}
+      exwRender();
+    }, 300);
     // Retry if still skeleton after 4s
     setTimeout(function(){
       const skelEl = document.getElementById('exwSkeleton');
