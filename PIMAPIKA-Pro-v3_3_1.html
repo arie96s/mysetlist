@@ -4596,7 +4596,7 @@ document.addEventListener('visibilitychange', function(){
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.5.0</div>
+            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.6.0</div>
           </div>
         </div>
 
@@ -5384,6 +5384,11 @@ window.addEventListener('resize', ()=>{
    3. WHAT'S NEW
    ══════════════════════════════════════════ */
 const WN_DATA = {
+  '3.6.0': [
+    { icon:'🚀', title:'Onboarding Engine v3.6.0', desc:'Alur onboarding baru yang lebih mulus dengan 5 slide interaktif, swipe gesture, dan animasi premium.' },
+    { icon:'🎨', title:'Tema Luxury Gold', desc:'Tema eksklusif Gold baru dengan palet warna emas elegan untuk tampilan yang lebih premium.' },
+    { icon:'🔒', title:'Keamanan & Stabilitas', desc:'Perbaikan bug kritis pada flow onboarding, What\'s New, dan berbagai peningkatan performa.' },
+  ],
   '3.5.0': [
     { icon:'🌍', title:'PIMA Exchange Widget', desc:'Shortcut kurs 4 mata uang favorit (USD, EUR, SGD, JPY) langsung di dashboard.' },
     { icon:'📊', title:'Indikator Perubahan Kurs', desc:'▲/▼ hijau & merah otomatis dibanding sesi sebelumnya, dengan status Live/Updated.' },
@@ -11231,7 +11236,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.5.0 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ Baru di v3.6.0 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">🚀 <b>Onboarding Engine v3.6.0</b> — alur onboarding baru yang lebih mulus dengan 5 slide interaktif, swipe gesture, dan animasi premium</p>'
+      + '<p style="margin:0 0 4px;">🎨 <b>Tema Luxury Gold</b> — tema eksklusif Gold baru dengan palet warna emas elegan untuk tampilan yang lebih premium</p>'
+      + '<p style="margin:0 0 10px;">🔒 <b>Keamanan &amp; Stabilitas</b> — perbaikan bug kritis pada flow onboarding, What\'s New, dan berbagai peningkatan performa</p>'
+      + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.5.0</p>'
       + '<p style="margin:0 0 4px;">🌍 <b>PIMA Exchange Widget</b> — shortcut kurs 4 mata uang favorit (USD, EUR, SGD, JPY) langsung di dashboard; tap card untuk buka Exchange</p>'
       + '<p style="margin:0 0 4px;">📊 <b>Indikator Perubahan Kurs</b> — ▲/▼ hijau &amp; merah otomatis dibanding sesi sebelumnya; status <i>Live</i> / <i>Updated HH:MM</i></p>'
       + '<p style="margin:0 0 10px;">⚙️ <b>Pengaturan Mata Uang Favorit</b> — pilih hingga 4 mata uang yang tampil di widget melalui menu Pengaturan</p>'
