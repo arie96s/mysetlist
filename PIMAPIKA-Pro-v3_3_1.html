@@ -945,6 +945,11 @@ window.addEventListener('error', function(e){
 }
 #pmpkOnboarding.ob-hidden{display:none;}
 
+/* Modal wrap: di mobile transparan / pass-through */
+.ob-modal-wrap{
+  display:contents; /* tidak mengubah layout di mobile */
+}
+
 /* Full-bleed gradient background per slide */
 .ob-bg{
   position:absolute;inset:0;
@@ -1291,52 +1296,58 @@ body.theme-luxury .ob-bg-0,.body.theme-luxury .ob-bg-1,.body.theme-luxury .ob-bg
     align-items:center;
     justify-content:center;
     padding-bottom:0;
-    background:rgba(0,0,0,.45);
-    backdrop-filter:blur(4px);
-    -webkit-backdrop-filter:blur(4px);
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
   }
-  .ob-bg{border-radius:28px;}
-  #pmpkOnboarding .ob-track,
-  #pmpkOnboarding .ob-bg{
-    position:absolute;
-    border-radius:28px 28px 0 0;
-  }
-  .ob-sheet{
-    max-width:460px;
-    width:100%;
-    border-radius:0 0 24px 24px;
-    padding:20px 28px 28px;
-    margin:0;
-    box-shadow:0 8px 40px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.25);
-  }
-  .ob-slide{padding:80px 48px 200px;}
-  .ob-slide-desc{max-width:380px;}
-  .ob-emoji{font-size:96px;}
-}
-
-@media (min-width:769px){
-  #pmpkOnboarding:not(.ob-hidden){
+  /* Modal wrapper — semua konten onboarding dibungkus di sini */
+  #pmpkOnboarding > .ob-modal-wrap{
+    position:relative;
+    width:460px;
+    max-width:calc(100vw - 48px);
+    height:min(600px,80vh);
+    max-height:calc(100vh - 80px);
     display:flex;
     flex-direction:column;
-    align-items:center;
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow:0 24px 80px rgba(0,0,0,.6),0 8px 32px rgba(0,0,0,.4);
+    animation:obModalIn .45s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes obModalIn{
+    from{opacity:0;transform:scale(.88) translateY(20px);}
+    to{opacity:1;transform:scale(1) translateY(0);}
+  }
+  /* bg & track mengisi modal wrapper, bukan viewport */
+  .ob-bg{
+    position:absolute;inset:0;
+    border-radius:0;
+  }
+  .ob-track{
+    position:absolute;
+    inset:0;
+    bottom:auto;
+    height:calc(100% - 160px); /* sisakan ruang untuk sheet */
+  }
+  .ob-slide{
+    padding:48px 48px 24px;
+    height:100%;
     justify-content:center;
   }
-  .ob-track,
-  .ob-bg{
-    max-width:460px;
-    max-height:min(600px, 80vh);
-    left:50%;
-    top:50%;
-    transform:translate(-50%, -50%);
-    width:460px;
-    height:min(600px, 80vh);
-  }
+  .ob-slide-desc{max-width:360px;}
+  .ob-emoji{font-size:88px;}
+  /* Sheet menempel di bawah modal wrapper */
   .ob-sheet{
     position:relative;
     z-index:2;
-    margin-top:0;
-    transform:translateY(0);
+    width:100%;
+    max-width:100%;
+    margin:0;
+    margin-top:auto;
     border-radius:0 0 28px 28px;
+    padding:18px 28px 28px;
+    box-shadow:0 -4px 24px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.2);
+    flex-shrink:0;
   }
   @keyframes obSheetIn{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 }
@@ -3744,6 +3755,7 @@ document.addEventListener('visibilitychange', function(){
 
 <!-- ══ PREMIUM ONBOARDING v3.6.0 ══ -->
 <div id="pmpkOnboarding" class="ob-hidden" aria-modal="true" role="dialog">
+  <div class="ob-modal-wrap">
   <!-- Animated gradient backgrounds per slide -->
   <div class="ob-bg ob-bg-0" id="obBg0"><div class="ob-orb ob-orb-a"></div><div class="ob-orb ob-orb-b"></div></div>
   <div class="ob-bg ob-bg-1" id="obBg1" style="opacity:0;"><div class="ob-orb ob-orb-a"></div><div class="ob-orb ob-orb-b"></div></div>
@@ -3825,11 +3837,10 @@ document.addEventListener('visibilitychange', function(){
         <span id="obBtnNextIcon">→</span>
       </button>
       <button class="ob-btn-skip" id="obBtnSkip" onclick="obSkip()">Lewati</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ PRODUCT TOUR ══ -->
+    </div><!-- /.ob-btn-row -->
+  </div><!-- /.ob-sheet -->
+  </div><!-- /.ob-modal-wrap -->
+</div><!-- /#pmpkOnboarding -->
 <div id="pmpkTour">
   <div class="tour-overlay-piece" id="tourOvTop"></div>
   <div class="tour-overlay-piece" id="tourOvBot"></div>
@@ -4992,6 +5003,76 @@ document.addEventListener('visibilitychange', function(){
           <div style="margin-top:6px;font-size:10px;color:var(--text-muted);font-weight:500;line-height:1.6;">
             © 2026 PIMAPIKA.ID<br>
             Designed and developed by Fajri Salam. All rights reserved.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 8. Hubungi Developer -->
+    <div class="setting-collapse" style="margin-top:8px;margin-bottom:8px;">
+      <div class="collapse-head" onclick="toggleCollapse('contactCollapse')" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>📬 Hubungi Developer</span>
+        <span id="contactCollapseChevron" style="transition:transform 0.25s;display:inline-block;">▼</span>
+      </div>
+      <div class="collapse-body" id="contactCollapse" style="padding:0;">
+
+        <!-- Intro -->
+        <div style="padding:14px 16px 10px;border-bottom:1px solid var(--input-border);">
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+            Ada bug? Punya ide fitur baru? Kami selalu terbuka untuk masukan dari pengguna PIMAPIKA. 🙌
+          </div>
+        </div>
+
+        <!-- Report Bug -->
+        <div style="padding:14px 16px;border-bottom:1px solid var(--input-border);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="font-size:20px;">🐛</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary);">Laporkan Bug</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Temukan sesuatu yang tidak berfungsi?</div>
+            </div>
+          </div>
+          <textarea id="bugReportText"
+            placeholder="Deskripsikan bug yang kamu temukan... (mis: saat klik tombol X, terjadi Y)"
+            style="width:100%;min-height:90px;resize:vertical;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text-primary);font-family:'Outfit',sans-serif;line-height:1.6;box-sizing:border-box;outline:none;transition:border-color .2s;"
+            onfocus="this.style.borderColor='var(--accent-blue)'"
+            onblur="this.style.borderColor='var(--input-border)'"
+          ></textarea>
+          <button onclick="pmpkSendEmail('bug')"
+            style="margin-top:8px;width:100%;height:40px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:13px;font-weight:700;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .2s;"
+            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+            🐛 Kirim Laporan Bug
+          </button>
+        </div>
+
+        <!-- Saran & Fitur -->
+        <div style="padding:14px 16px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="font-size:20px;">💡</span>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary);">Saran & Ide Fitur</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">Rekomendasi nama, fitur baru, atau perbaikan UX</div>
+            </div>
+          </div>
+          <textarea id="feedbackText"
+            placeholder="Ide kamu... (mis: tambahkan fitur ekspor ke PDF, nama karakter PIMA yang lebih lucu, dll)"
+            style="width:100%;min-height:90px;resize:vertical;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text-primary);font-family:'Outfit',sans-serif;line-height:1.6;box-sizing:border-box;outline:none;transition:border-color .2s;"
+            onfocus="this.style.borderColor='var(--accent-teal)'"
+            onblur="this.style.borderColor='var(--input-border)'"
+          ></textarea>
+          <button onclick="pmpkSendEmail('feedback')"
+            style="margin-top:8px;width:100%;height:40px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent-blue),var(--accent-teal));color:#fff;font-size:13px;font-weight:700;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .2s;"
+            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+            💡 Kirim Saran
+          </button>
+        </div>
+
+        <!-- Footer email info -->
+        <div style="padding:10px 16px 14px;text-align:center;border-top:1px solid var(--input-border);">
+          <div style="font-size:10px;color:var(--text-muted);line-height:1.6;">
+            Dikirim ke <span style="color:var(--accent-teal);font-weight:600;">fajrisalam96@gmail.com</span><br>
+            via email client perangkatmu
           </div>
         </div>
 
@@ -7160,7 +7241,7 @@ function toggleCollapse(id){
   // tutup semua
   document.querySelectorAll('.collapse-body').forEach(b=>b.style.display='none');
   // reset semua chevron
-  document.querySelectorAll('.collapse-head [id$="Chevron"], #aboutCollapseChevron').forEach(c=>c.style.transform='rotate(0deg)');
+  document.querySelectorAll('.collapse-head [id$="Chevron"], #aboutCollapseChevron, #contactCollapseChevron').forEach(c=>c.style.transform='rotate(0deg)');
   if(hidden){
     el.style.display='block';
     // rotate chevron milik accordion ini
@@ -7169,6 +7250,34 @@ function toggleCollapse(id){
       const chev=head.querySelector('[id$="Chevron"]')||head.querySelector('span:last-child');
       if(chev) chev.style.transform='rotate(180deg)';
     }
+  }
+}
+
+function pmpkSendEmail(type){
+  const DEV_EMAIL = 'fajrisalam96@gmail.com';
+  const appVer = 'PIMAPIKA v3.6.4';
+  const ua = navigator.userAgent.slice(0,80);
+
+  if(type === 'bug'){
+    const msg = (document.getElementById('bugReportText')?.value||'').trim();
+    if(!msg){ showToast('⚠️ Tulis dulu deskripsi bug-nya ya!'); return; }
+    const subject = encodeURIComponent(`[BUG REPORT] ${appVer}`);
+    const body = encodeURIComponent(
+      `Halo Fajri,\n\nSaya menemukan bug pada ${appVer}:\n\n${msg}\n\n---\nDevice info: ${ua}\n---\nDikirim dari PIMAPIKA Settings`
+    );
+    window.open(`mailto:${DEV_EMAIL}?subject=${subject}&body=${body}`, '_blank');
+    document.getElementById('bugReportText').value = '';
+    showToast('🐛 Membuka email client...');
+  } else {
+    const msg = (document.getElementById('feedbackText')?.value||'').trim();
+    if(!msg){ showToast('⚠️ Tulis dulu saran atau ide kamu ya!'); return; }
+    const subject = encodeURIComponent(`[FEEDBACK] ${appVer}`);
+    const body = encodeURIComponent(
+      `Halo Fajri,\n\nSaya punya saran/ide untuk ${appVer}:\n\n${msg}\n\n---\nDikirim dari PIMAPIKA Settings`
+    );
+    window.open(`mailto:${DEV_EMAIL}?subject=${subject}&body=${body}`, '_blank');
+    document.getElementById('feedbackText').value = '';
+    showToast('💡 Membuka email client...');
   }
 }
 
