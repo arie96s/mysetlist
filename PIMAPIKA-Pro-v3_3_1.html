@@ -22,7 +22,7 @@ window.addEventListener('error', function(e){
 <meta name="application-name" content="PIMAPIKA">
 <meta name="description" content="PIMAPIKA.ID — Aplikasi manajemen keuangan pribadi cerdas.">
 <link rel="manifest" href="manifest.json">
-<title>PIMAPIKA.ID v3.6.1 — Manajemen Keuangan</title>
+<title>PIMAPIKA.ID v3.6.4 — Manajemen Keuangan</title>
 <link rel="icon" type="image/png" href="PMPK.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -703,6 +703,176 @@ window.addEventListener('error', function(e){
   .health-metric{padding:12px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);text-align:center;}
   .health-metric .mval{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:normal;overflow:hidden;word-break:break-word;line-height:1.3;}
   .health-metric .mlabel{font-size:10px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
+
+  /* ── PIMA Advice ── */
+  .advice-panel {
+    margin-top: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--advice-border, rgba(255,255,255,0.12));
+    background: var(--advice-bg, rgba(255,255,255,0.05));
+    backdrop-filter: blur(20px);
+    transition: border-color .4s, background .4s;
+  }
+  .advice-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s;
+  }
+  .advice-header.open { border-bottom-color: var(--advice-border, rgba(255,255,255,0.10)); }
+  .advice-header-icon {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    background: var(--advice-icon-bg, rgba(255,255,255,0.1));
+    flex-shrink: 0;
+    transition: background .4s;
+  }
+  .advice-header-text { flex: 1; }
+  .advice-header-title {
+    font-size: 13px; font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: .3px;
+  }
+  .advice-header-sub {
+    font-size: 11px; color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .advice-chevron {
+    font-size: 12px; color: var(--text-muted);
+    transition: transform .35s var(--spring);
+    flex-shrink: 0;
+  }
+  .advice-chevron.open { transform: rotate(180deg); }
+  .advice-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .45s var(--ease-out), padding .3s;
+    padding: 0 20px;
+  }
+  .advice-body.open { max-height: 600px; padding: 18px 20px; }
+  .advice-grade-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .5px; text-transform: uppercase;
+    margin-bottom: 14px;
+    background: var(--advice-badge-bg, rgba(255,255,255,0.1));
+    color: var(--advice-badge-color, var(--text-primary));
+    border: 1px solid var(--advice-badge-border, rgba(255,255,255,0.15));
+  }
+  .advice-main-text {
+    font-size: 13.5px; line-height: 1.65;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .advice-actions {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .advice-action-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    font-size: 12px; color: var(--text-secondary);
+    line-height: 1.5;
+    animation: slideIn .3s var(--spring);
+  }
+  .advice-action-num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--advice-num-bg, rgba(255,255,255,0.12));
+    color: var(--advice-num-color, var(--text-primary));
+    font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .advice-motivate {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--advice-motivate-bg, rgba(255,255,255,0.06));
+    border-left: 3px solid var(--advice-motivate-accent, #6366f1);
+    font-size: 12px; font-style: italic;
+    color: var(--text-secondary); line-height: 1.6;
+  }
+
+  /* Score tier color overrides */
+  .advice-panel.tier-critical {
+    --advice-bg: rgba(239,68,68,0.06);
+    --advice-border: rgba(239,68,68,0.25);
+    --advice-icon-bg: rgba(239,68,68,0.18);
+    --advice-badge-bg: rgba(239,68,68,0.18);
+    --advice-badge-color: #f87171;
+    --advice-badge-border: rgba(239,68,68,0.3);
+    --advice-num-bg: rgba(239,68,68,0.2);
+    --advice-num-color: #f87171;
+    --advice-motivate-accent: #ef4444;
+    --advice-motivate-bg: rgba(239,68,68,0.07);
+  }
+  .advice-panel.tier-caution {
+    --advice-bg: rgba(245,158,11,0.06);
+    --advice-border: rgba(245,158,11,0.25);
+    --advice-icon-bg: rgba(245,158,11,0.18);
+    --advice-badge-bg: rgba(245,158,11,0.18);
+    --advice-badge-color: #fbbf24;
+    --advice-badge-border: rgba(245,158,11,0.3);
+    --advice-num-bg: rgba(245,158,11,0.2);
+    --advice-num-color: #fbbf24;
+    --advice-motivate-accent: #f59e0b;
+    --advice-motivate-bg: rgba(245,158,11,0.07);
+  }
+  .advice-panel.tier-good {
+    --advice-bg: rgba(16,185,129,0.06);
+    --advice-border: rgba(16,185,129,0.25);
+    --advice-icon-bg: rgba(16,185,129,0.18);
+    --advice-badge-bg: rgba(16,185,129,0.18);
+    --advice-badge-color: #34d399;
+    --advice-badge-border: rgba(16,185,129,0.3);
+    --advice-num-bg: rgba(16,185,129,0.2);
+    --advice-num-color: #34d399;
+    --advice-motivate-accent: #10b981;
+    --advice-motivate-bg: rgba(16,185,129,0.07);
+  }
+  .advice-panel.tier-excellent {
+    --advice-bg: rgba(99,102,241,0.07);
+    --advice-border: rgba(99,102,241,0.28);
+    --advice-icon-bg: rgba(99,102,241,0.2);
+    --advice-badge-bg: rgba(99,102,241,0.2);
+    --advice-badge-color: #a78bfa;
+    --advice-badge-border: rgba(99,102,241,0.3);
+    --advice-num-bg: rgba(99,102,241,0.2);
+    --advice-num-color: #a78bfa;
+    --advice-motivate-accent: #8b5cf6;
+    --advice-motivate-bg: rgba(99,102,241,0.07);
+  }
+
+  /* Health widget red dot indicator */
+  .health-advice-dot {
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #ef4444;
+    border: 2px solid var(--bg-grad1, #0f172a);
+    box-shadow: 0 0 0 0 rgba(239,68,68,0.6);
+    animation: adviceDotPulse 1.8s ease-in-out infinite;
+    z-index: 10;
+  }
+  .sum-card.sum-health { overflow: visible; }
+  @keyframes adviceDotPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.65); opacity: 1; }
+    50%      { box-shadow: 0 0 0 5px rgba(239,68,68,0); opacity: .85; }
+  }
 
   /* ── PDF/BOTTOM BAR ── */
   .pdf-bar{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:28px;}
@@ -3780,7 +3950,8 @@ document.addEventListener('visibilitychange', function(){
       <div class="sum-sub" id="sumAllocatedPct">0% dari pemasukan</div>
     </div>
     <!-- PIMA Health card (standalone) -->
-    <div class="glass sum-card sum-health" style="cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat PIMA Health">
+    <div class="glass sum-card sum-health" style="cursor:pointer;" onclick="switchTabByName('analitik')" title="Lihat PIMA Health — ada advice baru!">
+      <div class="health-advice-dot" id="healthAdviceDot" title="Ada advice finansial untukmu!"></div>
       <span class="sum-icon">💡</span>
       <div class="sum-label">PIMA Health</div>
       <div class="sum-val" id="sumHealthScore">—</div>
@@ -4246,6 +4417,21 @@ document.addEventListener('visibilitychange', function(){
           <div class="health-metric">
             <div class="mval" id="metricAllocRate">—</div>
             <div class="mlabel">Alokasi Rate</div>
+          </div>
+        </div>
+
+        <!-- PIMA Advice — Financial Coach -->
+        <div class="advice-panel tier-good" id="advicePanel" style="margin-top:16px;">
+          <div class="advice-header" id="adviceHeader" onclick="toggleAdvicePanel()">
+            <div class="advice-header-icon" id="adviceHeaderIcon">🎯</div>
+            <div class="advice-header-text">
+              <div class="advice-header-title">PIMA Advice</div>
+              <div class="advice-header-sub" id="adviceHeaderSub">Financial coach personal kamu</div>
+            </div>
+            <div class="advice-chevron" id="adviceChevron">▼</div>
+          </div>
+          <div class="advice-body" id="adviceBody">
+            <div style="color:var(--text-muted);font-size:13px;">Tambahkan data untuk melihat advice.</div>
           </div>
         </div>
       </div>
@@ -4767,7 +4953,7 @@ document.addEventListener('visibilitychange', function(){
           <div style="flex:1;min-width:0;">
             <div style="font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:0.2px;line-height:1.2;">PIMAPIKA.ID</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic;">Pitih Masuak Pitih Kalua</div>
-            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.6.1</div>
+            <div id="versionBadge" style="margin-top:6px;display:inline-block;padding:2px 9px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);font-size:10px;font-weight:700;color:#a5b4fc;letter-spacing:0.6px;cursor:default;user-select:none;">VERSI 3.6.4</div>
           </div>
         </div>
 
@@ -5284,7 +5470,7 @@ loadState();
 const OB_KEY   = 'pimapika_onboarding_done';
 const TOUR_KEY = 'pimapika_product_tour_done';
 const VER_KEY  = 'pimapika_last_seen_version';
-const APP_VER  = '3.6.0';
+const APP_VER  = '3.6.4';
 
 /* ── Util ── */
 function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
@@ -5558,6 +5744,11 @@ window.addEventListener('resize', ()=>{
    3. WHAT'S NEW
    ══════════════════════════════════════════ */
 const WN_DATA = {
+  '3.6.4': [
+    { icon:'🎯', title:'PIMA Advice', desc:'Financial coach personal berbasis skor kesehatanmu — advice actionable & motivasional disesuaikan kondisi keuanganmu.' },
+    { icon:'🔴', title:'Health Dot Indicator', desc:'Titik merah berkedip di widget PIMA Health sebagai penanda ada advice baru yang perlu kamu baca.' },
+    { icon:'🛡️', title:'Bug Fix & Stabilitas', desc:'Perbaikan inkonsistensi versi, overflow clipping pada widget, dan peningkatan ketepatan rendering.' },
+  ],
   '3.6.0': [
     { icon:'🚀', title:'Onboarding Engine v3.6.0', desc:'Alur onboarding baru yang lebih mulus dengan 5 slide interaktif, swipe gesture, dan animasi premium.' },
     { icon:'🎨', title:'Tema Luxury Gold', desc:'Tema eksklusif Gold baru dengan palet warna emas elegan untuk tampilan yang lebih premium.' },
@@ -6274,6 +6465,136 @@ function calcHealthScore(){
   return {score,savingRate,expRatio,allocRate,tips};
 }
 
+// ─── PIMA ADVICE — Financial Coach ───
+function getAdviceContent(hs) {
+  const s = hs.score;
+  const sr = hs.savingRate;
+  const er = hs.expRatio;
+  const ar = hs.allocRate;
+
+  if (s === 0) return null; // No data
+
+  let tier, icon, grade, headline, actions, quote;
+
+  if (s >= 85) {
+    tier = 'tier-excellent';
+    icon = '🏆';
+    grade = 'Elite — Keuangan Prima';
+    headline = `Luar biasa! Skor ${s}/100 menempatkanmu di level teratas finansial. Kamu sudah membuktikan disiplin yang luar biasa — sekarang saatnya mengoptimalkan dan membangun warisan finansial.`;
+    actions = [
+      'Pertimbangkan diversifikasi investasi: saham, reksa dana, atau properti untuk return lebih tinggi.',
+      'Tingkatkan dana darurat ke 12 bulan pengeluaran jika belum — ini tameng utamamu.',
+      'Review asuransi jiwa & kesehatan — proteksi wealth yang sudah kamu bangun.',
+      'Mulai eksplorasi passive income: dividen, sewa, atau side business berbasis keahlianmu.'
+    ];
+    quote = '"Orang kaya tidak bekerja untuk uang. Mereka membuat uang bekerja untuk mereka." — Robert Kiyosaki';
+  } else if (s >= 70) {
+    tier = 'tier-good';
+    icon = '✨';
+    grade = 'Sehat — Di Jalur Benar';
+    headline = `Skor ${s}/100 — kamu sudah jauh lebih baik dari kebanyakan orang. Fondasi keuanganmu solid. Fokus sekarang: optimalkan yang sudah ada dan percepat pertumbuhan.`;
+    actions = [
+      sr < 20
+        ? `Saving rate-mu ${sr.toFixed(1)}% — dorong ke 20%+ dengan otomatisasi transfer tabungan di hari gajian.`
+        : `Saving rate ${sr.toFixed(1)}% sudah baik! Pertahankan dan arahkan ke instrumen investasi produktif.`,
+      er > 55
+        ? `Rasio belanja ${er.toFixed(0)}% — audit 3 kategori pengeluaran terbesar dan cari yang bisa dipangkas 10-15%.`
+        : `Rasio belanja ${er.toFixed(0)}% terkontrol. Pertahankan pola ini di bulan-bulan berikutnya.`,
+      ar < 10
+        ? 'Tingkatkan alokasi ke rekening terpisah — gunakan metode "bayar diri sendiri dulu" sebelum belanja apapun.'
+        : `Alokasi ${ar.toFixed(0)}% ke bank sudah bagus. Coba arahkan sebagian ke instrumen yield lebih tinggi.`,
+      'Buat target keuangan 6 bulan ke depan dan review progress setiap akhir bulan di PIMAPIKA.'
+    ];
+    quote = '"Jangan simpan apa yang tersisa setelah belanja, tapi belanjalah apa yang tersisa setelah menabung." — Warren Buffett';
+  } else if (s >= 40) {
+    tier = 'tier-caution';
+    icon = '⚡';
+    grade = 'Waspada — Perlu Pembenahan';
+    headline = `Skor ${s}/100 — masih ada ruang besar untuk diperbaiki. Jangan khawatir, ini bukan titik akhir — ini titik balik. Perubahan kecil yang konsisten bisa mendongkrak skormu drastis dalam 2-3 bulan.`;
+    actions = [
+      sr < 0
+        ? `🚨 Kamu dalam defisit ${Math.abs(sr).toFixed(1)}%! Prioritas utama: hentikan pengeluaran tidak esensial minggu ini.`
+        : `Saving rate ${sr.toFixed(1)}% masih di bawah target. Coba tantangan "no spend day" 3 hari per minggu.`,
+      er > 70
+        ? `Pengeluaran ${er.toFixed(0)}% dari income — terlalu besar. Gunakan metode envelope: batasi cash per kategori per minggu.`
+        : `Rasio belanja ${er.toFixed(0)}% — kategorikan ulang pengeluaranmu: mana kebutuhan, keinginan, dan yang bisa dieliminasi.`,
+      'Buat anggaran bulanan di awal bulan dengan metode 50/30/20: 50% kebutuhan, 30% keinginan, 20% tabungan.',
+      ar === 0
+        ? 'Segera buka rekening tabungan terpisah dan transfer minimal Rp 100.000 hari ini — mulai dari yang kecil.'
+        : `Alokasi ${ar.toFixed(0)}% sudah ada — tingkatkan bertahap. Tambah Rp 50.000–100.000 tiap bulan.`
+    ];
+    quote = '"Perjalanan seribu mil dimulai dari satu langkah." — Lao Tzu. Satu keputusan finansial yang benar hari ini bisa mengubah kondisimu tahun depan.';
+  } else {
+    tier = 'tier-critical';
+    icon = '🆘';
+    grade = 'Kritis — Butuh Tindakan Segera';
+    headline = `Skor ${s}/100 mengindikasikan kondisi keuangan yang perlu penanganan segera. Tapi ingat — setiap orang pernah ada di titik ini. Yang membedakan adalah keberanian untuk berubah mulai sekarang.`;
+    actions = [
+      '🔴 Buat daftar semua pengeluaran bulan ini dan hapus minimal 3 item yang tidak esensial — lakukan hari ini, bukan besok.',
+      sr < 0
+        ? `Kamu defisit ${Math.abs(sr).toFixed(1)}% — cari sumber income tambahan: jual barang tidak terpakai, freelance, atau lembur.`
+        : 'Tidak ada saving rate terdeteksi — terapkan aturan ketat: tidak ada belanja di luar kebutuhan dasar bulan ini.',
+      'Hubungi bank atau OJK jika ada utang menumpuk — jangan hadapi sendiri. Ada program restrukturisasi yang bisa membantu.',
+      'Catat SEMUA pengeluaran di PIMAPIKA selama 30 hari tanpa terkecuali — kesadaran adalah langkah pertama pemulihan.'
+    ];
+    quote = '"Hari ini berat, besok akan lebih berat, tapi lusa akan indah." Kondisimu bisa berubah — dan itu dimulai dari keputusanmu hari ini.';
+  }
+
+  return { tier, icon, grade, headline, actions, quote };
+}
+
+function renderAdvice(hs) {
+  const panel = document.getElementById('advicePanel');
+  const icon = document.getElementById('adviceHeaderIcon');
+  const sub = document.getElementById('adviceHeaderSub');
+  const body = document.getElementById('adviceBody');
+  const dot = document.getElementById('healthAdviceDot');
+
+  if (!panel) return;
+
+  const content = getAdviceContent(hs);
+  if (!content) {
+    panel.style.display = 'none';
+    if (dot) dot.style.display = 'none';
+    return;
+  }
+
+  panel.style.display = '';
+  // Update tier class
+  panel.className = 'advice-panel ' + content.tier;
+
+  icon.textContent = content.icon;
+  sub.textContent = content.grade;
+
+  const actionsHtml = content.actions.map((a, i) =>
+    `<div class="advice-action-item">
+      <div class="advice-action-num">${i + 1}</div>
+      <span>${escapeHtml(a)}</span>
+    </div>`
+  ).join('');
+
+  body.innerHTML = `
+    <div class="advice-grade-badge">${content.icon} ${escapeHtml(content.grade)}</div>
+    <div class="advice-main-text">${escapeHtml(content.headline)}</div>
+    <div class="advice-actions">${actionsHtml}</div>
+    <div class="advice-motivate">${escapeHtml(content.quote)}</div>
+  `;
+
+  // Show red dot only if score < 80 (needs attention)
+  if (dot) dot.style.display = hs.score < 80 ? '' : 'none';
+}
+
+function toggleAdvicePanel() {
+  const header = document.getElementById('adviceHeader');
+  const body = document.getElementById('adviceBody');
+  const chevron = document.getElementById('adviceChevron');
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+
 function renderAnalitik(){
   document.getElementById('analitikPeriod').textContent=state.period+' '+new Date().getFullYear();
 
@@ -6307,6 +6628,9 @@ function renderAnalitik(){
   tipsEl.innerHTML=hs.tips.length
     ? hs.tips.map(t=>`<div class="health-tip-item"><span class="health-tip-icon">${t.icon}</span><span>${t.text}</span></div>`).join('')
     : '<div style="color:var(--text-muted);font-size:13px;">Data belum cukup untuk analisis.</div>';
+
+  // PIMA Advice
+  renderAdvice(hs);
 
   // Bar Chart 12 bulan
   try { renderBarChart(); } catch(e) { console.warn('renderBarChart error:', e.message); }
@@ -6461,6 +6785,8 @@ function render(){
   const _hlEl = document.getElementById('sumHealthLabel');
   if(_hsEl) _hsEl.textContent = _hs.score > 0 ? _hs.score + '/100' : '—';
   if(_hlEl) _hlEl.textContent = _hs.score >= 80 ? '😄 Sangat Baik' : _hs.score >= 60 ? '🙂 Baik' : _hs.score >= 40 ? '😐 Cukup' : _hs.score > 0 ? '😟 Perlu Perbaikan' : 'Klik lihat detail';
+  const _dot = document.getElementById('healthAdviceDot');
+  if(_dot) _dot.style.display = (_hs.score > 0 && _hs.score < 80) ? '' : 'none';
 }
 
 // ─── RINGKASAN ───
@@ -11410,14 +11736,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const about = document.getElementById('aboutChangelog');
   if (about) {
     about.innerHTML = ''
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ v3.6.1 · Versi Saat Ini</p>'
-      + '<p style="margin:0 0 4px;">⚙️ <b>Rapikan Menu Pengaturan</b> — urutan item pengaturan disusun ulang lebih logis dan rapi</p>'
-      + '<p style="margin:0 0 10px;">🔒 <b>Info Aplikasi</b> — disederhanakan, hanya menampilkan versi sekarang dan sebelumnya</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:0.5px;text-transform:uppercase;">✨ v3.6.4 · Versi Saat Ini</p>'
+      + '<p style="margin:0 0 4px;">🎯 <b>PIMA Advice</b> — financial coach personal berbasis skor kesehatan keuanganmu dengan 4 tier advice</p>'
+      + '<p style="margin:0 0 4px;">🔴 <b>Health Dot Indicator</b> — titik merah berkedip di widget PIMA Health sebagai penanda advice baru</p>'
+      + '<p style="margin:0 0 10px;">🛡️ <b>Bug Fix</b> — perbaikan inkonsistensi versi, overflow clipping widget, dan stabilitas umum</p>'
       + '<hr style="border:none;border-top:1px solid var(--input-border);margin:8px 0;">'
-      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.6.0</p>'
-      + '<p style="margin:0 0 4px;">🚀 <b>Onboarding Engine v3.6.0</b> — alur onboarding baru dengan 5 slide interaktif, swipe gesture, dan animasi premium</p>'
-      + '<p style="margin:0 0 4px;">🎨 <b>Tema Luxury Gold</b> — tema eksklusif Gold baru dengan palet warna emas elegan</p>'
-      + '<p style="margin:0 0 4px;">🔒 <b>Keamanan &amp; Stabilitas</b> — perbaikan bug kritis pada flow onboarding dan What\'s New</p>'
+      + '<p style="margin:0 0 6px;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;">⏮ v3.6.1</p>'
+      + '<p style="margin:0 0 4px;">⚙️ <b>Rapikan Menu Pengaturan</b> — urutan item pengaturan disusun ulang lebih logis dan rapi</p>'
+      + '<p style="margin:0 0 4px;">🔒 <b>Info Aplikasi</b> — disederhanakan, hanya menampilkan versi sekarang dan sebelumnya</p>'
   }
 });
 
