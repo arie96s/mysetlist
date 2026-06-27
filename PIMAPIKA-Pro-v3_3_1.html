@@ -6666,10 +6666,16 @@ function renderSmartStats(){
   // Transaksi terbesar (pengeluaran tunggal)
   const biggestExp=pExp.slice().sort((a,b)=>b.amt-a.amt)[0];
 
-  // Proyeksi akhir bulan: berdasarkan rata-rata harian x sisa hari di bulan ini (hanya relevan utk periode bulan berjalan)
+  // Proyeksi akhir bulan: total exp sudah tercatat + estimasi sisa hari berdasarkan burn rate aktual
   const now=new Date();
   const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
-  const projectedExp = avgDaily>0 ? avgDaily*daysInMonth : totalExp;
+  const currentDay=now.getDate();
+  const remainingDays=Math.max(0, daysInMonth - currentDay);
+
+  // Burn rate = total pengeluaran ÷ hari kalender yang sudah berlalu (bukan hari unik transaksi)
+  const dailyBurnRate = currentDay > 0 ? totalExp / currentDay : 0;
+  // Proyeksi = yang sudah tercatat + estimasi sisa hari
+  const projectedExp = totalExp + (dailyBurnRate * remainingDays);
   const projectedBalance = totalInc - projectedExp;
 
   el.innerHTML=`
