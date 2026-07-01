@@ -419,12 +419,77 @@ button,input,select,textarea{font-family:var(--font-sf);}
 /* ══════════════════════════════════════════════════════
    SHIFT BANNER (BOD/EOD)
 ══════════════════════════════════════════════════════ */
-.shift-banner{position:relative;display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:var(--rlg);margin-bottom:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .22s var(--spring);backdrop-filter:var(--gblur)}
-.shift-banner-alert{position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:var(--red);display:none;z-index:2}
+.shift-banner{position:relative;display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:var(--rlg);margin-bottom:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .22s var(--spring),box-shadow .3s ease;backdrop-filter:var(--gblur);overflow:visible}
+.shift-banner-alert{position:absolute;top:-4px;right:-4px;width:13px;height:13px;border-radius:50%;background:var(--red);display:none;z-index:4;border:2px solid var(--bg1)}
 .shift-banner.urgent .shift-banner-alert{display:block;animation:bannerPulseDot 1.6s ease-out infinite}
 .shift-banner.urgent{animation:bannerPulseGlow 1.8s ease-in-out infinite}
 @keyframes bannerPulseDot{0%{box-shadow:0 0 0 0 rgba(248,113,113,.65)}70%{box-shadow:0 0 0 11px rgba(248,113,113,0)}100%{box-shadow:0 0 0 0 rgba(248,113,113,0)}}
 @keyframes bannerPulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,0)}50%{box-shadow:0 0 24px 3px rgba(248,113,113,.3)}}
+@keyframes warnShake{0%,100%{transform:translateX(-50%) scale(1)}15%{transform:translateX(calc(-50% - 8px)) scale(1)}30%{transform:translateX(calc(-50% + 8px)) scale(1)}45%{transform:translateX(calc(-50% - 5px)) scale(1)}60%{transform:translateX(calc(-50% + 5px)) scale(1)}75%{transform:translateX(calc(-50% - 2px)) scale(1)}}
+/* ── HOLD FLOAT CAPSULE ─────────────────────────────────
+   TWO-ELEMENT APPROACH: pill fades out at center-bottom,
+   dot springs in at bottom-right. Each element has simple
+   independent transitions — zero layout conflicts.
+───────────────────────────────────────────────────────── */
+@keyframes capPulse{0%,100%{box-shadow:0 12px 36px rgba(217,119,6,.5),0 4px 12px rgba(0,0,0,.3)}50%{box-shadow:0 18px 48px rgba(217,119,6,.72),0 6px 18px rgba(0,0,0,.38)}}
+@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+#holdFloatCapsule{
+  position:fixed;
+  bottom:calc(var(--navh) + var(--safe-b) + 26px);
+  left:50%;
+  transform:translateX(-50%) translateY(24px) scale(.88);
+  opacity:0;
+  pointer-events:none;
+  transition:transform .58s cubic-bezier(.34,1.56,.64,1),opacity .38s ease;
+  background:linear-gradient(135deg,rgba(217,119,6,.93),rgba(251,191,36,.9));
+  backdrop-filter:blur(18px);
+  color:#fff;
+  padding:13px 22px;
+  border-radius:100px;
+  font-size:13px;
+  font-weight:800;
+  z-index:490;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  white-space:nowrap;
+  box-shadow:0 12px 36px rgba(217,119,6,.5),0 4px 12px rgba(0,0,0,.3);
+  cursor:pointer;
+}
+#holdFloatCapsule.show{
+  transform:translateX(-50%) translateY(0) scale(1);
+  opacity:1;
+  pointer-events:all;
+  animation:capPulse 2.6s ease-in-out infinite;
+}
+#holdFloatDot{
+  position:fixed;
+  bottom:calc(var(--navh) + var(--safe-b) + 80px);
+  right:18px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:linear-gradient(135deg,rgba(217,119,6,.9),rgba(251,191,36,.85));
+  backdrop-filter:blur(16px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:19px;
+  opacity:0;
+  transform:scale(.5);
+  pointer-events:none;
+  cursor:pointer;
+  z-index:490;
+  transition:transform .58s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;
+  box-shadow:0 6px 20px rgba(217,119,6,.45);
+}
+#holdFloatDot.show{
+  opacity:.22;
+  transform:scale(1);
+  pointer-events:all;
+  animation:dotPulse 2.8s ease-in-out infinite;
+}
+.hfc-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.9);animation:bannerPulseDot 1.5s ease-out infinite;flex-shrink:0}
 .shift-banner:active{transform:scale(.98)}
 .shift-banner.closed{background:linear-gradient(135deg,rgba(248,113,113,.14),rgba(220,38,38,.06));border:1px solid rgba(248,113,113,.25)}
 .shift-banner.open{background:linear-gradient(135deg,rgba(52,211,153,.14),rgba(5,150,105,.06));border:1px solid rgba(52,211,153,.25)}
@@ -540,6 +605,9 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .theme-opt{flex:1 1 28%;min-width:84px}
 
 #toast{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 70px);left:50%;transform:translateX(-50%) translateY(20px);background:rgba(20,20,28,.92);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 20px;border-radius:var(--rpill);font-size:13px;font-weight:600;z-index:500;opacity:0;pointer-events:none;transition:all .35s var(--spring);box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:90%;text-align:center}
+#floatWarnEl{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 120px);left:50%;transform:translateX(-50%) scale(.7);background:rgba(220,38,38,.95);backdrop-filter:blur(20px);color:#fff;padding:13px 22px;border-radius:22px;font-size:13.5px;font-weight:700;z-index:600;opacity:0;pointer-events:none;transition:transform .55s cubic-bezier(.34,1.7,.42,1),opacity .3s ease;box-shadow:0 12px 36px rgba(220,38,38,.45);max-width:calc(100vw - 48px);width:max-content;text-align:center;white-space:normal;line-height:1.45}
+#floatWarnEl.show{opacity:1;transform:translateX(-50%) scale(1)}
+#floatWarnEl.shake{animation:warnShake .42s cubic-bezier(.36,.07,.19,.97)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 .qty-pad{display:flex;align-items:center;justify-content:center;gap:14px;margin:6px 0 16px}
@@ -570,6 +638,13 @@ button,input,select,textarea{font-family:var(--font-sf);}
 
 <div class="orb-bg"><div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div></div>
 <div id="toast"></div>
+<div id="floatWarnEl"></div>
+<div id="holdFloatCapsule" onclick="handleHoldCapsuleTap()">
+  <div class="hfc-dot"></div>
+  <span id="holdFloatText">📌 0 produk ditahan</span>
+  <span style="opacity:.65;font-weight:500">Ketuk →</span>
+</div>
+<div id="holdFloatDot" onclick="expandHoldCapsule()">📌</div>
 <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
 
 <!-- ════════ INFO / SETTINGS-ish quick popup not needed, profile page used instead ════════ -->
@@ -1549,7 +1624,7 @@ function showPage(id){
   if(id==='pageRiwayat')renderRiwayat();
   if(id==='pageLaporan')renderLaporan();
   if(id==='pageProfil'){renderProfil();renderSocialTabs();renderPinToggleUI();renderNotifToggleUI();renderTaxUI();}
-  if(id==='pageKasir'){renderCategoryChips();renderProducts();renderShiftBanner();renderKasirCustChip();}
+  if(id==='pageKasir'){renderCategoryChips();renderProducts();renderShiftBanner();renderKasirCustChip();renderHoldCapsule();}
 }
 function moveCapsule(){
   const active=document.querySelector('.nav-btn.active');
@@ -1641,6 +1716,65 @@ function toast(msg){
   const el=document.getElementById('toast');
   el.textContent=msg;el.classList.add('show');
   clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('show'),2600);
+}
+let _fwTimer=null;
+function floatWarn(msg){
+  const el=document.getElementById('floatWarnEl');
+  el.textContent=msg;
+  el.classList.remove('shake');
+  el.classList.add('show');
+  void el.offsetWidth; // force reflow to retrigger animation
+  el.classList.add('shake');
+  clearTimeout(_fwTimer);
+  _fwTimer=setTimeout(()=>{el.classList.remove('show','shake');},3200);
+}
+let _holdShrinkTimer=null;
+function renderHoldCapsule(){
+  const total=S.holds.reduce((s,h)=>s+h.qty,0);
+  const cap=document.getElementById('holdFloatCapsule');
+  const dot=document.getElementById('holdFloatDot');
+  const txt=document.getElementById('holdFloatText');
+  clearTimeout(_holdShrinkTimer);
+  if(total>0){
+    txt.textContent=`📌 ${total} produk ditahan`;
+    // Show pill, hide dot
+    cap.classList.add('show');
+    dot.classList.remove('show');
+    // After 5s: pill fades out, dot springs in
+    _holdShrinkTimer=setTimeout(()=>{
+      cap.classList.remove('show');
+      // Slight delay so pill fade starts before dot appears
+      setTimeout(()=>dot.classList.add('show'),150);
+    },5000);
+  }else{
+    cap.classList.remove('show');
+    dot.classList.remove('show');
+  }
+}
+function expandHoldCapsule(){
+  const cap=document.getElementById('holdFloatCapsule');
+  const dot=document.getElementById('holdFloatDot');
+  clearTimeout(_holdShrinkTimer);
+  // Dot shrinks away, pill springs in
+  dot.classList.remove('show');
+  setTimeout(()=>cap.classList.add('show'),120);
+  // Restart shrink timer
+  _holdShrinkTimer=setTimeout(()=>{
+    cap.classList.remove('show');
+    setTimeout(()=>dot.classList.add('show'),150);
+  },5000);
+}
+function handleHoldCapsuleTap(){
+  // This is the full pill - navigate directly
+  goToHoldSection();
+}
+function goToHoldSection(){
+  showPage('pageLaporan');
+  // Scroll ke section hold setelah render selesai
+  requestAnimationFrame(()=>{
+    const el=document.getElementById('lapHoldList');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  });
 }
 function greetTime(){
   const h=new Date().getHours();
@@ -1988,11 +2122,27 @@ function applySuggestedDiscount(pct){
    HOLD / BOOKING PRODUK — form & pengelolaan
 ════════════════════════════════════════════════════ */
 function openHoldPickModal(){
-  document.getElementById('holdPickSearch').value='';
-  renderHoldPickList();
-  document.getElementById('holdPickModal').classList.add('open');
+  if(cart.length===0){
+    floatWarn('⚠️ Tambahkan produk ke keranjang dulu sebelum ditahan');
+    return;
+  }
+  // Pre-fill form dengan nama/no HP pelanggan yang sudah dipilih jika ada
+  document.getElementById('holdProductId').value='__CART__'; // flag = hold from cart
+  document.getElementById('holdQty').value=1;
+  document.getElementById('holdExpiry').value='';
+  document.getElementById('holdCustName').value=selectedCustomer?selectedCustomer.name:'';
+  document.getElementById('holdCustPhone').value=selectedCustomer?selectedCustomer.phone:'';
+  document.getElementById('holdNote').value='';
+  // Show cart item summary in preview
+  const items=cart.map(c=>`${prodLetter(c.name)} ${c.name} ×${c.qty}`).join(', ');
+  document.getElementById('holdProdPreview').innerHTML=`
+    <div class="cust-row-av" style="background:rgba(251,191,36,.14);color:var(--amber);font-size:18px">📌</div>
+    <div class="cust-row-info">
+      <div class="cust-row-name">Tahan semua item di keranjang</div>
+      <div class="cust-row-sub" style="white-space:normal">${items}</div>
+    </div>`;
+  document.getElementById('holdFormModal').classList.add('open');
 }
-function closeHoldPickModal(){document.getElementById('holdPickModal').classList.remove('open');}
 function renderHoldPickList(){
   const q=(document.getElementById('holdPickSearch').value||'').toLowerCase();
   const list=S.products.filter(p=>p.name.toLowerCase().includes(q));
@@ -2040,28 +2190,41 @@ function openHoldFormModal(productId){
 function closeHoldFormModal(){document.getElementById('holdFormModal').classList.remove('open');}
 function saveHold(){
   const productId=document.getElementById('holdProductId').value;
+  const custName=document.getElementById('holdCustName').value.trim();
+  if(!custName){floatWarn('⚠️ Nama pemesan wajib diisi');return;}
+  const custPhone=document.getElementById('holdCustPhone').value.trim();
+  const note=document.getElementById('holdNote').value.trim();
+  const expiry=document.getElementById('holdExpiry').value||'';
+
+  if(productId==='__CART__'){
+    // Hold semua item keranjang sekaligus
+    const items=cart.map(c=>({id:c.id,name:c.name+(c.variant?' ('+c.variant+')':''),qty:c.qty}));
+    items.forEach(it=>{
+      S.holds.push({id:uid(),productId:it.id,productName:it.name,qty:it.qty,custName,custPhone,note,expiry,createdAt:new Date().toISOString()});
+    });
+    // Kosongkan keranjang setelah ditahan
+    cart=[];document.getElementById('cartDiskon').value='';
+    save();closeHoldFormModal();closeCartModal();
+    updateCartBar();renderProducts();renderHoldCapsule();
+    if(document.getElementById('pageLaporan').classList.contains('active'))renderLaporan();
+    toast(`📌 ${items.length} item ditahan untuk ${custName}`);
+    return;
+  }
+
+  // Mode normal: tahan satu produk tertentu
   const p=S.products.find(x=>x.id===productId);if(!p)return;
   const qty=Math.max(1,Number(document.getElementById('holdQty').value||1));
   const avail=availableStock(p);
-  if(qty>avail){toast('⚠️ Jumlah melebihi stok yang tersedia ('+avail+')');return;}
-  const custName=document.getElementById('holdCustName').value.trim();
-  if(!custName){toast('⚠️ Nama pemesan wajib diisi');return;}
-  const hold={
-    id:uid(),productId,productName:p.name+(p.variant?' ('+p.variant+')':''),
-    qty,custName,custPhone:document.getElementById('holdCustPhone').value.trim(),
-    note:document.getElementById('holdNote').value.trim(),
-    expiry:document.getElementById('holdExpiry').value||'',
-    createdAt:new Date().toISOString()
-  };
-  S.holds.push(hold);save();
-  closeHoldFormModal();renderProducts();
+  if(qty>avail){floatWarn('⚠️ Jumlah melebihi stok yang tersedia ('+avail+')');return;}
+  S.holds.push({id:uid(),productId,productName:p.name+(p.variant?' ('+p.variant+')':''),qty,custName,custPhone,note,expiry,createdAt:new Date().toISOString()});
+  save();closeHoldFormModal();renderProducts();renderHoldCapsule();
   if(document.getElementById('pageLaporan').classList.contains('active'))renderLaporan();
   toast('📌 Produk berhasil ditahan untuk '+custName);
 }
 function releaseHold(id){
   appConfirm('Batalkan booking ini? Stok akan kembali tersedia untuk dijual bebas.',()=>{
     S.holds=S.holds.filter(h=>h.id!==id);save();
-    renderProducts();renderLaporan();
+    renderProducts();renderHoldCapsule();renderLaporan();
     toast('✅ Booking dibatalkan, stok tersedia kembali');
   },'Batalkan Booking');
 }
@@ -2077,7 +2240,7 @@ function convertHoldToSale(id){
   const existing=cart.find(c=>c.id===p.id);
   if(existing)existing.qty+=h.qty;
   else cart.push({id:p.id,name:p.name,emoji:p.emoji,price:p.price,qty:h.qty,variant:p.variant||''});
-  updateCartBar();renderProducts();renderLaporan();
+  updateCartBar();renderProducts();renderHoldCapsule();renderLaporan();
   showPage('pageKasir');
   toast('🛒 Booking "'+h.custName+'" dipindahkan ke keranjang');
   openCartModal();
@@ -3232,7 +3395,13 @@ function openBodModal(){
 }
 function closeBodModal(){document.getElementById('bodModal').classList.remove('open');}
 function startShift(){
-  const cash=Number(document.getElementById('bodCash').value||0);
+  const cashRaw=document.getElementById('bodCash').value;
+  if(cashRaw===''||cashRaw===null){
+    floatWarn('⚠️ Isi modal awal kas sebelum membuka shift');
+    document.getElementById('bodCash').focus();
+    return;
+  }
+  const cash=Number(cashRaw);
   S.activeShift={
     id:uid(),
     startTs:new Date().toISOString(),
@@ -3277,6 +3446,23 @@ function calcEodDiff(){
 }
 function closeShift(){
   if(!S.activeShift)return;
+  // Blokir EOD jika masih ada produk yang ditahan/booking
+  if(S.holds.length>0){
+    floatWarn(`⚠️ Selesaikan ${S.holds.length} booking/hold produk dulu sebelum menutup shift`);
+    closeEodModal();
+    setTimeout(()=>{showPage('pageLaporan');},400);
+    setTimeout(()=>{
+      const el=document.getElementById('lapHoldList');
+      if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    },600);
+    return;
+  }
+  const actualRaw=document.getElementById('eodActualCash').value;
+  if(actualRaw===''||actualRaw===null){
+    floatWarn('⚠️ Isi jumlah kas aktual yang dihitung sebelum menutup shift');
+    document.getElementById('eodActualCash').focus();
+    return;
+  }
   const trx=shiftTrx(S.activeShift.id);
   const cashSales=trx.filter(t=>t.method==='Tunai').reduce((s,t)=>s+t.total,0);
   const nonCashSales=trx.filter(t=>t.method!=='Tunai').reduce((s,t)=>s+t.total,0);
@@ -3436,6 +3622,7 @@ renderProducts();
 renderProfil();
 renderShiftBanner();
 renderKasirCustChip();
+renderHoldCapsule();
 removeSplash();
 initPinLock();
 if(S.notif.enabled&&'Notification' in window&&Notification.permission==='granted'){registerSW();}
