@@ -596,8 +596,12 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .psec hr.psec-div{border:none;border-top:1px solid rgba(255,255,255,.07);margin:14px 0}
 .theme-selector{display:flex;gap:8px;margin-top:6px}
 .theme-opt{flex:1;padding:10px 8px;border-radius:var(--rmd);border:2px solid transparent;cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:all .25s var(--spring);position:relative}
-.theme-opt.active{transform:scale(1.04);box-shadow:0 6px 18px rgba(0,0,0,.25),0 0 0 2px rgba(255,255,255,.4)}
-.theme-opt.active::after{content:'✓';position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#fff;color:#0f1742;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.theme-opt-full{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--rlg);border:2px solid rgba(255,255,255,.06);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .25s var(--spring);position:relative}
+.theme-opt-full:active{transform:scale(.975)}
+.theme-opt-full .theme-check{margin-left:auto;font-size:15px;font-weight:900;opacity:0;color:var(--amber);transition:opacity .2s}
+.theme-opt-full.active{border-color:rgba(251,191,36,.4);box-shadow:0 0 0 1px rgba(251,191,36,.15)}
+.theme-opt-full.active .theme-check{opacity:1}
+.theme-opt-full>div:nth-child(2){flex:1;min-width:0}
 .t-dark{background:linear-gradient(135deg,#020817,#071330);color:#fff}
 .t-light{background:linear-gradient(135deg,#f7f8fb,#e3e7ee);color:#0f1742;border-color:rgba(15,23,42,.1) !important}
 .t-graphite{background:linear-gradient(135deg,#15171c,#0c0d10);color:#cbd5e1}
@@ -864,68 +868,26 @@ button,input,select,textarea{font-family:var(--font-sf);}
   </div>
 
   <div class="psec">
-    <div class="psec-title"><span class="pst-ico">📲</span>Media Sosial & QR Toko</div>
-    <div class="soc-scroll" id="socScroll"></div>
-    <div class="field" style="margin-bottom:10px">
-      <label id="socFieldLabel">Username / Tautan</label>
-      <input type="text" id="socValue" placeholder="@namatoko atau https://…" oninput="renderSocialQR()">
+    <div class="psec-title"><span class="pst-ico">⚙️</span>Pengaturan & Info</div>
+    <div class="da-row-flat ripple-container" onclick="openSocialModal()">
+      <div class="da-ico">📲</div>
+      <div class="da-lbl">Media Sosial & QR Toko</div>
+      <div class="da-chev">›</div>
     </div>
-    <div class="qr-wrap" id="qrWrap">
-      <div class="qr-empty" id="qrImgEmpty">Isi data untuk menampilkan QR</div>
-      <img id="qrImg" style="display:none" alt="QR Code">
-      <div class="qr-label" id="qrLabel"></div>
+    <div class="da-row-flat ripple-container" onclick="openThemeModal()">
+      <div class="da-ico">🎨</div>
+      <div class="da-lbl">Tampilan Tema</div>
+      <div class="da-chev">›</div>
     </div>
-    <button class="sbtn ripple-container" onclick="saveSocial()">Simpan</button>
-    <button class="sbtn ghost ripple-container" style="margin-top:8px" id="qrDownloadBtn" onclick="downloadQR()">⬇️ Unduh QR Code</button>
-    <div class="scan-hint" style="margin-top:10px;text-align:center">Akun yang diisi & QR otomatis tampil rapi di struk transaksi.</div>
-  </div>
-
-  <div class="psec">
-    <div class="psec-title"><span class="pst-ico">🎨</span>Tampilan</div>
-    <div style="font-size:12px;color:var(--t3);font-weight:600;margin-bottom:4px">Tema</div>
-    <div class="theme-selector">
-      <div class="theme-opt t-dark active" id="themeOptDark" onclick="setTheme('dark')">🌙 Default</div>
-      <div class="theme-opt t-light" id="themeOptLight" onclick="setTheme('light')">☀️ Light</div>
-      <div class="theme-opt t-graphite" id="themeOptGraphite" onclick="setTheme('graphite')">⚫ Graphite</div>
+    <div class="da-row-flat ripple-container" onclick="openDataModal()">
+      <div class="da-ico">💾</div>
+      <div class="da-lbl">Data & Backup</div>
+      <div class="da-chev">›</div>
     </div>
-  </div>
-
-  <div class="psec">
-    <div class="psec-title"><span class="pst-ico">💾</span>Data</div>
-    <div class="da-row-flat ripple-container" onclick="exportJSON()">
-      <div class="da-ico">📤</div><div class="da-lbl">Backup Data (JSON)</div><div class="da-chev">›</div>
-    </div>
-    <div class="da-row-flat ripple-container" onclick="importJSON()">
-      <div class="da-ico">📥</div><div class="da-lbl">Impor Data</div><div class="da-chev">›</div>
-    </div>
-    <div class="da-row-flat danger ripple-container" onclick="confirmReset()">
-      <div class="da-ico" style="background:rgba(248,113,113,.15)">🗑️</div><div class="da-lbl">Hapus Semua Data</div><div class="da-chev">›</div>
-    </div>
-  </div>
-
-  <div class="psec acc-wrap" id="infoAppAcc">
-    <div class="acc-header ripple-container" onclick="toggleAccordion('infoAppAcc')">
-      <div class="acc-header-ic">🧾</div>
-      <div class="acc-header-text">
-        <div class="acc-header-title">Info App</div>
-        <div class="acc-header-sub">PIMAPOS v2.0.0 · @arie96s</div>
-      </div>
-      <div class="acc-chev">⌄</div>
-    </div>
-    <div class="acc-body" style="text-align:center">
-      <div class="app-info-logo">🧾</div>
-      <div class="app-info-name">PIMAPOS</div>
-      <div class="app-info-version">v2.0.0</div>
-      <div class="app-info-tagline">Bagian dari Ekosistem PIMAPIKA<br>Pitih Masuak Pitih Kalua</div>
-      <div class="app-info-grid">
-        <div class="app-info-row"><span class="ai-k">Developer</span><span class="ai-v">@arie96s</span></div>
-        <div class="app-info-row"><span class="ai-k">Platform</span><span class="ai-v">Web App (PWA)</span></div>
-        <div class="app-info-row"><span class="ai-k">Build</span><span class="ai-v">Enterprise · Single File</span></div>
-        <div class="app-info-row"><span class="ai-k">Engine</span><span class="ai-v">HTML · CSS · JS</span></div>
-      </div>
-      <a class="feedback-pill ripple-container" href="mailto:fajrisalam96@gmail.com?subject=%5BPIMAPOS%20v2.0%5D%20Feedback%20%2F%20Bug%20Report&amp;body=Halo%20Fajri%2C%0A%0ASaya%20ingin%20menyampaikan%20masukan%2Flaporan%20bug%20berikut%3A%0A%0A%0A---%0AVersi%20App%3A%20v2.0.0%0ANama%20Toko%3A%20">
-        💬 Feedback &amp; Report Bugs
-      </a>
+    <div class="da-row-flat ripple-container" onclick="openInfoModal()">
+      <div class="da-ico">🧾</div>
+      <div class="da-lbl">Info App · PIMAPOS v2.0.0</div>
+      <div class="da-chev">›</div>
     </div>
   </div>
 </div>
@@ -968,6 +930,107 @@ button,input,select,textarea{font-family:var(--font-sf);}
       <div class="cart-bar-amt" id="cartBarAmt">Rp 0</div>
     </div>
     <svg class="cart-bar-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MEDIA SOSIAL & QR ══════════ -->
+<div class="modal-ov" id="socialModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📲 Media Sosial & QR Toko</div>
+    <div class="soc-scroll" id="socScroll"></div>
+    <div class="field" style="margin-bottom:10px">
+      <label id="socFieldLabel">Username / Tautan</label>
+      <input type="text" id="socValue" placeholder="@namatoko atau https://…" oninput="renderSocialQR()">
+    </div>
+    <div class="qr-wrap" id="qrWrap">
+      <div class="qr-empty" id="qrImgEmpty">Isi data untuk menampilkan QR</div>
+      <img id="qrImg" style="display:none" alt="QR Code">
+      <div class="qr-label" id="qrLabel"></div>
+    </div>
+    <button class="sbtn ripple-container" onclick="saveSocial()">Simpan</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" id="qrDownloadBtn" onclick="downloadQR()">⬇️ Unduh QR Code</button>
+    <div class="scan-hint" style="margin-top:10px;text-align:center">Akun yang diisi & QR otomatis tampil rapi di struk transaksi.</div>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="document.getElementById('socialModal').classList.remove('open')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: TAMPILAN TEMA ══════════ -->
+<div class="modal-ov" id="themeModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🎨 Tampilan Tema</div>
+    <div style="font-size:13px;color:var(--t3);text-align:center;margin-bottom:20px;line-height:1.6">Pilih tampilan yang paling cocok dengan selera dan kondisi cahaya toko.</div>
+    <div class="theme-selector" style="gap:12px;flex-direction:column">
+      <div class="theme-opt-full t-dark ripple-container" id="themeOptDark" onclick="setTheme('dark')">
+        <span style="font-size:20px">🌙</span>
+        <div><div style="font-size:14px;font-weight:700">Default</div><div style="font-size:11px;opacity:.6;margin-top:2px">Gelap elegan, hemat baterai OLED</div></div>
+        <div class="theme-check" id="chkDark">✓</div>
+      </div>
+      <div class="theme-opt-full t-light ripple-container" id="themeOptLight" onclick="setTheme('light')">
+        <span style="font-size:20px">☀️</span>
+        <div><div style="font-size:14px;font-weight:700">Light</div><div style="font-size:11px;opacity:.6;margin-top:2px">Terang profesional untuk cahaya kuat</div></div>
+        <div class="theme-check" id="chkLight">✓</div>
+      </div>
+      <div class="theme-opt-full t-graphite ripple-container" id="themeOptGraphite" onclick="setTheme('graphite')">
+        <span style="font-size:20px">⚫</span>
+        <div><div style="font-size:14px;font-weight:700">Graphite</div><div style="font-size:11px;opacity:.6;margin-top:2px">Premium monokrom, minimalis</div></div>
+        <div class="theme-check" id="chkGraphite">✓</div>
+      </div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:18px" onclick="document.getElementById('themeModal').classList.remove('open')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: DATA & BACKUP ══════════ -->
+<div class="modal-ov" id="dataModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💾 Data & Backup</div>
+    <div class="da-row-flat ripple-container" onclick="exportJSON()">
+      <div class="da-ico">📤</div><div class="da-lbl">Backup Data (JSON)</div><div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" onclick="exportLaporanCSV()">
+      <div class="da-ico">📊</div><div class="da-lbl">Export Laporan (CSV)</div><div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" onclick="importJSON()">
+      <div class="da-ico">📥</div><div class="da-lbl">Impor Data</div><div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat danger ripple-container" onclick="confirmReset()">
+      <div class="da-ico" style="background:rgba(248,113,113,.15)">🗑️</div><div class="da-lbl">Hapus Semua Data</div><div class="da-chev">›</div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:10px" onclick="document.getElementById('dataModal').classList.remove('open')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: INFO APP ══════════ -->
+<div class="modal-ov" id="infoModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:8px 0 20px">
+      <div class="app-info-logo">🧾</div>
+      <div class="app-info-name">PIMAPOS</div>
+      <div class="app-info-version">v2.0.0</div>
+      <div class="app-info-tagline">Bagian dari Ekosistem PIMAPIKA<br>Pitih Masuak Pitih Kalua</div>
+      <div class="app-info-grid">
+        <div class="app-info-row"><span class="ai-k">Developer</span><span class="ai-v">@arie96s</span></div>
+        <div class="app-info-row"><span class="ai-k">Platform</span><span class="ai-v">Web App (PWA)</span></div>
+        <div class="app-info-row"><span class="ai-k">Build</span><span class="ai-v">Enterprise · Single File</span></div>
+        <div class="app-info-row"><span class="ai-k">Engine</span><span class="ai-v">HTML · CSS · JS</span></div>
+      </div>
+      <a class="feedback-pill ripple-container" href="mailto:fajrisalam96@gmail.com?subject=%5BPIMAPOS%20v2.0%5D%20Feedback%20%2F%20Bug%20Report&amp;body=Halo%20Fajri%2C%0A%0ASaya%20ingin%20menyampaikan%20masukan%2Flaporan%20bug%20berikut%3A%0A%0A%0A---%0AVersi%20App%3A%20v2.0.0%0ANama%20Toko%3A%20">
+        💬 Feedback &amp; Report Bugs
+      </a>
+    </div>
+    <button class="sbtn ghost ripple-container" onclick="document.getElementById('infoModal').classList.remove('open')">Tutup</button>
+    </div>
   </div>
 </div>
 
@@ -1623,7 +1686,7 @@ function showPage(id){
   if(id==='pageProduk')renderProductList();
   if(id==='pageRiwayat')renderRiwayat();
   if(id==='pageLaporan')renderLaporan();
-  if(id==='pageProfil'){renderProfil();renderSocialTabs();renderPinToggleUI();renderNotifToggleUI();renderTaxUI();}
+  if(id==='pageProfil'){renderProfil();renderPinToggleUI();renderNotifToggleUI();renderTaxUI();}
   if(id==='pageKasir'){renderCategoryChips();renderProducts();renderShiftBanner();renderKasirCustChip();renderHoldCapsule();}
 }
 function moveCapsule(){
@@ -1791,11 +1854,26 @@ function setTheme(t){
   S.theme=t;save();
   applyThemeUI(t);
 }
+/* ── Profil modal openers ── */
+function openSocialModal(){
+  renderSocialTabs();
+  document.getElementById('socialModal').classList.add('open');
+}
+function openThemeModal(){
+  applyThemeUI(S.theme||'dark');
+  document.getElementById('themeModal').classList.add('open');
+}
+function openDataModal(){document.getElementById('dataModal').classList.add('open');}
+function openInfoModal(){document.getElementById('infoModal').classList.add('open');}
+
 function applyThemeUI(t){
   document.body.setAttribute('data-theme',t);
-  document.getElementById('themeOptDark').classList.toggle('active',t==='dark');
-  document.getElementById('themeOptLight').classList.toggle('active',t==='light');
-  document.getElementById('themeOptGraphite').classList.toggle('active',t==='graphite');
+  ['Dark','Light','Graphite'].forEach(n=>{
+    const opt=document.getElementById('themeOpt'+n);
+    if(opt)opt.classList.toggle('active',t===n.toLowerCase());
+    const chk=document.getElementById('chk'+n);
+    if(chk)chk.style.opacity=t===n.toLowerCase()?'1':'0';
+  });
 }
 function initTheme(){
   if(S.theme==='luxury'){S.theme='light';save();} // migrasi tema lama
@@ -3157,6 +3235,15 @@ async function verifyPin(){
   if(hash===S.security.pinHash){
     document.getElementById('pinLockScreen').style.display='none';
     plEntry='';renderPlDots();
+    // Trigger deferred startup checks after PIN unlock
+    if(window._pendingBodCheck){
+      window._pendingBodCheck=false;
+      setTimeout(checkBodReminder,300);
+    }
+    if(PIMAPOS_IS_FIRST_RUN&&window._pendingOnboarding){
+      window._pendingOnboarding=false;
+      setTimeout(showOnboarding,400);
+    }
   }else{
     const dots=document.getElementById('plDots');
     dots.classList.add('shake');
@@ -3257,7 +3344,8 @@ function checkBodReminder(){
   if(S.activeShift)return;
   if(S._lastBodReminder===todayStr)return;
   S._lastBodReminder=todayStr;save();
-  setTimeout(()=>{document.getElementById('bodReminderModal').classList.add('open');},600);
+  // 350ms delay — splash already done at this point, just let main UI render first
+  setTimeout(()=>{document.getElementById('bodReminderModal').classList.add('open');},350);
   fireBodNotification();
 }
 function closeBodReminderModal(){document.getElementById('bodReminderModal').classList.remove('open');}
@@ -3606,13 +3694,24 @@ document.querySelectorAll('.modal-ov').forEach(ov=>{
 /* ════════════════════════════════════════════════════
    SPLASH REMOVE
 ════════════════════════════════════════════════════ */
-function removeSplash(){
+function removeSplash(onDone){
   const splash=document.getElementById('splashScreen');
-  if(splash)splash.addEventListener('animationend',()=>{splash.style.display='none';},{once:true});
+  if(!splash){if(onDone)onDone();return;}
+  let called=false;
+  const done=()=>{
+    if(called)return;called=true;
+    splash.style.display='none';
+    if(onDone)onDone();
+  };
+  // Dual safety: animationend event + hard timeout fallback
+  // splashOut delay 2.4s + duration 0.6s = 3000ms total, +200ms buffer
+  splash.addEventListener('animationend',done,{once:true});
+  setTimeout(done,3200);
 }
 
 /* ════════════════════════════════════════════════════
-   INIT
+   INIT — semua UI yang muncul saat pertama buka harus
+   menunggu splash selesai agar tidak tumpang tindih
 ════════════════════════════════════════════════════ */
 initTheme();
 document.getElementById('kasirGreet').textContent=greetTime();
@@ -3623,13 +3722,35 @@ renderProfil();
 renderShiftBanner();
 renderKasirCustChip();
 renderHoldCapsule();
-removeSplash();
-initPinLock();
-if(S.notif.enabled&&'Notification' in window&&Notification.permission==='granted'){registerSW();}
-checkBodReminder();
 requestAnimationFrame(()=>requestAnimationFrame(moveCapsule));
 initNavBalloon();
-if(PIMAPOS_IS_FIRST_RUN){setTimeout(showOnboarding,500);}
+
+// POST-SPLASH: semua popup/overlay hanya boleh muncul SETELAH splash selesai
+removeSplash(()=>{
+  // 1. PIN lock (prioritas tertinggi — tampil pertama)
+  initPinLock();
+  // 2. Service worker notif (silent, tidak tampilkan UI)
+  if(S.notif.enabled&&'Notification' in window&&Notification.permission==='granted'){
+    registerSW();
+  }
+  // 3. BOD reminder (hanya kalau tidak ada PIN lock yang sedang tampil)
+  const pinActive=S.security.pinEnabled&&S.security.pinHash&&
+    document.getElementById('pinLockScreen').style.display!=='none';
+  if(!pinActive){
+    checkBodReminder();
+  }else{
+    // Kalau PIN lock aktif, BOD reminder ditunda sampai PIN berhasil di-unlock
+    const orig=verifyPin;
+    // Override verifyPin sekali untuk trigger BOD setelah unlock
+    window._pendingBodCheck=true;
+  }
+  // 4. Onboarding (hanya run pertama kali)
+  if(PIMAPOS_IS_FIRST_RUN&&!S.security.pinEnabled){
+    setTimeout(showOnboarding,400);
+  }else if(PIMAPOS_IS_FIRST_RUN&&pinActive){
+    window._pendingOnboarding=true;
+  }
+});
 </script>
 </body>
 </html>
