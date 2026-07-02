@@ -2996,6 +2996,16 @@ body.light-mode .ob-skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rg
     .glass-card{padding:20px;}
     .health-metrics{grid-template-columns:repeat(3,1fr);}
   }
+
+  /* ══ WIDGET KHUSUS DESKTOP (v3.4.1) — "Aktivitas Terbaru" & "Kategori Teratas" ══
+     Mengisi 2 slot kosong baris ke-2 summary-grid pada layar lebar, agar
+     jumlah kartu sejajar dengan baris pertama (5 kartu). Disembunyikan total
+     di tablet/mobile karena layout mobile (2 kolom) sudah seimbang tanpa
+     widget ini — menghindari beban render/scroll ekstra di device kecil. */
+  .desktop-widget{ display: block; }
+  @media(max-width:900px){
+    .desktop-widget{ display: none !important; }
+  }
   @media(max-width:600px){
     .app{padding:16px 12px 60px;}
     .header{flex-direction:column;gap:16px;align-items:center;text-align:center;padding:20px;margin-bottom:24px;}
@@ -3097,7 +3107,7 @@ body.light-mode .ob-skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rg
     transition: width .4s ease;
   }
 
-  /* ══ STICKY NOTE — VERTICAL STACK (3 catatan aktif) ══
+  /* ══ STICKY NOTE — VERTICAL STACK (4 catatan aktif) ══
      Pola: card aktif melebar penuh, 2 lainnya jadi strip ringkas
      di atas/bawahnya — persis seperti referensi gambar. */
 
@@ -3200,6 +3210,12 @@ body.light-mode .ob-skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rg
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
   }
+  .sn-deck-card[data-slot="3"] {
+    background: rgba(236,72,153,0.13);
+    border: 1px solid rgba(236,72,153,0.26);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
   body.light-mode .sn-deck-card[data-slot="0"] {
     background: rgba(255,255,255,0.82);
     border-color: rgba(245,158,11,0.35);
@@ -3211,6 +3227,10 @@ body.light-mode .ob-skel{background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rg
   body.light-mode .sn-deck-card[data-slot="2"] {
     background: rgba(16,185,129,0.09);
     border-color: rgba(16,185,129,0.22);
+  }
+  body.light-mode .sn-deck-card[data-slot="3"] {
+    background: rgba(236,72,153,0.09);
+    border-color: rgba(236,72,153,0.22);
   }
 
   /* Amber top strip — hanya saat expanded */
@@ -4240,7 +4260,7 @@ document.addEventListener('visibilitychange', function(){
       </div>
     </div>
 
-    <!-- Sticky Note — Vertical Stack (3 catatan aktif, liquid glass) -->
+    <!-- Sticky Note — Vertical Stack (4 catatan aktif, liquid glass) -->
     <div class="sn-deck-wrap sum-card" id="snDeckWrap">
       <div class="sn-deck-card glass" id="snCard0" data-slot="0">
         <div class="sn-deck-header">
@@ -4283,6 +4303,42 @@ document.addEventListener('visibilitychange', function(){
             <button class="sn-nav-btn sn-done-btn" id="snDoneBtn2" onclick="_snDoneEdit(2,event)" title="Selesai">✅</button>
           </div>
         </div>
+      </div>
+      <div class="sn-deck-card glass" id="snCard3" data-slot="3">
+        <div class="sn-deck-header">
+          <button class="sn-edit-btn" id="snEditBtn3" onclick="_snToggleEdit(3,event)" title="Edit catatan">✏️</button>
+          <span class="sn-deck-label">Catatan <span class="sn-deck-month" data-month-el></span></span>
+          <div class="sn-peek-preview" data-preview-el>—</div>
+        </div>
+        <textarea class="sn-deck-textarea" data-textarea-el
+          placeholder="Tulis pengingat bulan ini…" spellcheck="false" readonly></textarea>
+        <div class="sn-deck-footer">
+          <div style="display:flex;align-items:center;justify-content:flex-end;width:100%;">
+            <button class="sn-nav-btn sn-done-btn" id="snDoneBtn3" onclick="_snDoneEdit(3,event)" title="Selesai">✅</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Aktivitas Terbaru Widget (v3.4.1 — DESKTOP ONLY, mengisi baris ke-2 agar seimbang dengan baris atas) ── -->
+    <div class="glass sum-card desktop-widget" id="recentActivityWidget" style="cursor:default;min-height:80px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+        <span style="font-size:20px;">🕒</span>
+        <div class="sum-label" style="margin:0;font-size:11px;">AKTIVITAS TERBARU</div>
+      </div>
+      <div id="recentActivityList" style="margin-top:8px;max-height:174px;overflow-y:auto;overflow-x:hidden;padding-right:2px;">
+        <div style="font-size:12px;color:var(--text-muted);">Belum ada aktivitas bulan ini</div>
+      </div>
+    </div>
+
+    <!-- ── Kategori Teratas Widget (v3.4.1 — DESKTOP ONLY, mengisi baris ke-2 agar seimbang dengan baris atas) ── -->
+    <div class="glass sum-card desktop-widget" id="topCategoriesWidget" style="cursor:default;min-height:80px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+        <span style="font-size:20px;">🏷️</span>
+        <div class="sum-label" style="margin:0;font-size:11px;">KATEGORI TERATAS</div>
+      </div>
+      <div id="topCategoriesList" style="margin-top:8px;max-height:174px;overflow-y:auto;overflow-x:hidden;padding-right:2px;">
+        <div style="font-size:12px;color:var(--text-muted);">Belum ada pengeluaran bulan ini</div>
       </div>
     </div>
 
@@ -5593,7 +5649,7 @@ function migrateYearData(){
 }
 
 let _snLastPeriod  = null; // kept for compatibility
-let _snActiveSlot  = 0;   // kartu yang sedang di depan (0/1/2)
+let _snActiveSlot  = 0;   // kartu yang sedang di depan (0/1/2/3)
 let _snTypingTimer = null;
 let _snDeckInited  = false;
 let _kursDropCache = null; // kurs drop warning cache — harus dideklarasi sebelum render()
@@ -6390,20 +6446,25 @@ renderWorkspaceBar();
 (function(){
   const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   if(!state.period) state.period=months[new Date().getMonth()];
-  // [v3.3.2] Auto-rollover: jika app dibuka di bulan yang berbeda dari
-  // kunjungan terakhir (lastOpenDate), periode otomatis pindah ke bulan
-  // berjalan mengikuti tanggal header. Pilihan periode manual di bulan
-  // yang sama tetap dipertahankan antar-refresh.
+  // [v3.4.2] Selalu sinkron dengan tanggal HARI INI (sama seperti kapsul
+  // tahun & bulan di header) setiap kali app dibuka kembali, di-refresh,
+  // atau sesi baru dimulai. Pilihan periode manual dari sesi sebelumnya
+  // TIDAK lagi dipertahankan lintas sesi — hanya berlaku selama sesi itu
+  // berjalan (mis. saat user klik-klik bulan lain tanpa refresh).
   (function(){
     const now=new Date();
     const curMonth=months[now.getMonth()];
-    if(!state.lastOpenDate){ renderYearLabel(); return; }
-    const lo=new Date(state.lastOpenDate);
-    if(isNaN(lo.getTime())){ renderYearLabel(); return; }
-    if(lo.getFullYear()!==now.getFullYear() || lo.getMonth()!==now.getMonth()){
+    const curYear=now.getFullYear();
+    const wasDifferent = (state.period !== curMonth) || (state.periodYear !== curYear);
+    if(wasDifferent){
       state.period=curMonth;
-      state.periodYear=now.getFullYear(); // [v3.4.0] rollover tahun (Des → Jan)
-      setTimeout(()=>toast(`Periode otomatis pindah ke ${curMonth} ${state.periodYear} 📅`,'info'),600);
+      state.periodYear=curYear;
+      // Toast hanya muncul jika ini bukan sesi pertama (lastOpenDate sudah
+      // pernah tercatat) — agar tidak berisik saat pengguna baru pertama
+      // kali membuka app.
+      if(state.lastOpenDate){
+        setTimeout(()=>toast(`Periode otomatis disegarkan ke ${curMonth} ${curYear} 📅`,'info'),600);
+      }
     }
     renderYearLabel();
   })();
@@ -7418,6 +7479,12 @@ function render(){
   renderBills();
   renderUpcomingBills();
 
+  // v3.4.1 — Widget desktop-only: pakai pInc/pExp yang sudah difilter di atas,
+  // tidak ada query/loop tambahan ke state mentah (ringan, aman untuk device kecil
+  // walaupun elemen-nya disembunyikan via CSS di layar sempit).
+  renderRecentActivity(pInc, pExp);
+  renderTopCategories(pExp);
+
   // FITUR BARU
   initStickyNote();
   updateSaldoMinusBanner();
@@ -7513,7 +7580,7 @@ function openSettingModal(){
 }
 function closeSettingModal(){ document.getElementById('settingModal').classList.remove('open'); }
 
-// ─── STICKY NOTE — VERTICAL STACK (3 catatan aktif, liquid glass) ──────────
+// ─── STICKY NOTE — VERTICAL STACK (4 catatan aktif, liquid glass) ──────────
 // Setiap card (slot 0/1/2) berisi markup lengkap (header+textarea+footer).
 // JS hanya toggle class .sn-st-expanded / .sn-st-summary + data-state pada
 // wrapper, dan isi value textarea masing-masing slot. Tidak ada DOM-moving.
@@ -7528,7 +7595,7 @@ function initStickyNote(){
   if(!state.monthlyNotes) state.monthlyNotes = {};
   if(!state.monthlyNotes[period] || typeof state.monthlyNotes[period] !== 'object'){
     const old = (typeof state.monthlyNotes[period] === 'string') ? state.monthlyNotes[period] : '';
-    state.monthlyNotes[period] = { 0: old, 1: '', 2: '' };
+    state.monthlyNotes[period] = { 0: old, 1: '', 2: '', 3: '' };
   }
 
   // Init listener hanya sekali (seumur hidup halaman)
@@ -7542,7 +7609,7 @@ function initStickyNote(){
 }
 
 function _snInitListeners(){
-  for(let slot = 0; slot < 3; slot++){
+  for(let slot = 0; slot < 4; slot++){
     const card = document.getElementById('snCard' + slot);
     if(!card) continue;
     const ta = card.querySelector('[data-textarea-el]');
@@ -7551,7 +7618,7 @@ function _snInitListeners(){
     if(ta){
       ta.addEventListener('input', function(){
         const period = periodKey();
-        if(!state.monthlyNotes[period]) state.monthlyNotes[period] = {0:'',1:'',2:''};
+        if(!state.monthlyNotes[period]) state.monthlyNotes[period] = {0:'',1:'',2:'',3:''};
         state.monthlyNotes[period][slot] = this.value;
         saveState();
         clearTimeout(_snTypingTimer);
@@ -7610,10 +7677,10 @@ function _snDoneEdit(slot, e){
    [expanded] → [opsional summary di bawah], sesuai indeks slot asli. */
 function _snRenderDeck(){
   const period = periodKey();
-  if(!state.monthlyNotes[period]) state.monthlyNotes[period] = {0:'',1:'',2:''};
+  if(!state.monthlyNotes[period]) state.monthlyNotes[period] = {0:'',1:'',2:'',3:''};
   const notes = state.monthlyNotes[period];
 
-  for(let slot = 0; slot < 3; slot++){
+  for(let slot = 0; slot < 4; slot++){
     const card = document.getElementById('snCard' + slot);
     if(!card) continue;
     const ta = card.querySelector('[data-textarea-el]');
@@ -7635,7 +7702,7 @@ function _snRenderDeck(){
     if(monthEl) monthEl.textContent = period;
 
     // Dots — tandai slot aktif di semua card (biar konsisten kalau salah satu jadi summary)
-    for(let d = 0; d < 3; d++){
+    for(let d = 0; d < 4; d++){
       const dot = card.querySelector('[data-dot="' + d + '"]');
       if(dot) dot.classList.toggle('active', d === _snActiveSlot);
     }
@@ -8523,6 +8590,70 @@ function renderUpcomingBills(){
         ${badge}
       </div>
       <div style="font-size:12px;font-weight:700;color:#f87171;flex-shrink:0;margin-left:8px;">${fmtShort(b.amt)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── WIDGET DESKTOP v3.4.1 — Aktivitas Terbaru ──────────────────────────────
+// Gabungkan pemasukan+pengeluaran periode aktif (sudah difilter di render()),
+// urutkan berdasarkan id (=Date.now() saat input, jadi representasi paling
+// akurat untuk "baru dicatat") lalu tampilkan 4 teratas. Tidak ada query state
+// tambahan atau parsing tanggal berat — cukup 1x sort atas array yang sudah kecil.
+function renderRecentActivity(pInc, pExp){
+  const el = document.getElementById('recentActivityList');
+  if(!el) return;
+  if(!pInc.length && !pExp.length){
+    el.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">Belum ada aktivitas bulan ini</div>';
+    return;
+  }
+  const combined = [
+    ...pInc.map(i => ({...i, _type:'in'})),
+    ...pExp.map(e => ({...e, _type:'out'}))
+  ].sort((a,b) => (b.id||0) - (a.id||0)).slice(0, 4);
+
+  el.innerHTML = combined.map(item => {
+    const isIn = item._type === 'in';
+    const color = isIn ? '#34d399' : '#f87171';
+    const sign = isIn ? '+' : '−';
+    const targetTab = isIn ? 'pemasukan' : 'pengeluaran';
+    return `<div class="upcoming-bill-item" onclick="switchTabByName('${targetTab}')">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.name)}</div>
+        <span style="font-size:10px;color:var(--text-muted);">${getCatLabel(item.cat)} · ${formatDate(item.date)}</span>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:${color};flex-shrink:0;margin-left:8px;">${sign}${fmtShort(item.amt)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── WIDGET DESKTOP v3.4.1 — Kategori Teratas ───────────────────────────────
+// Agregasi ringan (satu kali reduce atas pExp yang sudah difilter periode)
+// untuk menampilkan 3 kategori pengeluaran terbesar bulan berjalan + mini bar.
+function renderTopCategories(pExp){
+  const el = document.getElementById('topCategoriesList');
+  if(!el) return;
+  if(!pExp.length){
+    el.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">Belum ada pengeluaran bulan ini</div>';
+    return;
+  }
+  const catTotals = {};
+  let totalExp = 0;
+  pExp.forEach(e => {
+    catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amt;
+    totalExp += e.amt;
+  });
+  const topCats = Object.entries(catTotals).sort((a,b) => b[1]-a[1]).slice(0, 3);
+
+  el.innerHTML = topCats.map(([cat, amt]) => {
+    const pct = totalExp > 0 ? (amt/totalExp*100) : 0;
+    return `<div style="padding:7px 2px;cursor:pointer;" onclick="switchTabByName('pengeluaran')">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;gap:8px;">
+        <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${getCatLabel(cat)}</span>
+        <span style="font-weight:700;color:var(--text-secondary);flex-shrink:0;">${fmtShort(amt)}</span>
+      </div>
+      <div class="budget-alert-bar">
+        <div class="budget-alert-bar-fill" style="width:${pct.toFixed(0)}%;background:linear-gradient(90deg,#f87171,#fbbf24);"></div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -13034,6 +13165,12 @@ body.theme-luxury .sn-deck-card[data-slot="1"] {
 body.theme-luxury .sn-deck-card[data-slot="2"] {
   background: rgba(10,35,22,0.82) !important;
   border: 1px solid rgba(52,211,153,0.32) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+body.theme-luxury .sn-deck-card[data-slot="3"] {
+  background: rgba(45,15,32,0.82) !important;
+  border: 1px solid rgba(236,72,153,0.32) !important;
   backdrop-filter: blur(18px) !important;
   -webkit-backdrop-filter: blur(18px) !important;
 }
