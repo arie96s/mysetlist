@@ -28,6 +28,10 @@ window.addEventListener('error', function(e){
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PMPK] jsPDF gagal dimuat')"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PMPK] Chart.js gagal dimuat')"></script>
+<!-- ══ FIREBASE (untuk Premium Paywall) — muat sebelum script utama, gagal-aman kalau offline ══ -->
+<script src="https://www.gstatic.com/firebasejs/12.3.0/firebase-app-compat.js" onerror="console.warn('[PMPK] Firebase App gagal dimuat — login Premium tidak akan berfungsi')"></script>
+<script src="https://www.gstatic.com/firebasejs/12.3.0/firebase-auth-compat.js" onerror="console.warn('[PMPK] Firebase Auth gagal dimuat')"></script>
+<script src="https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore-compat.js" onerror="console.warn('[PMPK] Firebase Firestore gagal dimuat')"></script>
 <style>
   /* ── Anti-FOUC: background instan sebelum body ter-render ── */
   html.light-mode    { background: #f1f5f9; color-scheme: light; }
@@ -1103,6 +1107,50 @@ window.addEventListener('error', function(e){
   .modal-box{background:var(--modal-bg);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:32px;max-width:500px;width:93%;backdrop-filter:blur(40px);animation:modalIn .35s var(--spring);max-height:90vh;overflow-y:auto;}
   .modal-box::-webkit-scrollbar{width:4px;}
   .modal-box::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:10px;}
+
+  /* ══ PREMIUM PAYWALL MODAL (v1.0) — add-on murni, tidak mengubah .modal-overlay/.modal-box ══ */
+  #paywallModal.open{ z-index:99999 !important; } /* selalu paling depan, sesuai spek */
+  .pw-box{ max-width:460px; width:93%; position:relative; text-align:center; }
+  .pw-close-btn{
+    position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:50%;
+    border:none; background:var(--input-bg); color:var(--text-primary); font-size:14px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .2s, transform .2s var(--spring); z-index:1;
+  }
+  .pw-close-btn:hover{ background:var(--card-hover-bg); transform:scale(1.08) rotate(90deg); }
+  .pw-subtitle{ color:var(--text-secondary); font-size:13.5px; margin:-6px 0 18px; line-height:1.5; }
+  .pw-qr-wrap{ display:flex; justify-content:center; margin-bottom:18px; }
+  .pw-qr-img{
+    max-width:200px; width:100%; height:auto; object-fit:contain; border-radius:18px;
+    box-shadow:0 12px 32px rgba(0,0,0,.28), 0 0 0 1px var(--glass-border) inset;
+    background:#fff; padding:10px; box-sizing:border-box;
+  }
+  .pw-feature-list{ list-style:none; padding:0; margin:0 0 18px; display:grid; gap:8px; text-align:left; }
+  .pw-feature-list li{ font-size:13.5px; font-weight:600; color:var(--text-primary); }
+  .pw-instruction{ font-size:13px; color:var(--text-secondary); line-height:1.65; margin:0 0 16px; }
+  .pw-note{ text-align:left; padding:14px 16px; margin-bottom:20px; cursor:default; }
+  .pw-note-title{ font-size:12.5px; font-weight:700; margin-bottom:8px; color:var(--text-primary); }
+  .pw-note-list{ margin:0; padding-left:18px; font-size:12.5px; color:var(--text-secondary); line-height:1.75; }
+  .pw-btn-row{ display:flex; flex-direction:column; gap:10px; }
+  .btn-whatsapp{ background:linear-gradient(135deg,#25d366,#128c7e); color:#fff; box-shadow:0 4px 14px rgba(37,211,102,.35); text-decoration:none; }
+  .btn-whatsapp:hover{ filter:brightness(1.06); }
+  .btn-google{ background:var(--input-bg); border:1px solid var(--input-border); color:var(--text-primary); }
+  .btn-google:hover{ background:var(--card-hover-bg); }
+  .pw-divider{ display:flex; align-items:center; gap:10px; margin:16px 0 12px; font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.6px; }
+  .pw-divider::before,.pw-divider::after{ content:''; flex:1; height:1px; background:var(--glass-border); }
+  .pw-auth-status{ display:none; font-size:12px; margin:10px 2px 0; line-height:1.55; word-break:break-word; text-align:left; }
+  .pw-logout-link{ display:none; font-size:11px; color:var(--text-muted); text-decoration:underline; cursor:pointer; margin-top:6px; }
+
+  /* Animasi sesuai spek: opacity 0→1, scale(.92)→scale(1), easing var(--spring) */
+  @keyframes pwBoxIn{ from{opacity:0; transform:scale(.92);} to{opacity:1; transform:scale(1);} }
+  @keyframes pwBoxOut{ from{opacity:1; transform:scale(1);} to{opacity:0; transform:scale(.92);} }
+  @keyframes pwOverlayOut{ from{opacity:1;} to{opacity:0;} }
+  #paywallModal.open .pw-box{ animation:pwBoxIn .35s var(--spring); }
+  #paywallModal.pw-closing{ animation:pwOverlayOut .22s ease forwards; }
+  #paywallModal.pw-closing .pw-box{ animation:pwBoxOut .22s var(--spring) forwards; }
+
+  @media(max-width:900px){ .pw-box{ width:90vw; } }
+  @media(max-width:600px){ .pw-box{ width:95vw; padding:24px 20px; } }
   .modal-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
   .setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--input-border);}
   .setting-row:last-of-type{border-bottom:none;}
@@ -5134,6 +5182,54 @@ document.addEventListener('visibilitychange', function(){
   </div>
 </div>
 
+<!-- ══ MODAL PREMIUM PAYWALL (v1.0) ══
+     Non-destructive add-on: 100% reuse .modal-overlay/.modal-box/.glass-input
+     yang sudah ada. DOM dibuat sekali di sini dan dipakai ulang oleh
+     showPaywall()/closePaywall() — tidak pernah di-generate ulang lewat JS. -->
+<div class="modal-overlay" id="paywallModal" role="dialog" aria-modal="true"
+     aria-labelledby="paywallTitle" aria-describedby="paywallDesc">
+  <div class="modal-box glass pw-box" id="paywallBox" tabindex="-1">
+    <button type="button" class="pw-close-btn" onclick="closePaywall()" aria-label="Tutup">✕</button>
+
+    <div class="modal-title" id="paywallTitle" style="justify-content:center;">👑 Upgrade ke PIMAPIKA Pro</div>
+    <p class="pw-subtitle" id="paywallDesc">Nikmati seluruh fitur Premium hanya dengan pembayaran satu kali.</p>
+
+    <div class="pw-qr-wrap">
+      <img src="QRIS_PIMAPIKA.png" alt="QRIS Pembayaran PIMAPIKA Pro" class="pw-qr-img" loading="lazy">
+    </div>
+
+    <ul class="pw-feature-list">
+      <li>✓ Lifetime Access</li>
+      <li>✓ Sekali Bayar</li>
+      <li>✓ Semua Update Gratis</li>
+      <li>✓ Tidak ada biaya bulanan</li>
+    </ul>
+
+    <p class="pw-instruction">Scan QRIS di atas untuk melakukan pembayaran satu kali sebesar <strong>Rp25.000</strong> untuk mendapatkan akses Premium seumur hidup.</p>
+
+    <div class="pw-note glass-input">
+      <div class="pw-note-title">📋 Saat mengirim bukti pembayaran melalui WhatsApp, mohon sertakan:</div>
+      <ul class="pw-note-list">
+        <li>Nama</li>
+        <li>Email akun Google yang digunakan untuk login</li>
+        <li>Screenshot bukti transfer</li>
+      </ul>
+    </div>
+
+    <div class="pw-btn-row">
+      <a href="#" id="paywallWaBtn" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">💬 Konfirmasi Pembayaran via WhatsApp</a>
+      <button type="button" class="btn btn-glass" onclick="closePaywall()">Nanti Saja</button>
+    </div>
+
+    <div class="pw-divider">atau</div>
+    <div class="pw-btn-row">
+      <button type="button" class="btn btn-google" id="paywallLoginBtn" onclick="pwLoginAndVerify()">🔑 Sudah Bayar? Masuk dengan Google</button>
+    </div>
+    <p class="pw-auth-status" id="paywallAuthStatus"></p>
+    <span class="pw-logout-link" id="paywallLogoutLink" onclick="pwLogout()">Keluar dari akun ini</span>
+  </div>
+</div>
+
 <!-- ══ MODAL SETTING ══ -->
 <div class="modal-overlay" id="settingModal">
   <div class="modal-box" style="max-width:520px;">
@@ -6914,6 +7010,7 @@ function _updateIncRateHint(){
 }
 
 function addIncome(){
+  if(!requirePremium()) return; // ── PREMIUM GATE (add-on, v1.0) ──
   const name=document.getElementById('incName').value.trim();
   const cat=document.getElementById('incCat').value;
   const rawAmt=getCurrencyValue('incAmt');
@@ -6992,6 +7089,7 @@ function repeatLastIncome(){
 
 // ─── EXPENSE ───
 function addExpense(){
+  if(!requirePremium()) return; // ── PREMIUM GATE (add-on, v1.0) ──
   const name=document.getElementById('expName').value.trim();
   const cat=document.getElementById('expCat').value;
   const amt=getCurrencyValue('expAmt');
@@ -7580,6 +7678,240 @@ function openSettingModal(){
 }
 function closeSettingModal(){ document.getElementById('settingModal').classList.remove('open'); }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// PREMIUM PAYWALL — v1.0 (modul add-on, non-destructive)
+// Tidak menyentuh saveState()/loadState()/state{} utama PIMAPIKA sama sekali.
+// Struktur disiapkan agar tinggal "disambung" ke Firebase Auth + Firestore
+// nanti tanpa refactor — lihat TODO di syncPremiumFromFirebase() di bawah.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Sumber kebenaran status Premium NANTINYA dari Firebase (collection
+// `allowed_emails`), BUKAN localStorage. localStorage di bawah hanya cache
+// sementara agar tidak ada "flicker" paywall saat halaman baru dimuat.
+let isUserPremium = false;
+
+const PW_CACHE_KEY = 'pmpk_premium_cache_v1';
+
+function _pwLoadCachedStatus(){
+  try{
+    isUserPremium = localStorage.getItem(PW_CACHE_KEY) === '1';
+  }catch(_){
+    isUserPremium = false;
+  }
+}
+_pwLoadCachedStatus();
+
+// TODO — INTEGRASI FIREBASE:
+// 1. Buat project di https://console.firebase.google.com
+// 2. Aktifkan Authentication → Sign-in method → Google
+// 3. Aktifkan Firestore Database, buat collection `allowed_emails`
+// 4. Ganti SEMUA nilai "GANTI_..." di bawah dengan punya kamu
+//    (Project Settings → General → Your apps → SDK setup and configuration)
+const firebaseConfig = {
+  apiKey: "GANTI_API_KEY",
+  authDomain: "GANTI_PROJECT_ID.firebaseapp.com",
+  projectId: "GANTI_PROJECT_ID",
+  storageBucket: "GANTI_PROJECT_ID.appspot.com",
+  messagingSenderId: "GANTI_SENDER_ID",
+  appId: "GANTI_APP_ID"
+};
+
+let _pwFirebaseReady = false;
+let _pwAuth = null, _pwDb = null, _pwGoogleProvider = null;
+
+// Init Firebase — dibungkus try/catch supaya app TETAP JALAN NORMAL walaupun
+// Firebase belum dikonfigurasi (belum ganti "GANTI_..." di atas) atau SDK
+// gagal dimuat (misal user offline). Non-destructive: fitur lain tidak
+// terganggu sama sekali, hanya login Premium yang tidak akan berfungsi.
+(function _pwInitFirebase(){
+  try{
+    if(typeof firebase === 'undefined'){ return; } // SDK belum dimuat (lihat <head>)
+    if(firebaseConfig.apiKey.indexOf('GANTI_') === 0){ return; } // belum dikonfigurasi
+    firebase.initializeApp(firebaseConfig);
+    _pwAuth = firebase.auth();
+    _pwDb = firebase.firestore();
+    _pwGoogleProvider = new firebase.auth.GoogleAuthProvider();
+    _pwFirebaseReady = true;
+  }catch(err){
+    console.warn('[PMPK] Firebase gagal diinisialisasi:', err.message);
+  }
+})();
+
+// Cek dokumen allowed_emails/{email} — dipakai oleh onAuthStateChanged (otomatis
+// tiap kali status login berubah) DAN oleh tombol "Cek ulang status" (manual).
+async function _pwCheckPremiumDoc(user){
+  if(!_pwFirebaseReady || !user) return;
+  _pwUpdateAuthStatusUI(user, null); // "sedang memeriksa..."
+  try{
+    const snap = await _pwDb.collection('allowed_emails').doc(user.email).get();
+    isUserPremium = snap.exists;
+    try{ localStorage.setItem(PW_CACHE_KEY, isUserPremium ? '1' : '0'); }catch(_){}
+    _pwUpdateAuthStatusUI(user, isUserPremium);
+    if(isUserPremium){
+      toast('✅ Premium aktif! Selamat menikmati PIMAPIKA Pro 👑','success');
+      closePaywall();
+    }
+  }catch(err){
+    console.error('[PMPK] Gagal cek status Premium:', err);
+    _pwUpdateAuthStatusUI(user, false, true);
+  }
+}
+
+// Sinkron otomatis tiap kali status login Google berubah (buka app, login,
+// logout, atau sesi Google expired). Ini pengganti resmi syncPremiumFromFirebase().
+if(_pwFirebaseReady){
+  _pwAuth.onAuthStateChanged(function(user){
+    if(!user){
+      isUserPremium = false;
+      try{ localStorage.removeItem(PW_CACHE_KEY); }catch(_){}
+      _pwUpdateAuthStatusUI(null, false);
+      return;
+    }
+    _pwCheckPremiumDoc(user);
+  });
+}
+
+// Dipanggil manual (mis. tombol "Cek ulang status") — aman dipanggil kapan pun.
+function syncPremiumFromFirebase(){
+  if(!_pwFirebaseReady || !_pwAuth.currentUser) return;
+  _pwCheckPremiumDoc(_pwAuth.currentUser);
+}
+
+// ── Tombol "Sudah Bayar? Masuk dengan Google" di dalam modal paywall ──
+async function pwLoginAndVerify(){
+  if(!_pwFirebaseReady){
+    toast('Firebase belum dikonfigurasi. Lihat komentar TODO di kode.','error');
+    return;
+  }
+  try{
+    await _pwAuth.signInWithPopup(_pwGoogleProvider);
+    // onAuthStateChanged di atas otomatis jalan & update UI setelah ini.
+  }catch(err){
+    console.error('[PMPK] Login gagal:', err);
+    if(err.code !== 'auth/popup-closed-by-user'){
+      toast('Login gagal: ' + (err.message || 'coba lagi'), 'error');
+    }
+  }
+}
+
+function pwLogout(){
+  if(!_pwFirebaseReady) return;
+  _pwAuth.signOut();
+}
+
+// Update area status login di dalam modal paywall — SELALU pakai textContent
+// (bukan innerHTML) karena email adalah data dinamis, aman dari XSS.
+function _pwUpdateAuthStatusUI(user, premiumStatus, isError){
+  const statusEl = document.getElementById('paywallAuthStatus');
+  const loginBtn = document.getElementById('paywallLoginBtn');
+  const logoutEl = document.getElementById('paywallLogoutLink');
+  if(!statusEl) return;
+
+  if(!user){
+    statusEl.style.display = 'none';
+    if(loginBtn) loginBtn.style.display = 'flex';
+    if(logoutEl) logoutEl.style.display = 'none';
+    return;
+  }
+
+  statusEl.style.display = 'block';
+  if(loginBtn) loginBtn.style.display = 'none';
+  if(logoutEl) logoutEl.style.display = 'inline';
+
+  if(isError){
+    statusEl.textContent = '⚠️ Gagal memeriksa status Premium. Coba lagi nanti.';
+    statusEl.style.color = '#f87171';
+  }else if(premiumStatus === null){
+    statusEl.textContent = '⏳ Memeriksa status Premium untuk ' + user.email + '...';
+    statusEl.style.color = 'var(--text-secondary)';
+  }else if(premiumStatus){
+    statusEl.textContent = '✅ Premium aktif — masuk sebagai ' + user.email;
+    statusEl.style.color = '#34d399';
+  }else{
+    statusEl.textContent = '❌ ' + user.email + ' belum terdaftar Premium. Kirim bukti bayar via WhatsApp lalu tunggu konfirmasi admin ya!';
+    statusEl.style.color = '#fbbf24';
+  }
+}
+
+// ── Gate reusable — panggil di baris pertama fungsi Premium manapun ──
+// Pola pakai:  if(!requirePremium()) return;
+function requirePremium(){
+  if(!isUserPremium){ showPaywall(); return false; }
+  return true;
+}
+
+// ── Modal Premium — DOM di-reuse (id="paywallModal" sudah ada di HTML),
+//    showPaywall()/closePaywall() TIDAK PERNAH membuat elemen baru. ──
+let _pwLastFocusedEl = null;
+let _pwKeydownHandler = null;
+
+function showPaywall(){
+  const modal = document.getElementById('paywallModal');
+  const box   = document.getElementById('paywallBox');
+  if(!modal || !box) return;
+  if(modal.classList.contains('open')) return; // sudah terbuka, jangan dobel-init
+
+  _pwLastFocusedEl = document.activeElement;
+
+  // Set link WhatsApp sekali per-buka. Pakai property .href (bukan innerHTML)
+  // agar aman dari XSS — tidak ada data user yang di-inject sebagai HTML.
+  const waBtn = document.getElementById('paywallWaBtn');
+  if(waBtn){
+    const waMsg = 'Halo admin, saya sudah melakukan pembayaran PIMAPIKA Pro. '
+      + 'Berikut data saya:\n\nNama:\nEmail:\n(Tolong aktifkan akun Premium saya.)';
+    waBtn.href = 'https://wa.me/628XXXXXXXXXX?text=' + encodeURIComponent(waMsg);
+  }
+
+  modal.classList.remove('pw-closing');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Sinkronkan area status login dengan kondisi saat ini (mis. user sudah
+  // pernah login Google sebelumnya di sesi ini).
+  if(_pwFirebaseReady && _pwAuth.currentUser){
+    _pwUpdateAuthStatusUI(_pwAuth.currentUser, isUserPremium);
+  }else{
+    _pwUpdateAuthStatusUI(null, false);
+  }
+
+  // Focus trap + ESC — listener dipasang sekali per-buka, selalu dilepas di
+  // closePaywall() sehingga tidak pernah menumpuk meski showPaywall()
+  // dipanggil berulang kali dari banyak fitur berbeda.
+  if(_pwKeydownHandler) document.removeEventListener('keydown', _pwKeydownHandler);
+  _pwKeydownHandler = function(e){
+    if(e.key === 'Escape'){ closePaywall(); return; }
+    if(e.key === 'Tab'){
+      const focusables = box.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if(!focusables.length) return;
+      const first = focusables[0], last = focusables[focusables.length - 1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+  };
+  document.addEventListener('keydown', _pwKeydownHandler);
+
+  // Fokus awal masuk ke dalam modal (aksesibilitas)
+  setTimeout(() => box.focus(), 50);
+}
+
+function closePaywall(){
+  const modal = document.getElementById('paywallModal');
+  if(!modal || !modal.classList.contains('open')) return;
+
+  modal.classList.add('pw-closing');
+  setTimeout(() => {
+    modal.classList.remove('open');
+    modal.classList.remove('pw-closing');
+    document.body.style.overflow = '';
+  }, 220); // selaras durasi animasi pwBoxOut/pwOverlayOut di CSS
+
+  if(_pwKeydownHandler){ document.removeEventListener('keydown', _pwKeydownHandler); _pwKeydownHandler = null; }
+
+  // Restore fokus ke elemen sebelum modal dibuka (aksesibilitas)
+  if(_pwLastFocusedEl && typeof _pwLastFocusedEl.focus === 'function') _pwLastFocusedEl.focus();
+  _pwLastFocusedEl = null;
+}
+
 // ─── STICKY NOTE — VERTICAL STACK (4 catatan aktif, liquid glass) ──────────
 // Setiap card (slot 0/1/2) berisi markup lengkap (header+textarea+footer).
 // JS hanya toggle class .sn-st-expanded / .sn-st-summary + data-state pada
@@ -7835,6 +8167,8 @@ function checkKursDropWarning(){
   if(_rm) _rm.addEventListener('click',function(e){ if(e.target===this) closeResetModal(); });
   var _sm = document.getElementById('settingModal');
   if(_sm) _sm.addEventListener('click',function(e){ if(e.target===this) closeSettingModal(); });
+  var _pm = document.getElementById('paywallModal');
+  if(_pm) _pm.addEventListener('click',function(e){ if(e.target===this) closePaywall(); });
 })();
 
 // ─── THEME ───
@@ -8105,6 +8439,7 @@ function toast(msg,type='info'){
 
 // ─── PDF ───
 function downloadPDF(){
+  if(!requirePremium()) return; // ── PREMIUM GATE (add-on, v1.0) ──
   if(!window.jspdf || !window.jspdf.jsPDF){ toast('PDF tidak tersedia (library belum dimuat)','error'); return; }
   function stripEmoji(str){ return (str||'').replace(/[\u{1F300}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{200D}\u{20D0}-\u{20FF}]/gu,'').replace(/[^\x00-\x7E\u00C0-\u024F]/g,'').trim(); }
   const {jsPDF}=window.jspdf;
@@ -10187,6 +10522,7 @@ function _pvPreloadTesseract() {
 
 // ── Camera control ───────────────────────────────────────────
 async function openCameraModal() {
+  if(!requirePremium()) return; // ── PREMIUM GATE (add-on, v1.0) ──
   document.getElementById('cameraModal').classList.add('open');
   pvResetUI();
   document.getElementById('ocrStatus').textContent = '📡 Mengaktifkan kamera...';
