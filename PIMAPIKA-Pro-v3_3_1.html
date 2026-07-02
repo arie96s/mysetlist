@@ -14264,5 +14264,25 @@ try{(function initLuxuryGyro(){
 
 })(); /* end PIMA Exchange Widget */
   </script>
+  <!-- Firebase App SDK (Wajib) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // Masukkan firebaseConfig yang Anda ambil dari Firebase Console di sini
+  const firebaseConfig = {
+    apiKey: "AIza...",
+    authDomain: "pimapika-pro.firebaseapp.com",
+    projectId: "pimapika-pro",
+    storageBucket: "pimapika-pro.appspot.com",
+    messagingSenderId: "...",
+    appId: "..."
+  };
+
+  const app = initializeApp(firebaseConfig);
+  export const auth = getAuth(app);
+  export const db = getFirestore(app);
+</script>
 </body>
 </html>
