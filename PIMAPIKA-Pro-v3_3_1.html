@@ -1139,7 +1139,7 @@ window.addEventListener('error', function(e){
   .pw-divider{ display:flex; align-items:center; gap:10px; margin:16px 0 12px; font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.6px; }
   .pw-divider::before,.pw-divider::after{ content:''; flex:1; height:1px; background:var(--glass-border); }
   .pw-auth-status{ display:none; font-size:12px; margin:10px 2px 0; line-height:1.55; word-break:break-word; text-align:left; }
-  .pw-logout-link{ display:none; font-size:11px; color:var(--text-muted); text-decoration:underline; cursor:pointer; margin-top:6px; }
+  .pw-logout-link{ display:none; font-size:11px; color:var(--text-muted); text-decoration:underline; cursor:pointer; margin-top:6px; margin-right:14px; }
 
   /* Animasi sesuai spek: opacity 0→1, scale(.92)→scale(1), easing var(--spring) */
   @keyframes pwBoxIn{ from{opacity:0; transform:scale(.92);} to{opacity:1; transform:scale(1);} }
@@ -5226,6 +5226,7 @@ document.addEventListener('visibilitychange', function(){
       <button type="button" class="btn btn-google" id="paywallLoginBtn" onclick="pwLoginAndVerify()">🔑 Sudah Bayar? Masuk dengan Google</button>
     </div>
     <p class="pw-auth-status" id="paywallAuthStatus"></p>
+    <span class="pw-logout-link" id="paywallRecheckLink" onclick="syncPremiumFromFirebase()">🔄 Cek ulang status</span>
     <span class="pw-logout-link" id="paywallLogoutLink" onclick="pwLogout()">Keluar dari akun ini</span>
   </div>
 </div>
@@ -7819,18 +7820,23 @@ function _pwUpdateAuthStatusUI(user, premiumStatus, isError){
   const statusEl = document.getElementById('paywallAuthStatus');
   const loginBtn = document.getElementById('paywallLoginBtn');
   const logoutEl = document.getElementById('paywallLogoutLink');
+  const recheckEl = document.getElementById('paywallRecheckLink');
   if(!statusEl) return;
 
   if(!user){
     statusEl.style.display = 'none';
     if(loginBtn) loginBtn.style.display = 'flex';
     if(logoutEl) logoutEl.style.display = 'none';
+    if(recheckEl) recheckEl.style.display = 'none';
     return;
   }
 
   statusEl.style.display = 'block';
   if(loginBtn) loginBtn.style.display = 'none';
   if(logoutEl) logoutEl.style.display = 'inline';
+  // Tombol "Cek ulang status" cuma relevan kalau BELUM premium (kalau sudah
+  // premium, modal otomatis tertutup — lihat _pwCheckPremiumDoc()).
+  if(recheckEl) recheckEl.style.display = (premiumStatus === false) ? 'inline' : 'none';
 
   if(isError){
     statusEl.textContent = '⚠️ Gagal memeriksa status Premium. Coba lagi nanti.';
