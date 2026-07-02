@@ -7784,12 +7784,25 @@ async function pwLoginAndVerify(){
     toast('Firebase belum dikonfigurasi. Lihat komentar TODO di kode.','error');
     return;
   }
+  // Deteksi dini: Firebase Auth popup TIDAK BISA jalan dari file:// (buka
+  // HTML langsung via double-click). Kasih tahu di awal sebelum popup
+  // dicoba, supaya pesannya jelas & actionable, bukan error mentah Firebase.
+  if(location.protocol === 'file:'){
+    toast('Login Google tidak bisa jalan dari file lokal (file://). Jalankan lewat local server (mis. Live Server / python -m http.server) atau lewat domain yang sudah di-deploy.', 'error');
+    return;
+  }
   try{
     await _pwAuth.signInWithPopup(_pwGoogleProvider);
     // onAuthStateChanged di atas otomatis jalan & update UI setelah ini.
   }catch(err){
     console.error('[PMPK] Login gagal:', err);
-    if(err.code !== 'auth/popup-closed-by-user'){
+    if(err.code === 'auth/popup-closed-by-user'){
+      // User sengaja nutup popup — tidak perlu toast error.
+    }else if(err.code === 'auth/unauthorized-domain'){
+      toast('Domain ini belum diizinkan di Firebase. Buka Firebase Console → Authentication → Settings → Authorized domains → tambahkan domain: ' + location.hostname, 'error');
+    }else if(err.code === 'auth/popup-blocked'){
+      toast('Popup login diblokir browser. Izinkan popup untuk situs ini lalu coba lagi.', 'error');
+    }else{
       toast('Login gagal: ' + (err.message || 'coba lagi'), 'error');
     }
   }
