@@ -219,6 +219,221 @@ window.addEventListener('error', function(e){
   .btn-setting:hover{background:var(--input-bg);transform:rotate(45deg);}
 
   /* ── PERIOD BAR ── */
+  /* ─── [v3.4.1] PERIOD ROW + YEAR CAPSULE (Dynamic Island style) ─── */
+  .period-row{
+    display:flex;
+    align-items:stretch;   /* slot tahun otomatis setinggi period bar */
+    gap:10px;
+    margin-bottom:28px;
+  }
+  .period-row .period-bar{margin-bottom:0;flex:1;min-width:0;}
+  /* Slot = placeholder tetap; kapsul mengembang absolut di atasnya
+     sehingga layout di bawah tidak bergeser (perilaku Dynamic Island) */
+  .year-slot{
+    position:relative;
+    flex-shrink:0;
+    width:76px;
+    z-index:60;
+  }
+  .year-capsule{
+    position:absolute;
+    top:0;left:0;right:0;
+    height:100%;              /* collapsed = persis setinggi period bar */
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    background:rgba(255,255,255,0.07);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:50px;
+    padding:4px;              /* sama dengan .period-bar */
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    transition:
+      height .55s cubic-bezier(0.34,1.56,0.64,1),
+      border-radius .45s cubic-bezier(0.34,1.56,0.64,1),
+      box-shadow .4s ease,
+      background .3s ease;
+    will-change:height;
+  }
+  body.light-mode .year-capsule{
+    background:rgba(0,0,0,0.05);
+    border-color:rgba(0,0,0,0.1);
+  }
+  .year-capsule.open{
+    border-radius:26px;
+    background:rgba(30,30,40,0.82);
+    box-shadow:0 18px 44px rgba(0,0,0,0.45), 0 2px 10px rgba(0,0,0,0.25);
+    animation:capsuleJelly .6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  body.light-mode .year-capsule.open{
+    background:rgba(255,255,255,0.92);
+    box-shadow:0 18px 44px rgba(0,0,0,0.18), 0 2px 10px rgba(0,0,0,0.08);
+  }
+  @keyframes capsuleJelly{
+    0%{transform:scale(1,1);}
+    30%{transform:scale(1.06,0.94);}
+    55%{transform:scale(0.97,1.04);}
+    75%{transform:scale(1.02,0.99);}
+    100%{transform:scale(1,1);}
+  }
+  .year-current{
+    border:none;background:none;cursor:pointer;
+    width:100%;
+    padding:10px 6px;         /* vertikal sama dengan .period-btn */
+    border-radius:50px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    transition:transform .18s cubic-bezier(0.34,1.56,0.64,1),
+               height .4s cubic-bezier(0.34,1.56,0.64,1),
+               padding .4s cubic-bezier(0.34,1.56,0.64,1),
+               opacity .25s ease;
+    height:auto;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;user-select:none;
+  }
+  .year-current:active{transform:scale(0.92);}
+  /* [v3.4.2] Saat terbuka, tombol tahun aktif menyatu ke daftar —
+     tidak ada tahun ganda seperti sebelumnya */
+  .year-capsule.open .year-current{
+    height:0;padding:0;opacity:0;pointer-events:none;
+  }
+  .year-label{
+    font-family:'Outfit',sans-serif;
+    font-size:13px;font-weight:700;
+    color:var(--text-primary);
+    letter-spacing:.03em;
+    line-height:1;
+    user-select:none;
+    pointer-events:none;
+  }
+  .year-label.year-pop{animation:yearPop .35s cubic-bezier(0.34,1.56,0.64,1);}
+  @keyframes yearPop{0%{transform:scale(1.25);opacity:.4;}100%{transform:scale(1);opacity:1;}}
+  .year-options{
+    position:relative;        /* anchor indikator vertikal */
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;          /* [v3.4.2] daftar 2010–2050 bisa di-scroll */
+    overscroll-behavior:contain;
+    scrollbar-width:none;     /* Firefox */
+    -ms-overflow-style:none;
+    -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+    opacity:0;
+    transform:translateY(-6px);
+    pointer-events:none;
+    transition:opacity .3s ease .08s, transform .45s cubic-bezier(0.34,1.56,0.64,1) .05s;
+  }
+  .year-options::-webkit-scrollbar{display:none;}
+  .year-capsule.open .year-options{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+  /* [v3.4.2] Indikator kapsul liquid glass vertikal — kembaran .period-indicator */
+  .year-indicator{
+    position:absolute;
+    left:4px;right:4px;      /* mengikuti padding kapsul, seperti period-indicator */
+    border-radius:50px;
+    background:linear-gradient(
+      145deg,
+      rgba(255,255,255,0.38) 0%,
+      rgba(255,255,255,0.18) 40%,
+      rgba(255,255,255,0.10) 60%,
+      rgba(255,255,255,0.22) 100%
+    );
+    backdrop-filter:blur(28px) saturate(200%);
+    -webkit-backdrop-filter:blur(28px) saturate(200%);
+    border:1px solid rgba(255,255,255,0.45);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.18),
+      0 0 0 0.5px rgba(255,255,255,0.2) inset,
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 -1px 0 rgba(255,255,255,0.08) inset;
+    transition:
+      top 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      height 0.42s cubic-bezier(0.34,1.56,0.64,1),
+      opacity 0.2s ease;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+    opacity:0;
+  }
+  .year-capsule.open .year-indicator{opacity:1;}
+  body.light-mode .year-indicator{
+    background:linear-gradient(
+      145deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(255,255,255,0.75) 40%,
+      rgba(255,255,255,0.60) 60%,
+      rgba(255,255,255,0.85) 100%
+    );
+    border-color:rgba(255,255,255,0.9);
+    box-shadow:
+      0 2px 16px rgba(0,0,0,0.10),
+      0 0 0 0.5px rgba(255,255,255,0.5) inset,
+      0 1px 0 rgba(255,255,255,1) inset;
+  }
+  .year-indicator::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background:linear-gradient(
+      15deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.35) 45%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.35) 55%,
+      rgba(255,255,255,0) 100%
+    );
+    transform:translateY(-120%);
+    opacity:0;
+  }
+  .year-indicator.shimmer::after{
+    animation:yearShimmerSweep .6s ease-out;
+  }
+  @keyframes yearShimmerSweep{
+    0%{transform:translateY(-120%);opacity:0;}
+    30%{opacity:1;}
+    100%{transform:translateY(120%);opacity:0;}
+  }
+  @keyframes capsuleSquishDown{
+    0%{transform:scaleY(1) scaleX(1);}
+    20%{transform:scaleY(1.08) scaleX(0.92);}
+    55%{transform:scaleY(0.96) scaleX(1.04);}
+    75%{transform:scaleY(1.02) scaleX(0.98);}
+    100%{transform:scaleY(1) scaleX(1);}
+  }
+  .year-indicator.squish{
+    animation:capsuleSquishDown 0.48s cubic-bezier(0.34,1.56,0.64,1);
+    transform-origin:center center;
+  }
+  .year-opt{
+    position:relative;
+    z-index:1;                /* di atas indikator, sama seperti .period-btn */
+    border:none;background:none;cursor:pointer;
+    padding:11px 6px;
+    font-family:'Outfit',sans-serif;
+    font-size:13px;font-weight:500;
+    color:var(--text-secondary);
+    transition:color .3s ease, transform .15s cubic-bezier(0.34,1.56,0.64,1);
+    -webkit-tap-highlight-color:transparent;user-select:none;
+    border-radius:50px;
+    white-space:nowrap;
+  }
+  .year-opt:hover{color:var(--text-primary);}
+  .year-opt:active{transform:scale(0.93);}
+  .year-opt.active{
+    color:var(--text-primary);
+    font-weight:700;
+    text-shadow:0 0 20px rgba(255,255,255,0.4);
+  }
+  body.light-mode .year-opt.active{text-shadow:none;}
+  @media (max-width:480px){
+    .year-slot{width:68px;}
+    .year-label,.year-opt{font-size:12.5px;}
+  }
+
   .period-bar{
     position:relative;
     display:flex;
@@ -903,6 +1118,13 @@ window.addEventListener('error', function(e){
   .collapse-head{padding:12px;background:var(--input-bg);font-size:13px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;}
   .collapse-body{padding:14px;font-size:12px;color:var(--text-secondary);display:none;line-height:1.8;background:rgba(0,0,0,.02);}
   .empty-state{text-align:center;padding:32px 16px;color:var(--text-muted);}
+  /* [v3.4.3] Pulse highlight saat CTA empty state memfokuskan form */
+  .form-focus-pulse{animation:formFocusPulse 1.2s ease-out;}
+  @keyframes formFocusPulse{
+    0%{box-shadow:0 0 0 0 rgba(96,165,250,0.55);}
+    60%{box-shadow:0 0 0 9px rgba(96,165,250,0);}
+    100%{box-shadow:0 0 0 0 rgba(96,165,250,0);}
+  }
   .empty-icon{font-size:32px;margin-bottom:8px;}
 
 
@@ -3909,7 +4131,16 @@ document.addEventListener('visibilitychange', function(){
   </div>
 
   <!-- ── PERIOD BAR ── -->
-  <div class="period-bar" id="periodBar">
+  <div class="period-row">
+    <div class="year-slot" id="yearSlot">
+      <div class="year-capsule" id="yearCapsule">
+        <button class="year-current" id="yearCurrentBtn" onclick="toggleYearCapsule(event)" title="Ganti tahun" aria-label="Ganti tahun">
+          <span class="year-label" id="yearLabel"></span>
+        </button>
+        <div class="year-options" id="yearOptions"></div>
+      </div>
+    </div>
+    <div class="period-bar" id="periodBar">
     <div class="period-indicator" id="periodIndicator"></div>
     <button class="period-btn" onclick="setPeriod('Januari',this,event)">Jan</button>
     <button class="period-btn" onclick="setPeriod('Februari',this,event)">Feb</button>
@@ -3923,6 +4154,7 @@ document.addEventListener('visibilitychange', function(){
     <button class="period-btn" onclick="setPeriod('Oktober',this,event)">Okt</button>
     <button class="period-btn" onclick="setPeriod('November',this,event)">Nov</button>
     <button class="period-btn" onclick="setPeriod('Desember',this,event)">Des</button>
+  </div>
   </div>
 
   <!-- ── WORKSPACE BAR (FITUR 8) ── -->
@@ -5294,13 +5526,79 @@ const BADGE_DEFS = [
 ];
 
 // ─── STATE ───
+// ─── [v3.4.0] DUKUNGAN LINTAS TAHUN ─────────────────────────────────────────
+// periodKey(): kunci unik "Bulan Tahun" (mis. "Juli 2026") — dipakai untuk
+// monthlyNotes & status lunas tagihan agar tidak bentrok antar tahun.
+function periodKey(){ return state.period + ' ' + state.periodYear; }
+
+// inP(x): apakah record x milik periode + tahun yang sedang aktif.
+// Record lama tanpa field year dianggap milik tahun berjalan (fallback aman).
+function inP(x){
+  if(!x || x.period !== state.period) return false;
+  const y = (typeof x.year === 'number' && x.year >= 2000 && x.year <= 2100)
+    ? x.year : new Date().getFullYear();
+  return y === state.periodYear;
+}
+
+// migrateYearData(): back-fill field year untuk data lama (pra-v3.4.0).
+// - incomes/expenses: tahun diambil dari field date (YYYY-MM-DD) jika valid
+// - banks/budgets (tanpa date): tahun berjalan
+// - monthlyNotes & paidMonth: kunci bulan polos → "Bulan <tahun berjalan>"
+// Idempotent — aman dipanggil berulang (loadState & import JSON).
+function migrateYearData(){
+  const CY = new Date().getFullYear();
+  const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const yearFromDate = (d) => {
+    if(typeof d === 'string'){
+      const y = parseInt(d.split('-')[0], 10);
+      if(!isNaN(y) && y >= 2000 && y <= 2100) return y;
+    }
+    return CY;
+  };
+  const fixArr = (arr, useDate) => {
+    if(!Array.isArray(arr)) return;
+    arr.forEach(r => {
+      if(!r || typeof r !== 'object') return;
+      if(typeof r.year !== 'number' || r.year < 2000 || r.year > 2100){
+        r.year = useDate ? yearFromDate(r.date) : CY;
+      }
+      // paidMonth lama: "Juli" → "Juli 2026"
+      if(typeof r.paidMonth === 'string' && MONTH_NAMES.includes(r.paidMonth)){
+        r.paidMonth = r.paidMonth + ' ' + CY;
+      }
+    });
+  };
+  const fixBucket = (d) => {
+    if(!d) return;
+    fixArr(d.incomes, true);
+    fixArr(d.expenses, true);
+    fixArr(d.banks, false);
+    fixArr(d.budgets, false);
+    fixArr(d.bills, false);
+  };
+  fixBucket(state); // root refs
+  if(state.workspaceData && typeof state.workspaceData === 'object'){
+    Object.values(state.workspaceData).forEach(fixBucket);
+  }
+  // monthlyNotes: kunci "Juli" → "Juli 2026" (tanpa menimpa kunci baru yang sudah ada)
+  if(state.monthlyNotes && typeof state.monthlyNotes === 'object'){
+    Object.keys(state.monthlyNotes).forEach(k => {
+      if(MONTH_NAMES.includes(k)){
+        const nk = k + ' ' + CY;
+        if(!(nk in state.monthlyNotes)) state.monthlyNotes[nk] = state.monthlyNotes[k];
+        delete state.monthlyNotes[k];
+      }
+    });
+  }
+}
+
 let _snLastPeriod  = null; // kept for compatibility
 let _snActiveSlot  = 0;   // kartu yang sedang di depan (0/1/2)
 let _snTypingTimer = null;
 let _snDeckInited  = false;
 let _kursDropCache = null; // kurs drop warning cache — harus dideklarasi sebelum render()
 let state = {
-  period:'Januari', incomes:[], expenses:[], banks:[],
+  period:'', periodYear:new Date().getFullYear(), incomes:[], expenses:[], banks:[],
   budgets:[], notes:'', darkMode:true, headerDate:'',
   targets:[], bills:[],
   goldPortfolio:[], goldRefPrice:1550000,
@@ -5352,6 +5650,11 @@ function loadState(){
   if(!state.workspaces)      state.workspaces      = ['Personal'];
   if(typeof state.privacyMode === 'undefined') state.privacyMode = false;
   if(!state.monthlyNotes || typeof state.monthlyNotes !== 'object') state.monthlyNotes = {};
+  // [v3.4.0] Dukungan lintas tahun
+  if(typeof state.periodYear !== 'number' || state.periodYear < 2000 || state.periodYear > 2100){
+    state.periodYear = new Date().getFullYear();
+  }
+  migrateYearData();
 
   // BUG FIX 5: Validate goldPortfolio integrity — ensure every gold entry has a stable goldKey string.
   // This preserves the delete-link between goldPortfolio entries and their matching expenses
@@ -5515,11 +5818,79 @@ function onHeaderDatePick(el){
   if(!el.value) return;
   if(state.headerDate === el.value) return; // avoid duplicate fire from input+change
   state.headerDate = el.value; // already YYYY-MM-DD from native picker
+  _headerDateManual = true; // [v3.3.2] hentikan auto-update tanggal untuk sesi ini
   renderHeaderDate();
   toast('Tanggal diperbarui ✓ (berlaku untuk sesi ini)','success');
+  // [v3.3.2] Auto-sync: jika bulan pada tanggal header berubah,
+  // tab slide periode otomatis mengikuti bulan tersebut.
+  syncPeriodWithHeaderDate();
 }
 
+// ─── [v3.3.2] SYNC PERIODE ↔ TANGGAL HEADER ───
+// Menyamakan tab periode (Jan–Des) dengan bulan pada state.headerDate.
+// Dipanggil saat: (1) user mengubah tanggal via picker, (2) app dibuka
+// di bulan baru (lihat Period init).
+function syncPeriodWithHeaderDate(){
+  if(!state.headerDate) return;
+  const monthsID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const parts=state.headerDate.split('-');
+  const yVal=parseInt(parts[0],10);
+  const mIdx=parseInt(parts[1],10);
+  if(isNaN(mIdx)||mIdx<1||mIdx>12) return;
+  const target=monthsID[mIdx-1];
+  // [v3.4.0] Sinkron tahun juga — pilih tanggal 2025 → periode ikut ke 2025
+  let yearChanged=false;
+  if(!isNaN(yVal)&&yVal>=2000&&yVal<=2100&&yVal!==state.periodYear){
+    state.periodYear=yVal;
+    renderYearLabel(true);
+    yearChanged=true;
+  }
+  if(target===state.period){
+    if(yearChanged) _refreshPeriodViews(); // bulan sama tapi tahun berubah
+    return;
+  }
+  // Cari tombol periode yang sesuai agar indikator liquid glass ikut bergeser
+  let btn=null;
+  document.querySelectorAll('.period-btn').forEach(b=>{
+    const m=(b.getAttribute('onclick')||'').match(/'([^']+)'/);
+    if(m&&m[1]===target) btn=b;
+  });
+  setPeriod(target, btn);
+}
+
+// [v3.3.2] Watcher pergantian hari — jika app dibiarkan terbuka melewati
+// tengah malam (termasuk pergantian bulan), tanggal header dan periode
+// diperbarui otomatis. Tidak aktif jika user memilih tanggal manual di sesi ini.
+let _headerDateManual=false;
+setInterval(()=>{
+  if(_headerDateManual) return;
+  const t=new Date();
+  const todayStr=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  if(state.headerDate!==todayStr){
+    state.headerDate=todayStr;
+    renderHeaderDate();
+    syncPeriodWithHeaderDate();
+  }
+}, 60*1000);
+
 // ─── HEADER DATE ───
+// ─── [v3.4.3] FOCUS FORM — dipakai CTA empty state semua modul ───
+// Scroll mulus ke input form modul lalu fokuskan + beri pulse highlight
+// agar mata pengguna langsung tertuju ke tempat mengisi data.
+function focusForm(inputId){
+  const el=document.getElementById(inputId);
+  if(!el) return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  // Tunggu scroll mendekat dulu supaya keyboard mobile tidak melompat kasar
+  setTimeout(()=>{
+    try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); }
+    el.classList.remove('form-focus-pulse');
+    void el.offsetWidth;
+    el.classList.add('form-focus-pulse');
+    setTimeout(()=>el.classList.remove('form-focus-pulse'),1300);
+  },350);
+}
+
 function renderHeaderDate(){
   if(!state.headerDate){
     const t=new Date();
@@ -5880,28 +6251,44 @@ const EMPTY_CONFIG = {
   incList: {
     icon:'💸', title:'Belum ada pemasukan',
     sub:'Catat sumber pemasukanmu — gaji, freelance, atau investasi.',
-    cta:'+ Catat Pemasukan', action:"document.querySelector('.tab-btn[onclick*=\"transaksi\"]')?.click()"
+    cta:'+ Catat Pemasukan', action:"focusForm('incName')"
   },
   expList: {
     icon:'🛒', title:'Belum ada pengeluaran',
     sub:'Mulai catat pengeluaran harianmu untuk memantau arus kas.',
-    cta:'+ Catat Pengeluaran', action:"document.querySelector('.tab-btn[onclick*=\"transaksi\"]')?.click()"
+    cta:'+ Catat Pengeluaran', action:"focusForm('expName')"
   },
   targetList: {
     icon:'🎯', title:'Belum ada target',
     sub:'Tetapkan tujuan tabungan dan lacak progresnya setiap bulan.',
-    cta:'+ Tambah Target', action:''
+    cta:'+ Tambah Target', action:"focusForm('targetName')"
   },
   billList: {
     icon:'🔔', title:'Belum ada tagihan',
     sub:'Tambahkan tagihan rutin agar tidak pernah lewat jatuh tempo.',
-    cta:'+ Tambah Tagihan', action:''
+    cta:'+ Tambah Tagihan', action:"focusForm('billName')"
+  },
+  bankGrid: {
+    icon:'🏦', title:'Belum ada alokasi bank',
+    sub:'Sisihkan pemasukanmu ke rekening tabungan atau e-wallet.',
+    cta:'+ Tambah Alokasi', action:"focusForm('bankName')"
+  },
+  budgetList: {
+    icon:'📊', title:'Belum ada anggaran',
+    sub:'Tetapkan batas belanja per kategori agar pengeluaran terkendali.',
+    cta:'+ Atur Anggaran', action:"focusForm('budgetCat')"
+  },
+  goldList: {
+    icon:'🪙', title:'Belum ada aset PIMA Vault',
+    sub:'Catat kepemilikan emasmu dan pantau nilainya secara berkala.',
+    cta:'+ Tambah Aset', action:"focusForm('goldName')"
   },
 };
 
 function _buildPremiumEmpty(cfg){
   const actionAttr = cfg.action ? `onclick="${cfg.action}"` : '';
-  return `<div class="ob-empty-state">
+  // grid-column:1/-1 → aman di container grid (bankGrid), tanpa efek di flex/block
+  return `<div class="ob-empty-state" style="grid-column:1/-1;">
     <div class="ob-empty-art">
       <div class="ob-empty-sparkle"></div>
       <div class="ob-empty-sparkle"></div>
@@ -5919,17 +6306,18 @@ function _patchEmptyStates(){
   Object.entries(EMPTY_CONFIG).forEach(([listId, cfg])=>{
     const el = document.getElementById(listId);
     if(!el) return;
-    new MutationObserver(()=>{
+    const upgrade = ()=>{
       const em = el.querySelector('.empty-state');
       if(em && !em.classList.contains('ob-empty-state')){
-        const parent = em.parentElement;
-        if(parent){
-          const div = document.createElement('div');
-          div.innerHTML = _buildPremiumEmpty(cfg);
-          em.replaceWith(div.firstElementChild);
-        }
+        const div = document.createElement('div');
+        div.innerHTML = _buildPremiumEmpty(cfg);
+        em.replaceWith(div.firstElementChild);
       }
-    }).observe(el, {childList:true, subtree:true});
+    };
+    // [v3.4.3] Upgrade segera untuk empty-state yang sudah ter-render
+    // sebelum observer terpasang (render() awal berjalan lebih dulu dari boot)
+    upgrade();
+    new MutationObserver(upgrade).observe(el, {childList:true, subtree:true});
   });
 }
 
@@ -6002,6 +6390,23 @@ renderWorkspaceBar();
 (function(){
   const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   if(!state.period) state.period=months[new Date().getMonth()];
+  // [v3.3.2] Auto-rollover: jika app dibuka di bulan yang berbeda dari
+  // kunjungan terakhir (lastOpenDate), periode otomatis pindah ke bulan
+  // berjalan mengikuti tanggal header. Pilihan periode manual di bulan
+  // yang sama tetap dipertahankan antar-refresh.
+  (function(){
+    const now=new Date();
+    const curMonth=months[now.getMonth()];
+    if(!state.lastOpenDate){ renderYearLabel(); return; }
+    const lo=new Date(state.lastOpenDate);
+    if(isNaN(lo.getTime())){ renderYearLabel(); return; }
+    if(lo.getFullYear()!==now.getFullYear() || lo.getMonth()!==now.getMonth()){
+      state.period=curMonth;
+      state.periodYear=now.getFullYear(); // [v3.4.0] rollover tahun (Des → Jan)
+      setTimeout(()=>toast(`Periode otomatis pindah ke ${curMonth} ${state.periodYear} 📅`,'info'),600);
+    }
+    renderYearLabel();
+  })();
   let activeBtn = null;
   document.querySelectorAll('.period-btn').forEach(b=>{
     const m=b.getAttribute('onclick').match(/'([^']+)'/);
@@ -6019,6 +6424,164 @@ render();
 requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ initTabIndicator(); }); });
 
 // ─── PERIOD ───
+// [v3.4.0] Refresh bersama semua tampilan yang bergantung periode+tahun
+function _refreshPeriodViews(){
+  saveState(); render();
+  initStickyNote();
+  if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
+  if(document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
+  if(document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
+  if(document.getElementById('tab-emas').classList.contains('active')) renderGold();
+}
+
+function renderYearLabel(pop){
+  const el=document.getElementById('yearLabel');
+  if(!el) return;
+  el.textContent=state.periodYear;
+  if(pop){
+    el.classList.remove('year-pop');
+    void el.offsetWidth;
+    el.classList.add('year-pop');
+  }
+}
+
+function shiftPeriodYear(delta){ // dipertahankan untuk kompatibilitas API lama
+  const next=state.periodYear+delta;
+  if(next<YEAR_MIN||next>YEAR_MAX){ toast('Tahun di luar rentang yang didukung','error'); return; }
+  selectPeriodYear(next);
+}
+
+// ─── [v3.4.1] YEAR CAPSULE — Dynamic Island / PIMA Flow ───
+// Tap kapsul → mengembang kenyal ke bawah menampilkan daftar tahun.
+// Kapsul absolut di dalam .year-slot sehingga layout tidak bergeser.
+let _yearCapsuleOpen=false;
+
+// [v3.4.2] Rentang tetap: 2010 (paling atas) s.d. 2050 (paling bawah), scrollable
+const YEAR_MIN=2010, YEAR_MAX=2050;
+function _yearRange(){
+  const out=[]; for(let y=YEAR_MIN;y<=YEAR_MAX;y++) out.push(y);
+  return out;
+}
+
+function _buildYearOptions(){
+  const box=document.getElementById('yearOptions');
+  if(!box) return;
+  // Indikator disuntik SEBAGAI anak pertama daftar sehingga ikut ter-scroll
+  // bersama konten (posisi memakai offsetTop, koordinat konten)
+  box.innerHTML='<div class="year-indicator" id="yearIndicator"></div>'+
+    _yearRange()
+    .map(y=>`<button class="year-opt${y===state.periodYear?' active':''}" onclick="selectPeriodYear(${y},event)">${y}</button>`)
+    .join('');
+}
+
+function toggleYearCapsule(e){
+  if(e) e.stopPropagation();
+  _yearCapsuleOpen ? closeYearCapsule() : openYearCapsule();
+}
+
+// [v3.4.2] Indikator kapsul vertikal — kembaran updatePeriodIndicator.
+// Memakai offsetTop (koordinat konten .year-options) sehingga posisi tetap
+// benar saat daftar di-scroll; indikator sendiri ikut ter-scroll bersama isi.
+function updateYearIndicator(activeBtn, skipAnim){
+  const box=document.getElementById('yearOptions');
+  const ind=document.getElementById('yearIndicator');
+  if(!box||!ind||!activeBtn) return;
+  const top=activeBtn.offsetTop;
+  const height=activeBtn.offsetHeight;
+  if(skipAnim){
+    ind.style.transition='none';
+    ind.style.top=top+'px';
+    ind.style.height=height+'px';
+    ind.offsetHeight; // force reflow
+    ind.style.transition='';
+  } else {
+    ind.style.top=top+'px';
+    ind.style.height=height+'px';
+    // Squish + shimmer = liquid feel (versi vertikal)
+    ind.classList.remove('squish','shimmer');
+    void ind.offsetWidth;
+    ind.classList.add('squish');
+    setTimeout(()=>{
+      ind.classList.add('shimmer');
+      setTimeout(()=>ind.classList.remove('shimmer','squish'),600);
+    },80);
+  }
+  // Auto-scroll tahun aktif ke tengah daftar — kembaran auto-scroll period bar.
+  // Saat kapsul masih mengembang, clientHeight belum final → pakai tinggi
+  // viewport akhir (dibatasi YEAR_LIST_MAX_H) agar centering akurat.
+  const viewH=Math.max(box.clientHeight,Math.min(box.scrollHeight,YEAR_LIST_MAX_H));
+  const scrollTarget=top-(viewH/2-height/2);
+  box.scrollTo({top:Math.max(0,scrollTarget),behavior:skipAnim?'auto':'smooth'});
+}
+
+// Tinggi maksimum daftar saat terbuka (px) — sisanya di-scroll
+const YEAR_LIST_MAX_H=318;
+function openYearCapsule(){
+  const cap=document.getElementById('yearCapsule');
+  const slot=document.getElementById('yearSlot');
+  const opts=document.getElementById('yearOptions');
+  if(!cap||!slot||!opts) return;
+  _buildYearOptions();
+  // Batasi tinggi daftar → sisanya scrollable (2010–2050)
+  opts.style.maxHeight=YEAR_LIST_MAX_H+'px';
+  // Kunci tinggi awal (setinggi slot/period bar) agar transisi height berjalan
+  cap.style.height=slot.offsetHeight+'px';
+  void cap.offsetHeight; // reflow
+  cap.classList.add('open');
+  // Target = tinggi daftar (dibatasi) + padding kapsul (tombol header menyusut ke 0)
+  cap.style.height=(Math.min(opts.scrollHeight,YEAR_LIST_MAX_H)+8)+'px';
+  _yearCapsuleOpen=true;
+  // Posisikan indikator + scroll tahun aktif ke tengah, tanpa animasi
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+    const active=opts.querySelector('.year-opt.active');
+    if(active) updateYearIndicator(active,true);
+  }); });
+}
+
+function closeYearCapsule(){
+  const cap=document.getElementById('yearCapsule');
+  const slot=document.getElementById('yearSlot');
+  if(!cap||!slot||!_yearCapsuleOpen) return;
+  cap.style.height=slot.offsetHeight+'px'; // menyusut kembali
+  cap.classList.remove('open');
+  _yearCapsuleOpen=false;
+  setTimeout(()=>{ if(!_yearCapsuleOpen) cap.style.height=''; },580);
+}
+
+function selectPeriodYear(y,ev){
+  if(ev) ev.stopPropagation();
+  if(y<YEAR_MIN||y>YEAR_MAX) return;
+  const changed=(y!==state.periodYear);
+  state.periodYear=y;
+  renderYearLabel(true);
+  const opts=document.getElementById('yearOptions');
+  if(_yearCapsuleOpen&&opts){
+    // Geser indikator kapsul secara vertikal ke tahun terpilih
+    let targetBtn=null;
+    opts.querySelectorAll('.year-opt').forEach(b=>{
+      const isT=(parseInt(b.textContent,10)===y);
+      b.classList.toggle('active',isT);
+      if(isT) targetBtn=b;
+    });
+    if(targetBtn) updateYearIndicator(targetBtn,false);
+    // Biarkan slide kapsulnya terlihat dulu, baru menutup
+    setTimeout(()=>closeYearCapsule(),520);
+  } else {
+    closeYearCapsule();
+  }
+  if(changed){
+    _refreshPeriodViews();
+    toast(`Periode: ${state.period} ${state.periodYear}`,'info');
+  }
+}
+
+// Tap di luar kapsul → tutup
+document.addEventListener('click',(e)=>{
+  if(!_yearCapsuleOpen) return;
+  const slot=document.getElementById('yearSlot');
+  if(slot&&!slot.contains(e.target)) closeYearCapsule();
+});
+
 function setPeriod(p, btn, e){
   state.period=p;
   document.querySelectorAll('.period-btn').forEach(b=>{
@@ -6027,14 +6590,9 @@ function setPeriod(p, btn, e){
   });
   // Update liquid glass indicator
   if(btn) updatePeriodIndicator(btn, false);
-  saveState(); render();
-  initStickyNote();
-  toast(`Periode: ${p}`,'info');
-  // refresh active tabs
-  if(document.getElementById('tab-budget').classList.contains('active')) renderBudget();
-  if(document.getElementById('tab-analitik').classList.contains('active')) renderAnalitik();
-  if(document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
-  if(document.getElementById('tab-emas').classList.contains('active')) renderGold();
+  renderYearLabel();
+  _refreshPeriodViews();
+  toast(`Periode: ${p} ${state.periodYear}`,'info');
 }
 
 function updatePeriodIndicator(activeBtn, skipAnim){
@@ -6330,7 +6888,7 @@ function addIncome(){
 
   const incIsRec=document.getElementById('incRecurring').checked;
   const incFreq=incIsRec?document.getElementById('incFreq').value:'';
-  state.incomes.push({id:Date.now(),name,cat,amt,date,note,period:state.period,isRecurring:incIsRec,frequency:incFreq});
+  state.incomes.push({id:Date.now(),name,cat,amt,date,note,period:state.period,year:state.periodYear,isRecurring:incIsRec,frequency:incFreq});
   document.getElementById('incName').value='';
   clearCurrencyInput('incAmt');
   document.getElementById('incNote').value='';
@@ -6385,7 +6943,7 @@ function addExpense(){
   if(!date){ toast('Pilih tanggal!','error'); return; }
   const expIsRec=document.getElementById('expRecurring').checked;
   const expFreqVal=expIsRec?document.getElementById('expFreq').value:'';
-  state.expenses.push({id:Date.now(),name,cat,amt,date,note,period:state.period,isRecurring:expIsRec,frequency:expFreqVal});
+  state.expenses.push({id:Date.now(),name,cat,amt,date,note,period:state.period,year:state.periodYear,isRecurring:expIsRec,frequency:expFreqVal});
   document.getElementById('expName').value='';
   clearCurrencyInput('expAmt');
   document.getElementById('expNote').value='';
@@ -6428,15 +6986,15 @@ function addBank(){
   const purpose=document.getElementById('bankPurpose').value.trim();
   const amt=getCurrencyValue('bankAmtInput');
   const priority=document.getElementById('bankPriority').value;
-  const pInc=state.incomes.filter(i=>i.period===state.period);
+  const pInc=state.incomes.filter(i=>inP(i));
   const totalInc=pInc.reduce((s,i)=>s+i.amt,0);
   if(!name){ toast('Pilih nama bank!','error'); return; }
   if(!amt||amt<=0){ toast('Masukkan nominal valid!','error'); return; }
   if(totalInc===0){ toast('Tambahkan pemasukan terlebih dahulu!','error'); return; }
-  const pBanks=state.banks.filter(b=>b.period===state.period);
+  const pBanks=state.banks.filter(b=>inP(b));
   const current=pBanks.reduce((s,b)=>s+b.amt,0);
   if(current+amt>totalInc){ toast(`Melebihi sisa! Tersedia: ${fmt(totalInc-current)}`,'error'); return; }
-  state.banks.push({id:Date.now(),name,purpose,amt,priority,period:state.period});
+  state.banks.push({id:Date.now(),name,purpose,amt,priority,period:state.period,year:state.periodYear});
   document.getElementById('bankPurpose').value='';
   clearCurrencyInput('bankAmtInput');
   document.getElementById('bankCustomName').value='';
@@ -6457,8 +7015,8 @@ function addBudget(){
   const limit=getCurrencyValue('budgetLimit');
   if(!limit||limit<=0){ toast('Masukkan batas anggaran valid!','error'); return; }
   // overwrite if already exists for this period
-  state.budgets=state.budgets.filter(b=>!(b.cat===cat&&b.period===state.period));
-  state.budgets.push({id:Date.now(),cat,limit,period:state.period});
+  state.budgets=state.budgets.filter(b=>!(b.cat===cat&&inP(b)));
+  state.budgets.push({id:Date.now(),cat,limit,period:state.period,year:state.periodYear});
   clearCurrencyInput('budgetLimit');
   saveState(); renderBudget();
   toast(`PIMA Guard ${getCatLabel(cat)}: ${fmt(limit)}`,'success');
@@ -6469,8 +7027,8 @@ function deleteBudget(id){
   toast('PIMA Guard dihapus','info');
 }
 function renderBudget(){
-  const pExp=state.expenses.filter(e=>e.period===state.period);
-  const pBudgets=state.budgets.filter(b=>b.period===state.period);
+  const pExp=state.expenses.filter(e=>inP(e));
+  const pBudgets=state.budgets.filter(b=>inP(b));
   const listEl=document.getElementById('budgetList');
   document.getElementById('budgetBadge').textContent=pBudgets.length;
   if(!pBudgets.length){
@@ -6507,9 +7065,9 @@ const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus'
 const CHART_COLORS=['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316'];
 
 function calcHealthScore(){
-  const pInc=state.incomes.filter(i=>i.period===state.period);
-  const pExp=state.expenses.filter(e=>e.period===state.period);
-  const pBanks=state.banks.filter(b=>b.period===state.period);
+  const pInc=state.incomes.filter(i=>inP(i));
+  const pExp=state.expenses.filter(e=>inP(e));
+  const pBanks=state.banks.filter(b=>inP(b));
   const totalInc=pInc.reduce((s,i)=>s+i.amt,0);
   const totalExp=pExp.reduce((s,e)=>s+e.amt,0);
   const totalAlloc=pBanks.reduce((s,b)=>s+b.amt,0);
@@ -6677,7 +7235,7 @@ function toggleAdvicePanel() {
 }
 
 function renderAnalitik(){
-  document.getElementById('analitikPeriod').textContent=state.period+' '+new Date().getFullYear();
+  document.getElementById('analitikPeriod').textContent=state.period+' '+state.periodYear;
 
   // PIMA Health
   const hs=calcHealthScore();
@@ -6724,8 +7282,8 @@ function renderAnalitik(){
 function renderSmartStats(){
   const el=document.getElementById('smartStats');
   if(!el) return;
-  const pInc=state.incomes.filter(i=>i.period===state.period);
-  const pExp=state.expenses.filter(e=>e.period===state.period);
+  const pInc=state.incomes.filter(i=>inP(i));
+  const pExp=state.expenses.filter(e=>inP(e));
   if(pInc.length===0 && pExp.length===0){
     el.innerHTML='<div style="color:var(--text-muted);font-size:13px;">Belum ada data untuk dianalisis.</div>';
     return;
@@ -6782,9 +7340,9 @@ function renderSmartStats(){
 
 // ─── MAIN RENDER ───
 function render(){
-  const pInc=state.incomes.filter(i=>i.period===state.period);
-  const pExp=state.expenses.filter(e=>e.period===state.period);
-  const pBanks=state.banks.filter(b=>b.period===state.period);
+  const pInc=state.incomes.filter(i=>inP(i));
+  const pExp=state.expenses.filter(e=>inP(e));
+  const pBanks=state.banks.filter(b=>inP(b));
   const totalInc=pInc.reduce((s,i)=>s+i.amt,0);
   const totalExp=pExp.reduce((s,e)=>s+e.amt,0);
   const totalAlloc=pBanks.reduce((s,b)=>s+b.amt,0);
@@ -6839,10 +7397,10 @@ function render(){
     : '📌 Sisa '+fmt(rest)+' tersedia untuk alokasi';
 
   const rp=document.getElementById('ringkasanPeriod');
-  if(rp) rp.textContent=state.period+' '+new Date().getFullYear();
+  if(rp) rp.textContent=state.period+' '+state.periodYear;
 
   // Budget badge update
-  const pBudgets=state.budgets.filter(b=>b.period===state.period);
+  const pBudgets=state.budgets.filter(b=>inP(b));
   document.getElementById('budgetBadge').textContent=pBudgets.length;
 
   // Refresh active tabs
@@ -6879,9 +7437,9 @@ function render(){
 // ─── RINGKASAN ───
 function renderRingkasan(){
   plRender(); // sync PIMA Ledger list setiap kali tab Ringkasan dirender
-  const pInc=state.incomes.filter(i=>i.period===state.period);
-  const pExp=state.expenses.filter(e=>e.period===state.period);
-  const pBanks=state.banks.filter(b=>b.period===state.period);
+  const pInc=state.incomes.filter(i=>inP(i));
+  const pExp=state.expenses.filter(e=>inP(e));
+  const pBanks=state.banks.filter(b=>inP(b));
   const totalInc=pInc.reduce((s,i)=>s+i.amt,0);
 
   const incByCat={};
@@ -6964,7 +7522,7 @@ function initStickyNote(){
   const wrap = document.getElementById('snDeckWrap');
   if(!wrap) return;
 
-  const period = state.period;
+  const period = periodKey();
 
   // Pastikan struktur data monthlyNotes mendukung 3 slot per periode
   if(!state.monthlyNotes) state.monthlyNotes = {};
@@ -6992,7 +7550,7 @@ function _snInitListeners(){
     // Textarea — simpan ke slot ini
     if(ta){
       ta.addEventListener('input', function(){
-        const period = state.period;
+        const period = periodKey();
         if(!state.monthlyNotes[period]) state.monthlyNotes[period] = {0:'',1:'',2:''};
         state.monthlyNotes[period][slot] = this.value;
         saveState();
@@ -7051,7 +7609,7 @@ function _snDoneEdit(slot, e){
    sehingga posisi mengikuti pola: [opsional summary di atas] →
    [expanded] → [opsional summary di bawah], sesuai indeks slot asli. */
 function _snRenderDeck(){
-  const period = state.period;
+  const period = periodKey();
   if(!state.monthlyNotes[period]) state.monthlyNotes[period] = {0:'',1:'',2:''};
   const notes = state.monthlyNotes[period];
 
@@ -7087,7 +7645,7 @@ function _snRenderDeck(){
 }
 
 function _snUpdatePreviewText(slot){
-  const period = state.period;
+  const period = periodKey();
   const card = document.getElementById('snCard' + slot);
   if(!card || !state.monthlyNotes[period]) return;
   const prevEl = card.querySelector('[data-preview-el]');
@@ -7127,7 +7685,7 @@ function _snScheduleReminder(){
   window._snReminderDone = true;
 }
 function _snShowReminder(){
-  const notes = state.monthlyNotes && state.monthlyNotes[state.period];
+  const notes = state.monthlyNotes && state.monthlyNotes[periodKey()];
   if(!notes) return;
   const text = (notes[_snActiveSlot] || '').trim();
   if(!text) return;
@@ -7151,8 +7709,8 @@ function updateSaldoMinusBanner(){
   const banner = document.getElementById('saldoMinusBanner');
   const detail = document.getElementById('saldoMinusDetail');
   if(!banner || !detail) return;
-  const pInc = state.incomes.filter(i => i.period === state.period);
-  const pExp = state.expenses.filter(e => e.period === state.period);
+  const pInc = state.incomes.filter(i => inP(i));
+  const pExp = state.expenses.filter(e => inP(e));
   const totalInc = pInc.reduce((s,i) => s+i.amt, 0);
   const totalExp = pExp.reduce((s,e) => s+e.amt, 0);
   if(totalInc > 0 && totalExp > totalInc){
@@ -7485,14 +8043,14 @@ function downloadPDF(){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=210,H=297;
-  const pInc=state.incomes.filter(i=>i.period===state.period);
-  const pExp=state.expenses.filter(e=>e.period===state.period);
-  const pBanks=state.banks.filter(b=>b.period===state.period);
+  const pInc=state.incomes.filter(i=>inP(i));
+  const pExp=state.expenses.filter(e=>inP(e));
+  const pBanks=state.banks.filter(b=>inP(b));
   const totalInc=pInc.reduce((s,i)=>s+i.amt,0);
   const totalExp=pExp.reduce((s,e)=>s+e.amt,0);
   const totalAlloc=pBanks.reduce((s,b)=>s+b.amt,0);
   const balance=totalInc-totalExp-totalAlloc;
-  const year=new Date().getFullYear();
+  const year=state.periodYear;
   const hs=calcHealthScore();
 
   doc.setFillColor(255,255,255); doc.rect(0,0,W,H,'F'); doc.setTextColor(0,0,0);
@@ -7575,7 +8133,7 @@ function downloadPDF(){
 
 // ─── FITUR BARU 1: PENCARIAN TRANSAKSI ───
 function renderIncome(){
-  const pInc=state.incomes.filter(i=>i.period===state.period);
+  const pInc=state.incomes.filter(i=>inP(i));
   const q=(document.getElementById('incSearch')?.value||'').toLowerCase().trim();
   const fc=(document.getElementById('incFilterCat')?.value||'');
   let filtered=q?pInc.filter(i=>i.name.toLowerCase().includes(q)||(i.note||'').toLowerCase().includes(q)):pInc;
@@ -7597,7 +8155,7 @@ function renderIncome(){
     : ((q||fc)?'<div class="empty-state"><div class="empty-icon">🔍</div>Tidak ditemukan</div>':'<div class="empty-state"><div class="empty-icon">📭</div>Belum ada pemasukan</div>');
 }
 function renderExpense(){
-  const pExp=state.expenses.filter(e=>e.period===state.period);
+  const pExp=state.expenses.filter(e=>inP(e));
   const q=(document.getElementById('expSearch')?.value||'').toLowerCase().trim();
   const fc=(document.getElementById('expFilterCat')?.value||'');
   let filtered=q?pExp.filter(i=>i.name.toLowerCase().includes(q)||(i.note||'').toLowerCase().includes(q)):pExp;
@@ -7739,9 +8297,9 @@ function addBill(){
 function toggleBillPaid(id){
   const b=state.bills.find(b=>b.id===id);
   if(!b) return;
-  const wasPaid=b.paid&&b.paidMonth===state.period;
+  const wasPaid=b.paid&&b.paidMonth===periodKey();
   if(!wasPaid){
-    b.paid=true; b.paidMonth=state.period;
+    b.paid=true; b.paidMonth=periodKey();
     if(b.freq!=='sekali'){
       const next=new Date(b.dueDate+'T00:00:00');
       if(b.freq==='mingguan') next.setDate(next.getDate()+7);
@@ -7770,7 +8328,7 @@ function _billDaysUntil(dueDate){
   return Math.round((due-today)/(1000*60*60*24));
 }
 function _billStatusBadge(b){
-  const isPaid=b.paid&&b.paidMonth===state.period;
+  const isPaid=b.paid&&b.paidMonth===periodKey();
   if(isPaid) return '<span class="bill-ok-badge">✅ Lunas</span>';
   const diff=_billDaysUntil(b.dueDate);
   if(diff<0) return `<span class="bill-overdue-badge">⛔ Terlewat ${Math.abs(diff)} hari</span>`;
@@ -7799,7 +8357,7 @@ function renderBills(){
     return new Date(a.dueDate+'T00:00:00')-new Date(b.dueDate+'T00:00:00');
   });
   list.innerHTML=sorted.map(b=>{
-    const isPaid=b.paid&&b.paidMonth===state.period;
+    const isPaid=b.paid&&b.paidMonth===periodKey();
     const diff=_billDaysUntil(b.dueDate);
     const dueSoon=!isPaid&&diff>=0&&diff<=5;
     const overdue=!isPaid&&diff<0;
@@ -7819,7 +8377,7 @@ function renderBills(){
     </div>`;
   }).join('');
   const totalBills=state.bills.reduce((s,b)=>s+(b.freq==='tahunan'?b.amt/12:b.freq==='mingguan'?b.amt*4.33:b.freq==='sekali'?0:b.amt),0);
-  const unpaid=state.bills.filter(b=>!(b.paid&&b.paidMonth===state.period)&&b.freq!=='sekali').length;
+  const unpaid=state.bills.filter(b=>!(b.paid&&b.paidMonth===periodKey())&&b.freq!=='sekali').length;
   const summaryBox=document.getElementById('billSummaryBox');
   summaryBox.style.display='block';
   document.getElementById('billSummaryText').innerHTML=`
@@ -7904,9 +8462,9 @@ function saveEditBank(){
   if(!name){ toast('Pilih atau masukkan nama bank!','error'); return; }
   if(!amt||amt<=0){ toast('Masukkan nominal valid!','error'); return; }
   // Cek total alokasi tidak melebihi income (kecuali amount sendiri)
-  const pInc=state.incomes.filter(i=>i.period===state.period);
+  const pInc=state.incomes.filter(i=>inP(i));
   const totalInc=pInc.reduce((s,i)=>s+i.amt,0);
-  const otherBanks=state.banks.filter(x=>x.id!==id&&x.period===state.period);
+  const otherBanks=state.banks.filter(x=>x.id!==id&&inP(x));
   const otherTotal=otherBanks.reduce((s,x)=>s+x.amt,0);
   if(totalInc>0&&otherTotal+amt>totalInc){
     toast(`Melebihi sisa! Tersedia: ${fmt(totalInc-otherTotal)}`,'error'); return;
@@ -7944,7 +8502,7 @@ function renderUpcomingBills(){
   const today=new Date(); today.setHours(0,0,0,0);
   // Filter: belum lunas, tampilkan semua yg belum paid, sort by date
   const upcoming=[...state.bills]
-    .filter(b=>!(b.paid&&b.paidMonth===state.period))
+    .filter(b=>!(b.paid&&b.paidMonth===periodKey()))
     .sort((a,b)=>new Date(a.dueDate+'T00:00:00')-new Date(b.dueDate+'T00:00:00'))
     .slice(0,3);
   if(!upcoming.length){
@@ -8127,7 +8685,7 @@ function _autoCheckNotifications(){
   const LAST_KEY='pmpk_notif_lastcheck';
   const todayStr=new Date().toISOString().split('T')[0];
   if(localStorage.getItem(LAST_KEY)===todayStr) return;
-  PimaNM.checkAndNotify(state.bills,state.period);
+  PimaNM.checkAndNotify(state.bills,periodKey());
   localStorage.setItem(LAST_KEY,todayStr);
 }
 
@@ -8162,10 +8720,13 @@ function renderMonthComparison(){
   const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const cur=MONTHS.indexOf(state.period);
   const prev=MONTHS[(cur+11)%12];
-  const pCurInc=state.incomes.filter(i=>i.period===state.period).reduce((s,i)=>s+i.amt,0);
-  const pCurExp=state.expenses.filter(e=>e.period===state.period).reduce((s,e)=>s+e.amt,0);
-  const pPrevInc=state.incomes.filter(i=>i.period===prev).reduce((s,i)=>s+i.amt,0);
-  const pPrevExp=state.expenses.filter(e=>e.period===prev).reduce((s,e)=>s+e.amt,0);
+  // [v3.4.0] Lintas tahun: Januari dibandingkan dengan Desember tahun sebelumnya
+  const prevYear=cur===0?state.periodYear-1:state.periodYear;
+  const _yOf=(x)=>(typeof x.year==='number'?x.year:new Date().getFullYear());
+  const pCurInc=state.incomes.filter(i=>inP(i)).reduce((s,i)=>s+i.amt,0);
+  const pCurExp=state.expenses.filter(e=>inP(e)).reduce((s,e)=>s+e.amt,0);
+  const pPrevInc=state.incomes.filter(i=>i.period===prev&&_yOf(i)===prevYear).reduce((s,i)=>s+i.amt,0);
+  const pPrevExp=state.expenses.filter(e=>e.period===prev&&_yOf(e)===prevYear).reduce((s,e)=>s+e.amt,0);
   const diffInc=pCurInc-pPrevInc;
   const diffExp=pCurExp-pPrevExp;
   const pctInc=pPrevInc>0?((diffInc/pPrevInc)*100).toFixed(1):null;
@@ -8175,12 +8736,12 @@ function renderMonthComparison(){
       <div style="padding:12px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);text-align:center;">
         <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Pemasukan</div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#34d399;">${fmtShort(pCurInc)}</div>
-        ${pctInc!==null?`<div style="font-size:11px;color:${diffInc>=0?'#34d399':'#f87171'};margin-top:4px;">${diffInc>=0?'▲':'▼'} ${Math.abs(pctInc)}% vs ${prev}</div>`:''}
+        ${pctInc!==null?`<div style="font-size:11px;color:${diffInc>=0?'#34d399':'#f87171'};margin-top:4px;">${diffInc>=0?'▲':'▼'} ${Math.abs(pctInc)}% vs ${prev}${prevYear!==state.periodYear?' '+prevYear:''}</div>`:''}
       </div>
       <div style="padding:12px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);text-align:center;">
         <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Pengeluaran</div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#f87171;">${fmtShort(pCurExp)}</div>
-        ${pctExp!==null?`<div style="font-size:11px;color:${diffExp<=0?'#34d399':'#f87171'};margin-top:4px;">${diffExp>=0?'▲':'▼'} ${Math.abs(pctExp)}% vs ${prev}</div>`:''}
+        ${pctExp!==null?`<div style="font-size:11px;color:${diffExp<=0?'#34d399':'#f87171'};margin-top:4px;">${diffExp>=0?'▲':'▼'} ${Math.abs(pctExp)}% vs ${prev}${prevYear!==state.periodYear?' '+prevYear:''}</div>`:''}
       </div>
     </div>`;
 }
@@ -8352,7 +8913,7 @@ function importJSON(input) {
       // [v3.3.1] Allowlist key — cegah overwrite field tersembunyi
       const ALLOWED = ['incomes','expenses','banks','budgets','notes','targets','bills',
         'period','workspaceData','activeWorkspace','workspaces','goldPortfolio','goldRefPrice',
-        'achievements','appTheme','privacyMode','monthlyNotes','lastOpenDate'];
+        'achievements','appTheme','privacyMode','monthlyNotes','lastOpenDate','periodYear'];
       const safe = {};
       ALLOWED.forEach(k => { if (k in imported) safe[k] = imported[k]; });
       state = { ...state, ...safe };
@@ -8364,6 +8925,12 @@ function importJSON(input) {
         if (!Array.isArray(d.bills))   d.bills   = [];
         _applyWorkspace(wsAfterImport);
       }
+      // [v3.4.0] Back-fill year untuk data import lama + validasi periodYear
+      if(typeof state.periodYear !== 'number' || state.periodYear < 2000 || state.periodYear > 2100){
+        state.periodYear = new Date().getFullYear();
+      }
+      migrateYearData();
+      renderYearLabel();
       saveState();
       render();
       if (document.getElementById('tab-ringkasan').classList.contains('active')) renderRingkasan();
@@ -8385,12 +8952,12 @@ function importJSON(input) {
  * Ekspor riwayat transaksi periode aktif ke format CSV (Excel-compatible)
  */
 function exportCSV() {
-  const pInc = state.incomes.filter(i => i.period === state.period);
-  const pExp = state.expenses.filter(e => e.period === state.period);
+  const pInc = state.incomes.filter(i => inP(i));
+  const pExp = state.expenses.filter(e => inP(e));
 
   let rows = [];
   // Header
-  rows.push(['PIMAPIKA.ID - Laporan Keuangan', state.period, new Date().getFullYear()]);
+  rows.push(['PIMAPIKA.ID - Laporan Keuangan', state.period, state.periodYear]);
   rows.push([]);
   rows.push(['Tipe', 'Nama/Keterangan', 'Kategori', 'Jumlah (Rp)', 'Tanggal', 'Catatan', 'Berulang']);
 
@@ -8428,8 +8995,8 @@ function exportCSV() {
  * Cetak laporan keuangan periode aktif sebagai PDF (via dialog print browser)
  */
 function printReport() {
-  const pInc = state.incomes.filter(i => i.period === state.period);
-  const pExp = state.expenses.filter(e => e.period === state.period);
+  const pInc = state.incomes.filter(i => inP(i));
+  const pExp = state.expenses.filter(e => inP(e));
   const totalInc = pInc.reduce((s, i) => s + i.amt, 0);
   const totalExp = pExp.reduce((s, e) => s + e.amt, 0);
   const saldo = totalInc - totalExp;
@@ -8438,13 +9005,13 @@ function printReport() {
 
   const rowsHtml = (arr, type) => arr.length ? arr.slice().reverse().map(i => `
     <tr>
-      <td>${i.name}</td>
+      <td>${escapeHtml(i.name)}</td>
       <td>${getCatLabelPlain(i.cat)}</td>
       <td>${formatDate(i.date)}</td>
       <td style="text-align:right;${type==='exp'?'color:#dc2626;':'color:#16a34a;'}">${type==='exp'?'-':''}${fmt(i.amt)}</td>
     </tr>`).join('') : `<tr><td colspan="4" style="text-align:center;color:#999;">Tidak ada data</td></tr>`;
 
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan PIMAPIKA - ${state.period}</title>
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan PIMAPIKA - ${state.period} ${state.periodYear}</title>
   <style>
     body{font-family:'Segoe UI',Arial,sans-serif;color:#1e293b;padding:32px;max-width:800px;margin:0 auto;}
     h1{font-size:22px;margin-bottom:2px;}
@@ -8462,7 +9029,7 @@ function printReport() {
     @media print { body{padding:12px;} }
   </style></head><body>
     <h1>📊 Laporan Keuangan — PIMAPIKA</h1>
-    <div class="sub">Periode: <b>${state.period}</b> · Workspace: <b>${state.activeWorkspace || 'Personal'}</b> · Dicetak: ${tanggalCetak}</div>
+    <div class="sub">Periode: <b>${state.period} ${state.periodYear}</b> · Workspace: <b>${state.activeWorkspace || 'Personal'}</b> · Dicetak: ${tanggalCetak}</div>
     <div class="summary">
       <div class="sum-box"><div class="label">Total Pemasukan</div><div class="val inc-val">${fmt(totalInc)}</div></div>
       <div class="sum-box"><div class="label">Total Pengeluaran</div><div class="val exp-val">${fmt(totalExp)}</div></div>
@@ -8497,9 +9064,9 @@ function checkAchievements() {
     state.achievements = {masterSaver:false, emergencyReady:false, budgetWarden:false, goldAccumulator:false};
   }
 
-  const pInc = state.incomes.filter(i => i.period === state.period);
-  const pExp = state.expenses.filter(e => e.period === state.period);
-  const pBanks = state.banks.filter(b => b.period === state.period);
+  const pInc = state.incomes.filter(i => inP(i));
+  const pExp = state.expenses.filter(e => inP(e));
+  const pBanks = state.banks.filter(b => inP(b));
   const totalInc = pInc.reduce((s, i) => s + i.amt, 0);
   const totalExp = pExp.reduce((s, e) => s + e.amt, 0);
   const totalAlloc = pBanks.reduce((s, b) => s + b.amt, 0);
@@ -8527,7 +9094,7 @@ function checkAchievements() {
 
   // 3. Budget Warden: semua budget ada, tidak ada yang OVER
   if (!state.achievements.budgetWarden) {
-    const pBudgets = state.budgets.filter(b => b.period === state.period);
+    const pBudgets = state.budgets.filter(b => inP(b));
     if (pBudgets.length > 0) {
       const allOk = pBudgets.every(b => {
         const spent = pExp.filter(e => e.cat === b.cat).reduce((s, e) => s + e.amt, 0);
@@ -8653,6 +9220,7 @@ function addGold() {
     date,
     note: `Investasi Emas ${weight}g @ Rp${Math.round(buyPrice/weight).toLocaleString('id-ID')}/g`,
     period: state.period,
+    year: state.periodYear,
     isRecurring: false,
     goldRef: goldId,   // numeric id (legacy compat)
     goldKey            // string key (primary, survives JSON round-trip)
@@ -8800,8 +9368,10 @@ function renderBarChart() {
   el.appendChild(canvas);
 
   // Kumpulkan data 12 bulan
-  const incData = MONTHS.map(m => state.incomes.filter(i => i.period === m).reduce((s, i) => s + i.amt, 0));
-  const expData = MONTHS.map(m => state.expenses.filter(e => e.period === m).reduce((s, e) => s + e.amt, 0));
+  // [v3.4.0] Grafik 12 bulan di-scope ke tahun periode aktif
+  const _yOf = (x) => (typeof x.year === 'number' ? x.year : new Date().getFullYear());
+  const incData = MONTHS.map(m => state.incomes.filter(i => i.period === m && _yOf(i) === state.periodYear).reduce((s, i) => s + i.amt, 0));
+  const expData = MONTHS.map(m => state.expenses.filter(e => e.period === m && _yOf(e) === state.periodYear).reduce((s, e) => s + e.amt, 0));
   const labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
   if (!canvas) return;
@@ -8935,7 +9505,7 @@ function renderDonutChart() {
     return;
   }
 
-  const pExp = state.expenses.filter(e => e.period === state.period);
+  const pExp = state.expenses.filter(e => inP(e));
   if (!pExp.length) {
     if (donutChartInstance) { donutChartInstance.destroy(); donutChartInstance = null; }
     wrap.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Belum ada data pengeluaran periode ini</div>';
@@ -9055,7 +9625,7 @@ function highlightDonutSlice(index, amount, catLabel) {
 
   // Dim other slices in chart
   if (donutChartInstance) {
-    const pExp = state.expenses.filter(e => e.period === state.period);
+    const pExp = state.expenses.filter(e => inP(e));
     const byCat = {};
     pExp.forEach(e => { byCat[e.cat] = (byCat[e.cat] || 0) + e.amt; });
     const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
@@ -9073,7 +9643,7 @@ function highlightDonutSlice(index, amount, catLabel) {
       const wsExp = (state.workspaceData && state.workspaceData[activeWsKey])
         ? state.workspaceData[activeWsKey].expenses
         : state.expenses;
-      const wsFiltered = wsExp.filter(e => e.period === state.period);
+      const wsFiltered = wsExp.filter(e => inP(e));
       const wsByCat = {};
       wsFiltered.forEach(e => { wsByCat[e.cat] = (wsByCat[e.cat] || 0) + e.amt; });
       const wsEntries = Object.entries(wsByCat).sort((a, b) => b[1] - a[1]);
@@ -10622,12 +11192,12 @@ function updateExpBudgetAlert() {
   if (!cat) { alertEl.style.display = 'none'; return; }
 
   // Cari budget untuk kategori & periode ini
-  const budget = state.budgets.find(b => b.cat === cat && b.period === state.period);
+  const budget = state.budgets.find(b => b.cat === cat && inP(b));
   if (!budget) { alertEl.style.display = 'none'; return; }
 
   // Hitung sudah berapa yang dipakai
   const spent = state.expenses
-    .filter(e => e.cat === cat && e.period === state.period)
+    .filter(e => e.cat === cat && inP(e))
     .reduce((s, e) => s + e.amt, 0);
 
   // Ambil nilai yang sedang diinput (tidak wajib ada)
@@ -10882,7 +11452,7 @@ function diCapsuleRelease(tab) {
 
 function diUpdateWorkspace() {
   try {
-    const period = state.period;
+    const period = periodKey();
     const pInc  = (state.incomes  || []).filter(i => i.period === period);
     const pExp  = (state.expenses || []).filter(e => e.period === period);
     let inc = 0, exp = 0;
