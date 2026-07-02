@@ -7708,12 +7708,13 @@ _pwLoadCachedStatus();
 // 4. Ganti SEMUA nilai "GANTI_..." di bawah dengan punya kamu
 //    (Project Settings → General → Your apps → SDK setup and configuration)
 const firebaseConfig = {
-  apiKey: "GANTI_API_KEY",
-  authDomain: "GANTI_PROJECT_ID.firebaseapp.com",
-  projectId: "GANTI_PROJECT_ID",
-  storageBucket: "GANTI_PROJECT_ID.appspot.com",
-  messagingSenderId: "GANTI_SENDER_ID",
-  appId: "GANTI_APP_ID"
+  apiKey: "AIzaSyB9lYwAfGeD1nFw3F4Wa50n3dE58c1K2Xs",
+  authDomain: "pimapika-pro.firebaseapp.com",
+  projectId: "pimapika-pro",
+  storageBucket: "pimapika-pro.firebasestorage.app",
+  messagingSenderId: "588837182720",
+  appId: "1:588837182720:web:c33d1de27b41e335f227e5",
+  measurementId: "G-0FHFTJPR7T"
 };
 
 let _pwFirebaseReady = false;
@@ -14264,51 +14265,5 @@ try{(function initLuxuryGyro(){
 
 })(); /* end PIMA Exchange Widget */
   </script>
-  <!-- Firebase App SDK (Wajib) -->
-<script type="module">
-  const firebaseConfig = {
-  apiKey: "AIzaSyB9lYwAfGeD1nFw3F4Wa50n3dE58c1K2Xs",
-  authDomain: "pimapika-pro.firebaseapp.com",
-  projectId: "pimapika-pro",
-  storageBucket: "pimapika-pro.firebasestorage.app",
-  messagingSenderId: "588837182720",
-  appId: "1:588837182720:web:c33d1de27b41e335f227e5",
-  measurementId: "G-0FHFTJPR7T"
-};
-
-  // Masukkan firebaseConfig yang Anda ambil dari Firebase Console di sini
-  const firebaseConfig = {
-    apiKey: "AIza...",
-    authDomain: "pimapika-pro.firebaseapp.com",
-    projectId: "pimapika-pro",
-    storageBucket: "pimapika-pro.appspot.com",
-    messagingSenderId: "...",
-    appId: "..."
-  };
-
-  const app = initializeApp(firebaseConfig);
-  export const auth = getAuth(app);
-  export const db = getFirestore(app);
-
-  <div id="paywallModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
-    <div class="modal-box glass" style="padding:20px; text-align:center; max-width:300px;">
-        <h3>Upgrade ke PIMAPIKA Pro</h3>
-        <p>Akses permanen seumur hidup untuk Rp 25.000</p>
-        
-        <img src="QRIS_PIMAPIKA.png" alt="QRIS" style="width:100%; border-radius:10px; margin:15px 0;">
-        
-        <p>Scan QRIS di atas, lalu konfirmasi ke admin:</p>
-        <button onclick="window.open('https://wa.me/628XXXXXXXXXX?text=Halo admin, saya sudah transfer untuk PIMAPIKA Pro')" class="btn-wa">
-            Chat Admin via WA
-        </button>
-        
-        <hr style="margin:20px 0;">
-        
-        <button onclick="loginGoogle()" class="btn-premium">
-            Sudah Bayar? Masuk dengan Google
-        </button>
-    </div>
-</div>
-</script>
 </body>
 </html>
