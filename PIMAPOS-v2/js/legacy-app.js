@@ -10,11 +10,11 @@
    camera lifecycle, global error handling, dan tambalan XSS
    di titik-titik render dengan risiko tertinggi.
 ════════════════════════════════════════════════════ */
-import * as Store from './state/store.js';
-import * as ModalManager from './core/modal-manager.js';
-import * as Camera from './services/camera.js';
-import * as ErrorHandling from './core/errors.js';
-import { esc } from './utils/sanitize.js';
+import * as Store from './store.js';
+import * as ModalManager from './modal-manager.js';
+import * as Camera from './camera.js';
+import * as ErrorHandling from './errors.js';
+import { esc } from './sanitize.js';
 
 ErrorHandling.installGlobalErrorHandlers();
 ErrorHandling.markBootPhase(true);
