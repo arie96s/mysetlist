@@ -4061,7 +4061,7 @@ document.addEventListener('visibilitychange', function(){
       <div class="ob-slide-title">Kelola Keuangan<br>Lebih Cerdas</div>
       <div class="ob-slide-desc">PIMAPIKA hadir sebagai teman finansial pintarmu — catat, analisa, dan wujudkan tujuan keuanganmu.</div>
       <div class="ob-slide-pills">
-        <span class="ob-pill">✨ Gratis</span>
+        <span class="ob-pill">👑 Lifetime Access</span>
         <span class="ob-pill">🔒 Privat</span>
         <span class="ob-pill">📱 PWA</span>
       </div>
@@ -7875,11 +7875,15 @@ function showPaywall(){
 
   // Set link WhatsApp sekali per-buka. Pakai property .href (bukan innerHTML)
   // agar aman dari XSS — tidak ada data user yang di-inject sebagai HTML.
+  // Pakai api.whatsapp.com/send (endpoint resmi WA Business) — lebih stabil
+  // lintas browser/device dibanding shortlink wa.me. URLSearchParams dipakai
+  // supaya encoding nomor & teks selalu benar, tidak rawan typo manual.
   const waBtn = document.getElementById('paywallWaBtn');
   if(waBtn){
     const waMsg = 'Halo admin, saya sudah melakukan pembayaran PIMAPIKA Pro. '
       + 'Berikut data saya:\n\nNama:\nEmail:\n(Tolong aktifkan akun Premium saya.)';
-    waBtn.href = 'https://wa.me/6282283687565?text=' + encodeURIComponent(waMsg);
+    const waParams = new URLSearchParams({ phone: '6282283687565', text: waMsg });
+    waBtn.href = 'https://api.whatsapp.com/send?' + waParams.toString();
   }
 
   modal.classList.remove('pw-closing');
