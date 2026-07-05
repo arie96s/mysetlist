@@ -44,6 +44,7 @@
   --accent:var(--blue);
   --accent-shadow-rgb:217,119,6;
   --accent-tint-rgb:251,191,36;
+  --modal-bg:rgba(6,16,42,.97);
 }
 /* ════════════════════════════════════════════════════
    TEMA — hanya satu basis tampilan (Default), warna &
@@ -96,7 +97,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 /* SPLASH */
 #splashScreen{
   position:fixed;inset:0;z-index:9999;
-  background:linear-gradient(160deg,#020817 0%,#071330 50%,#050f24 100%);
+  background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 50%,var(--bg0) 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   animation:splashOut .6s var(--ease) 2.4s both;
 }
@@ -178,7 +179,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .icon-btn svg{width:17px;height:17px}
 
 .slabel{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center}
-.slabel-action{font-size:11px;font-weight:600;color:var(--blue-hi);text-transform:none;letter-spacing:0;cursor:pointer}
+.slabel-action{font-size:11px;font-weight:600;color:var(--amber);text-transform:none;letter-spacing:0;cursor:pointer}
 
 /* SEARCH BAR */
 .search-bar{display:flex;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--gb);border-radius:var(--rpill);padding:11px 16px;backdrop-filter:var(--gblur);margin-bottom:14px}
@@ -234,7 +235,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 #confirmModal{z-index:10000}
 #scanModal{z-index:230}
 .modal-ov.open{opacity:1;pointer-events:all}
-.modal-sheet{width:100%;max-width:480px;margin:0 auto;border-radius:var(--rxl);transform-origin:50% 100%;transform:translateY(48px) scale(.7);opacity:0;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .42s var(--ease);background:rgba(6,16,42,.97);border:1px solid rgba(255,255,255,.09);box-shadow:0 -10px 24px rgba(0,0,0,.25),0 24px 70px rgba(0,0,0,.5);max-height:84vh;position:relative;overflow:hidden}
+.modal-sheet{width:100%;max-width:480px;margin:0 auto;border-radius:var(--rxl);transform-origin:50% 100%;transform:translateY(48px) scale(.7);opacity:0;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .42s var(--ease),background .5s var(--ease);background:var(--modal-bg);border:1px solid rgba(255,255,255,.09);box-shadow:0 -10px 24px rgba(0,0,0,.25),0 24px 70px rgba(0,0,0,.5);max-height:84vh;position:relative;overflow:hidden}
 .modal-ov.open .modal-sheet{transform:translateY(0) scale(1);opacity:1;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .4s var(--ease)}
 .modal-sheet-scroll{padding:14px 20px 26px;overflow-y:auto;max-height:84vh}
 .modal-handle{width:36px;height:4px;background:rgba(255,255,255,.14);border-radius:99px;margin:0 auto 18px}
@@ -270,7 +271,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .profile-av{position:relative;overflow:visible}
 .profile-av img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:none}
 .av-edit-badge{position:absolute;bottom:-2px;right:-2px;width:24px;height:24px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--bg2,#0b1530);box-shadow:0 4px 10px rgba(0,0,0,.35)}
-#pinLockScreen{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 0%,#1a2444 0%,#070b18 70%);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+#pinLockScreen{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 0%,var(--bg2) 0%,var(--bg0) 70%);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 .pl-logo{width:64px;height:64px;border-radius:var(--rxxl);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;margin-bottom:14px;box-shadow:0 10px 36px rgba(var(--accent-shadow-rgb),.45);overflow:hidden}
 .pl-logo img{width:100%;height:100%;object-fit:cover}
 .pl-title{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px}
@@ -284,7 +285,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .pl-key{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--t1);font-size:24px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .18s var(--spring)}
 .pl-key:active{transform:scale(.9);background:rgba(var(--accent-tint-rgb),.18)}
 .pl-key.empty{visibility:hidden;cursor:default}
-.pl-forgot{margin-top:22px;font-size:12px;color:var(--blue-hi);cursor:pointer}
+.pl-forgot{margin-top:22px;font-size:12px;color:var(--amber);cursor:pointer}
 .app-info-logo{width:56px;height:56px;border-radius:var(--rxl);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px;box-shadow:0 10px 28px rgba(var(--accent-shadow-rgb),.35),inset 0 1px 0 rgba(255,255,255,.25)}
 .app-info-name{font-size:16px;font-weight:800;letter-spacing:-.01em}
 .app-info-version{display:inline-block;margin-top:5px;padding:3px 11px;border-radius:var(--rpill);background:rgba(var(--accent-tint-rgb),.14);border:1px solid rgba(var(--accent-tint-rgb),.3);color:var(--amber);font-size:11px;font-weight:700;letter-spacing:.03em}
@@ -528,8 +529,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .tour-overlay.open{display:block}
 .tour-spotlight{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(2,8,23,.8);border:2px solid rgba(var(--accent-tint-rgb),.85);pointer-events:none;transition:top .5s var(--ease),left .5s var(--ease),width .5s var(--ease),height .5s var(--ease),opacity .3s;opacity:0}
 .tour-spotlight.show{opacity:1}
-.tour-card{position:fixed;left:16px;right:16px;max-width:420px;margin:0 auto;background:rgba(10,16,36,.94);backdrop-filter:blur(22px) saturate(160%);border:1px solid var(--gb-hi);border-radius:var(--rlg);padding:14px 16px 16px;box-shadow:var(--gshadow-lg);transition:top .5s var(--ease),bottom .5s var(--ease);cursor:pointer;-webkit-tap-highlight-color:transparent}
-[data-theme="light"] .tour-card{background:rgba(247,248,251,.96)}
+.tour-card{position:fixed;left:16px;right:16px;max-width:420px;margin:0 auto;background:var(--modal-bg);backdrop-filter:blur(22px) saturate(160%);border:1px solid var(--gb-hi);border-radius:var(--rlg);padding:14px 16px 16px;box-shadow:var(--gshadow-lg);transition:top .5s var(--ease),bottom .5s var(--ease),background .5s var(--ease);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tour-card-top{display:flex;align-items:center;gap:10px}
 .tour-card-title{font-weight:800;font-size:14px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tour-card-desc{font-size:12.5px;color:var(--t2);line-height:1.6;margin:8px 0 12px}
@@ -2075,6 +2075,10 @@ function relLuminance(r,g,b){
   const f=v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);};
   return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b);
 }
+function hexToRgba(hex,alpha){
+  const {r,g,b}=hexToRgb(hex);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 /* ── Bangun seluruh palet (latar, orb, aksen, teks) dari 2 warna pilihan ── */
 function buildThemePalette(c){
   const satMul=(c.sat!=null?c.sat:100)/100;
@@ -2105,6 +2109,7 @@ function buildThemePalette(c){
     bg0:rgbToHex(bg0.r,bg0.g,bg0.b),
     bg1:rgbToHex(bg1.r,bg1.g,bg1.b),
     bg2:rgbToHex(bg2.r,bg2.g,bg2.b),
+    modalBg:`rgba(${Math.round(bg0.r)},${Math.round(bg0.g)},${Math.round(bg0.b)},.97)`,
     orb1:`rgba(${Math.round(acc1.r)},${Math.round(acc1.g)},${Math.round(acc1.b)},.22)`,
     orb2:`rgba(${Math.round(acc2.r)},${Math.round(acc2.g)},${Math.round(acc2.b)},.16)`,
     orb3:`rgba(${Math.round(acc1.r)},${Math.round(acc1.g)},${Math.round(acc1.b)},.10)`,
@@ -2116,7 +2121,7 @@ function buildThemePalette(c){
     conMul
   };
 }
-const THEME_DYNAMIC_VARS=['--bg0','--bg1','--bg2','--orb1','--orb2','--orb3','--grad','--grad-gold','--amber','--accent-shadow-rgb','--accent-tint-rgb','--t1','--t2','--t3','--t4','--glass','--glass-h','--gb','--gb-hi'];
+const THEME_DYNAMIC_VARS=['--bg0','--bg1','--bg2','--orb1','--orb2','--orb3','--grad','--grad-gold','--amber','--accent-shadow-rgb','--accent-tint-rgb','--modal-bg','--t1','--t2','--t3','--t4','--glass','--glass-h','--gb','--gb-hi'];
 /* ── Profil modal openers ── */
 function openSocialModal(){
   renderSocialTabs();
@@ -2223,6 +2228,7 @@ function applyCustomFilter(){
     root.setProperty('--orb1',p.orb1);
     root.setProperty('--orb2',p.orb2);
     root.setProperty('--orb3',p.orb3);
+    root.setProperty('--modal-bg',p.modalBg);
     const gradAccent=`linear-gradient(135deg, ${p.accentHex1} 0%, ${p.accentHex2} 100%)`;
     root.setProperty('--grad',gradAccent);
     root.setProperty('--grad-gold',gradAccent);
