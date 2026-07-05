@@ -565,6 +565,64 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 
 .fab{position:fixed;right:18px;bottom:calc(var(--navh) + var(--safe-b) + 14px);width:54px;height:54px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 32px rgba(var(--accent-shadow-rgb),.5);border:none;color:#fff;font-size:26px;cursor:pointer;z-index:95;transition:transform .25s var(--spring);-webkit-tap-highlight-color:transparent}
 .fab:active{transform:scale(.88) rotate(90deg)}
+/* ════════════════════════════════════════════════════
+   SIDEBAR (desktop/tablet) — gaya dasar, disembunyikan
+   di layar sempit lewat display:none, baru ditampilkan
+   oleh media query di bawah untuk layar ≥880px
+════════════════════════════════════════════════════ */
+#sidebarNav{
+  display:none;
+  position:fixed;left:0;top:0;bottom:0;width:240px;
+  flex-direction:column;
+  background:var(--modal-bg);
+  border-right:1px solid var(--gb);
+  z-index:150;
+  padding:22px 16px;
+}
+.sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 6px 20px;border-bottom:1px solid var(--gb);margin-bottom:16px}
+.sidebar-logo{width:42px;height:42px;border-radius:var(--rlg);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 6px 18px rgba(var(--accent-shadow-rgb),.4)}
+.sidebar-brand-name{font-size:15px;font-weight:800;color:var(--t1);letter-spacing:-.01em}
+.sidebar-brand-tag{font-size:10.5px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-nav{display:flex;flex-direction:column;gap:4px;flex:1}
+.sidebar-btn{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:var(--rmd);border:none;background:transparent;color:var(--t2);font-size:13.5px;font-weight:600;cursor:pointer;text-align:left;transition:background .22s var(--ease),color .22s var(--ease);-webkit-tap-highlight-color:transparent;width:100%}
+.sidebar-btn svg{width:19px;height:19px;flex-shrink:0}
+.sidebar-btn.active{background:var(--grad-gold);color:#fff;box-shadow:0 6px 18px rgba(var(--accent-shadow-rgb),.35)}
+.sidebar-footer{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--rmd);background:rgba(255,255,255,.04);cursor:pointer;font-size:11.5px;font-weight:600;color:var(--t2);transition:background .2s var(--ease);-webkit-tap-highlight-color:transparent}
+.sidebar-shift-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;transition:background .3s var(--ease),box-shadow .3s var(--ease)}
+.sidebar-shift-dot.open{background:var(--green);box-shadow:0 0 8px var(--green)}
+
+/* ════════════════════════════════════════════════════
+   RESPONSIVE — TABLET (iPad) & DESKTOP ≥880px
+   Sidebar menggantikan nav bawah, popup jadi dialog
+   tengah, grid produk melebar. Di bawah 880px, tampilan
+   mobile asli tidak berubah sama sekali.
+════════════════════════════════════════════════════ */
+@media (min-width:880px){
+  #sidebarNav{display:flex}
+  #bottomNav{display:none}
+  .status-bar{display:none}
+  .nav-shortcut{display:none}
+  #app{margin:0 0 0 240px;max-width:1040px;width:calc(100% - 240px);min-height:100vh}
+  .page{padding:0 40px 40px;max-width:1040px}
+  .ph{padding:32px 0 22px}
+  .ph h1{font-size:22px}
+  .prod-grid{grid-template-columns:repeat(3,1fr);gap:14px}
+  #cartBar{left:auto;right:40px;transform:none;width:400px;max-width:400px;bottom:28px}
+  #holdFloatCapsule{left:auto;right:40px;transform:translateY(24px) scale(.88)}
+  #holdFloatCapsule.show{transform:translateY(0) scale(1)}
+  #holdFloatDot{right:40px;bottom:104px}
+  .modal-ov{align-items:center;padding:24px}
+  .modal-sheet{max-width:500px;transform:scale(.92);transform-origin:50% 50%;border-radius:var(--rxl)}
+  .modal-sheet-scroll{max-height:78vh}
+  .sbtn:hover,.sidebar-btn:not(.active):hover,.icon-btn:hover,.storecat-chip:not(.active):hover,.cat-chip:not(.active):hover{filter:brightness(1.12)}
+  .sidebar-btn:not(.active):hover{background:rgba(255,255,255,.055);color:var(--t1)}
+  .sidebar-footer:hover{background:rgba(255,255,255,.07)}
+  .card-list:hover,.prod-card:hover{transform:translateY(-1px)}
+}
+@media (min-width:1280px){
+  #app{max-width:1180px}
+  .prod-grid{grid-template-columns:repeat(4,1fr)}
+}
 </style>
 </head>
 <body data-theme="dark">
@@ -587,6 +645,43 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 <div id="holdFloatDot" onclick="expandHoldCapsule()">📌</div>
 <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
 
+<!-- ══════════ SIDEBAR — tampil otomatis di layar lebar (desktop/iPad ≥880px) ══════════ -->
+<nav id="sidebarNav">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">🧾</div>
+    <div style="min-width:0">
+      <div class="sidebar-brand-name">PIMAPOS</div>
+      <div class="sidebar-brand-tag">Ekosistem PIMAPIKA</div>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <button class="sidebar-btn active" data-page="pageKasir" onclick="showPage('pageKasir')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span>Kasir</span>
+    </button>
+    <button class="sidebar-btn" data-page="pageProduk" onclick="showPage('pageProduk')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      <span>Produk</span>
+    </button>
+    <button class="sidebar-btn" data-page="pageRiwayat" onclick="showPage('pageRiwayat')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+      <span>Riwayat</span>
+    </button>
+    <button class="sidebar-btn" data-page="pageLaporan" onclick="showPage('pageLaporan')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Laporan</span>
+    </button>
+    <button class="sidebar-btn" data-page="pageProfil" onclick="showPage('pageProfil')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+      <span>Profil</span>
+    </button>
+  </div>
+  <div class="sidebar-footer" id="sidebarShiftFooter" onclick="onShiftBannerClick()">
+    <div class="sidebar-shift-dot" id="sidebarShiftDot"></div>
+    <span id="sidebarShiftLabel">Toko belum buka</span>
+  </div>
+</nav>
+
 <!-- ════════ INFO / SETTINGS-ish quick popup not needed, profile page used instead ════════ -->
 
 <div id="app">
@@ -604,10 +699,10 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="icon-btn ripple-container" onclick="openCustomerModal()" title="Pelanggan">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
-      <div class="icon-btn ripple-container" onclick="showPage('pageRiwayat')" title="Riwayat">
+      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageRiwayat')" title="Riwayat">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
       </div>
-      <div class="icon-btn ripple-container" onclick="showPage('pageProfil')" title="Profil">
+      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageProfil')" title="Profil">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
       </div>
     </div>
@@ -671,7 +766,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <p id="riwayatSub">Semua transaksi</p>
     </div>
     <div class="ph-right">
-      <div class="icon-btn ripple-container" onclick="showPage('pageLaporan')" title="Laporan">
+      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageLaporan')" title="Laporan">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       </div>
     </div>
@@ -1832,6 +1927,7 @@ function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+  document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
   moveCapsule();
   if(id==='pageProduk')renderProductList();
   if(id==='pageRiwayat')renderRiwayat();
@@ -4336,6 +4432,8 @@ function renderShiftBanner(){
   const title=document.getElementById('shiftBannerTitle');
   const sub=document.getElementById('shiftBannerSub');
   const cta=document.getElementById('shiftBannerCta');
+  const sbDot=document.getElementById('sidebarShiftDot');
+  const sbLabel=document.getElementById('sidebarShiftLabel');
   if(S.activeShift){
     banner.classList.remove('closed','urgent');banner.classList.add('open');
     ic.textContent='🟢';
@@ -4343,6 +4441,7 @@ function renderShiftBanner(){
     const t=new Date(S.activeShift.startTs);
     sub.textContent=`Dibuka ${t.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})} · Kas awal ${rp(S.activeShift.startCash)}`;
     cta.textContent='EOD';
+    if(sbDot){sbDot.classList.add('open');sbLabel.textContent='Shift Aktif · Ketuk EOD';}
   }else{
     banner.classList.remove('open');banner.classList.add('closed');
     banner.classList.toggle('urgent',isWithinStoreHours());
@@ -4350,6 +4449,7 @@ function renderShiftBanner(){
     title.textContent='Toko Belum Buka';
     sub.textContent=isWithinStoreHours()?'Sudah jam operasional — ketuk untuk mulai BOD':'Ketuk untuk mulai BOD (Begin of Day)';
     cta.textContent='BOD';
+    if(sbDot){sbDot.classList.remove('open');sbLabel.textContent='Toko Belum Buka · Ketuk BOD';}
   }
 }
 function onShiftBannerClick(){
