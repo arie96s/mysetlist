@@ -423,9 +423,9 @@ button,input,select,textarea{font-family:var(--font-sf);}
 /* ══════════════════════════════════════════════════════
    STORE CATEGORY CHIPS
 ══════════════════════════════════════════════════════ */
-.storecat-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;margin-bottom:4px}
-.storecat-chip{padding:8px 13px;border-radius:var(--rpill);font-size:12px;font-weight:600;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:var(--t2);cursor:pointer;transition:all .22s var(--spring)}
-.storecat-chip.active{background:var(--grad-gold);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(217,119,6,.35);transform:scale(1.03)}
+.storecat-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;margin-bottom:4px;position:relative}
+.storecat-chip{position:relative;z-index:1;padding:8px 13px;border-radius:var(--rpill);font-size:12px;font-weight:600;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:var(--t2);cursor:pointer;transition:color .25s var(--ease),border-color .25s var(--ease);-webkit-tap-highlight-color:transparent}
+.storecat-chip.active{border-color:transparent;color:#fff}
 .storecat-chip:not(.active):active{transform:scale(.93)}
 
 /* ══════════════════════════════════════════════════════
@@ -501,6 +501,31 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .psec .soc-scroll{margin-bottom:12px}
 .psec hr.psec-div{border:none;border-top:1px solid rgba(255,255,255,.07);margin:14px 0}
 .theme-preset-scroll{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px}
+.tour-dots{display:flex;justify-content:center;gap:6px;margin-bottom:10px}
+.tour-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .3s var(--spring)}
+.tour-dot.active{background:var(--grad-gold);width:22px;border-radius:99px}
+.whatsnew-card{text-align:left;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.18);border-radius:var(--rlg);padding:14px 16px;margin:6px 0 18px}
+.whatsnew-card-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.whatsnew-badge{background:var(--grad-gold);color:#fff;font-size:9px;font-weight:800;letter-spacing:.04em;padding:3px 7px;border-radius:99px;flex-shrink:0}
+.whatsnew-card-title{font-size:13px;font-weight:800;color:var(--t1)}
+.whatsnew-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0}
+.whatsnew-item:not(:last-child){border-bottom:1px solid rgba(255,255,255,.07)}
+[data-theme="light"] .whatsnew-item:not(:last-child){border-bottom-color:rgba(15,23,42,.08)}
+.whatsnew-item-ic{font-size:16px;flex-shrink:0;width:22px;text-align:center;line-height:1.4}
+.whatsnew-item-txt{font-size:11.5px;color:var(--t2);line-height:1.5}
+.whatsnew-item-txt b{color:var(--t1);font-size:12.5px;display:block;margin-bottom:1px}
+.tour-overlay{position:fixed;inset:0;z-index:9997;display:none}
+.tour-overlay.open{display:block}
+.tour-spotlight{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(2,8,23,.8);border:2px solid rgba(251,191,36,.85);pointer-events:none;transition:top .5s var(--ease),left .5s var(--ease),width .5s var(--ease),height .5s var(--ease),opacity .3s;opacity:0}
+.tour-spotlight.show{opacity:1}
+.tour-card{position:fixed;left:16px;right:16px;max-width:420px;margin:0 auto;background:rgba(10,16,36,.94);backdrop-filter:blur(22px) saturate(160%);border:1px solid var(--gb-hi);border-radius:var(--rlg);padding:14px 16px 16px;box-shadow:var(--gshadow-lg);transition:top .5s var(--ease),bottom .5s var(--ease);cursor:pointer;-webkit-tap-highlight-color:transparent}
+[data-theme="light"] .tour-card{background:rgba(247,248,251,.96)}
+.tour-card-top{display:flex;align-items:center;gap:10px}
+.tour-card-title{font-weight:800;font-size:14px;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tour-card-desc{font-size:12.5px;color:var(--t2);line-height:1.6;margin:8px 0 12px}
+.tour-skip-btn{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:var(--t2);font-size:12px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.tour-progress{height:3px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin-bottom:10px}
+.tour-progress-fill{height:100%;background:var(--grad-gold);width:0%}
 .theme-preset-chip{flex-shrink:0;width:42px;height:42px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.12);position:relative;transition:transform .2s var(--spring);-webkit-tap-highlight-color:transparent}
 .theme-preset-chip:active{transform:scale(.88)}
 .theme-preset-chip.active{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.22)}
@@ -954,7 +979,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   <div class="modal-sheet">
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
-    <div style="text-align:center;padding:8px 0 20px">
+    <div style="text-align:center;padding:8px 0 4px">
       <div class="app-info-logo">🧾</div>
       <div class="app-info-name">PIMAPOS</div>
       <div class="app-info-version">v3.0.0</div>
@@ -965,11 +990,23 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
         <div class="app-info-row"><span class="ai-k">Build</span><span class="ai-v">Enterprise · Single File</span></div>
         <div class="app-info-row"><span class="ai-k">Engine</span><span class="ai-v">HTML · CSS · JS</span></div>
       </div>
+    </div>
+
+    <div class="whatsnew-card">
+      <div class="whatsnew-card-head">
+        <span class="whatsnew-badge">BARU</span>
+        <span class="whatsnew-card-title">Fitur di v3.0.0</span>
+      </div>
+      <div id="infoWhatsNewList"></div>
+      <button class="sbtn ripple-container" style="margin-top:12px;padding:11px;font-size:12.5px" onclick="closeInfoModal();openTourModal()">▶ Mulai Tur Fitur</button>
+    </div>
+
+    <div style="text-align:center">
       <a class="feedback-pill ripple-container" href="mailto:fajrisalam96@gmail.com?subject=%5BPIMAPOS%20v3.0%5D%20Feedback%20%2F%20Bug%20Report&amp;body=Halo%20Fajri%2C%0A%0ASaya%20ingin%20menyampaikan%20masukan%2Flaporan%20bug%20berikut%3A%0A%0A%0A---%0AVersi%20App%3A%20v3.0.0%0ANama%20Toko%3A%20">
         💬 Feedback &amp; Report Bugs
       </a>
     </div>
-    <button class="sbtn ghost ripple-container" onclick="document.getElementById('infoModal').classList.remove('open')">Tutup</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeInfoModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -1382,6 +1419,23 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   </div>
 </div>
 
+<!-- ══════════ TUR FITUR — spotlight otomatis mengarah ke posisi fitur asli ══════════ -->
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-spotlight" id="tourSpotlight"></div>
+  <div class="tour-card" id="tourCard" onclick="tourCardTap(event)">
+    <div class="tour-progress"><div class="tour-progress-fill" id="tourProgressFill"></div></div>
+    <div class="tour-card-top">
+      <span id="tourIcon" style="font-size:21px"></span>
+      <div style="flex:1;min-width:0">
+        <div id="tourTitle" class="tour-card-title"></div>
+      </div>
+      <button class="tour-skip-btn" onclick="event.stopPropagation();closeTourModal()">✕</button>
+    </div>
+    <div id="tourDesc" class="tour-card-desc"></div>
+    <div class="tour-dots" id="tourDots"></div>
+  </div>
+</div>
+
 <!-- ══════════ MODAL: PILIH MODE SINKRON KATEGORI ══════════ -->
 <div class="modal-ov" id="syncModeModal">
   <div class="modal-sheet">
@@ -1487,6 +1541,23 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
+const APP_VERSION='3.0.0';
+const WHATS_NEW_FEATURES=[
+  {icon:'📋',title:'Stock Opname (SO)',desc:'Cocokkan stok sistem vs hasil hitung fisik untuk semua kategori produk sekaligus, lengkap dengan riwayat.'},
+  {icon:'🎨',title:'Kustomisasi Tema',desc:'Atur sendiri warna aksen, saturasi, kecerahan & kontras tampilan sesuai selera atau kondisi cahaya toko.'},
+  {icon:'💰',title:'HPP & Estimasi Profit',desc:'Isi harga modal produk — Laporan otomatis menghitung laba kotor & margin keuntungan.'},
+  {icon:'🔄',title:'Retur / Refund Item',desc:'Proses retur sebagian produk dari sebuah transaksi, stok otomatis kembali & omzet disesuaikan.'},
+  {icon:'🔀',title:'Split Payment',desc:'Terima pembayaran gabungan Tunai + QRIS + Kartu sekaligus dalam satu transaksi.'},
+  {icon:'👥',title:'Kasir & Log Aktivitas',desc:'Catat kasir bertugas tiap shift, plus jejak audit aktivitas penting untuk akuntabilitas toko.'},
+];
+const TOUR_STEPS=[
+  {page:'pageKasir',selector:'.nav-btn[data-page="pageKasir"]',icon:'🧾',title:'Kasir Cepat',desc:'Tambah produk ke keranjang lalu bayar Tunai, QRIS, Kartu — atau pilih "Split" saat checkout untuk menggabungkan beberapa metode sekaligus.'},
+  {page:'pageProduk',selector:'.icon-btn[onclick="openSOModal()"]',icon:'📋',title:'Stock Opname',desc:'Ketuk ikon ini kapan saja untuk mencocokkan stok sistem dengan hasil hitung fisik, di semua kategori produk sekaligus.'},
+  {page:'pageRiwayat',selector:'.nav-btn[data-page="pageRiwayat"]',icon:'🔄',title:'Retur & Pembatalan',desc:'Buka struk transaksi mana pun dari sini untuk memproses retur sebagian produk, atau membatalkan seluruh transaksi.'},
+  {page:'pageLaporan',selector:'.nav-btn[data-page="pageLaporan"]',icon:'💰',title:'Laporan & Profit',desc:'Pantau omzet dan produk terlaris — kini dilengkapi estimasi HPP, laba kotor, dan margin keuntungan toko Anda.'},
+  {page:'pageProfil',selector:'[onclick="openThemeModal()"]',icon:'🎨',title:'Tampilan Sesuka Anda',desc:'Atur warna aksen, saturasi, kecerahan & kontras tampilan sesuai selera atau kondisi cahaya toko.'},
+  {page:'pageProfil',selector:'[onclick="openStaffModal()"]',icon:'👥',title:'Kasir & Staf',desc:'Tambahkan nama kasir supaya tiap shift & transaksi tercatat — pantau jejaknya lewat Log Aktivitas.'},
+];
 const STORE_CATEGORIES=['F&B','Cafe','Restoran','Retail/Toko','Fashion/Clothing','Distro','Elektronik','Kecantikan','Otomotif/Bengkel','Kesehatan/Apotek','Jasa/Servis','Laundry','Grosir/Sembako','Lainnya'];
 /* Kategori yang menggunakan alur "Artikel Produk" bertipe SKU/Barcode (scan kamera) — cocok untuk toko fisik produk dengan barcode kemasan */
 const RETAIL_LIKE_CATS=['Retail/Toko','Fashion/Clothing','Distro','Elektronik','Kecantikan','Otomotif/Bengkel','Kesehatan/Apotek','Grosir/Sembako'];
@@ -1699,7 +1770,8 @@ function defState(){
     activeShift:null,
     stockOpnames:[],
     staff:[],
-    activityLog:[]
+    activityLog:[],
+    lastSeenVersion:''
   };
 }
 const PIMAPOS_IS_FIRST_RUN=!localStorage.getItem(LSKEY);
@@ -1715,7 +1787,14 @@ function load(){
   }catch{}
   return defState();
 }
-function save(){localStorage.setItem(LSKEY,JSON.stringify(S));}
+function save(){
+  try{
+    localStorage.setItem(LSKEY,JSON.stringify(S));
+  }catch(e){
+    console.warn('[PIMAPOS] Gagal menyimpan data:',e);
+    if(typeof toast==='function')toast('⚠️ Gagal menyimpan data — penyimpanan perangkat mungkin penuh');
+  }
+}
 
 let cart=[]; // {id,name,emoji,price,qty}
 let selectedCustomer=null; // {id,name,phone,...} | null = guest
@@ -1950,7 +2029,19 @@ function openThemeModal(){
 }
 function closeThemeModal(){document.getElementById('themeModal').classList.remove('open');}
 function openDataModal(){document.getElementById('dataModal').classList.add('open');}
-function openInfoModal(){document.getElementById('infoModal').classList.add('open');}
+function openInfoModal(){
+  renderInfoWhatsNew();
+  document.getElementById('infoModal').classList.add('open');
+  S.lastSeenVersion=APP_VERSION;save();
+}
+function closeInfoModal(){document.getElementById('infoModal').classList.remove('open');}
+function renderInfoWhatsNew(){
+  document.getElementById('infoWhatsNewList').innerHTML=WHATS_NEW_FEATURES.map(f=>`
+    <div class="whatsnew-item">
+      <div class="whatsnew-item-ic">${f.icon}</div>
+      <div class="whatsnew-item-txt"><b>${f.title}</b>${f.desc}</div>
+    </div>`).join('');
+}
 
 function renderThemePresets(){
   const wrap=document.getElementById('themePresetScroll');
@@ -3555,10 +3646,12 @@ let onbSelectedCat='F&B';
 function renderOnboardingChips(){
   document.getElementById('onbCatWrap').innerHTML=STORE_CATEGORIES.map(c=>
     `<div class="storecat-chip ${onbSelectedCat===c?'active':''}" data-storecat="${c}" onclick="selectOnboardingCat('${c.replace(/'/g,"\\'")}')">${c}</div>`).join('');
+  moveChipCapsule('onbCatWrap','onbCatCapsule');
 }
 function selectOnboardingCat(c){
   onbSelectedCat=c;
   document.querySelectorAll('#onbCatWrap .storecat-chip').forEach(el=>el.classList.toggle('active',el.dataset.storecat===c));
+  moveChipCapsule('onbCatWrap','onbCatCapsule');
 }
 function showOnboarding(){
   renderOnboardingChips();
@@ -3566,6 +3659,7 @@ function showOnboarding(){
 }
 function closeOnboarding(){
   document.getElementById('onboardingModal').classList.remove('open');
+  S.lastSeenVersion=APP_VERSION;save();
   populateCatSelect();renderCategoryChips();renderProducts();renderProfil();
 }
 function confirmOnboarding(){
@@ -3580,6 +3674,80 @@ function skipOnboarding(){
   save();
   closeOnboarding();
   toast('Mulai dari kosong — tambahkan produk pertamamu kapan saja');
+}
+
+/* ════════════════════════════════════════════════════
+   TUR FITUR — spotlight yang bergerak otomatis menyorot
+   posisi asli tiap fitur di layar (bukan sekadar modal
+   statis). Info "Fitur Terbaru" kini menyatu di Info App.
+════════════════════════════════════════════════════ */
+let tourStep=0,tourTimer=null;
+const TOUR_STEP_MS=4200;
+function openTourModal(){
+  tourStep=0;
+  document.getElementById('tourOverlay').classList.add('open');
+  goToTourStep(0);
+}
+function goToTourStep(idx){
+  clearTimeout(tourTimer);
+  tourStep=idx;
+  const s=TOUR_STEPS[idx];
+  if(!document.getElementById(s.page).classList.contains('active')){
+    showPage(s.page);
+  }
+  // beri waktu render/layout (pindah halaman, kapsul nav, dsb) sebelum ukur posisi
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const el=document.querySelector(s.selector);
+    if(el&&el.scrollIntoView)el.scrollIntoView({block:'center',behavior:'instant'});
+    requestAnimationFrame(()=>requestAnimationFrame(()=>positionTourStep(el,s)));
+  }));
+}
+function positionTourStep(el,s){
+  const spot=document.getElementById('tourSpotlight');
+  const card=document.getElementById('tourCard');
+  if(el){
+    const r=el.getBoundingClientRect();
+    const pad=8;
+    spot.style.top=Math.max(4,r.top-pad)+'px';
+    spot.style.left=Math.max(4,r.left-pad)+'px';
+    spot.style.width=(r.width+pad*2)+'px';
+    spot.style.height=(r.height+pad*2)+'px';
+    spot.classList.add('show');
+    const spaceBelow=window.innerHeight-r.bottom;
+    if(spaceBelow>190){
+      card.style.top=(r.bottom+16)+'px';card.style.bottom='auto';
+    }else{
+      card.style.bottom=(window.innerHeight-r.top+16)+'px';card.style.top='auto';
+    }
+  }else{
+    spot.classList.remove('show');
+    card.style.top='42%';card.style.bottom='auto';
+  }
+  document.getElementById('tourIcon').textContent=s.icon;
+  document.getElementById('tourTitle').textContent=s.title;
+  document.getElementById('tourDesc').textContent=s.desc;
+  document.getElementById('tourDots').innerHTML=TOUR_STEPS.map((_,i)=>`<div class="tour-dot ${i===tourStep?'active':''}"></div>`).join('');
+  const fill=document.getElementById('tourProgressFill');
+  fill.style.transition='none';fill.style.width='0%';
+  void fill.offsetWidth;
+  fill.style.transition=`width ${TOUR_STEP_MS}ms linear`;
+  fill.style.width='100%';
+  clearTimeout(tourTimer);
+  tourTimer=setTimeout(()=>{
+    if(tourStep<TOUR_STEPS.length-1)goToTourStep(tourStep+1);
+    else closeTourModal();
+  },TOUR_STEP_MS);
+}
+function tourCardTap(e){
+  if(e)e.stopPropagation();
+  clearTimeout(tourTimer);
+  if(tourStep<TOUR_STEPS.length-1)goToTourStep(tourStep+1);
+  else closeTourModal();
+}
+function closeTourModal(){
+  clearTimeout(tourTimer);
+  document.getElementById('tourOverlay').classList.remove('open');
+  document.getElementById('tourSpotlight').classList.remove('show');
 }
 let storeModalOriginalCat=null;
 function openStoreModal(){
@@ -3785,6 +3953,10 @@ async function verifyPin(){
       window._pendingOnboarding=false;
       setTimeout(showOnboarding,400);
     }
+    if(window._pendingWhatsNew){
+      window._pendingWhatsNew=false;
+      setTimeout(openInfoModal,400);
+    }
   }else{
     const dots=document.getElementById('plDots');
     dots.classList.add('shake');
@@ -3894,10 +4066,12 @@ function closeStoreModal(){document.getElementById('storeModal').classList.remov
 function renderStoreCatChips(){
   document.getElementById('storeCatWrap').innerHTML=STORE_CATEGORIES.map(c=>
     `<div class="storecat-chip ${S.storeCategory===c?'active':''}" data-storecat="${c}" onclick="setStoreCategory('${c.replace(/'/g,"\\'")}')">${c}</div>`).join('');
+  moveChipCapsule('storeCatWrap','storeCatCapsule');
 }
 function setStoreCategory(c){
   S.storeCategory=c;
   document.querySelectorAll('#storeCatWrap .storecat-chip').forEach(el=>el.classList.toggle('active',el.dataset.storecat===c));
+  moveChipCapsule('storeCatWrap','storeCatCapsule');
 }
 function saveStore(){
   S.storeName=document.getElementById('storeName').value.trim()||'Toko Saya';
@@ -4300,6 +4474,14 @@ removeSplash(()=>{
     setTimeout(showOnboarding,400);
   }else if(PIMAPOS_IS_FIRST_RUN&&pinActive){
     window._pendingOnboarding=true;
+  }
+  // 5. Fitur Terbaru — untuk user lama, otomatis buka Info App (kini memuat sub-card "Fitur di v3.0.0")
+  if(!PIMAPOS_IS_FIRST_RUN&&S.lastSeenVersion!==APP_VERSION){
+    if(!pinActive){
+      setTimeout(openInfoModal,450);
+    }else{
+      window._pendingWhatsNew=true;
+    }
   }
 });
 </script>
