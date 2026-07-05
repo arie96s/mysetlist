@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] jsPDF gagal dimuat')"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Chart.js gagal dimuat — grafik laporan tidak akan tampil')"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onerror="console.warn('[PIMAPOS] Google Identity Services gagal dimuat — Cloud Backup tidak akan tersedia')"></script>
 <style>
 :root {
   --bg0:#020817; --bg1:#050f24; --bg2:#071330;
@@ -109,7 +111,12 @@ button,input,select,textarea{font-family:var(--font-sf);}
   font-size:34px;font-weight:900;color:#fff;
   box-shadow:0 20px 60px rgba(var(--accent-shadow-rgb),.55),inset 0 1px 0 rgba(255,255,255,.3);
   animation:splashLogoIn .7s var(--spring) .2s both;
+  position:relative;overflow:hidden;
 }
+.splash-logo img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:none}
+.splash-logo.has-img{background:var(--modal-bg)}
+.splash-logo.has-img img{display:block}
+.splash-logo.has-img span{display:none}
 @keyframes splashLogoIn{from{opacity:0;transform:scale(.4) rotate(-10deg)}to{opacity:1;transform:scale(1) rotate(0)}}
 .splash-name{margin-top:20px;font-size:27px;font-weight:800;letter-spacing:-.5px;
   background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.7) 100%);
@@ -261,6 +268,8 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .field input::placeholder{color:var(--t3)}
 .field select option{background:#071330;color:#fff}
 .field-row{display:flex;gap:8px;align-items:flex-end}
+.btn-row{display:flex;gap:8px;align-items:stretch}
+.btn-row .sbtn{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:8px;padding-right:8px}
 .field-row .field{flex:1;margin-bottom:0}
 .scan-btn{width:48px;height:48px;flex-shrink:0;border-radius:var(--rmd);background:var(--grad-gold);border:none;display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;box-shadow:0 6px 18px rgba(var(--accent-shadow-rgb),.35);transition:transform .2s var(--spring)}
 .scan-btn:active{transform:scale(.92)}
@@ -459,6 +468,8 @@ button,input,select,textarea{font-family:var(--font-sf);}
 
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
 .metrics-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px}
+.chart-card{border-radius:var(--rlg);padding:14px 12px 8px;background:var(--glass);border:1px solid var(--gb);box-shadow:var(--gshadow-card);backdrop-filter:var(--gblur);margin-bottom:16px;position:relative}
+.chart-card canvas{max-width:100%}
 .metrics-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px}
 .metrics-grid4 .mv{font-size:16px}
 .metrics-grid4 .ml{font-size:9.5px}
@@ -522,7 +533,6 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .whatsnew-card-title{font-size:13px;font-weight:800;color:var(--t1)}
 .whatsnew-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0}
 .whatsnew-item:not(:last-child){border-bottom:1px solid rgba(255,255,255,.07)}
-[data-theme="light"] .whatsnew-item:not(:last-child){border-bottom-color:rgba(15,23,42,.08)}
 .whatsnew-item-ic{font-size:16px;flex-shrink:0;width:22px;text-align:center;line-height:1.4}
 .whatsnew-item-txt{font-size:11.5px;color:var(--t2);line-height:1.5}
 .whatsnew-item-txt b{color:var(--t1);font-size:12.5px;display:block;margin-bottom:1px}
@@ -580,7 +590,10 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   padding:22px 16px;
 }
 .sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 6px 20px;border-bottom:1px solid var(--gb);margin-bottom:16px}
-.sidebar-logo{width:42px;height:42px;border-radius:var(--rlg);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 6px 18px rgba(var(--accent-shadow-rgb),.4)}
+.sidebar-logo{width:42px;height:42px;border-radius:var(--rlg);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;box-shadow:0 6px 18px rgba(var(--accent-shadow-rgb),.4);position:relative;overflow:hidden}
+.sidebar-logo img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:none}
+.sidebar-logo.has-img img{display:block}
+.sidebar-logo.has-img span{display:none}
 .sidebar-brand-name{font-size:15px;font-weight:800;color:var(--t1);letter-spacing:-.01em}
 .sidebar-brand-tag{font-size:10.5px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sidebar-nav{display:flex;flex-direction:column;gap:4px;flex:1}
@@ -628,7 +641,10 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 <body data-theme="dark">
 
 <div id="splashScreen">
-  <div class="splash-logo">P</div>
+  <div class="splash-logo" id="splashLogoWrap">
+    <img src="PIMAPOS-logo.png" alt="" id="splashLogoImg" onerror="this.style.display='none'" onload="document.getElementById('splashLogoWrap').classList.add('has-img')">
+    <span id="splashLogoFallback">P</span>
+  </div>
   <div class="splash-name">PIMAPOS</div>
   <div class="splash-tag">Ekosistem PIMAPIKA · Kasir Digital</div>
   <div class="splash-bar"><div class="splash-fill"></div></div>
@@ -648,7 +664,10 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 <!-- ══════════ SIDEBAR — tampil otomatis di layar lebar (desktop/iPad ≥880px) ══════════ -->
 <nav id="sidebarNav">
   <div class="sidebar-brand">
-    <div class="sidebar-logo">🧾</div>
+    <div class="sidebar-logo" id="sidebarLogoWrap">
+      <img src="PIMAPOS-logo.png" alt="" id="sidebarLogoImg" onerror="this.style.display='none'" onload="document.getElementById('sidebarLogoWrap').classList.add('has-img')">
+      <span id="sidebarLogoFallback">🧾</span>
+    </div>
     <div style="min-width:0">
       <div class="sidebar-brand-name">PIMAPOS</div>
       <div class="sidebar-brand-tag">Ekosistem PIMAPIKA</div>
@@ -807,6 +826,15 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   </div>
   <div style="font-size:10.5px;color:var(--t3);text-align:center;margin:-6px 0 14px;line-height:1.5">Dihitung dari Harga Modal (HPP) tiap produk yang diisi di halaman Produk. Isi HPP untuk hasil yang akurat.</div>
 
+  <div class="slabel">📈 Grafik Omzet (14 Hari Terakhir)</div>
+  <div class="chart-card"><canvas id="chartOmzet" height="180"></canvas></div>
+
+  <div class="slabel">📊 Grafik Transaksi Harian</div>
+  <div class="chart-card"><canvas id="chartTrx" height="180"></canvas></div>
+
+  <div class="slabel">🍩 Komposisi Metode Pembayaran</div>
+  <div class="chart-card"><canvas id="chartPM" height="200"></canvas></div>
+
   <div class="slabel">Produk Terlaris</div>
   <div id="lapTopProd"></div>
 
@@ -815,6 +843,16 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 
   <div class="slabel">Stok Menipis</div>
   <div id="lapLowStock"></div>
+
+  <div class="slabel" style="display:flex;align-items:center;justify-content:space-between">
+    <span>🔄 Retur & Refund</span>
+    <span class="slabel-action ripple-container" onclick="openReturReportModal()">Lihat Detail ›</span>
+  </div>
+  <div class="metrics-grid3" style="margin-bottom:14px">
+    <div class="mc"><div class="mv" id="lapReturCount" style="font-size:16px">0</div><div class="ml">Jumlah Retur</div></div>
+    <div class="mc"><div class="mv" id="lapReturTotal" style="font-size:13px">Rp0</div><div class="ml">Total Refund</div></div>
+    <div class="mc"><div class="mv" id="lapReturTopProd" style="font-size:11.5px">—</div><div class="ml">Paling Sering Diretur</div></div>
+  </div>
 
   <div class="slabel" style="display:flex;align-items:center;justify-content:space-between">
     <span>Member Pelanggan</span>
@@ -827,9 +865,33 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   <div id="lapHoldList"></div>
 </div>
 
+<!-- ══════════ MODAL: LAPORAN BARANG RETUR ══════════ -->
+<div class="modal-ov" id="returReportModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Laporan Barang Retur</div>
+    <div class="metrics-grid3" style="margin-bottom:14px">
+      <div class="mc"><div class="mv" id="rrCount" style="font-size:16px">0</div><div class="ml">Jumlah Retur</div></div>
+      <div class="mc"><div class="mv" id="rrTotal" style="font-size:13px">Rp0</div><div class="ml">Total Refund</div></div>
+      <div class="mc"><div class="mv" id="rrTopProd" style="font-size:11.5px">—</div><div class="ml">Paling Sering</div></div>
+    </div>
+    <div class="slabel" style="margin-top:0">Riwayat Retur</div>
+    <div id="returReportList"></div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeReturReportModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ PAGE: PROFIL / SETTINGS ══════════ -->
 <div class="page" id="pageProfil">
-  <div class="ph"><div class="ph-left"><h1>Profil</h1><p>Pengaturan PIMAPOS</p></div></div>
+  <div class="ph"><div class="ph-left"><h1>Profil</h1><p>Pengaturan PIMAPOS</p></div>
+    <div class="ph-right">
+      <div class="icon-btn ripple-container" onclick="openAdvMenuModal()" title="Pengaturan Lanjutan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+      </div>
+    </div>
+  </div>
   <div class="profile-hero">
     <div class="profile-av" id="profAv" onclick="document.getElementById('logoFileInput').click()" title="Ganti logo toko">
       <span id="profAvLetter">T</span>
@@ -881,47 +943,6 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="da-lbl">Log Aktivitas</div>
       <div class="da-chev">›</div>
     </div>
-  </div>
-
-  <div class="psec">
-    <div class="psec-title"><span class="pst-ico">💰</span>Pajak & Biaya Layanan</div>
-    <div class="toggle-row">
-      <div>
-        <div style="font-size:13.5px;font-weight:600">Tambahkan Otomatis ke Struk</div>
-        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Mis. PPN 10% atau Service Charge, dihitung dari subtotal setelah diskon</div>
-      </div>
-      <div class="switch" id="taxToggle" onclick="toggleTax()"><div class="switch-knob"></div></div>
-    </div>
-    <div class="field-row" style="margin-top:14px" id="taxDetailWrap">
-      <div class="field"><label>Label</label><input type="text" id="taxLabel" placeholder="PPN" oninput="saveTaxSettings()"></div>
-      <div class="field"><label>Persentase (%)</label><input type="number" id="taxPct" placeholder="10" min="0" max="100" oninput="saveTaxSettings()"></div>
-    </div>
-  </div>
-
-  <div class="psec">
-    <div class="psec-title"><span class="pst-ico">🔒</span>Keamanan</div>
-    <div class="toggle-row">
-      <div>
-        <div style="font-size:13.5px;font-weight:600">Kunci Aplikasi dengan PIN</div>
-        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Wajib masukkan PIN 6 digit setiap buka aplikasi</div>
-      </div>
-      <div class="switch" id="pinToggle" onclick="togglePinLock()"><div class="switch-knob"></div></div>
-    </div>
-    <div class="da-row-flat ripple-container" id="pinChangeRow" style="display:none" onclick="openSetPinModal()">
-      <div class="da-ico">🔑</div><div class="da-lbl">Ubah PIN Keamanan</div><div class="da-chev">›</div>
-    </div>
-  </div>
-
-  <div class="psec">
-    <div class="psec-title"><span class="pst-ico">🔔</span>Notifikasi</div>
-    <div class="toggle-row">
-      <div>
-        <div style="font-size:13.5px;font-weight:600">Pengingat BOD via Notifikasi</div>
-        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Kirim notifikasi pengingat kalau shift belum dibuka, walau aplikasi tidak sedang dibuka penuh di layar</div>
-      </div>
-      <div class="switch" id="notifToggle" onclick="toggleNotif()"><div class="switch-knob"></div></div>
-    </div>
-    <div class="scan-hint" id="notifStatusHint" style="margin-top:10px"></div>
   </div>
 
   <div class="psec">
@@ -1213,6 +1234,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div id="voidStatusNotice"></div>
     <div class="receipt-box" id="receiptBox"></div>
     <button class="sbtn ripple-container" onclick="downloadReceiptPDF()">⬇️ Unduh Struk PDF</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="printReceiptBluetooth()">🖨️ Cetak Struk (Bluetooth)</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeReceiptModal()">Transaksi Baru</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" id="returTrxBtn" onclick="openReturModal()">🔄 Retur / Refund Item</button>
     <button class="sbtn danger ripple-container" style="margin-top:8px" id="voidTrxBtn" onclick="voidTransaction()">🚫 Batalkan Transaksi</button>
@@ -1229,6 +1251,14 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Pilih produk & jumlah yang dikembalikan pelanggan. Stok otomatis bertambah kembali dan omzet disesuaikan.</div>
     <div id="returListWrap"></div>
     <div class="field" style="margin-top:6px"><label>Alasan Retur (opsional)</label><input type="text" id="returReason" placeholder="Produk rusak, salah pesan, dll"></div>
+    <div class="field"><label>Metode Refund</label>
+      <select id="returMethod">
+        <option value="Tunai">Tunai</option>
+        <option value="Transfer">Transfer Bank</option>
+        <option value="Saldo Toko">Saldo Toko (Store Credit)</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
+    </div>
     <div class="summary-row tot"><span class="l">Total Refund</span><span class="v" id="returTotalVal" style="color:var(--red)">Rp 0</span></div>
     <button class="sbtn danger ripple-container" onclick="processRetur()">✅ Proses Retur</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeReturModal()">Batal</button>
@@ -1266,6 +1296,14 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       </div>
     </div>
     <div class="field"><label id="prodVariantLabel">Varian (opsional)</label><input type="text" id="prodVariant" placeholder="Warna / Rasa / dll"></div>
+    <div class="toggle-row">
+      <div>
+        <div style="font-size:13.5px;font-weight:600">Bisa Diretur/Refund</div>
+        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Nonaktifkan untuk produk yang tidak menerima retur (mis. makanan basah)</div>
+      </div>
+      <div class="switch active" id="prodCanRefundToggle" onclick="toggleProdCanRefund()"><div class="switch-knob"></div></div>
+    </div>
+    <div class="field" id="prodRefundPeriodWrap"><label>Batas Waktu Retur (opsional, hari)</label><input type="number" id="prodRefundPeriod" placeholder="Kosongkan = tanpa batas waktu"></div>
     <button class="sbtn ripple-container" onclick="saveProduct()">Simpan Produk</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeProdModal()">Batal</button>
     <button class="sbtn danger ripple-container" style="margin-top:8px;display:none" id="prodDelBtn" onclick="deleteProduct()">Hapus Produk</button>
@@ -1431,6 +1469,154 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:12px;line-height:1.6">Rekam jejak aktivitas penting: buka/tutup shift, retur, pembatalan transaksi, stock opname, dan perubahan staf.</div>
     <div id="logListWrap"></div>
     <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeLogModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MENU INTEGRASI LANJUTAN (dari titik-3 Profil) ══════════ -->
+<div class="modal-ov" id="advMenuModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Pengaturan Lanjutan</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Fitur & pengaturan yang jarang dibuka sehari-hari, dikumpulkan di sini agar Profil tetap ringkas.</div>
+    <div class="da-row-flat ripple-container" onclick="closeAdvMenuModal();openTaxModal()">
+      <div class="da-ico">💰</div>
+      <div class="da-lbl">Pajak & Biaya Layanan</div>
+      <div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" onclick="closeAdvMenuModal();openSecurityModal()">
+      <div class="da-ico">🔒</div>
+      <div class="da-lbl">Keamanan</div>
+      <div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" onclick="closeAdvMenuModal();openNotifModal()">
+      <div class="da-ico">🔔</div>
+      <div class="da-lbl">Notifikasi</div>
+      <div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" onclick="closeAdvMenuModal();openPrinterModal()">
+      <div class="da-ico">🖨️</div>
+      <div class="da-lbl">Printer Thermal (Bluetooth)</div>
+      <div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" onclick="closeAdvMenuModal();openCloudBackupModal()">
+      <div class="da-ico">☁️</div>
+      <div class="da-lbl">Cloud Backup (Google Drive)</div>
+      <div class="da-chev">›</div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeAdvMenuModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: PAJAK & BIAYA LAYANAN ══════════ -->
+<div class="modal-ov" id="taxModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Pajak & Biaya Layanan</div>
+    <div class="toggle-row">
+      <div>
+        <div style="font-size:13.5px;font-weight:600">Tambahkan Otomatis ke Struk</div>
+        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Mis. PPN 10% atau Service Charge, dihitung dari subtotal setelah diskon</div>
+      </div>
+      <div class="switch" id="taxToggle" onclick="toggleTax()"><div class="switch-knob"></div></div>
+    </div>
+    <div class="field-row" style="margin-top:14px" id="taxDetailWrap">
+      <div class="field"><label>Label</label><input type="text" id="taxLabel" placeholder="PPN" oninput="saveTaxSettings()"></div>
+      <div class="field"><label>Persentase (%)</label><input type="number" id="taxPct" placeholder="10" min="0" max="100" oninput="saveTaxSettings()"></div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeTaxModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: KEAMANAN ══════════ -->
+<div class="modal-ov" id="securityModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔒 Keamanan</div>
+    <div class="toggle-row">
+      <div>
+        <div style="font-size:13.5px;font-weight:600">Kunci Aplikasi dengan PIN</div>
+        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Wajib masukkan PIN 6 digit setiap buka aplikasi</div>
+      </div>
+      <div class="switch" id="pinToggle" onclick="togglePinLock()"><div class="switch-knob"></div></div>
+    </div>
+    <div class="da-row-flat ripple-container" id="pinChangeRow" style="display:none" onclick="openSetPinModal()">
+      <div class="da-ico">🔑</div><div class="da-lbl">Ubah PIN Keamanan</div><div class="da-chev">›</div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeSecurityModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: NOTIFIKASI ══════════ -->
+<div class="modal-ov" id="notifModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔔 Notifikasi</div>
+    <div class="toggle-row">
+      <div>
+        <div style="font-size:13.5px;font-weight:600">Pengingat BOD via Notifikasi</div>
+        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Kirim notifikasi pengingat kalau shift belum dibuka, walau aplikasi tidak sedang dibuka penuh di layar</div>
+      </div>
+      <div class="switch" id="notifToggle" onclick="toggleNotif()"><div class="switch-knob"></div></div>
+    </div>
+    <div class="scan-hint" id="notifStatusHint" style="margin-top:10px"></div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeNotifModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: PRINTER THERMAL (BLUETOOTH) ══════════ -->
+<div class="modal-ov" id="printerModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🖨️ Printer Thermal (Bluetooth)</div>
+    <div style="font-size:11.5px;color:var(--t3);text-align:center;padding:0 4px 14px;line-height:1.6">Cetak struk langsung ke printer thermal 58mm via Bluetooth. Butuh browser yang mendukung Web Bluetooth (Chrome/Edge Android & Desktop) — belum didukung Safari/iOS.</div>
+    <div class="da-row-flat" style="cursor:default">
+      <div class="da-ico" id="printerStatusIco">🔌</div>
+      <div class="da-lbl" id="printerStatusLbl">Belum terhubung</div>
+    </div>
+    <div class="btn-row" style="margin-top:10px">
+      <button class="sbtn ripple-container" onclick="printerConnect()">🔗 Hubungkan</button>
+      <button class="sbtn ghost ripple-container" onclick="printerTestPrint()">🧪 Test Print</button>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closePrinterModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: CLOUD BACKUP (GOOGLE DRIVE) ══════════ -->
+<div class="modal-ov" id="cloudBackupModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">☁️ Cloud Backup (Google Drive)</div>
+    <div style="font-size:11.5px;color:var(--t3);text-align:center;padding:0 4px 14px;line-height:1.6">Opsional — backup otomatis ke Google Drive milik Anda sendiri. Data lokal & mode offline tetap berjalan seperti biasa; ini murni cadangan tambahan. Butuh Google OAuth Client ID milik sendiri (dibuat gratis lewat Google Cloud Console).</div>
+    <div class="field"><label>Google OAuth Client ID</label><input type="text" id="cloudClientId" placeholder="xxxxxxxx.apps.googleusercontent.com" oninput="saveCloudClientId()"></div>
+    <div class="da-row-flat" style="cursor:default">
+      <div class="da-ico" id="cloudStatusIco">⚪</div>
+      <div class="da-lbl" id="cloudStatusLbl">Belum masuk Google</div>
+    </div>
+    <div class="btn-row" style="margin-top:10px">
+      <button class="sbtn ripple-container" onclick="cloudSignIn()">🔑 Masuk Google</button>
+      <button class="sbtn ghost ripple-container" onclick="cloudBackupNow()">⬆️ Backup</button>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="cloudRestoreConfirm()">⬇️ Pulihkan dari Backup</button>
+    <div class="toggle-row" style="margin-top:12px">
+      <div>
+        <div style="font-size:13.5px;font-weight:600">Auto Backup Berkala</div>
+        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Tiap 15 menit saat online & sudah masuk</div>
+      </div>
+      <div class="switch" id="cloudAutoToggle" onclick="toggleCloudAutoSync()"><div class="switch-knob"></div></div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeCloudBackupModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -1887,7 +2073,9 @@ function defState(){
     stockOpnames:[],
     staff:[],
     activityLog:[],
-    lastSeenVersion:''
+    lastSeenVersion:'',
+    printerInfo:null,
+    cloudBackup:{clientId:'',lastBackupAt:null,autoSync:false}
   };
 }
 const PIMAPOS_IS_FIRST_RUN=!localStorage.getItem(LSKEY);
@@ -1898,7 +2086,7 @@ function load(){
     if(raw){
       const parsed=JSON.parse(raw);
       const def=defState();
-      return {...def,...parsed,socials:{...def.socials,...(parsed.socials||{})},security:{...def.security,...(parsed.security||{})},notif:{...def.notif,...(parsed.notif||{})},tax:{...def.tax,...(parsed.tax||{})},themeCustom:{...def.themeCustom,...(parsed.themeCustom||{})}};
+      return {...def,...parsed,socials:{...def.socials,...(parsed.socials||{})},security:{...def.security,...(parsed.security||{})},notif:{...def.notif,...(parsed.notif||{})},tax:{...def.tax,...(parsed.tax||{})},themeCustom:{...def.themeCustom,...(parsed.themeCustom||{})},cloudBackup:{...def.cloudBackup,...(parsed.cloudBackup||{})}};
     }
   }catch{}
   return defState();
@@ -3115,43 +3303,71 @@ function voidTransaction(){
 /* ════════════════════════════════════════════════════
    RETUR / REFUND ITEM (parsial, per produk)
 ════════════════════════════════════════════════════ */
-let returQtyMap={};
+let returQtyMap={},returCondMap={};
 function openReturModal(){
   if(!lastReceiptTrx)return;
   const trx=S.transactions.find(t=>t.id===lastReceiptTrx.id);
   if(!trx){toast('⚠️ Transaksi tidak ditemukan');return;}
   if(trx.voided){toast('⚠️ Transaksi ini sudah dibatalkan penuh');return;}
-  returQtyMap={};
+  returQtyMap={};returCondMap={};
   document.getElementById('returReason').value='';
+  document.getElementById('returMethod').value='Tunai';
   renderReturList(trx);
   document.getElementById('returModal').classList.add('open');
 }
 function closeReturModal(){document.getElementById('returModal').classList.remove('open');}
+function returEligibility(it,trx){
+  const p=S.products.find(x=>x.id===it.id);
+  if(p&&p.can_refund===false)return{ok:false,msg:'Produk ini tidak dapat direfund'};
+  const period=p?p.refund_period_days:null;
+  if(period){
+    const days=(Date.now()-new Date(trx.ts).getTime())/86400000;
+    if(days>period)return{ok:false,msg:`Melewati batas waktu retur (${period} hari)`};
+  }
+  return{ok:true};
+}
 function renderReturList(trx){
   const wrap=document.getElementById('returListWrap');
   wrap.innerHTML=trx.items.map((it,idx)=>{
     const already=it.returnedQty||0;
     const maxQty=it.qty-already;
     const cur=returQtyMap[idx]||0;
-    return `<div class="card-list" style="cursor:default">
-      <div class="tx-icon" style="background:rgba(var(--accent-tint-rgb),.12);border-radius:50%;color:var(--amber);font-weight:800">${prodLetter(it.name)}</div>
-      <div class="tx-info"><div class="tx-name">${it.name}${it.variant?' ('+it.variant+')':''}</div><div class="tx-cat">Dibeli ${it.qty}${already?', sudah retur '+already:''}</div></div>
-      ${maxQty>0?`<div class="qty-pad" style="margin:0;gap:8px">
+    const elig=returEligibility(it,trx);
+    let bodyHtml;
+    if(maxQty<=0){
+      bodyHtml='<span style="font-size:11px;color:var(--t3);flex-shrink:0">Sudah retur penuh</span>';
+    }else if(!elig.ok){
+      bodyHtml=`<span style="font-size:11px;color:var(--red);flex-shrink:0;text-align:right;max-width:120px">🚫 ${elig.msg}</span>`;
+    }else{
+      bodyHtml=`<div class="qty-pad" style="margin:0;gap:8px">
         <button class="qty-btn" onclick="changeReturQty(${idx},-1,${maxQty})">−</button>
         <div class="qty-num" id="returQtyNum_${idx}">${cur}</div>
         <button class="qty-btn" onclick="changeReturQty(${idx},1,${maxQty})">+</button>
-      </div>`:'<span style="font-size:11px;color:var(--t3);flex-shrink:0">Sudah retur penuh</span>'}
+      </div>`;
+    }
+    const cond=returCondMap[idx]||'baik';
+    const showCond=elig.ok&&maxQty>0&&cur>0;
+    return `<div class="card-list" style="cursor:default;flex-wrap:wrap">
+      <div class="tx-icon" style="background:rgba(var(--accent-tint-rgb),.12);border-radius:50%;color:var(--amber);font-weight:800">${prodLetter(it.name)}</div>
+      <div class="tx-info"><div class="tx-name">${it.name}${it.variant?' ('+it.variant+')':''}</div><div class="tx-cat">Dibeli ${it.qty}${already?', sudah retur '+already:''}</div></div>
+      ${bodyHtml}
+      ${showCond?`<div class="field" style="width:100%;margin:8px 0 0"><label style="font-size:10.5px">Kondisi Barang</label>
+        <select onchange="setReturCond(${idx},this.value)" style="font-size:12.5px">
+          <option value="baik" ${cond==='baik'?'selected':''}>Baik — stok dikembalikan</option>
+          <option value="rusak" ${cond==='rusak'?'selected':''}>Rusak — stok dihapus (write-off)</option>
+        </select>
+      </div>`:''}
     </div>`;
   }).join('');
   updateReturTotal(trx);
 }
+function setReturCond(idx,val){returCondMap[idx]=val;}
 function changeReturQty(idx,d,maxQty){
   const cur=returQtyMap[idx]||0;
   const next=Math.max(0,Math.min(maxQty,cur+d));
   returQtyMap[idx]=next;
-  document.getElementById('returQtyNum_'+idx).textContent=next;
   const trx=S.transactions.find(t=>t.id===lastReceiptTrx.id);
-  updateReturTotal(trx);
+  renderReturList(trx); // re-render agar dropdown kondisi barang muncul/hilang sesuai qty
 }
 function updateReturTotal(trx){
   let total=0;
@@ -3166,18 +3382,24 @@ function processRetur(){
   trx.items.forEach((it,idx)=>{
     const q=returQtyMap[idx]||0;
     if(q>0){
+      const elig=returEligibility(it,trx);
+      if(!elig.ok)return; // safety net, seharusnya sudah tidak bisa diinput di UI
+      const condition=returCondMap[idx]||'baik';
       const refundAmt=Math.round(it.price*q);
-      returnedItems.push({id:it.id,name:it.name,qty:q,refundAmount:refundAmt});
+      returnedItems.push({id:it.id,name:it.name,qty:q,refundAmount:refundAmt,condition});
       totalRefund+=refundAmt;
       it.returnedQty=(it.returnedQty||0)+q;
-      const p=S.products.find(x=>x.id===it.id);
-      if(p)p.stock+=q;
+      if(condition==='baik'){
+        const p=S.products.find(x=>x.id===it.id);
+        if(p)p.stock+=q;
+      }
     }
   });
   if(returnedItems.length===0){toast('⚠️ Pilih minimal 1 produk untuk diretur');return;}
   const reason=(document.getElementById('returReason').value||'').trim();
+  const method=document.getElementById('returMethod').value;
   trx.returns=trx.returns||[];
-  trx.returns.push({id:uid(),date:new Date().toISOString(),items:returnedItems,totalRefund,reason});
+  trx.returns.push({id:uid(),date:new Date().toISOString(),items:returnedItems,totalRefund,reason,method,cashier:(S.activeShift&&S.activeShift.cashier)||''});
   trx.totalRefunded=(trx.totalRefunded||0)+totalRefund;
   if(trx.customerId){
     const c=S.customers.find(x=>x.id===trx.customerId);
@@ -3401,6 +3623,10 @@ function openProdModal(id){
     document.getElementById('prodStock').value=p.stock;
     document.getElementById('prodUnit').value=p.unit||'pcs';
     document.getElementById('prodVariant').value=p.variant||'';
+    const canRefund=p.can_refund!==false;
+    document.getElementById('prodCanRefundToggle').classList.toggle('active',canRefund);
+    document.getElementById('prodRefundPeriodWrap').style.display=canRefund?'block':'none';
+    document.getElementById('prodRefundPeriod').value=p.refund_period_days||'';
     renderProdArtikelField();
     document.getElementById('prodArtikel').value=p.artikel||'';
     document.getElementById('prodDelBtn').style.display='block';
@@ -3414,12 +3640,21 @@ function openProdModal(id){
     document.getElementById('prodStock').value='';
     document.getElementById('prodUnit').value='pcs';
     document.getElementById('prodVariant').value='';
+    document.getElementById('prodCanRefundToggle').classList.add('active');
+    document.getElementById('prodRefundPeriodWrap').style.display='block';
+    document.getElementById('prodRefundPeriod').value='';
     renderProdArtikelField();
     document.getElementById('prodArtikel').value='';
     document.getElementById('prodDelBtn').style.display='none';
   }
   updateProdMarginPreview();
   document.getElementById('prodModal').classList.add('open');
+}
+function toggleProdCanRefund(){
+  const el=document.getElementById('prodCanRefundToggle');
+  const active=!el.classList.contains('active');
+  el.classList.toggle('active',active);
+  document.getElementById('prodRefundPeriodWrap').style.display=active?'block':'none';
 }
 function closeProdModal(){document.getElementById('prodModal').classList.remove('open');closeScanModal();}
 function updateProdMarginPreview(){
@@ -3444,7 +3679,9 @@ function saveProduct(){
   const emoji=document.getElementById('prodEmoji').value||CATEGORY_DEFAULT_ICON[S.storeCategory]||'📦';
   const unit=document.getElementById('prodUnit').value||'pcs';
   const variant=document.getElementById('prodVariant').value.trim();
-  const data={name,emoji,artikel,cat:document.getElementById('prodCat').value,price,cost,stock,unit,variant};
+  const can_refund=document.getElementById('prodCanRefundToggle').classList.contains('active');
+  const refund_period_days=document.getElementById('prodRefundPeriod').value?Number(document.getElementById('prodRefundPeriod').value):null;
+  const data={name,emoji,artikel,cat:document.getElementById('prodCat').value,price,cost,stock,unit,variant,can_refund,refund_period_days};
   if(id){
     const p=S.products.find(x=>x.id===id);Object.assign(p,data);
   }else{
@@ -3525,6 +3762,30 @@ function removeStaff(id){
 ════════════════════════════════════════════════════ */
 function openLogModal(){renderLogList();document.getElementById('logModal').classList.add('open');}
 function closeLogModal(){document.getElementById('logModal').classList.remove('open');}
+
+/* ════════════════════════════════════════════════════
+   MENU INTEGRASI LANJUTAN — titik-3 di header Profil.
+   Printer & Cloud Backup dipindah ke sini (popup) agar
+   halaman Profil tetap ringkas & tidak bertumpuk card.
+════════════════════════════════════════════════════ */
+function openAdvMenuModal(){document.getElementById('advMenuModal').classList.add('open');}
+function closeAdvMenuModal(){document.getElementById('advMenuModal').classList.remove('open');}
+function openTaxModal(){renderTaxUI();document.getElementById('taxModal').classList.add('open');}
+function closeTaxModal(){document.getElementById('taxModal').classList.remove('open');}
+function openSecurityModal(){renderPinToggleUI();document.getElementById('securityModal').classList.add('open');}
+function closeSecurityModal(){document.getElementById('securityModal').classList.remove('open');}
+function openNotifModal(){renderNotifToggleUI();document.getElementById('notifModal').classList.add('open');}
+function closeNotifModal(){document.getElementById('notifModal').classList.remove('open');}
+function openPrinterModal(){
+  updatePrinterStatusUI(!!_btPrinter.characteristic,_btPrinter.device&&_btPrinter.device.name);
+  document.getElementById('printerModal').classList.add('open');
+}
+function closePrinterModal(){document.getElementById('printerModal').classList.remove('open');}
+function openCloudBackupModal(){
+  initCloudBackupUI();
+  document.getElementById('cloudBackupModal').classList.add('open');
+}
+function closeCloudBackupModal(){document.getElementById('cloudBackupModal').classList.remove('open');}
 function renderLogList(){
   const logs=S.activityLog||[];
   const wrap=document.getElementById('logListWrap');
@@ -3835,6 +4096,7 @@ function renderLaporan(){
     <div class="card-list" style="cursor:default"><div class="tx-icon">${m==='Tunai'?'💵':m==='QRIS'?'📱':'💳'}</div>
     <div class="tx-info"><div class="tx-name">${m}</div></div><div class="tx-amt">${rp(amt)}</div></div>`).join(''):
     '<div class="empty-state" style="padding:16px"><div class="empty-desc">Belum ada data.</div></div>';
+  renderLaporanCharts(pmMap);
 
   // low stock
   const low=S.products.filter(p=>p.stock<=5).sort((a,b)=>a.stock-b.stock);
@@ -3861,7 +4123,406 @@ function renderLaporan(){
     </div>`;
   }).join(''):'<div class="empty-state" style="padding:16px"><div class="empty-desc">Belum ada pelanggan tersimpan.</div></div>';
   renderHoldList();
+  renderReturSummaryInLaporan();
   initRipples();
+}
+
+/* ════════════════════════════════════════════════════
+   LAPORAN BARANG RETUR — statistik & riwayat lengkap
+   dikumpulkan dari trx.returns di semua transaksi
+════════════════════════════════════════════════════ */
+function collectAllReturns(){
+  const list=[];
+  S.transactions.forEach(t=>{
+    (t.returns||[]).forEach(r=>list.push({...r,trxId:t.id}));
+  });
+  return list.sort((a,b)=>new Date(b.date)-new Date(a.date));
+}
+function computeReturStats(returns){
+  const totalRefund=returns.reduce((s,r)=>s+r.totalRefund,0);
+  const prodMap={};
+  returns.forEach(r=>r.items.forEach(it=>{prodMap[it.name]=(prodMap[it.name]||0)+it.qty;}));
+  const top=Object.entries(prodMap).sort((a,b)=>b[1]-a[1])[0];
+  return{totalRefund,count:returns.length,topProd:top?`${top[0]} (${top[1]}x)`:'—'};
+}
+function renderReturSummaryInLaporan(){
+  const stats=computeReturStats(collectAllReturns());
+  document.getElementById('lapReturCount').textContent=stats.count;
+  document.getElementById('lapReturTotal').textContent=rpNum(stats.totalRefund);
+  document.getElementById('lapReturTopProd').textContent=stats.topProd;
+}
+function openReturReportModal(){
+  const all=collectAllReturns();
+  const stats=computeReturStats(all);
+  document.getElementById('rrCount').textContent=stats.count;
+  document.getElementById('rrTotal').textContent=rpNum(stats.totalRefund);
+  document.getElementById('rrTopProd').textContent=stats.topProd;
+  const wrap=document.getElementById('returReportList');
+  wrap.innerHTML=all.length?all.map(r=>{
+    const d=new Date(r.date);
+    const dateLbl=d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    const itemsTxt=r.items.map(it=>`${it.name} x${it.qty} (${it.condition==='rusak'?'Rusak':'Baik'})`).join(', ');
+    return `<div class="card-list" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
+      <div style="display:flex;justify-content:space-between;width:100%;gap:8px">
+        <div class="tx-name">Trx ${r.trxId.toUpperCase()}</div>
+        <div class="tx-amt" style="color:var(--red);flex-shrink:0">-${rp(r.totalRefund)}</div>
+      </div>
+      <div class="tx-cat">${itemsTxt}</div>
+      <div class="tx-cat" style="opacity:.7">${dateLbl} · ${r.method||'-'}${r.cashier?' · '+r.cashier:''}${r.reason?' · "'+r.reason+'"':''}</div>
+    </div>`;
+  }).join(''):'<div class="empty-state" style="padding:16px"><div class="empty-icon">📋</div><div class="empty-title">Belum Ada Retur</div><div class="empty-desc">Riwayat retur/refund akan tercatat di sini.</div></div>';
+  document.getElementById('returReportModal').classList.add('open');
+}
+function closeReturReportModal(){document.getElementById('returReportModal').classList.remove('open');}
+
+/* ════════════════════════════════════════════════════
+   PRINTER THERMAL BLUETOOTH (Web Bluetooth API + ESC/POS)
+   Catatan: UUID service/characteristic mengikuti profil
+   BLE printer thermal 58mm generik yang paling umum
+   dipakai. Sebagian merk printer bisa memakai UUID
+   berbeda — sesuaikan bila printer tidak terdeteksi.
+   Belum didukung di Safari/iOS (keterbatasan browser,
+   bukan bug aplikasi) — fallback ke "Unduh Struk PDF".
+════════════════════════════════════════════════════ */
+const PRINTER_SERVICE_UUID='000018f0-0000-1000-8000-00805f9b34fb';
+const PRINTER_CHAR_UUID='00002af1-0000-1000-8000-00805f9b34fb';
+let _btPrinter={device:null,characteristic:null};
+function printerSupported(){return typeof navigator!=='undefined'&&!!navigator.bluetooth;}
+function updatePrinterStatusUI(connected,name){
+  const ico=document.getElementById('printerStatusIco');
+  const lbl=document.getElementById('printerStatusLbl');
+  if(!ico)return;
+  if(connected){
+    ico.textContent='🟢';
+    lbl.textContent=`Terhubung: ${name||'Printer Bluetooth'}`;
+  }else if(S.printerInfo&&S.printerInfo.name){
+    ico.textContent='⚪';
+    lbl.textContent=`Terakhir: ${S.printerInfo.name} (ketuk Hubungkan)`;
+  }else{
+    ico.textContent='🔌';
+    lbl.textContent='Belum terhubung';
+  }
+}
+async function printerConnect(){
+  if(!printerSupported()){
+    toast('⚠️ Browser/perangkat ini tidak mendukung Bluetooth (coba Chrome/Edge Android atau Desktop)');
+    return;
+  }
+  try{
+    const device=await navigator.bluetooth.requestDevice({
+      filters:[{services:[PRINTER_SERVICE_UUID]}],
+      optionalServices:[PRINTER_SERVICE_UUID]
+    });
+    const server=await device.gatt.connect();
+    const service=await server.getPrimaryService(PRINTER_SERVICE_UUID);
+    const characteristic=await service.getCharacteristic(PRINTER_CHAR_UUID);
+    _btPrinter={device,characteristic};
+    S.printerInfo={name:device.name||'Printer Bluetooth',connectedAt:new Date().toISOString()};
+    save();
+    updatePrinterStatusUI(true,device.name);
+    device.addEventListener('gattserverdisconnected',()=>{
+      _btPrinter={device:null,characteristic:null};
+      updatePrinterStatusUI(false);
+      toast('🔌 Printer terputus');
+    });
+    toast('✅ Printer terhubung: '+(device.name||'Bluetooth Printer'));
+  }catch(e){
+    if(e&&e.name==='NotFoundError'){toast('Pemilihan printer dibatalkan');return;}
+    console.warn('[PIMAPOS] Printer BT error:',e);
+    toast('⚠️ Gagal terhubung ke printer: '+(e&&e.message?e.message:'tidak diketahui'));
+  }
+}
+function escposBytes(lines){
+  const enc=new TextEncoder();
+  const bytes=[0x1B,0x40]; // ESC @ -> reset/init printer
+  lines.forEach(l=>{
+    bytes.push(0x1B,0x61,l.center?0x01:0x00); // ESC a -> alignment
+    bytes.push(0x1B,0x45,l.bold?0x01:0x00);   // ESC E -> bold on/off
+    bytes.push(...enc.encode(l.text||''));
+    bytes.push(0x0A);
+  });
+  bytes.push(0x0A,0x0A,0x0A,0x1D,0x56,0x01); // feed + GS V 1 (partial cut, jika didukung)
+  return new Uint8Array(bytes);
+}
+async function printerWrite(bytes){
+  if(!_btPrinter.characteristic){toast('⚠️ Printer belum terhubung');return false;}
+  try{
+    const chunkSize=180; // batas aman payload per write BLE
+    for(let i=0;i<bytes.length;i+=chunkSize){
+      await _btPrinter.characteristic.writeValue(bytes.slice(i,i+chunkSize));
+    }
+    return true;
+  }catch(e){
+    console.warn('[PIMAPOS] Gagal mengirim data ke printer:',e);
+    toast('⚠️ Gagal mencetak — printer mungkin terputus, coba hubungkan ulang');
+    updatePrinterStatusUI(false);
+    return false;
+  }
+}
+async function printerTestPrint(){
+  if(!printerSupported()){toast('⚠️ Bluetooth tidak didukung browser ini');return;}
+  if(!_btPrinter.characteristic){await printerConnect();if(!_btPrinter.characteristic)return;}
+  const ok=await printerWrite(escposBytes([
+    {text:S.storeName||'PIMAPOS',bold:true,center:true},
+    {text:'--- TEST PRINT ---',center:true},
+    {text:new Date().toLocaleString('id-ID'),center:true},
+    {text:'Jika teks ini tercetak,',center:true},
+    {text:'printer siap digunakan ✅',center:true},
+  ]));
+  if(ok)toast('🖨️ Test print terkirim');
+}
+async function printReceiptBluetooth(){
+  if(!lastReceiptTrx){toast('Tidak ada struk untuk dicetak');return;}
+  if(!printerSupported()){
+    toast('⚠️ Perangkat/browser ini belum mendukung cetak Bluetooth. Gunakan "Unduh Struk PDF" sebagai alternatif.');
+    return;
+  }
+  if(!_btPrinter.characteristic){await printerConnect();if(!_btPrinter.characteristic)return;}
+  const trx=lastReceiptTrx;
+  const pad=(l,r)=>{const w=32-r.length;return (l.length>w?l.slice(0,w):l.padEnd(w))+r;};
+  const lines=[];
+  lines.push({text:S.storeName||'Toko Saya',bold:true,center:true});
+  if(S.storeAddr)lines.push({text:S.storeAddr,center:true});
+  lines.push({text:new Date(trx.ts).toLocaleString('id-ID'),center:true});
+  lines.push({text:'No: '+trx.id.toUpperCase(),center:true});
+  lines.push({text:'--------------------------------'});
+  trx.items.forEach(it=>{
+    lines.push({text:`${it.name}${it.variant?' ('+it.variant+')':''}`});
+    lines.push({text:pad(`  ${it.qty} x ${rpNum(it.price)}`,rpNum(it.price*it.qty))});
+  });
+  lines.push({text:'--------------------------------'});
+  lines.push({text:pad('Subtotal',rpNum(trx.subtotal))});
+  if(trx.diskon>0)lines.push({text:pad('Diskon','-'+rpNum(trx.diskon))});
+  if(trx.tax>0)lines.push({text:pad(trx.taxLabel||'Pajak',rpNum(trx.tax))});
+  lines.push({text:pad('TOTAL',rpNum(trx.total)),bold:true});
+  if(trx.method==='Split'&&Array.isArray(trx.payments)){
+    trx.payments.forEach(p=>lines.push({text:pad(p.method,rpNum(p.amount))}));
+  }else{
+    lines.push({text:trx.method});
+    if(trx.method==='Tunai')lines.push({text:pad('Kembali',rpNum(trx.change))});
+  }
+  if(trx.totalRefunded>0)lines.push({text:pad('Retur/Refund','-'+rpNum(trx.totalRefunded))});
+  lines.push({text:''});
+  lines.push({text:'Terima kasih atas kunjungan Anda',center:true});
+  lines.push({text:S.storeName||'',center:true});
+  const ok=await printerWrite(escposBytes(lines));
+  if(ok)toast('🖨️ Struk terkirim ke printer');
+}
+
+/* ════════════════════════════════════════════════════
+   CLOUD BACKUP — Google Drive (opsional, additive)
+   Butuh Google OAuth Client ID milik sendiri (Google
+   Cloud Console → Credentials → OAuth Client ID, tipe
+   "Web application", tambahkan origin situs ini).
+   Scope: drive.file — hanya file yang dibuat app ini
+   sendiri, tidak menyentuh file lain di Drive pengguna.
+   Data lokal & mode offline tetap prioritas & tidak
+   terpengaruh sama sekali jika fitur ini tidak diaktifkan.
+════════════════════════════════════════════════════ */
+let _cloudToken=null,_cloudFileId=null,_cloudAutoTimer=null;
+function cloudSetStatus(state,detail){
+  const ico=document.getElementById('cloudStatusIco');
+  const lbl=document.getElementById('cloudStatusLbl');
+  if(!ico)return;
+  const map={
+    offline:['📴','Offline'],
+    signedout:['⚪','Belum masuk Google'],
+    ready:['🟡','Masuk — siap backup'],
+    syncing:['🔄','Menyinkronkan...'],
+    synced:['🟢','Tersinkron'],
+    failed:['🔴','Backup gagal'],
+  };
+  const m=map[state]||map.signedout;
+  ico.textContent=m[0];
+  lbl.textContent=detail||m[1];
+}
+function saveCloudClientId(){
+  S.cloudBackup=S.cloudBackup||{clientId:'',lastBackupAt:null,autoSync:false};
+  S.cloudBackup.clientId=document.getElementById('cloudClientId').value.trim();
+  save();
+}
+function cloudGISReady(){return typeof google!=='undefined'&&google.accounts&&google.accounts.oauth2;}
+function cloudSignIn(){
+  if(!navigator.onLine){cloudSetStatus('offline');toast('⚠️ Tidak ada koneksi internet');return;}
+  const clientId=(S.cloudBackup&&S.cloudBackup.clientId)||document.getElementById('cloudClientId').value.trim();
+  if(!clientId){toast('⚠️ Isi Google OAuth Client ID terlebih dahulu (lihat keterangan di atas)');return;}
+  if(!cloudGISReady()){toast('⚠️ Modul Google belum siap dimuat, coba lagi sesaat');return;}
+  try{
+    const tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:clientId,
+      scope:'https://www.googleapis.com/auth/drive.file',
+      callback:(resp)=>{
+        if(resp.error){toast('⚠️ Gagal masuk Google: '+resp.error);cloudSetStatus('signedout');return;}
+        _cloudToken=resp.access_token;
+        cloudSetStatus('ready');
+        toast('✅ Berhasil masuk Google');
+      }
+    });
+    tokenClient.requestAccessToken();
+  }catch(e){
+    console.warn('[PIMAPOS] Cloud sign-in error:',e);
+    toast('⚠️ Gagal memulai proses masuk Google');
+  }
+}
+async function cloudFindBackupFile(){
+  const q=encodeURIComponent("name='pimapos-backup.json' and trashed=false");
+  const res=await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&fields=files(id,name,modifiedTime)`,{
+    headers:{Authorization:'Bearer '+_cloudToken}
+  });
+  if(!res.ok)throw new Error('Gagal mencari file backup ('+res.status+')');
+  const data=await res.json();
+  return (data.files&&data.files[0])||null;
+}
+async function cloudBackupNow(){
+  if(!navigator.onLine){cloudSetStatus('offline');toast('⚠️ Tidak ada koneksi internet');return;}
+  if(!_cloudToken){toast('⚠️ Masuk Google terlebih dahulu');return;}
+  cloudSetStatus('syncing');
+  try{
+    const existing=await cloudFindBackupFile();
+    _cloudFileId=existing?existing.id:null;
+    const metadata={name:'pimapos-backup.json',mimeType:'application/json'};
+    const boundary='pimapos-boundary-'+Date.now();
+    const body=
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`+
+      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(S)}\r\n`+
+      `--${boundary}--`;
+    const url=_cloudFileId
+      ?`https://www.googleapis.com/upload/drive/v3/files/${_cloudFileId}?uploadType=multipart`
+      :'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+    const res=await fetch(url,{
+      method:_cloudFileId?'PATCH':'POST',
+      headers:{Authorization:'Bearer '+_cloudToken,'Content-Type':`multipart/related; boundary=${boundary}`},
+      body
+    });
+    if(!res.ok)throw new Error('Upload gagal ('+res.status+')');
+    const data=await res.json();
+    _cloudFileId=data.id;
+    S.cloudBackup=S.cloudBackup||{};
+    S.cloudBackup.lastBackupAt=new Date().toISOString();
+    save();
+    cloudSetStatus('synced','Tersinkron · '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+    toast('☁️ Backup berhasil disimpan ke Google Drive');
+  }catch(e){
+    console.warn('[PIMAPOS] Cloud backup error:',e);
+    cloudSetStatus('failed');
+    toast('⚠️ Backup gagal: '+(e.message||'tidak diketahui'));
+  }
+}
+function cloudRestoreConfirm(){
+  if(!_cloudToken){toast('⚠️ Masuk Google terlebih dahulu');return;}
+  appConfirm('Pulihkan data dari backup Google Drive? Data lokal saat ini akan DITIMPA oleh data dari backup. Tindakan ini tidak bisa dibatalkan.',cloudRestoreNow,'⬇️ Pulihkan Backup');
+}
+async function cloudRestoreNow(){
+  cloudSetStatus('syncing');
+  try{
+    const existing=await cloudFindBackupFile();
+    if(!existing){toast('⚠️ Belum ada file backup di Drive');cloudSetStatus('ready');return;}
+    const res=await fetch(`https://www.googleapis.com/drive/v3/files/${existing.id}?alt=media`,{
+      headers:{Authorization:'Bearer '+_cloudToken}
+    });
+    if(!res.ok)throw new Error('Gagal mengunduh backup ('+res.status+')');
+    const imp=await res.json();
+    const def=defState();
+    S={...def,...imp,socials:{...def.socials,...(imp.socials||{})},security:{...def.security,...(imp.security||{})},notif:{...def.notif,...(imp.notif||{})},tax:{...def.tax,...(imp.tax||{})},themeCustom:{...def.themeCustom,...(imp.themeCustom||{})},cloudBackup:{...def.cloudBackup,...(imp.cloudBackup||{})}};
+    save();
+    cloudSetStatus('synced','Dipulihkan dari Drive');
+    toast('✅ Data berhasil dipulihkan dari Google Drive — memuat ulang...');
+    setTimeout(()=>location.reload(),1200);
+  }catch(e){
+    console.warn('[PIMAPOS] Cloud restore error:',e);
+    cloudSetStatus('failed');
+    toast('⚠️ Gagal memulihkan backup: '+(e.message||'tidak diketahui'));
+  }
+}
+function toggleCloudAutoSync(){
+  S.cloudBackup=S.cloudBackup||{clientId:'',lastBackupAt:null,autoSync:false};
+  S.cloudBackup.autoSync=!S.cloudBackup.autoSync;
+  document.getElementById('cloudAutoToggle').classList.toggle('active',S.cloudBackup.autoSync);
+  save();
+  setupCloudAutoSync();
+  toast(S.cloudBackup.autoSync?'⏱️ Auto backup diaktifkan (tiap 15 menit)':'⏱️ Auto backup dinonaktifkan');
+}
+function setupCloudAutoSync(){
+  clearInterval(_cloudAutoTimer);
+  if(S.cloudBackup&&S.cloudBackup.autoSync){
+    _cloudAutoTimer=setInterval(()=>{
+      if(navigator.onLine&&_cloudToken)cloudBackupNow();
+    },15*60*1000);
+  }
+}
+function initCloudBackupUI(){
+  const el=document.getElementById('cloudClientId');
+  if(el)el.value=(S.cloudBackup&&S.cloudBackup.clientId)||'';
+  const toggle=document.getElementById('cloudAutoToggle');
+  if(toggle)toggle.classList.toggle('active',!!(S.cloudBackup&&S.cloudBackup.autoSync));
+  cloudSetStatus(!navigator.onLine?'offline':(_cloudToken?'ready':'signedout'));
+  setupCloudAutoSync();
+}
+window.addEventListener('online',()=>cloudSetStatus(_cloudToken?'ready':'signedout'));
+window.addEventListener('offline',()=>cloudSetStatus('offline'));
+
+/* ════════════════════════════════════════════════════
+   GRAFIK LAPORAN (Chart.js) — omzet & transaksi harian
+   14 hari terakhir + komposisi metode pembayaran.
+   Aman offline: jika Chart.js gagal dimuat dari CDN,
+   fungsi ini keluar tanpa error (elemen tetap kosong).
+════════════════════════════════════════════════════ */
+let _pimaCharts={omzet:null,trx:null,pm:null};
+function renderLaporanCharts(pmMap){
+  if(typeof Chart==='undefined')return;
+  const cs=getComputedStyle(document.documentElement);
+  const accentRgb=(cs.getPropertyValue('--accent-tint-rgb')||'251,191,36').trim();
+  const accentRgb2=(cs.getPropertyValue('--accent-shadow-rgb')||'217,119,6').trim();
+  const textColor=(cs.getPropertyValue('--t2')||'rgba(255,255,255,.6)').trim()||'rgba(255,255,255,.6)';
+  const gridColor='rgba(255,255,255,.08)';
+
+  const days=[];
+  for(let i=13;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);days.push(d);}
+  const dayKey=d=>d.toISOString().slice(0,10);
+  const omzetMap={},trxMap={};
+  days.forEach(d=>{omzetMap[dayKey(d)]=0;trxMap[dayKey(d)]=0;});
+  S.transactions.forEach(t=>{
+    if(t.voided)return;
+    const key=new Date(t.ts).toISOString().slice(0,10);
+    if(key in omzetMap){omzetMap[key]+=trxNet(t);trxMap[key]+=1;}
+  });
+  const labels=days.map(d=>d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}));
+  const omzetData=days.map(d=>omzetMap[dayKey(d)]);
+  const trxData=days.map(d=>trxMap[dayKey(d)]);
+  const baseScales={
+    x:{ticks:{color:textColor,font:{size:9}},grid:{display:false}},
+    y:{ticks:{color:textColor,font:{size:9}},grid:{color:gridColor},beginAtZero:true}
+  };
+
+  if(_pimaCharts.omzet)_pimaCharts.omzet.destroy();
+  const ctxOmzet=document.getElementById('chartOmzet');
+  if(ctxOmzet){
+    _pimaCharts.omzet=new Chart(ctxOmzet,{
+      type:'line',
+      data:{labels,datasets:[{data:omzetData,borderColor:`rgb(${accentRgb})`,backgroundColor:`rgba(${accentRgb},.18)`,fill:true,tension:.35,pointRadius:0,borderWidth:2.5}]},
+      options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' Rp'+c.parsed.y.toLocaleString('id-ID')}}},scales:baseScales}
+    });
+  }
+  if(_pimaCharts.trx)_pimaCharts.trx.destroy();
+  const ctxTrx=document.getElementById('chartTrx');
+  if(ctxTrx){
+    _pimaCharts.trx=new Chart(ctxTrx,{
+      type:'bar',
+      data:{labels,datasets:[{data:trxData,backgroundColor:`rgba(${accentRgb2},.75)`,borderRadius:5,maxBarThickness:18}]},
+      options:{plugins:{legend:{display:false}},scales:baseScales}
+    });
+  }
+  if(_pimaCharts.pm)_pimaCharts.pm.destroy();
+  const ctxPM=document.getElementById('chartPM');
+  if(ctxPM){
+    const pmEntries=Object.entries(pmMap||{});
+    const palette=[`rgb(${accentRgb})`,`rgb(${accentRgb2})`,'rgba(148,163,184,.85)','rgba(52,211,153,.85)'];
+    _pimaCharts.pm=new Chart(ctxPM,{
+      type:'doughnut',
+      data:{labels:pmEntries.map(e=>e[0]),datasets:[{data:pmEntries.map(e=>e[1]),backgroundColor:pmEntries.map((_,i)=>palette[i%palette.length]),borderWidth:0}]},
+      options:{cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:textColor,font:{size:10.5},boxWidth:10,padding:12}},tooltip:{callbacks:{label:c=>` ${c.label}: Rp${c.parsed.toLocaleString('id-ID')}`}}}}
+    });
+  }
 }
 
 /* ════════════════════════════════════════════════════
@@ -3874,6 +4535,8 @@ function renderProfil(){
   document.getElementById('psProd').textContent=S.products.length;
   const omzet=S.transactions.reduce((s,t)=>s+t.total,0);
   document.getElementById('psOmzet').textContent='Rp'+(omzet>=1000000?(omzet/1000000).toFixed(1)+'jt':rpNum(omzet));
+  updatePrinterStatusUI(!!_btPrinter.characteristic,_btPrinter.device&&_btPrinter.device.name);
+  initCloudBackupUI();
 }
 let syncModeTargetCat=null;
 function manualSyncCategoryTemplate(){
