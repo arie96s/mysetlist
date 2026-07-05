@@ -429,6 +429,9 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .soc-chip{position:relative;z-index:1;flex-shrink:0;padding:9px 14px;border-radius:var(--rpill);font-size:12px;font-weight:600;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:var(--t2);cursor:pointer;transition:color .25s var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
 .soc-chip.active{border-color:transparent;color:#fff}
 .qr-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px;border-radius:var(--rlg);background:#fff;margin-bottom:12px}
+.receipt-logo-row{display:flex;gap:14px;align-items:center;margin-bottom:8px}
+.receipt-logo-preview{width:64px;height:64px;border-radius:var(--rmd);background:rgba(255,255,255,.05);border:1px dashed var(--gb-hi);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-size:24px}
+.receipt-logo-preview img{width:100%;height:100%;object-fit:contain;background:#fff}
 .qr-wrap img{width:160px;height:160px;border-radius:8px;display:block}
 .qr-empty{width:160px;height:160px;border-radius:8px;background:rgba(0,0,0,.04);display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;text-align:center;padding:10px}
 .qr-label{font-size:12px;font-weight:700;color:#222}
@@ -947,11 +950,6 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 
   <div class="psec">
     <div class="psec-title"><span class="pst-ico">⚙️</span>Pengaturan & Info</div>
-    <div class="da-row-flat ripple-container" onclick="openSocialModal()">
-      <div class="da-ico">📲</div>
-      <div class="da-lbl">Media Sosial & QR Toko</div>
-      <div class="da-chev">›</div>
-    </div>
     <div class="da-row-flat ripple-container" onclick="openThemeModal()">
       <div class="da-ico">🎨</div>
       <div class="da-lbl">Tampilan Tema</div>
@@ -964,7 +962,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     </div>
     <div class="da-row-flat ripple-container" onclick="openInfoModal()">
       <div class="da-ico">🧾</div>
-      <div class="da-lbl">Info App · PIMAPOS v3.0.0</div>
+      <div class="da-lbl">Info App · PIMAPOS v3.1.0</div>
       <div class="da-chev">›</div>
     </div>
   </div>
@@ -1016,7 +1014,25 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   <div class="modal-sheet">
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
-    <div class="modal-title">📲 Media Sosial & QR Toko</div>
+    <div class="modal-title">🧾 Struk & Identitas Toko</div>
+
+    <div class="slabel" style="margin-top:0">Logo di Struk</div>
+    <div class="receipt-logo-row">
+      <div class="receipt-logo-preview" id="receiptLogoPreviewWrap">
+        <img id="receiptLogoPreview" alt="Logo Struk" style="display:none">
+        <span id="receiptLogoPreviewEmpty">🧾</span>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="btn-row">
+          <button class="sbtn ripple-container" onclick="document.getElementById('receiptLogoFileInput').click()">🖼️ Unggah Logo</button>
+          <button class="sbtn ghost ripple-container" id="receiptLogoRemoveBtn" style="display:none" onclick="removeReceiptLogo()">Hapus</button>
+        </div>
+      </div>
+    </div>
+    <input type="file" id="receiptLogoFileInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleReceiptLogoUpload(event)">
+    <div class="scan-hint" style="margin-top:8px;text-align:left;line-height:1.6">📐 <b>Ketentuan ukuran:</b> disarankan persegi 300×300px atau landscape 300×150px, format PNG latar putih/transparan, gambar hitam-putih kontras tinggi (bukan foto berwarna) agar tetap jelas saat dicetak di printer thermal. Jika logo diisi, struk akan menampilkan logo ini menggantikan tulisan nama toko di bagian atas.</div>
+
+    <div class="slabel">Media Sosial & QR Toko</div>
     <div class="soc-scroll" id="socScroll"></div>
     <div class="field" style="margin-bottom:10px">
       <label id="socFieldLabel">Username / Tautan</label>
@@ -1030,7 +1046,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <button class="sbtn ripple-container" onclick="saveSocial()">Simpan</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" id="qrDownloadBtn" onclick="downloadQR()">⬇️ Unduh QR Code</button>
     <div class="scan-hint" style="margin-top:10px;text-align:center">Akun yang diisi & QR otomatis tampil rapi di struk transaksi.</div>
-    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="document.getElementById('socialModal').classList.remove('open')">Tutup</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeSocialModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -1119,7 +1135,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div style="text-align:center;padding:8px 0 4px">
       <div class="app-info-logo">🧾</div>
       <div class="app-info-name">PIMAPOS</div>
-      <div class="app-info-version">v3.0.0</div>
+      <div class="app-info-version">v3.1.0</div>
       <div class="app-info-tagline">Bagian dari Ekosistem PIMAPIKA<br>Pitih Masuak Pitih Kalua</div>
       <div class="app-info-grid">
         <div class="app-info-row"><span class="ai-k">Developer</span><span class="ai-v">@arie96s</span></div>
@@ -1132,14 +1148,14 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="whatsnew-card">
       <div class="whatsnew-card-head">
         <span class="whatsnew-badge">BARU</span>
-        <span class="whatsnew-card-title">Fitur di v3.0.0</span>
+        <span class="whatsnew-card-title" id="infoWhatsNewTitle">Fitur di v3.1.0</span>
       </div>
       <div id="infoWhatsNewList"></div>
       <button class="sbtn ripple-container" style="margin-top:12px;padding:11px;font-size:12.5px" onclick="closeInfoModal();openTourModal()">▶ Mulai Tur Fitur</button>
     </div>
 
     <div style="text-align:center">
-      <a class="feedback-pill ripple-container" href="mailto:fajrisalam96@gmail.com?subject=%5BPIMAPOS%20v3.0%5D%20Feedback%20%2F%20Bug%20Report&amp;body=Halo%20Fajri%2C%0A%0ASaya%20ingin%20menyampaikan%20masukan%2Flaporan%20bug%20berikut%3A%0A%0A%0A---%0AVersi%20App%3A%20v3.0.0%0ANama%20Toko%3A%20">
+      <a class="feedback-pill ripple-container" href="mailto:fajrisalam96@gmail.com?subject=%5BPIMAPOS%20v3.1%5D%20Feedback%20%2F%20Bug%20Report&amp;body=Halo%20Fajri%2C%0A%0ASaya%20ingin%20menyampaikan%20masukan%2Flaporan%20bug%20berikut%3A%0A%0A%0A---%0AVersi%20App%3A%20v3.1.0%0ANama%20Toko%3A%20">
         💬 Feedback &amp; Report Bugs
       </a>
     </div>
@@ -1480,6 +1496,11 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="modal-handle"></div>
     <div class="modal-title">⚙️ Pengaturan Lanjutan</div>
     <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Fitur & pengaturan yang jarang dibuka sehari-hari, dikumpulkan di sini agar Profil tetap ringkas.</div>
+    <div class="da-row-flat ripple-container" onclick="closeAdvMenuModal();openSocialModal()">
+      <div class="da-ico">🧾</div>
+      <div class="da-lbl">Struk & Identitas Toko</div>
+      <div class="da-chev">›</div>
+    </div>
     <div class="da-row-flat ripple-container" onclick="closeAdvMenuModal();openTaxModal()">
       <div class="da-ico">💰</div>
       <div class="da-lbl">Pajak & Biaya Layanan</div>
@@ -1843,14 +1864,15 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.0.0';
+const APP_VERSION='3.1.0';
 const WHATS_NEW_FEATURES=[
-  {icon:'📋',title:'Stock Opname (SO)',desc:'Cocokkan stok sistem vs hasil hitung fisik untuk semua kategori produk sekaligus, lengkap dengan riwayat.'},
-  {icon:'🎨',title:'Kustomisasi Tema',desc:'Atur sendiri warna aksen, saturasi, kecerahan & kontras tampilan sesuai selera atau kondisi cahaya toko.'},
-  {icon:'💰',title:'HPP & Estimasi Profit',desc:'Isi harga modal produk — Laporan otomatis menghitung laba kotor & margin keuntungan.'},
-  {icon:'🔄',title:'Retur / Refund Item',desc:'Proses retur sebagian produk dari sebuah transaksi, stok otomatis kembali & omzet disesuaikan.'},
-  {icon:'🔀',title:'Split Payment',desc:'Terima pembayaran gabungan Tunai + QRIS + Kartu sekaligus dalam satu transaksi.'},
-  {icon:'👥',title:'Kasir & Log Aktivitas',desc:'Catat kasir bertugas tiap shift, plus jejak audit aktivitas penting untuk akuntabilitas toko.'},
+  {icon:'🧾',title:'Logo Custom di Struk',desc:'Unggah logo toko untuk tampil di struk (layar & PDF), menggantikan tulisan nama toko — atur lewat "Struk & Identitas Toko".'},
+  {icon:'🔄',title:'Retur & Refund Lengkap',desc:'Kebijakan retur per produk, kondisi barang (baik/rusak), metode refund, plus Laporan Barang Retur & statistiknya.'},
+  {icon:'📊',title:'Grafik Laporan',desc:'Grafik omzet & transaksi harian, serta komposisi metode pembayaran — langsung di halaman Laporan.'},
+  {icon:'🖨️',title:'Printer Thermal Bluetooth',desc:'Cetak struk langsung ke printer thermal 58mm via Bluetooth (Chrome/Edge Android & Desktop).'},
+  {icon:'☁️',title:'Cloud Backup Google Drive',desc:'Backup & pulihkan data ke Google Drive milik sendiri — opsional, data lokal tetap prioritas.'},
+  {icon:'💻',title:'Tampilan Desktop & iPad',desc:'Sidebar navigasi, popup terpusat, dan tata letak yang menyesuaikan otomatis di layar lebar.'},
+  {icon:'⚙️',title:'Pengaturan Lanjutan',desc:'Pajak, Keamanan, Notifikasi, Printer & Cloud Backup kini terkumpul rapi lewat menu titik-3 di Profil.'},
 ];
 const TOUR_STEPS=[
   {page:'pageKasir',selector:'.nav-btn[data-page="pageKasir"]',icon:'🧾',title:'Kasir Cepat',desc:'Tambah produk ke keranjang lalu bayar Tunai, QRIS, Kartu — atau pilih "Split" saat checkout untuk menggabungkan beberapa metode sekaligus.'},
@@ -2050,6 +2072,7 @@ function defState(){
     storeAddr:'',
     storeCategory:'F&B',
     storeLogo:'',
+    receiptLogo:'',
     security:{pinEnabled:false,pinHash:''},
     notif:{enabled:false},
     socials:{whatsapp:'',instagram:'',tiktok:'',facebook:'',shopee:'',tokopedia:'',website:''},
@@ -2419,7 +2442,43 @@ const THEME_DYNAMIC_VARS=['--bg0','--bg1','--bg2','--orb1','--orb2','--orb3','--
 /* ── Profil modal openers ── */
 function openSocialModal(){
   renderSocialTabs();
+  renderReceiptLogoPreview();
   document.getElementById('socialModal').classList.add('open');
+}
+function closeSocialModal(){document.getElementById('socialModal').classList.remove('open');}
+function renderReceiptLogoPreview(){
+  const img=document.getElementById('receiptLogoPreview');
+  const empty=document.getElementById('receiptLogoPreviewEmpty');
+  const removeBtn=document.getElementById('receiptLogoRemoveBtn');
+  if(S.receiptLogo){
+    img.src=S.receiptLogo;img.style.display='block';
+    empty.style.display='none';
+    removeBtn.style.display='block';
+  }else{
+    img.style.display='none';img.src='';
+    empty.style.display='block';
+    removeBtn.style.display='none';
+  }
+}
+const RECEIPT_LOGO_MAX_BYTES=150*1024;
+function handleReceiptLogoUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  if(!file.type||!file.type.startsWith('image/')){
+    toast('⚠️ File harus berupa gambar (PNG/JPG/WEBP)');e.target.value='';return;
+  }
+  toast('⏳ Memproses logo struk…');
+  compressImageToMaxSize(file,RECEIPT_LOGO_MAX_BYTES).then(dataUrl=>{
+    S.receiptLogo=dataUrl;save();renderReceiptLogoPreview();
+    toast('✅ Logo struk diperbarui');
+  }).catch(()=>{
+    toast('❌ Gagal memproses gambar, coba file lain');
+  }).finally(()=>{e.target.value='';});
+}
+function removeReceiptLogo(){
+  appConfirm('Hapus logo struk? Struk akan kembali menampilkan nama toko sebagai teks.',()=>{
+    S.receiptLogo='';save();renderReceiptLogoPreview();
+    toast('🧾 Logo struk dihapus');
+  },'Hapus Logo Struk');
 }
 function openThemeModal(){
   const c=S.themeCustom||{};
@@ -2443,6 +2502,7 @@ function openInfoModal(){
 }
 function closeInfoModal(){document.getElementById('infoModal').classList.remove('open');}
 function renderInfoWhatsNew(){
+  document.getElementById('infoWhatsNewTitle').textContent='Fitur di v'+APP_VERSION;
   document.getElementById('infoWhatsNewList').innerHTML=WHATS_NEW_FEATURES.map(f=>`
     <div class="whatsnew-item">
       <div class="whatsnew-item-ic">${f.icon}</div>
@@ -3214,7 +3274,11 @@ function receiptQrUrl(data,size){
 function showReceipt(trx){
   lastReceiptTrx=trx;
   const lines=[];
-  lines.push(`<div class="receipt-center" style="font-weight:700;font-size:13.5px;letter-spacing:.02em">${S.storeName||'Toko Saya'}</div>`);
+  if(S.receiptLogo){
+    lines.push(`<div class="receipt-center" style="margin-bottom:4px"><img src="${S.receiptLogo}" alt="${S.storeName||'Toko'}" style="max-width:140px;max-height:70px;object-fit:contain;background:#fff;border-radius:6px;padding:4px"></div>`);
+  }else{
+    lines.push(`<div class="receipt-center" style="font-weight:700;font-size:13.5px;letter-spacing:.02em">${S.storeName||'Toko Saya'}</div>`);
+  }
   if(S.storeCategory)lines.push(`<div class="receipt-center" style="opacity:.7">${S.storeCategory}</div>`);
   if(S.storeAddr)lines.push(`<div class="receipt-center">${S.storeAddr}</div>`);
   lines.push(`<div class="receipt-center">${new Date(trx.ts).toLocaleString('id-ID')}</div>`);
@@ -3432,8 +3496,31 @@ async function downloadReceiptPDF(){
 
   let y=8;
   doc.setTextColor(0,0,0);
-  doc.setFont('helvetica','bold');doc.setFontSize(11);
-  doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});y+=5;
+  if(S.receiptLogo){
+    try{
+      const logoMaxW=32,logoMaxH=16;
+      const dim=await new Promise((res)=>{
+        const img=new Image();
+        img.onload=()=>res({w:img.naturalWidth,h:img.naturalHeight});
+        img.onerror=()=>res(null);
+        img.src=S.receiptLogo;
+      });
+      let lw=logoMaxW,lh=logoMaxH;
+      if(dim&&dim.w&&dim.h){
+        const ratio=Math.min(logoMaxW/dim.w,logoMaxH/dim.h);
+        lw=dim.w*ratio;lh=dim.h*ratio;
+      }
+      doc.addImage(S.receiptLogo,cx-lw/2,y,lw,lh);
+      y+=lh+3;
+    }catch(e){
+      console.warn('[PIMAPOS] Logo gagal disisipkan ke PDF, fallback ke teks',e);
+      doc.setFont('courier','bold');doc.setFontSize(11);
+      doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});y+=5;
+    }
+  }else{
+    doc.setFont('courier','bold');doc.setFontSize(11);
+    doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});y+=5;
+  }
   doc.setFont('courier','normal');doc.setFontSize(7.5);
   if(S.storeCategory){doc.text(S.storeCategory,cx,y,{align:'center'});y+=4;}
   if(S.storeAddr){doc.text(S.storeAddr,cx,y,{align:'center'});y+=4;}
@@ -3467,11 +3554,11 @@ async function downloadReceiptPDF(){
   if(trx.method==='Tunai'){doc.text('Kembali',4,y);doc.text(rpNum(trx.change),W-4,y,{align:'right'});y+=lineH;}
   if(trx.note){doc.setFontSize(7);doc.text('Catatan: '+trx.note,4,y);y+=lineH;}
   y+=2;doc.line(4,y,W-4,y);y+=5;
-  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  doc.setFont('courier','normal');doc.setFontSize(8);
   doc.text('Terima kasih atas kunjungan Anda',cx,y,{align:'center'});y+=5;
 
   if(socs.length){
-    doc.setFont('helvetica','bold');doc.setFontSize(6.8);
+    doc.setFont('courier','bold');doc.setFontSize(6.8);
     doc.text('HUBUNGI & IKUTI KAMI',cx,y,{align:'center'});y+=4;
     doc.setFont('courier','normal');doc.setFontSize(7);
     socs.forEach(s=>{doc.text(s.val,cx,y,{align:'center'});y+=3.6;});
@@ -3490,7 +3577,7 @@ async function downloadReceiptPDF(){
       }catch(e){console.warn('[PIMAPOS] QR gagal disisipkan ke PDF',e);}
     }
   }
-  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(110,110,110);
+  doc.setFont('courier','normal');doc.setFontSize(6.5);doc.setTextColor(110,110,110);
   doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});
 
   doc.save(`Struk_${S.storeName||'PIMAPOS'}_${trx.id}.pdf`);
@@ -5404,7 +5491,7 @@ removeSplash(()=>{
   }else if(PIMAPOS_IS_FIRST_RUN&&pinActive){
     window._pendingOnboarding=true;
   }
-  // 5. Fitur Terbaru — untuk user lama, otomatis buka Info App (kini memuat sub-card "Fitur di v3.0.0")
+  // 5. Fitur Terbaru — untuk user lama, otomatis buka Info App (kini memuat sub-card "Fitur di v"+APP_VERSION dinamis)
   if(!PIMAPOS_IS_FIRST_RUN&&S.lastSeenVersion!==APP_VERSION){
     if(!pinActive){
       setTimeout(openInfoModal,450);
