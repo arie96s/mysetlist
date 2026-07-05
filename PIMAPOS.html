@@ -289,6 +289,13 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .cat-chip.active{border-color:transparent;color:#fff}
 .chip-capsule{position:absolute;top:0;left:0;height:100%;border-radius:var(--rpill);background:var(--grad-gold);box-shadow:0 4px 16px rgba(217,119,6,.38);z-index:0;pointer-events:none;transition:left .42s var(--spring),width .42s var(--spring),top .42s var(--spring),height .42s var(--spring),opacity .2s;opacity:0}
 .chip-capsule.ready{opacity:1}
+.so-input{width:66px;flex-shrink:0;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:9px 4px;color:var(--t1);font-size:13.5px;font-weight:700;font-family:'JetBrains Mono',monospace}
+[data-theme="light"] .so-input{background:rgba(15,23,42,.045);border-color:rgba(15,23,42,.14)}
+.so-diff{font-size:10.5px;font-weight:800;min-width:36px;flex-shrink:0;text-align:center;padding:4px 6px;border-radius:8px}
+.so-diff.zero{color:var(--t3);background:rgba(255,255,255,.05)}
+.so-diff.pos{color:var(--green);background:rgba(52,211,153,.14)}
+.so-diff.neg{color:var(--red);background:rgba(248,113,113,.14)}
+[data-theme="light"] .so-diff.zero{background:rgba(15,23,42,.05)}
 
 /* PRODUCT GRID */
 .prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
@@ -715,6 +722,9 @@ button,input,select,textarea{font-family:var(--font-sf);}
       <div class="icon-btn ripple-container" onclick="openCatModal()" title="Kategori">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg>
       </div>
+      <div class="icon-btn ripple-container" onclick="openSOModal()" title="Stock Opname">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
       <div class="icon-btn ripple-container" onclick="openProdModal()" title="Tambah Produk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </div>
@@ -886,7 +896,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
     </div>
     <div class="da-row-flat ripple-container" onclick="openInfoModal()">
       <div class="da-ico">🧾</div>
-      <div class="da-lbl">Info App · PIMAPOS v2.0.0</div>
+      <div class="da-lbl">Info App · PIMAPOS v3.0.0</div>
       <div class="da-chev">›</div>
     </div>
   </div>
@@ -1017,7 +1027,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
     <div style="text-align:center;padding:8px 0 20px">
       <div class="app-info-logo">🧾</div>
       <div class="app-info-name">PIMAPOS</div>
-      <div class="app-info-version">v2.0.0</div>
+      <div class="app-info-version">v3.0.0</div>
       <div class="app-info-tagline">Bagian dari Ekosistem PIMAPIKA<br>Pitih Masuak Pitih Kalua</div>
       <div class="app-info-grid">
         <div class="app-info-row"><span class="ai-k">Developer</span><span class="ai-v">@arie96s</span></div>
@@ -1025,7 +1035,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
         <div class="app-info-row"><span class="ai-k">Build</span><span class="ai-v">Enterprise · Single File</span></div>
         <div class="app-info-row"><span class="ai-k">Engine</span><span class="ai-v">HTML · CSS · JS</span></div>
       </div>
-      <a class="feedback-pill ripple-container" href="mailto:fajrisalam96@gmail.com?subject=%5BPIMAPOS%20v2.0%5D%20Feedback%20%2F%20Bug%20Report&amp;body=Halo%20Fajri%2C%0A%0ASaya%20ingin%20menyampaikan%20masukan%2Flaporan%20bug%20berikut%3A%0A%0A%0A---%0AVersi%20App%3A%20v2.0.0%0ANama%20Toko%3A%20">
+      <a class="feedback-pill ripple-container" href="mailto:fajrisalam96@gmail.com?subject=%5BPIMAPOS%20v3.0%5D%20Feedback%20%2F%20Bug%20Report&amp;body=Halo%20Fajri%2C%0A%0ASaya%20ingin%20menyampaikan%20masukan%2Flaporan%20bug%20berikut%3A%0A%0A%0A---%0AVersi%20App%3A%20v3.0.0%0ANama%20Toko%3A%20">
         💬 Feedback &amp; Report Bugs
       </a>
     </div>
@@ -1166,6 +1176,51 @@ button,input,select,textarea{font-family:var(--font-sf);}
     </div>
     <div id="catListWrap" style="margin-top:8px"></div>
     <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeCatModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: STOCK OPNAME (SO) ══════════ -->
+<div class="modal-ov" id="soModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Stock Opname (SO)</div>
+    <div style="font-size:12.5px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Cocokkan stok tercatat di sistem dengan hasil hitung fisik di rak/gudang — untuk semua kategori toko sekaligus.</div>
+
+    <div class="cat-scroll" id="soTabScroll"></div>
+
+    <div id="soHitungPanel">
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="soSearch" placeholder="Cari produk…" oninput="renderSOList()">
+      </div>
+      <div class="cat-scroll" id="soCatScroll"></div>
+      <div id="soListWrap"></div>
+      <div class="field" style="margin-top:6px"><label>Catatan SO (opsional)</label><input type="text" id="soNote" placeholder="Mis. Opname mingguan, gudang belakang, dll"></div>
+      <div class="summary-row tot" style="margin-top:4px"><span class="l" id="soFooterCount">0 produk disesuaikan</span><span class="v" id="soFooterDiff">0 unit</span></div>
+      <button class="sbtn ripple-container" onclick="applyStockOpname()">✅ Terapkan Hasil SO</button>
+    </div>
+
+    <div id="soRiwayatPanel" style="display:none">
+      <div id="soRiwayatWrap"></div>
+    </div>
+
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeSOModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: DETAIL RIWAYAT SO ══════════ -->
+<div class="modal-ov" id="soDetailModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Detail Stock Opname</div>
+    <div id="soDetailMeta" style="margin-bottom:10px"></div>
+    <div class="slabel">Produk Disesuaikan</div>
+    <div id="soDetailWrap"></div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeSODetailModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -1649,7 +1704,8 @@ function defState(){
     holds:[],
     tax:{enabled:false,pct:10,label:'PPN'},
     shifts:[],
-    activeShift:null
+    activeShift:null,
+    stockOpnames:[]
   };
 }
 const PIMAPOS_IS_FIRST_RUN=!localStorage.getItem(LSKEY);
@@ -2831,6 +2887,163 @@ function removeCategory(c){
   S.categories=S.categories.filter(x=>x!==c);save();
   renderCatList();renderCategoryChips();
 }
+
+/* ════════════════════════════════════════════════════
+   STOCK OPNAME (SO) — cocokkan stok sistem vs fisik
+   untuk semua kategori produk toko sekaligus
+════════════════════════════════════════════════════ */
+let soActiveCat='Semua',soTab='hitung';
+function openSOModal(){
+  soTab='hitung';soActiveCat='Semua';
+  document.getElementById('soSearch').value='';
+  document.getElementById('soNote').value='';
+  renderSOTabs();renderSOCatChips();renderSOList();renderSORiwayat();
+  document.getElementById('soModal').classList.add('open');
+}
+function closeSOModal(){document.getElementById('soModal').classList.remove('open');}
+function renderSOTabs(){
+  const wrap=document.getElementById('soTabScroll');
+  const tabs=[{k:'hitung',l:'📝 Hitung SO'},{k:'riwayat',l:'🕒 Riwayat SO'}];
+  wrap.innerHTML=tabs.map(t=>`<div class="cat-chip ${soTab===t.k?'active':''}" onclick="setSOTab('${t.k}')">${t.l}</div>`).join('');
+  moveChipCapsule('soTabScroll','soTabCapsule');
+  document.getElementById('soHitungPanel').style.display=soTab==='hitung'?'block':'none';
+  document.getElementById('soRiwayatPanel').style.display=soTab==='riwayat'?'block':'none';
+}
+function setSOTab(k){soTab=k;renderSOTabs();if(k==='riwayat')renderSORiwayat();}
+function renderSOCatChips(){
+  const wrap=document.getElementById('soCatScroll');
+  const cats=['Semua',...S.categories];
+  wrap.innerHTML=cats.map(c=>`<div class="cat-chip ${c===soActiveCat?'active':''}" onclick="setSOCat('${c.replace(/'/g,"\\'")}')">${c}</div>`).join('');
+  moveChipCapsule('soCatScroll','soCatCapsule');
+}
+function setSOCat(c){soActiveCat=c;renderSOCatChips();renderSOList();}
+function renderSOList(){
+  const q=(document.getElementById('soSearch').value||'').toLowerCase();
+  const wrap=document.getElementById('soListWrap');
+  const list=S.products.filter(p=>(soActiveCat==='Semua'||p.cat===soActiveCat)&&p.name.toLowerCase().includes(q));
+  if(S.products.length===0){
+    wrap.innerHTML='<div class="empty-state" style="padding:16px"><div class="empty-desc">Belum ada produk. Tambahkan produk dulu sebelum melakukan Stock Opname.</div></div>';
+    updateSOFooter();return;
+  }
+  if(list.length===0){
+    wrap.innerHTML='<div class="empty-state" style="padding:16px"><div class="empty-desc">Tidak ada produk yang cocok dengan pencarian/filter ini.</div></div>';
+    updateSOFooter();return;
+  }
+  const byCat={};
+  list.forEach(p=>{(byCat[p.cat]=byCat[p.cat]||[]).push(p);});
+  let html='';
+  Object.keys(byCat).forEach(cat=>{
+    html+=`<div class="slabel">${cat}</div>`;
+    byCat[cat].forEach(p=>{
+      const unitTxt=p.unit&&p.unit!=='pcs'?' '+p.unit:'';
+      html+=`<div class="card-list" style="cursor:default">
+        <div class="tx-icon" style="background:rgba(251,191,36,.12);border-radius:50%;color:var(--amber);font-weight:800">${prodLetter(p.name)}</div>
+        <div class="tx-info"><div class="tx-name">${p.name}${p.variant?' <span style="opacity:.6;font-weight:500">('+p.variant+')</span>':''}</div><div class="tx-cat">Sistem: ${p.stock}${unitTxt}</div></div>
+        <input type="number" class="so-input" data-id="${p.id}" data-orig="${p.stock}" value="${p.stock}" oninput="soRowInput(this)">
+        <div class="so-diff zero" id="soDiff_${p.id}">0</div>
+      </div>`;
+    });
+  });
+  wrap.innerHTML=html;
+  updateSOFooter();
+}
+function soRowInput(el){
+  const orig=Number(el.dataset.orig);
+  const val=el.value===''?orig:Number(el.value);
+  const diff=val-orig;
+  const badge=document.getElementById('soDiff_'+el.dataset.id);
+  if(badge){
+    badge.textContent=(diff>0?'+':'')+diff;
+    badge.className='so-diff '+(diff>0?'pos':diff<0?'neg':'zero');
+  }
+  updateSOFooter();
+}
+function updateSOFooter(){
+  const inputs=document.querySelectorAll('#soListWrap .so-input');
+  let count=0,totalDiff=0;
+  inputs.forEach(el=>{
+    const orig=Number(el.dataset.orig);
+    const val=el.value===''?orig:Number(el.value);
+    if(val!==orig){count++;totalDiff+=(val-orig);}
+  });
+  const cEl=document.getElementById('soFooterCount');
+  const dEl=document.getElementById('soFooterDiff');
+  if(cEl)cEl.textContent=count+' produk disesuaikan';
+  if(dEl){
+    dEl.textContent=(totalDiff>0?'+':'')+totalDiff+' unit';
+    dEl.style.color=totalDiff>0?'var(--green)':totalDiff<0?'var(--red)':'var(--t2)';
+  }
+}
+function applyStockOpname(){
+  const inputs=document.querySelectorAll('#soListWrap .so-input');
+  const changed=[];
+  inputs.forEach(el=>{
+    const p=S.products.find(x=>x.id===el.dataset.id);
+    if(!p)return;
+    const orig=Number(el.dataset.orig);
+    const val=el.value===''?orig:Number(el.value);
+    if(val!==orig){
+      changed.push({productId:p.id,name:p.name,cat:p.cat,unit:p.unit||'pcs',before:orig,after:val,diff:val-orig});
+    }
+  });
+  if(changed.length===0){toast('⚠️ Tidak ada perubahan stok untuk disimpan');return;}
+  const totalDiff=changed.reduce((s,c)=>s+c.diff,0);
+  appConfirm(`Terapkan hasil SO untuk ${changed.length} produk (selisih total ${totalDiff>0?'+':''}${totalDiff} unit)? Stok sistem akan diperbarui sesuai hasil hitung fisik.`,()=>{
+    changed.forEach(c=>{
+      const p=S.products.find(x=>x.id===c.productId);
+      if(p)p.stock=c.after;
+    });
+    const note=(document.getElementById('soNote').value||'').trim();
+    S.stockOpnames=S.stockOpnames||[];
+    S.stockOpnames.unshift({id:uid(),date:new Date().toISOString(),note,items:changed,totalDiff,totalItems:changed.length});
+    save();
+    document.getElementById('soNote').value='';
+    renderProductList();renderProducts();renderSOList();renderSORiwayat();
+    toast('✅ Hasil Stock Opname diterapkan');
+  },'📋 Terapkan Stock Opname');
+}
+function renderSORiwayat(){
+  const wrap=document.getElementById('soRiwayatWrap');
+  const logs=S.stockOpnames||[];
+  if(logs.length===0){
+    wrap.innerHTML='<div class="empty-state" style="padding:16px"><div class="empty-icon">📋</div><div class="empty-title">Belum Ada Riwayat SO</div><div class="empty-desc">Hasil Stock Opname yang diterapkan akan tercatat di sini.</div></div>';
+    return;
+  }
+  wrap.innerHTML=logs.map(l=>{
+    const d=new Date(l.date);
+    const dateLbl=d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    const diffColor=l.totalDiff>0?'var(--green)':l.totalDiff<0?'var(--red)':'var(--t2)';
+    return `<div class="card-list ripple-container" onclick="openSODetail('${l.id}')">
+      <div class="tx-icon" style="background:rgba(251,191,36,.12);border-radius:50%;color:var(--amber);font-weight:800">📋</div>
+      <div class="tx-info"><div class="tx-name">${dateLbl}</div><div class="tx-cat">${l.totalItems} produk disesuaikan${l.note?' · '+l.note:''}</div></div>
+      <div class="tx-amt" style="color:${diffColor}">${l.totalDiff>0?'+':''}${l.totalDiff}</div>
+    </div>`;
+  }).join('');
+  initRipples();
+}
+function openSODetail(id){
+  const l=(S.stockOpnames||[]).find(x=>x.id===id);
+  if(!l)return;
+  const d=new Date(l.date);
+  const dateLbl=d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+' · '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  const diffColor=l.totalDiff>0?'var(--green)':l.totalDiff<0?'var(--red)':'var(--t2)';
+  document.getElementById('soDetailMeta').innerHTML=`
+    <div class="summary-row"><span class="l">Tanggal</span><span class="v">${dateLbl}</span></div>
+    <div class="summary-row"><span class="l">Produk Disesuaikan</span><span class="v">${l.totalItems}</span></div>
+    ${l.note?`<div class="summary-row"><span class="l">Catatan</span><span class="v">${l.note}</span></div>`:''}
+    <div class="summary-row tot"><span class="l">Total Selisih</span><span class="v" style="color:${diffColor}">${l.totalDiff>0?'+':''}${l.totalDiff}</span></div>`;
+  document.getElementById('soDetailWrap').innerHTML=l.items.map(it=>{
+    const dc=it.diff>0?'var(--green)':it.diff<0?'var(--red)':'var(--t2)';
+    const unitTxt=it.unit&&it.unit!=='pcs'?' '+it.unit:'';
+    return `<div class="card-list" style="cursor:default">
+      <div class="tx-icon" style="background:rgba(251,191,36,.12);border-radius:50%;color:var(--amber);font-weight:800">${prodLetter(it.name)}</div>
+      <div class="tx-info"><div class="tx-name">${it.name}</div><div class="tx-cat">${it.cat} · ${it.before}${unitTxt} → ${it.after}${unitTxt}</div></div>
+      <div class="tx-amt" style="color:${dc}">${it.diff>0?'+':''}${it.diff}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('soDetailModal').classList.add('open');
+}
+function closeSODetailModal(){document.getElementById('soDetailModal').classList.remove('open');}
 
 /* ════════════════════════════════════════════════════
    RIWAYAT PAGE
