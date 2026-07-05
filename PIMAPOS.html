@@ -173,6 +173,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .ph{padding:18px 0 14px;display:flex;justify-content:space-between;align-items:flex-end}
 .ph-left h1{font-size:23px;font-weight:800;letter-spacing:-.4px}
 .ph-left p{font-size:12.5px;color:var(--t3);margin-top:2px}
+.kasir-clock{font-size:11px;color:var(--t3);opacity:.75;margin-top:3px;font-weight:600;letter-spacing:.01em;font-variant-numeric:tabular-nums}
 .ph-right{display:flex;gap:8px}
 .icon-btn{width:38px;height:38px;border-radius:var(--rmd);background:var(--glass);border:1px solid var(--gb);backdrop-filter:var(--gblur);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t1);-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring)}
 .icon-btn:active{transform:scale(.9)}
@@ -597,6 +598,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="ph-left">
       <h1>PIMAPOS</h1>
       <p id="kasirGreet">Siap melayani pelanggan</p>
+      <p class="kasir-clock" id="kasirClock"></p>
     </div>
     <div class="ph-right">
       <div class="icon-btn ripple-container" onclick="openCustomerModal()" title="Pelanggan">
@@ -2013,6 +2015,14 @@ function greetTime(){
   if(h<15)return 'Selamat siang! Siap melayani pelanggan';
   if(h<19)return 'Selamat sore! Siap melayani pelanggan';
   return 'Selamat malam! Siap melayani pelanggan 🌙';
+}
+function updateKasirClock(){
+  const el=document.getElementById('kasirClock');
+  if(!el)return;
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const timeStr=now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  el.textContent=`${dateStr} · ${timeStr}`;
 }
 
 /* ════════════════════════════════════════════════════
@@ -4594,6 +4604,8 @@ function removeSplash(onDone){
 ════════════════════════════════════════════════════ */
 initTheme();
 document.getElementById('kasirGreet').textContent=greetTime();
+updateKasirClock();
+setInterval(updateKasirClock,30000);
 populateCatSelect();
 renderCategoryChips();
 renderProducts();
