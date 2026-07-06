@@ -12,6 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] jsPDF gagal dimuat')"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Chart.js gagal dimuat — grafik laporan tidak akan tampil')"></script>
 <script src="https://accounts.google.com/gsi/client" async defer onerror="console.warn('[PIMAPOS] Google Identity Services gagal dimuat — Cloud Backup tidak akan tersedia')"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Modul QR code gagal dimuat — QR toko tidak akan tampil')"></script>
 <style>
 :root {
   --bg0:#020817; --bg1:#050f24; --bg2:#071330;
@@ -428,15 +429,20 @@ button,input,select,textarea{font-family:var(--font-sf);}
 /* ══════════════════════════════════════════════════════
    SOCIAL MEDIA TABS + QR
 ══════════════════════════════════════════════════════ */
-.soc-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;position:relative}
-.soc-chip{position:relative;z-index:1;flex-shrink:0;padding:9px 14px;border-radius:var(--rpill);font-size:12px;font-weight:600;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:var(--t2);cursor:pointer;transition:color .25s var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
-.soc-chip.active{border-color:transparent;color:#fff}
+.soc-accordion-item{border-radius:var(--rmd);background:rgba(255,255,255,.035);border:1px solid var(--gb);margin-bottom:8px;overflow:hidden}
+.soc-accordion-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.soc-accordion-title{font-size:13px;font-weight:700;color:var(--t1)}
+.soc-accordion-val{font-weight:500;color:var(--t3);font-size:11.5px}
+.soc-accordion-chev{transition:transform .25s var(--ease);color:var(--t3);flex-shrink:0}
+.soc-accordion-chev.open{transform:rotate(90deg)}
+.soc-accordion-body{max-height:0;overflow:hidden;transition:max-height .3s var(--ease);padding:0 14px}
+.soc-accordion-body.open{max-height:600px;padding:0 14px 14px}
 .qr-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px;border-radius:var(--rlg);background:#fff;margin-bottom:12px}
 .receipt-logo-row{display:flex;gap:14px;align-items:center;margin-bottom:8px}
 .receipt-logo-preview{width:64px;height:64px;border-radius:var(--rmd);background:rgba(255,255,255,.05);border:1px dashed var(--gb-hi);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-size:24px}
 .receipt-logo-preview img{width:100%;height:100%;object-fit:contain;background:#fff}
-.qr-wrap img{width:160px;height:160px;border-radius:8px;display:block}
-.qr-empty{width:160px;height:160px;border-radius:8px;background:rgba(0,0,0,.04);display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;text-align:center;padding:10px}
+.qr-wrap img{width:100%;max-width:220px;height:auto;aspect-ratio:1/1;border-radius:8px;display:block}
+.qr-empty{width:100%;max-width:220px;aspect-ratio:1/1;border-radius:8px;background:rgba(0,0,0,.04);display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;text-align:center;padding:10px}
 .qr-label{font-size:12px;font-weight:700;color:#222}
 
 /* ══════════════════════════════════════════════════════
@@ -519,7 +525,6 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .da-row-flat:first-child{padding-top:0}
 .da-row-flat:active{opacity:.6}
 .da-row-flat.danger .da-lbl{color:var(--red)}
-.psec .soc-scroll{margin-bottom:12px}
 .psec hr.psec-div{border:none;border-top:1px solid rgba(255,255,255,.07);margin:14px 0}
 .theme-preset-scroll{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px}
 .color-ball-row{display:flex;gap:22px;justify-content:center;margin:8px 0 4px}
@@ -1040,21 +1045,27 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <input type="file" id="receiptLogoFileInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleReceiptLogoUpload(event)">
     <div class="scan-hint" style="margin-top:8px;text-align:left;line-height:1.6">📐 <b>Ketentuan ukuran:</b> disarankan persegi 300×300px atau landscape 300×150px, format PNG latar putih/transparan, gambar hitam-putih kontras tinggi (bukan foto berwarna) agar tetap jelas saat dicetak di printer thermal. Jika logo diisi, struk akan menampilkan logo ini menggantikan tulisan nama toko di bagian atas.</div>
 
-    <div class="slabel">Media Sosial & QR Toko</div>
-    <div class="soc-scroll" id="socScroll"></div>
-    <div class="field" style="margin-bottom:10px">
-      <label id="socFieldLabel">Username / Tautan</label>
-      <input type="text" id="socValue" placeholder="@namatoko atau https://…" oninput="renderSocialQR()">
+    <div class="slabel" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Media Sosial & QR Toko</span>
+      <button class="icon-btn ripple-container" style="width:30px;height:30px" onclick="openAddSocialMenu()" title="Tambah Platform">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+      </button>
     </div>
-    <div class="qr-wrap" id="qrWrap">
-      <div class="qr-empty" id="qrImgEmpty">Isi data untuk menampilkan QR</div>
-      <img id="qrImg" style="display:none" alt="QR Code">
-      <div class="qr-label" id="qrLabel"></div>
-    </div>
-    <button class="sbtn ripple-container" onclick="saveSocial()">Simpan</button>
-    <button class="sbtn ghost ripple-container" style="margin-top:8px" id="qrDownloadBtn" onclick="downloadQR()">⬇️ Unduh QR Code</button>
-    <div class="scan-hint" style="margin-top:10px;text-align:center">Akun yang diisi & QR otomatis tampil rapi di struk transaksi.</div>
+    <div id="socAccordionList"></div>
+    <div class="scan-hint" style="margin-top:10px;text-align:center">Akun yang diisi & QR otomatis tampil rapi di struk transaksi — QR dibuat langsung di perangkat, tidak butuh internet.</div>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeSocialModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: PILIH PLATFORM MEDIA SOSIAL ══════════ -->
+<div class="modal-ov" id="addSocialMenuModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Pilih Platform</div>
+    <div id="addSocialMenuList"></div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeAddSocialMenu()">Tutup</button>
     </div>
   </div>
 </div>
@@ -2221,7 +2232,6 @@ let cart=[]; // {id,name,emoji,price,qty}
 let selectedCustomer=null; // {id,name,phone,...} | null = guest
 let activeCat='Semua';
 let selectedPM='Tunai';
-let activeSocialTab=SOCIAL_PLATFORMS[0].k;
 let qtyPadProduct=null,qtyPadVal=1;
 let riwayatPeriod='hari';
 
@@ -2535,7 +2545,7 @@ function buildThemePalette(c){
 const THEME_DYNAMIC_VARS=['--bg0','--bg1','--bg2','--orb1','--orb2','--orb3','--grad','--grad-gold','--amber','--accent-shadow-rgb','--accent-tint-rgb','--modal-bg','--t1','--t2','--t3','--t4','--glass','--glass-h','--gb','--gb-hi'];
 /* ── Profil modal openers ── */
 function openSocialModal(){
-  renderSocialTabs();
+  renderSocialAccordionList();
   renderReceiptLogoPreview();
   document.getElementById('socialModal').classList.add('open');
 }
@@ -3357,21 +3367,7 @@ function completeTransaction(){
 }
 let lastReceiptTrx=null;
 function filledSocials(){
-  return SOCIAL_PLATFORMS.map(p=>({...p,val:(S.socials||{})[p.k],url:socialUrlForStored(p.k,(S.socials||{})[p.k])})).filter(s=>s.val);
-}
-function socialUrlForStored(key,val){
-  if(!val)return '';
-  if(key==='whatsapp'){
-    const num=val.replace(/[^0-9]/g,'');
-    return num?`https://wa.me/${num}`:'';
-  }
-  if(/^https?:\/\//i.test(val))return val;
-  const baseMap={instagram:'https://instagram.com/',tiktok:'https://tiktok.com/@',facebook:'https://facebook.com/',shopee:'https://shopee.co.id/',tokopedia:'https://tokopedia.com/',website:'https://'};
-  const handle=val.replace(/^@/,'');
-  return (baseMap[key]||'')+handle;
-}
-function receiptQrUrl(data,size){
-  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&margin=6&data=${encodeURIComponent(data)}`;
+  return SOCIAL_PLATFORMS.map(p=>({...p,val:(S.socials||{})[p.k],url:socialLinkFor(p.k,(S.socials||{})[p.k])})).filter(s=>s.val);
 }
 function showReceipt(trx){
   lastReceiptTrx=trx;
@@ -3422,10 +3418,13 @@ function showReceipt(trx){
     });
     const primary=socs[0];
     if(primary.url){
-      lines.push(`<div class="receipt-qr-wrap">
-        <img src="${receiptQrUrl(primary.url,150)}" alt="QR" style="width:84px;height:84px" onerror="this.parentElement.style.display='none'">
-        <div style="font-size:8.5px;letter-spacing:.1em;color:#333;margin-top:4px">SCAN ${primary.l.toUpperCase()}</div>
-      </div>`);
+      const qrLocal=qrDataUrl(primary.url,150);
+      if(qrLocal){
+        lines.push(`<div class="receipt-qr-wrap">
+          <img src="${qrLocal}" alt="QR" style="width:84px;height:84px">
+          <div style="font-size:8.5px;letter-spacing:.1em;color:#333;margin-top:4px">SCAN ${primary.l.toUpperCase()}</div>
+        </div>`);
+      }
     }
   }
   lines.push(`<div class="receipt-center" style="margin-top:10px;font-size:9px;opacity:.55">${S.storeName||'Toko Saya'}</div>`);
@@ -3677,9 +3676,8 @@ async function downloadReceiptPDF(){
     y+=1;
     if(hasQr){
       try{
-        const resp=await fetch(receiptQrUrl(socs[0].url,300));
-        const blob=await resp.blob();
-        const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(blob);});
+        const dataUrl=qrDataUrl(socs[0].url,300);
+        if(!dataUrl)throw new Error('modul QR belum siap');
         const qSize=26;
         doc.setFillColor(255,255,255);doc.rect(cx-qSize/2-2,y,qSize+4,qSize+8,'F');
         doc.addImage(dataUrl,'PNG',cx-qSize/2,y+2,qSize,qSize);y+=qSize+6;
@@ -5349,72 +5347,146 @@ function saveStore(){
 /* ════════════════════════════════════════════════════
    MEDIA SOSIAL & QR CODE TOKO
 ════════════════════════════════════════════════════ */
-function renderSocialTabs(){
-  const wrap=document.getElementById('socScroll');
-  wrap.innerHTML=SOCIAL_PLATFORMS.map(p=>
-    `<div class="soc-chip ${activeSocialTab===p.k?'active':''}" data-soc="${p.k}" onclick="setActiveSocialTab('${p.k}')"><span>${p.ic}</span>${p.l}</div>`).join('');
-  moveChipCapsule('socScroll','socCapsule');
-  document.getElementById('socValue').value=S.socials[activeSocialTab]||'';
-  const cur=SOCIAL_PLATFORMS.find(p=>p.k===activeSocialTab);
-  document.getElementById('socFieldLabel').textContent=`Username / Tautan ${cur?cur.l:''}`;
-  renderSocialQR();
+/* ════════════════════════════════════════════════════
+   QR CODE — dibuat 100% di perangkat (client-side),
+   tidak lagi bergantung ke API pihak ketiga (qrserver.com)
+   supaya tetap akurat saat discan & tetap jalan offline.
+════════════════════════════════════════════════════ */
+function renderQrToCanvas(text,sizePx){
+  if(typeof qrcode==='undefined'||!text)return null;
+  try{
+    const qr=qrcode(0,'M');
+    qr.addData(text);
+    qr.make();
+    const count=qr.getModuleCount();
+    const canvas=document.createElement('canvas');
+    canvas.width=sizePx;canvas.height=sizePx;
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#ffffff';ctx.fillRect(0,0,sizePx,sizePx);
+    const cell=sizePx/count;
+    ctx.fillStyle='#000000';
+    for(let r=0;r<count;r++){
+      for(let c=0;c<count;c++){
+        if(qr.isDark(r,c))ctx.fillRect(Math.round(c*cell),Math.round(r*cell),Math.ceil(cell),Math.ceil(cell));
+      }
+    }
+    return canvas;
+  }catch(e){
+    console.warn('[PIMAPOS] Gagal membuat QR code:',e);
+    return null;
+  }
 }
-function setActiveSocialTab(k){
-  activeSocialTab=k;
-  document.querySelectorAll('#socScroll .soc-chip').forEach(el=>el.classList.toggle('active',el.dataset.soc===k));
-  moveChipCapsule('socScroll','socCapsule');
-  document.getElementById('socValue').value=S.socials[activeSocialTab]||'';
-  const cur=SOCIAL_PLATFORMS.find(p=>p.k===activeSocialTab);
-  document.getElementById('socFieldLabel').textContent=`Username / Tautan ${cur?cur.l:''}`;
-  renderSocialQR();
+function qrDataUrl(text,sizePx){
+  const canvas=renderQrToCanvas(text,sizePx||300);
+  return canvas?canvas.toDataURL('image/png'):null;
 }
-function socialQrData(){
-  const val=(document.getElementById('socValue').value||'').trim();
+
+/* ════════════════════════════════════════════════════
+   MEDIA SOSIAL & QR TOKO — daftar akordion per platform.
+   Ketuk ⋯ untuk memilih platform (tanpa ikon, nama saja),
+   lalu isi datanya langsung di dalam akordion tersebut.
+════════════════════════════════════════════════════ */
+let openSocialAccordions=new Set();
+function openAddSocialMenu(){
+  document.getElementById('addSocialMenuList').innerHTML=SOCIAL_PLATFORMS.map(p=>`
+    <div class="da-row-flat ripple-container" onclick="selectSocialAccordion('${p.k}')">
+      <div class="da-lbl">${p.l}</div>
+      <div class="da-chev">›</div>
+    </div>`).join('');
+  document.getElementById('addSocialMenuModal').classList.add('open');
+}
+function closeAddSocialMenu(){document.getElementById('addSocialMenuModal').classList.remove('open');}
+function selectSocialAccordion(key){
+  closeAddSocialMenu();
+  openSocialAccordions.add(key);
+  renderSocialAccordionList();
+}
+function toggleSocialAccordion(key){
+  if(openSocialAccordions.has(key))openSocialAccordions.delete(key);
+  else openSocialAccordions.add(key);
+  renderSocialAccordionList();
+}
+function socialLinkFor(key,val){
+  val=(val||'').trim();
   if(!val)return '';
-  if(activeSocialTab==='whatsapp'){
+  if(key==='whatsapp'){
     const num=val.replace(/[^0-9]/g,'');
     return num?`https://wa.me/${num}`:'';
   }
   if(/^https?:\/\//i.test(val))return val;
   const baseMap={instagram:'https://instagram.com/',tiktok:'https://tiktok.com/@',facebook:'https://facebook.com/',shopee:'https://shopee.co.id/',tokopedia:'https://tokopedia.com/',website:'https://'};
   const handle=val.replace(/^@/,'');
-  return (baseMap[activeSocialTab]||'')+handle;
+  return (baseMap[key]||'')+handle;
 }
-function renderSocialQR(){
-  const data=socialQrData();
-  const img=document.getElementById('qrImg');
-  const empty=document.getElementById('qrImgEmpty');
-  const lbl=document.getElementById('qrLabel');
-  const cur=SOCIAL_PLATFORMS.find(p=>p.k===activeSocialTab);
-  if(!data){
-    img.style.display='none';empty.style.display='flex';lbl.textContent='';
+function renderSocialAccordionList(){
+  const wrap=document.getElementById('socAccordionList');
+  const keysToShow=SOCIAL_PLATFORMS.filter(p=>S.socials[p.k]||openSocialAccordions.has(p.k));
+  if(keysToShow.length===0){
+    wrap.innerHTML='<div class="empty-state" style="padding:16px"><div class="empty-desc">Belum ada akun ditambahkan. Ketuk ⋯ untuk menambahkan platform.</div></div>';
     return;
   }
-  img.src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=8&data=${encodeURIComponent(data)}`;
-  img.style.display='block';empty.style.display='none';
-  lbl.textContent=`${cur?cur.ic+' '+cur.l:''} · ${S.storeName||'Toko'}`;
+  wrap.innerHTML=keysToShow.map(p=>{
+    const isOpen=openSocialAccordions.has(p.k);
+    const val=S.socials[p.k]||'';
+    const safeVal=val.replace(/"/g,'&quot;');
+    return `<div class="soc-accordion-item">
+      <div class="soc-accordion-header ripple-container" onclick="toggleSocialAccordion('${p.k}')">
+        <div class="soc-accordion-title">${p.l}${val?` <span class="soc-accordion-val">· ${val}</span>`:''}</div>
+        <div class="soc-accordion-chev ${isOpen?'open':''}">›</div>
+      </div>
+      <div class="soc-accordion-body ${isOpen?'open':''}" id="socAccBody_${p.k}">
+        <div class="field" style="margin-top:10px"><label>Username / Tautan ${p.l}</label>
+          <input type="text" id="socInput_${p.k}" value="${safeVal}" placeholder="@namatoko atau https://…" oninput="updateSocialAccordionQR('${p.k}')">
+        </div>
+        <div class="qr-wrap" id="qrWrap_${p.k}"></div>
+        <div class="btn-row" style="margin-top:8px">
+          <button class="sbtn ripple-container" onclick="saveSocialAccordion('${p.k}')">Simpan</button>
+          <button class="sbtn ghost ripple-container" onclick="downloadSocialQR('${p.k}')">⬇️ Unduh QR</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  initRipples();
+  keysToShow.forEach(p=>{if(openSocialAccordions.has(p.k))renderAccordionQR(p.k);});
 }
-function saveSocial(){
-  S.socials[activeSocialTab]=(document.getElementById('socValue').value||'').trim();
-  save();toast('✅ Akun sosial disimpan');
-  renderSocialQR();
+function renderAccordionQR(key){
+  const input=document.getElementById('socInput_'+key);
+  const wrap=document.getElementById('qrWrap_'+key);
+  if(!input||!wrap)return;
+  const data=socialLinkFor(key,input.value);
+  const p=SOCIAL_PLATFORMS.find(x=>x.k===key);
+  if(!data){
+    wrap.innerHTML='<div class="qr-empty">Isi data untuk menampilkan QR</div>';
+    return;
+  }
+  const url=qrDataUrl(data,260);
+  if(!url){
+    wrap.innerHTML='<div class="qr-empty">⚠️ Modul QR belum siap, coba lagi sesaat</div>';
+    return;
+  }
+  wrap.innerHTML=`<img src="${url}" alt="QR Code" style="width:100%;max-width:220px"><div class="qr-label">${p?p.ic+' '+p.l:''} · ${S.storeName||'Toko'}</div>`;
 }
-function downloadQR(){
-  const data=socialQrData();
+function updateSocialAccordionQR(key){renderAccordionQR(key);}
+function saveSocialAccordion(key){
+  const input=document.getElementById('socInput_'+key);
+  if(!input)return;
+  S.socials[key]=input.value.trim();
+  save();
+  toast('✅ Akun sosial disimpan');
+  renderAccordionQR(key);
+}
+function downloadSocialQR(key){
+  const input=document.getElementById('socInput_'+key);
+  const data=input?socialLinkFor(key,input.value):'';
   if(!data){toast('⚠️ Isi data akun terlebih dahulu');return;}
-  const url=`https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=${encodeURIComponent(data)}`;
-  const cur=SOCIAL_PLATFORMS.find(p=>p.k===activeSocialTab);
-  fetch(url).then(r=>r.blob()).then(blob=>{
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`QR_${S.storeName||'Toko'}_${cur?cur.k:'sosial'}.png`;
-    a.click();URL.revokeObjectURL(a.href);
-    toast('⬇️ QR Code diunduh!');
-  }).catch(()=>{
-    // fallback: open in new tab if fetch blocked (CORS)
-    window.open(url,'_blank');
-    toast('QR dibuka di tab baru, simpan gambar secara manual');
-  });
+  const url=qrDataUrl(data,720);
+  if(!url){toast('⚠️ Modul QR belum siap, coba lagi sesaat');return;}
+  const p=SOCIAL_PLATFORMS.find(x=>x.k===key);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`QR_${S.storeName||'Toko'}_${p?p.k:'sosial'}.png`;
+  a.click();
+  toast('⬇️ QR Code diunduh!');
 }
 
 
