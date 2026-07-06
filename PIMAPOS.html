@@ -345,6 +345,9 @@ button,input,select,textarea{font-family:var(--font-sf);}
 @keyframes bannerPulseDot{0%{box-shadow:0 0 0 0 rgba(248,113,113,.65)}70%{box-shadow:0 0 0 11px rgba(248,113,113,0)}100%{box-shadow:0 0 0 0 rgba(248,113,113,0)}}
 @keyframes bannerPulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(248,113,113,0)}50%{box-shadow:0 0 24px 3px rgba(248,113,113,.3)}}
 @keyframes warnShake{0%,100%{transform:translateX(-50%) scale(1)}15%{transform:translateX(calc(-50% - 8px)) scale(1)}30%{transform:translateX(calc(-50% + 8px)) scale(1)}45%{transform:translateX(calc(-50% - 5px)) scale(1)}60%{transform:translateX(calc(-50% + 5px)) scale(1)}75%{transform:translateX(calc(-50% - 2px)) scale(1)}}
+@keyframes shakeX{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}30%{transform:translateX(8px)}45%{transform:translateX(-5px)}60%{transform:translateX(5px)}75%{transform:translateX(-2px)}}
+.shake-danger{animation:shakeX .4s}
+.pin-lock-box{padding:14px 16px;border-radius:var(--rlg);background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);text-align:center;margin-bottom:14px}
 /* ── HOLD FLOAT CAPSULE ─────────────────────────────────
    TWO-ELEMENT APPROACH: pill fades out at center-bottom,
    dot springs in at bottom-right. Each element has simple
@@ -946,6 +949,11 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="da-lbl">Log Aktivitas</div>
       <div class="da-chev">›</div>
     </div>
+    <div class="da-row-flat ripple-container" onclick="openActionPinSetupModal()">
+      <div class="da-ico">🔐</div>
+      <div class="da-lbl">PIN Keamanan Transaksi</div>
+      <div class="da-chev">›</div>
+    </div>
   </div>
 
   <div class="psec">
@@ -1191,7 +1199,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="summary-row"><span class="l">Diskon</span><span class="v" id="cartDiskonVal" style="color:var(--red)">-Rp 0</span></div>
       <div class="summary-row" id="cartTaxRow" style="display:none"><span class="l" id="cartTaxLbl">Pajak</span><span class="v" id="cartTaxVal">Rp 0</span></div>
       <div class="summary-row tot"><span class="l">Total</span><span class="v" id="cartTotal">Rp 0</span></div>
-      <button class="sbtn ripple-container" style="margin-top:14px" onclick="openPaymentModal()">Lanjut ke Pembayaran</button>
+      <button class="sbtn ripple-container" style="margin-top:14px" onclick="proceedToPayment()">Lanjut ke Pembayaran</button>
       <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeCartModal()">Tutup</button>
     </div>
     </div>
@@ -1739,6 +1747,67 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   </div>
 </div>
 
+<!-- ══════════ MODAL: PIN KEAMANAN TRANSAKSI — SETUP ══════════ -->
+<div class="modal-ov" id="actionPinSetupModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔐 PIN Keamanan Transaksi</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:16px;line-height:1.6">PIN terpisah (SHA-256) yang diminta khusus untuk aksi sensitif: <b>Diskon</b>, <b>Batalkan Transaksi</b>, dan <b>Retur/Refund</b>. Hanya Kasir/Owner yang tahu PIN ini yang bisa melanjutkan.</div>
+    <div class="toggle-row">
+      <div>
+        <div style="font-size:13.5px;font-weight:600">Aktifkan PIN Keamanan</div>
+        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Wajib diisi setiap transaksi sensitif</div>
+      </div>
+      <div class="switch" id="actionPinToggle" onclick="toggleActionPin()"><div class="switch-knob"></div></div>
+    </div>
+    <div id="actionPinChangeRow" class="da-row-flat ripple-container" style="display:none" onclick="openSetActionPinModal(false)">
+      <div class="da-ico">🔑</div><div class="da-lbl">Ubah PIN Keamanan Transaksi</div><div class="da-chev">›</div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeActionPinSetupModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: ATUR/UBAH PIN KEAMANAN TRANSAKSI ══════════ -->
+<div class="modal-ov" id="setActionPinModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔑 Atur PIN Keamanan Transaksi</div>
+    <div class="field"><label>PIN Baru (6 digit angka)</label><input type="password" id="newActionPinVal" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••"></div>
+    <div class="field"><label>Konfirmasi PIN</label><input type="password" id="confirmActionPinVal" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••"></div>
+    <button class="sbtn ripple-container" onclick="saveNewActionPin()">Simpan PIN</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeSetActionPinModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: VERIFIKASI PIN KEAMANAN (dipicu saat Diskon/Batal/Retur) ══════════ -->
+<div class="modal-ov" id="actionPinVerifyModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div id="actionPinVerifyNormal">
+      <div class="modal-title">🔐 Verifikasi PIN Keamanan</div>
+      <div style="font-size:12.5px;color:var(--t3);text-align:center;margin-bottom:16px;line-height:1.6" id="actionPinVerifyDesc">Masukkan PIN Keamanan Transaksi untuk melanjutkan.</div>
+      <div class="field"><label>PIN Keamanan</label><input type="password" id="actionPinVerifyVal" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" onkeydown="if(event.key==='Enter')confirmActionPinVerify()"></div>
+      <div id="actionPinVerifyErr" style="font-size:11.5px;color:var(--red);text-align:center;margin-bottom:4px;min-height:14px;font-weight:600"></div>
+      <button class="sbtn ripple-container" onclick="confirmActionPinVerify()">Lanjutkan</button>
+      <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeActionPinVerifyModal()">Batal</button>
+    </div>
+    <div id="actionPinVerifyLocked" style="display:none">
+      <div class="pin-lock-box">
+        <div style="font-size:42px;margin-bottom:8px">⛔</div>
+        <div style="font-size:15px;font-weight:800;color:var(--red);margin-bottom:8px">Akses Diblokir Sementara</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">PIN salah dimasukkan 3 kali berturut-turut. Untuk keamanan, coba lagi dalam <b id="actionPinLockCountdown" style="color:var(--red)">5:00</b> menit, atau minta Owner untuk membantu.</div>
+      </div>
+      <button class="sbtn ghost ripple-container" onclick="closeActionPinVerifyModal()">Tutup</button>
+    </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ MODAL: BOD REMINDER (pengingat sebelum buka kasir) ══════════ -->
 <div class="modal-ov" id="bodReminderModal">
   <div class="modal-sheet">
@@ -2098,7 +2167,7 @@ function defState(){
     storeCategory:'F&B',
     storeLogo:'',
     receiptLogo:'',
-    security:{pinEnabled:false,pinHash:''},
+    security:{pinEnabled:false,pinHash:'',actionPinEnabled:false,actionPinHash:'',actionPinFailCount:0,actionPinLockedUntil:null},
     notif:{enabled:false},
     socials:{whatsapp:'',instagram:'',tiktok:'',facebook:'',shopee:'',tokopedia:'',website:''},
     theme:'dark',
@@ -3135,6 +3204,14 @@ function closeQtyModal(){document.getElementById('qtyModal').classList.remove('o
 /* ════════════════════════════════════════════════════
    PAYMENT
 ════════════════════════════════════════════════════ */
+function proceedToPayment(){
+  const disk=Number(document.getElementById('cartDiskon')?.value||0);
+  if(disk>0){
+    requireActionPin('Memberi Diskon Rp'+rpNum(disk),()=>openPaymentModal());
+  }else{
+    openPaymentModal();
+  }
+}
 function openPaymentModal(){
   closeCartModal();
   selectedPM='Tunai';
@@ -3365,6 +3442,11 @@ function voidTransaction(){
   const trx=S.transactions.find(t=>t.id===lastReceiptTrx.id);
   if(!trx){toast('⚠️ Transaksi tidak ditemukan');return;}
   if(trx.voided){toast('Transaksi ini sudah dibatalkan sebelumnya');return;}
+  requireActionPin('Batalkan Transaksi',()=>doVoidTransaction());
+}
+function doVoidTransaction(){
+  const trx=S.transactions.find(t=>t.id===lastReceiptTrx.id);
+  if(!trx){toast('⚠️ Transaksi tidak ditemukan');return;}
   appConfirm('Batalkan transaksi ini? Stok produk akan dikembalikan otomatis dan omzet tidak lagi dihitung. Tindakan ini tidak bisa dibatalkan.',()=>{
     trx.voided=true;
     trx.voidedAt=new Date().toISOString();
@@ -3398,6 +3480,9 @@ function openReturModal(){
   const trx=S.transactions.find(t=>t.id===lastReceiptTrx.id);
   if(!trx){toast('⚠️ Transaksi tidak ditemukan');return;}
   if(trx.voided){toast('⚠️ Transaksi ini sudah dibatalkan penuh');return;}
+  requireActionPin('Retur / Refund Item',()=>doOpenReturModal(trx));
+}
+function doOpenReturModal(trx){
   returQtyMap={};returCondMap={};
   document.getElementById('returReason').value='';
   document.getElementById('returMethod').value='Tunai';
@@ -4876,6 +4961,146 @@ function compressImageToMaxSize(file,maxBytes){
 async function sha256Hex(text){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ════════════════════════════════════════════════════
+   PIN KEAMANAN TRANSAKSI — proteksi SHA-256 terpisah
+   dari PIN kunci aplikasi. Khusus aksi sensitif: Diskon,
+   Batalkan Transaksi, Retur/Refund. Maks 3x percobaan
+   salah lalu terkunci sementara agar aman dari coba-coba.
+════════════════════════════════════════════════════ */
+const ACTION_PIN_MAX_ATTEMPTS=3;
+const ACTION_PIN_LOCK_MS=5*60*1000;
+let _pendingActionPinCallback=null;
+let _actionPinLockTimer=null;
+function openActionPinSetupModal(){
+  document.getElementById('actionPinToggle').classList.toggle('active',!!S.security.actionPinEnabled);
+  document.getElementById('actionPinChangeRow').style.display=S.security.actionPinEnabled?'flex':'none';
+  document.getElementById('actionPinSetupModal').classList.add('open');
+}
+function closeActionPinSetupModal(){document.getElementById('actionPinSetupModal').classList.remove('open');}
+function toggleActionPin(){
+  if(!S.security.actionPinEnabled){
+    closeActionPinSetupModal();
+    openSetActionPinModal(true);
+  }else{
+    appConfirm('Nonaktifkan PIN Keamanan Transaksi? Diskon, pembatalan, dan retur tidak akan lagi meminta PIN.',()=>{
+      S.security.actionPinEnabled=false;
+      S.security.actionPinHash='';
+      S.security.actionPinFailCount=0;
+      S.security.actionPinLockedUntil=null;
+      save();
+      openActionPinSetupModal();
+      toast('🔓 PIN Keamanan Transaksi dinonaktifkan');
+    },'Nonaktifkan PIN Keamanan');
+  }
+}
+function openSetActionPinModal(firstSetup){
+  document.getElementById('newActionPinVal').value='';
+  document.getElementById('confirmActionPinVal').value='';
+  document.getElementById('setActionPinModal').classList.add('open');
+}
+function closeSetActionPinModal(){
+  document.getElementById('setActionPinModal').classList.remove('open');
+  if(!S.security.actionPinEnabled)openActionPinSetupModal();
+}
+async function saveNewActionPin(){
+  const p1=document.getElementById('newActionPinVal').value;
+  const p2=document.getElementById('confirmActionPinVal').value;
+  if(!/^\d{6}$/.test(p1)){toast('⚠️ PIN harus 6 digit angka');return;}
+  if(p1!==p2){toast('⚠️ Konfirmasi PIN tidak sama');return;}
+  S.security.actionPinHash=await sha256Hex(p1);
+  S.security.actionPinEnabled=true;
+  S.security.actionPinFailCount=0;
+  S.security.actionPinLockedUntil=null;
+  save();
+  document.getElementById('setActionPinModal').classList.remove('open');
+  openActionPinSetupModal();
+  logActivity('🔐 PIN Keamanan Transaksi Diatur');
+  toast('✅ PIN Keamanan Transaksi disimpan');
+}
+function requireActionPin(label,callback){
+  if(!S.security.actionPinEnabled||!S.security.actionPinHash){callback();return;}
+  _pendingActionPinCallback=callback;
+  document.getElementById('actionPinVerifyDesc').textContent=`Masukkan PIN Keamanan untuk: ${label}`;
+  document.getElementById('actionPinVerifyVal').value='';
+  document.getElementById('actionPinVerifyErr').textContent='';
+  openActionPinVerifyModal();
+}
+function openActionPinVerifyModal(){
+  updateActionPinLockUI();
+  document.getElementById('actionPinVerifyModal').classList.add('open');
+  setTimeout(()=>{const el=document.getElementById('actionPinVerifyVal');if(el)el.focus();},300);
+}
+function closeActionPinVerifyModal(){
+  document.getElementById('actionPinVerifyModal').classList.remove('open');
+  clearInterval(_actionPinLockTimer);
+  _pendingActionPinCallback=null;
+}
+function updateActionPinLockUI(){
+  const lockedUntil=S.security.actionPinLockedUntil?new Date(S.security.actionPinLockedUntil).getTime():0;
+  const now=Date.now();
+  const normalView=document.getElementById('actionPinVerifyNormal');
+  const lockedView=document.getElementById('actionPinVerifyLocked');
+  clearInterval(_actionPinLockTimer);
+  if(lockedUntil>now){
+    normalView.style.display='none';
+    lockedView.style.display='block';
+    const tick=()=>{
+      const remain=Math.max(0,lockedUntil-Date.now());
+      if(remain<=0){
+        clearInterval(_actionPinLockTimer);
+        S.security.actionPinFailCount=0;
+        S.security.actionPinLockedUntil=null;
+        save();
+        normalView.style.display='block';
+        lockedView.style.display='none';
+        return;
+      }
+      const m=Math.floor(remain/60000),sdt=Math.floor((remain%60000)/1000);
+      const cd=document.getElementById('actionPinLockCountdown');
+      if(cd)cd.textContent=`${m}:${String(sdt).padStart(2,'0')}`;
+    };
+    tick();
+    _actionPinLockTimer=setInterval(tick,1000);
+  }else{
+    normalView.style.display='block';
+    lockedView.style.display='none';
+  }
+}
+async function confirmActionPinVerify(){
+  const val=document.getElementById('actionPinVerifyVal').value;
+  if(!/^\d{6}$/.test(val)){
+    document.getElementById('actionPinVerifyErr').textContent='PIN harus 6 digit angka';
+    return;
+  }
+  const hash=await sha256Hex(val);
+  if(hash===S.security.actionPinHash){
+    S.security.actionPinFailCount=0;
+    S.security.actionPinLockedUntil=null;
+    save();
+    const cb=_pendingActionPinCallback;
+    _pendingActionPinCallback=null;
+    closeActionPinVerifyModal();
+    if(cb)cb();
+  }else{
+    S.security.actionPinFailCount=(S.security.actionPinFailCount||0)+1;
+    const remaining=ACTION_PIN_MAX_ATTEMPTS-S.security.actionPinFailCount;
+    if(remaining<=0){
+      S.security.actionPinLockedUntil=new Date(Date.now()+ACTION_PIN_LOCK_MS).toISOString();
+      save();
+      logActivity('⛔ PIN Keamanan Terkunci','3x percobaan salah berturut-turut');
+      updateActionPinLockUI();
+      toast('⛔ Akses diblokir sementara — terlalu banyak percobaan salah');
+    }else{
+      save();
+      document.getElementById('actionPinVerifyErr').textContent=`❌ PIN salah — ${remaining}x percobaan tersisa`;
+      document.getElementById('actionPinVerifyVal').value='';
+      const sheet=document.querySelector('#actionPinVerifyModal .modal-sheet');
+      sheet.classList.remove('shake-danger');void sheet.offsetWidth;sheet.classList.add('shake-danger');
+      toast('❌ PIN salah');
+    }
+  }
 }
 function renderTaxUI(){
   const t=getTaxConfig();
