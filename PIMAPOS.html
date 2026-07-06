@@ -1610,7 +1610,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       </div>
       <div class="switch" id="pinToggle" onclick="togglePinLock()"><div class="switch-knob"></div></div>
     </div>
-    <div class="da-row-flat ripple-container" id="pinChangeRow" style="display:none" onclick="openSetPinModal()">
+    <div class="da-row-flat ripple-container" id="pinChangeRow" style="display:none" onclick="requestChangeAppPin()">
       <div class="da-ico">🔑</div><div class="da-lbl">Ubah PIN Keamanan</div><div class="da-chev">›</div>
     </div>
     <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeSecurityModal()">Tutup</button>
@@ -1748,12 +1748,38 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   <div class="modal-sheet">
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
-    <div class="modal-title">🔒 Konfirmasi Nonaktifkan PIN</div>
-    <div style="font-size:12.5px;color:var(--t3);text-align:center;margin-bottom:16px;line-height:1.6">Untuk keamanan, masukkan PIN yang sedang aktif untuk mengonfirmasi penonaktifan kunci PIN aplikasi.</div>
-    <div class="field"><label>Masukkan PIN Saat Ini</label><input type="password" id="verifyPinDisableVal" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••"></div>
-    <div id="verifyPinDisableErr" style="font-size:11.5px;color:var(--red);text-align:center;margin-bottom:4px"></div>
-    <button class="sbtn danger ripple-container" onclick="confirmDisablePin()">Nonaktifkan PIN</button>
-    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeVerifyPinDisableModal()">Batal</button>
+    <div id="verifyAppPinNormal">
+      <div class="modal-title" id="verifyAppPinTitle">🔒 Verifikasi PIN Aplikasi</div>
+      <div style="font-size:12.5px;color:var(--t3);text-align:center;margin-bottom:16px;line-height:1.6" id="verifyPinDisableDesc">Masukkan PIN yang sedang aktif untuk melanjutkan.</div>
+      <div class="field"><label>Masukkan PIN Saat Ini</label><input type="password" id="verifyPinDisableVal" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" onkeydown="if(event.key==='Enter')confirmAppPinVerify()"></div>
+      <div id="verifyPinDisableErr" style="font-size:11.5px;color:var(--red);text-align:center;margin-bottom:4px;font-weight:600;min-height:14px"></div>
+      <button class="sbtn ripple-container" onclick="confirmAppPinVerify()">Lanjutkan</button>
+      <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeVerifyPinDisableModal()">Batal</button>
+    </div>
+    <div id="verifyAppPinLocked" style="display:none">
+      <div class="pin-lock-box">
+        <div style="font-size:42px;margin-bottom:8px">⛔</div>
+        <div style="font-size:15px;font-weight:800;color:var(--red);margin-bottom:8px">Akses Diblokir Sementara</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">PIN salah dimasukkan 3 kali berturut-turut. Coba lagi dalam <b id="verifyAppPinLockCountdown" style="color:var(--red)">5:00</b> menit.</div>
+      </div>
+      <button class="sbtn ghost ripple-container" onclick="closeVerifyPinDisableModal()">Tutup</button>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: LUPA PIN (reset dengan konfirmasi ketik, bukan sekadar tap) ══════════ -->
+<div class="modal-ov" id="forgotPinModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="color:var(--red)">⚠️ Reset PIN Aplikasi</div>
+    <div class="pin-lock-box" style="text-align:left">
+      <div style="font-size:12.5px;color:var(--t2);line-height:1.7">PIMAPOS tidak memakai server, jadi PIN tidak bisa "dipulihkan" — hanya bisa direset. <b>Semua data toko tetap aman</b>, hanya kunci PIN yang dihapus. Tindakan ini tercatat di Log Aktivitas.</div>
+    </div>
+    <div class="field"><label>Ketik <b>RESET</b> untuk konfirmasi</label><input type="text" id="forgotPinConfirmVal" placeholder="RESET" autocapitalize="characters"></div>
+    <button class="sbtn danger ripple-container" onclick="confirmForgotPin()">Reset & Nonaktifkan PIN</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeForgotPinModal()">Batal</button>
     </div>
   </div>
 </div>
@@ -1764,7 +1790,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
     <div class="modal-title">🔐 PIN Keamanan Transaksi</div>
-    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:16px;line-height:1.6">PIN terpisah (SHA-256) yang diminta khusus untuk aksi sensitif: <b>Diskon</b>, <b>Batalkan Transaksi</b>, dan <b>Retur/Refund</b>. Hanya Kasir/Owner yang tahu PIN ini yang bisa melanjutkan.</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:16px;line-height:1.6">PIN terenkripsi SHA-256, terpisah dari PIN kunci aplikasi. Diminta khusus untuk: Diskon, Batalkan Transaksi, Retur/Refund.</div>
     <div class="toggle-row">
       <div>
         <div style="font-size:13.5px;font-weight:600">Aktifkan PIN Keamanan</div>
@@ -1772,7 +1798,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       </div>
       <div class="switch" id="actionPinToggle" onclick="toggleActionPin()"><div class="switch-knob"></div></div>
     </div>
-    <div id="actionPinChangeRow" class="da-row-flat ripple-container" style="display:none" onclick="openSetActionPinModal(false)">
+    <div id="actionPinChangeRow" class="da-row-flat ripple-container" style="display:none" onclick="requireActionPin('Ubah PIN Keamanan Transaksi',()=>openSetActionPinModal(false))">
       <div class="da-ico">🔑</div><div class="da-lbl">Ubah PIN Keamanan Transaksi</div><div class="da-chev">›</div>
     </div>
     <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeActionPinSetupModal()">Tutup</button>
@@ -1953,15 +1979,22 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 
 <!-- ══════════ PIN LOCK SCREEN ══════════ -->
 <div id="pinLockScreen">
-  <div class="pl-logo" id="plLogo"><span id="plLogoLetter">T</span><img id="plLogoImg" style="display:none" alt="Logo"></div>
-  <div class="pl-title" id="plTitle">Toko Saya</div>
-  <div class="pl-sub">Masukkan PIN untuk membuka aplikasi</div>
-  <div class="pl-dots" id="plDots">
-    <div class="pl-dot"></div><div class="pl-dot"></div><div class="pl-dot"></div>
-    <div class="pl-dot"></div><div class="pl-dot"></div><div class="pl-dot"></div>
+  <div id="plNormalView">
+    <div class="pl-logo" id="plLogo"><span id="plLogoLetter">T</span><img id="plLogoImg" style="display:none" alt="Logo"></div>
+    <div class="pl-title" id="plTitle">Toko Saya</div>
+    <div class="pl-sub">Masukkan PIN untuk membuka aplikasi</div>
+    <div class="pl-dots" id="plDots">
+      <div class="pl-dot"></div><div class="pl-dot"></div><div class="pl-dot"></div>
+      <div class="pl-dot"></div><div class="pl-dot"></div><div class="pl-dot"></div>
+    </div>
+    <div class="pl-numpad" id="plNumpad"></div>
+    <div class="pl-forgot" onclick="forgotPin()">Lupa PIN?</div>
   </div>
-  <div class="pl-numpad" id="plNumpad"></div>
-  <div class="pl-forgot" onclick="forgotPin()">Lupa PIN?</div>
+  <div id="plLockedView" style="display:none;text-align:center;padding:0 30px">
+    <div style="font-size:52px;margin-bottom:14px">⛔</div>
+    <div style="font-size:17px;font-weight:800;color:var(--red);margin-bottom:10px">Terlalu Banyak Percobaan</div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.7">PIN salah dimasukkan 3 kali berturut-turut. Untuk keamanan, coba lagi dalam <b id="plLockCountdown" style="color:var(--red)">5:00</b> menit.</div>
+  </div>
 </div>
 
 <script>
@@ -1980,12 +2013,12 @@ const WHATS_NEW_FEATURES=[
   {icon:'⚙️',title:'Pengaturan Lanjutan',desc:'Pajak, Keamanan, Notifikasi, Printer & Cloud Backup kini terkumpul rapi lewat menu titik-3 di Profil.'},
 ];
 const TOUR_STEPS=[
-  {page:'pageKasir',selector:'.nav-btn[data-page="pageKasir"]',icon:'🧾',title:'Kasir Cepat',desc:'Tambah produk ke keranjang lalu bayar Tunai, QRIS, Kartu — atau pilih "Split" saat checkout untuk menggabungkan beberapa metode sekaligus.'},
-  {page:'pageProduk',selector:'.icon-btn[onclick="openSOModal()"]',icon:'📋',title:'Stock Opname',desc:'Ketuk ikon ini kapan saja untuk mencocokkan stok sistem dengan hasil hitung fisik, di semua kategori produk sekaligus.'},
-  {page:'pageRiwayat',selector:'.nav-btn[data-page="pageRiwayat"]',icon:'🔄',title:'Retur & Pembatalan',desc:'Buka struk transaksi mana pun dari sini untuk memproses retur sebagian produk, atau membatalkan seluruh transaksi.'},
-  {page:'pageLaporan',selector:'.nav-btn[data-page="pageLaporan"]',icon:'💰',title:'Laporan & Profit',desc:'Pantau omzet dan produk terlaris — kini dilengkapi estimasi HPP, laba kotor, dan margin keuntungan toko Anda.'},
-  {page:'pageProfil',selector:'[onclick="openThemeModal()"]',icon:'🎨',title:'Tampilan Sesuka Anda',desc:'Atur warna aksen, saturasi, kecerahan & kontras tampilan sesuai selera atau kondisi cahaya toko.'},
-  {page:'pageProfil',selector:'[onclick="openStaffModal()"]',icon:'👥',title:'Kasir & Staf',desc:'Tambahkan nama kasir supaya tiap shift & transaksi tercatat — pantau jejaknya lewat Log Aktivitas.'},
+  {page:'pageKasir',selectors:['.nav-btn[data-page="pageKasir"]','.sidebar-btn[data-page="pageKasir"]'],icon:'🧾',title:'Kasir Cepat',desc:'Tambah produk ke keranjang lalu bayar Tunai, QRIS, Kartu — atau pilih "Split" saat checkout untuk menggabungkan beberapa metode sekaligus.'},
+  {page:'pageProduk',selectors:['.icon-btn[onclick="openSOModal()"]'],icon:'📋',title:'Stock Opname',desc:'Ketuk ikon ini kapan saja untuk mencocokkan stok sistem dengan hasil hitung fisik, di semua kategori produk sekaligus.'},
+  {page:'pageRiwayat',selectors:['.nav-btn[data-page="pageRiwayat"]','.sidebar-btn[data-page="pageRiwayat"]'],icon:'🔄',title:'Retur & Pembatalan',desc:'Buka struk transaksi mana pun, lalu ketuk ikon ⋯ di pojok kanan atas untuk memproses retur atau membatalkan transaksi.'},
+  {page:'pageLaporan',selectors:['.nav-btn[data-page="pageLaporan"]','.sidebar-btn[data-page="pageLaporan"]'],icon:'💰',title:'Laporan & Profit',desc:'Pantau omzet dan produk terlaris — kini dilengkapi estimasi HPP, laba kotor, dan margin keuntungan toko Anda.'},
+  {page:'pageProfil',selectors:['#pageProfil .icon-btn[onclick="openAdvMenuModal()"]'],icon:'⚙️',title:'Pengaturan Lanjutan',desc:'Ketuk ikon ini untuk Tampilan Tema, Pajak, Keamanan, Notifikasi, Printer & Cloud Backup — semua terkumpul rapi di sini.'},
+  {page:'pageProfil',selectors:['[onclick="openStaffModal()"]'],icon:'👥',title:'Kasir & Staf',desc:'Tambahkan nama kasir supaya tiap shift & transaksi tercatat — pantau jejaknya lewat Log Aktivitas.'},
 ];
 const STORE_CATEGORIES=['F&B','Cafe','Restoran','Retail/Toko','Fashion/Clothing','Distro','Elektronik','Kecantikan','Otomotif/Bengkel','Kesehatan/Apotek','Jasa/Servis','Laundry','Grosir/Sembako','Lainnya'];
 /* Kategori yang menggunakan alur "Artikel Produk" bertipe SKU/Barcode (scan kamera) — cocok untuk toko fisik produk dengan barcode kemasan */
@@ -2178,7 +2211,7 @@ function defState(){
     storeCategory:'F&B',
     storeLogo:'',
     receiptLogo:'',
-    security:{pinEnabled:false,pinHash:'',actionPinEnabled:false,actionPinHash:'',actionPinFailCount:0,actionPinLockedUntil:null},
+    security:{pinEnabled:false,pinHash:'',pinFailCount:0,pinLockedUntil:null,pinChangeFailCount:0,pinChangeLockedUntil:null,actionPinEnabled:false,actionPinHash:'',actionPinFailCount:0,actionPinLockedUntil:null},
     notif:{enabled:false},
     socials:{whatsapp:'',instagram:'',tiktok:'',facebook:'',shopee:'',tokopedia:'',website:''},
     theme:'dark',
@@ -4808,6 +4841,17 @@ function openTourModal(){
   document.getElementById('tourOverlay').classList.add('open');
   goToTourStep(0);
 }
+function findVisibleTourTarget(selectors){
+  for(const sel of selectors){
+    const el=document.querySelector(sel);
+    if(el&&el.offsetParent!==null)return el; // offsetParent null = display:none / tidak dirender
+  }
+  for(const sel of selectors){
+    const el=document.querySelector(sel);
+    if(el)return el; // fallback kalau semua kandidat sedang tersembunyi
+  }
+  return null;
+}
 function goToTourStep(idx){
   clearTimeout(tourTimer);
   tourStep=idx;
@@ -4817,7 +4861,7 @@ function goToTourStep(idx){
   }
   // beri waktu render/layout (pindah halaman, kapsul nav, dsb) sebelum ukur posisi
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    const el=document.querySelector(s.selector);
+    const el=findVisibleTourTarget(s.selectors);
     if(el&&el.scrollIntoView)el.scrollIntoView({block:'center',behavior:'instant'});
     requestAnimationFrame(()=>requestAnimationFrame(()=>positionTourStep(el,s)));
   }));
@@ -5125,40 +5169,96 @@ function renderPinToggleUI(){
   document.getElementById('pinToggle').classList.toggle('active',on);
   document.getElementById('pinChangeRow').style.display=on?'flex':'none';
 }
+const APP_PIN_MAX_ATTEMPTS=3;
+const APP_PIN_LOCK_MS=5*60*1000;
 function togglePinLock(){
   if(!S.security.pinEnabled){
     openSetPinModal(true);
   }else{
-    openVerifyPinDisableModal();
+    requireAppPinVerify('Nonaktifkan Kunci PIN Aplikasi',()=>{
+      appConfirm('PIN terverifikasi. Yakin ingin menonaktifkan kunci PIN aplikasi? Siapa saja akan bisa membuka aplikasi tanpa PIN.',()=>{
+        S.security.pinEnabled=false;S.security.pinHash='';save();
+        renderPinToggleUI();toast('🔓 Kunci PIN dinonaktifkan');
+      },'Nonaktifkan PIN');
+    });
   }
 }
-function openVerifyPinDisableModal(){
+function requestChangeAppPin(){
+  requireAppPinVerify('Ubah PIN Kunci Aplikasi',()=>openSetPinModal(false));
+}
+let _pendingAppPinCallback=null;
+let _appPinLockTimer=null;
+function requireAppPinVerify(title,callback){
+  _pendingAppPinCallback=callback;
+  document.getElementById('verifyAppPinTitle').textContent='🔒 '+title;
   document.getElementById('verifyPinDisableVal').value='';
   document.getElementById('verifyPinDisableErr').textContent='';
+  updateAppPinLockUI();
   document.getElementById('verifyPinDisableModal').classList.add('open');
-  setTimeout(()=>document.getElementById('verifyPinDisableVal').focus(),350);
+  setTimeout(()=>{const el=document.getElementById('verifyPinDisableVal');if(el)el.focus();},350);
 }
 function closeVerifyPinDisableModal(){
   document.getElementById('verifyPinDisableModal').classList.remove('open');
+  clearInterval(_appPinLockTimer);
+  _pendingAppPinCallback=null;
   renderPinToggleUI(); // pastikan kapsul kembali ke posisi aktif kalau dibatalkan
 }
-async function confirmDisablePin(){
+function updateAppPinLockUI(){
+  const lockedUntil=S.security.pinChangeLockedUntil?new Date(S.security.pinChangeLockedUntil).getTime():0;
+  const now=Date.now();
+  const normal=document.getElementById('verifyAppPinNormal');
+  const locked=document.getElementById('verifyAppPinLocked');
+  clearInterval(_appPinLockTimer);
+  if(lockedUntil>now){
+    normal.style.display='none';locked.style.display='block';
+    const tick=()=>{
+      const remain=Math.max(0,lockedUntil-Date.now());
+      if(remain<=0){
+        clearInterval(_appPinLockTimer);
+        S.security.pinChangeFailCount=0;S.security.pinChangeLockedUntil=null;save();
+        normal.style.display='block';locked.style.display='none';
+        return;
+      }
+      const m=Math.floor(remain/60000),s=Math.floor((remain%60000)/1000);
+      const cd=document.getElementById('verifyAppPinLockCountdown');
+      if(cd)cd.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    };
+    tick();_appPinLockTimer=setInterval(tick,1000);
+  }else{
+    normal.style.display='block';locked.style.display='none';
+  }
+}
+async function confirmAppPinVerify(){
   const val=document.getElementById('verifyPinDisableVal').value.trim();
   if(!/^\d{6}$/.test(val)){
     document.getElementById('verifyPinDisableErr').textContent='⚠️ Masukkan 6 digit PIN';
     return;
   }
   const hash=await sha256Hex(val);
-  if(hash!==S.security.pinHash){
-    document.getElementById('verifyPinDisableErr').textContent='❌ PIN salah, coba lagi';
-    document.getElementById('verifyPinDisableVal').value='';
-    return;
-  }
-  appConfirm('PIN terverifikasi. Yakin ingin menonaktifkan kunci PIN aplikasi? Siapa saja akan bisa membuka aplikasi tanpa PIN.',()=>{
-    S.security.pinEnabled=false;S.security.pinHash='';save();
+  if(hash===S.security.pinHash){
+    S.security.pinChangeFailCount=0;S.security.pinChangeLockedUntil=null;save();
+    const cb=_pendingAppPinCallback;
+    _pendingAppPinCallback=null;
     document.getElementById('verifyPinDisableModal').classList.remove('open');
-    renderPinToggleUI();toast('🔓 Kunci PIN dinonaktifkan');
-  },'Nonaktifkan PIN');
+    if(cb)cb();
+  }else{
+    S.security.pinChangeFailCount=(S.security.pinChangeFailCount||0)+1;
+    const remaining=APP_PIN_MAX_ATTEMPTS-S.security.pinChangeFailCount;
+    if(remaining<=0){
+      S.security.pinChangeLockedUntil=new Date(Date.now()+APP_PIN_LOCK_MS).toISOString();
+      save();
+      logActivity('⛔ Verifikasi PIN App Terkunci','3x percobaan salah berturut-turut');
+      updateAppPinLockUI();
+      toast('⛔ Akses diblokir sementara');
+    }else{
+      save();
+      document.getElementById('verifyPinDisableErr').textContent=`❌ PIN salah — ${remaining}x percobaan tersisa`;
+      document.getElementById('verifyPinDisableVal').value='';
+      const sheet=document.querySelector('#verifyPinDisableModal .modal-sheet');
+      sheet.classList.remove('shake-danger');void sheet.offsetWidth;sheet.classList.add('shake-danger');
+      toast('❌ PIN salah');
+    }
+  }
 }
 let _settingFirstPin=false;
 function openSetPinModal(isFirstSetup){
@@ -5180,6 +5280,7 @@ async function saveNewPin(){
   S.security.pinHash=hash;S.security.pinEnabled=true;save();
   document.getElementById('setPinModal').classList.remove('open');
   renderPinToggleUI();
+  logActivity(_settingFirstPin?'🔒 PIN Aplikasi Diatur':'🔒 PIN Aplikasi Diubah');
   toast('✅ PIN keamanan disimpan');
 }
 let plEntry='';
@@ -5191,6 +5292,7 @@ function renderPlNumpad(){
   initRipples();
 }
 function plKeyPress(k){
+  if(checkPlLockState())return;
   if(k==='⌫'){plEntry=plEntry.slice(0,-1);}
   else if(plEntry.length<6){plEntry+=k;}
   renderPlDots();
@@ -5199,9 +5301,38 @@ function plKeyPress(k){
 function renderPlDots(){
   document.querySelectorAll('#plDots .pl-dot').forEach((d,i)=>d.classList.toggle('filled',i<plEntry.length));
 }
+let _plLockTimer=null;
+function checkPlLockState(){
+  const lockedUntil=S.security.pinLockedUntil?new Date(S.security.pinLockedUntil).getTime():0;
+  const now=Date.now();
+  const normal=document.getElementById('plNormalView');
+  const locked=document.getElementById('plLockedView');
+  clearInterval(_plLockTimer);
+  if(lockedUntil>now){
+    normal.style.display='none';locked.style.display='block';
+    const tick=()=>{
+      const remain=Math.max(0,lockedUntil-Date.now());
+      if(remain<=0){
+        clearInterval(_plLockTimer);
+        S.security.pinFailCount=0;S.security.pinLockedUntil=null;save();
+        normal.style.display='block';locked.style.display='none';
+        return;
+      }
+      const m=Math.floor(remain/60000),s=Math.floor((remain%60000)/1000);
+      const cd=document.getElementById('plLockCountdown');
+      if(cd)cd.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    };
+    tick();_plLockTimer=setInterval(tick,1000);
+    return true;
+  }
+  normal.style.display='block';locked.style.display='none';
+  return false;
+}
 async function verifyPin(){
+  if(checkPlLockState()){plEntry='';renderPlDots();return;}
   const hash=await sha256Hex(plEntry);
   if(hash===S.security.pinHash){
+    S.security.pinFailCount=0;S.security.pinLockedUntil=null;save();
     document.getElementById('pinLockScreen').style.display='none';
     plEntry='';renderPlDots();
     // Trigger deferred startup checks after PIN unlock
@@ -5219,18 +5350,40 @@ async function verifyPin(){
     }
   }else{
     const dots=document.getElementById('plDots');
-    dots.classList.add('shake');
-    toast('❌ PIN salah');
-    setTimeout(()=>{dots.classList.remove('shake');plEntry='';renderPlDots();},420);
+    S.security.pinFailCount=(S.security.pinFailCount||0)+1;
+    const left=3-S.security.pinFailCount;
+    if(left<=0){
+      S.security.pinLockedUntil=new Date(Date.now()+5*60*1000).toISOString();
+      save();
+      logActivity('⛔ Kunci Aplikasi Terkunci','3x percobaan salah berturut-turut');
+      checkPlLockState();
+      plEntry='';renderPlDots();
+      toast('⛔ Terlalu banyak percobaan salah');
+    }else{
+      save();
+      dots.classList.add('shake');
+      toast(`❌ PIN salah — ${left}x percobaan tersisa`);
+      setTimeout(()=>{dots.classList.remove('shake');plEntry='';renderPlDots();},420);
+    }
   }
 }
 function forgotPin(){
-  appConfirm('Lupa PIN? Karena PIMAPOS tidak memakai server, satu-satunya cara adalah menonaktifkan kunci PIN ini. Data toko TIDAK akan terhapus. Lanjutkan?',()=>{
-    S.security.pinEnabled=false;S.security.pinHash='';save();
-    document.getElementById('pinLockScreen').style.display='none';
-    plEntry='';renderPlDots();renderPinToggleUI();
-    toast('🔓 Kunci PIN direset, silakan atur ulang di Profil');
-  },'Reset Kunci PIN');
+  if(checkPlLockState()){toast('⛔ Coba lagi setelah waktu tunggu selesai');return;}
+  document.getElementById('forgotPinConfirmVal').value='';
+  document.getElementById('forgotPinModal').classList.add('open');
+}
+function closeForgotPinModal(){document.getElementById('forgotPinModal').classList.remove('open');}
+function confirmForgotPin(){
+  const val=(document.getElementById('forgotPinConfirmVal').value||'').trim().toUpperCase();
+  if(val!=='RESET'){toast('⚠️ Ketik "RESET" persis untuk melanjutkan');return;}
+  S.security.pinEnabled=false;S.security.pinHash='';
+  S.security.pinFailCount=0;S.security.pinLockedUntil=null;
+  save();
+  logActivity('⚠️ PIN Aplikasi Direset','via "Lupa PIN" di layar kunci');
+  document.getElementById('forgotPinModal').classList.remove('open');
+  document.getElementById('pinLockScreen').style.display='none';
+  plEntry='';renderPlDots();renderPinToggleUI();
+  toast('🔓 PIN direset. Aktifkan kembali lewat Profil jika perlu.');
 }
 function initPinLock(){
   if(S.security.pinEnabled&&S.security.pinHash){
@@ -5244,6 +5397,7 @@ function initPinLock(){
     renderPlNumpad();
     plEntry='';renderPlDots();
     document.getElementById('pinLockScreen').style.display='flex';
+    checkPlLockState();
   }
 }
 
