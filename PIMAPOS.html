@@ -1246,14 +1246,39 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   <div class="modal-sheet">
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="receiptModalTitle">✅ Transaksi Berhasil</div>
+    <div style="position:relative">
+      <button class="icon-btn ripple-container" style="position:absolute;right:0;top:-4px" onclick="openReceiptMoreModal()" title="Opsi Lainnya">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+      </button>
+      <div class="modal-title" id="receiptModalTitle">✅ Transaksi Berhasil</div>
+    </div>
     <div id="voidStatusNotice"></div>
     <div class="receipt-box" id="receiptBox"></div>
     <button class="sbtn ripple-container" onclick="downloadReceiptPDF()">⬇️ Unduh Struk PDF</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="printReceiptBluetooth()">🖨️ Cetak Struk (Bluetooth)</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeReceiptModal()">Transaksi Baru</button>
-    <button class="sbtn ghost ripple-container" style="margin-top:8px" id="returTrxBtn" onclick="openReturModal()">🔄 Retur / Refund Item</button>
-    <button class="sbtn danger ripple-container" style="margin-top:8px" id="voidTrxBtn" onclick="voidTransaction()">🚫 Batalkan Transaksi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: OPSI LAINNYA (Retur/Batalkan — dari titik-3 struk) ══════════ -->
+<div class="modal-ov" id="receiptMoreModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⋯ Opsi Lainnya</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Perlu koreksi transaksi ini? Pilih tindakan yang sesuai di bawah.</div>
+    <div class="da-row-flat ripple-container" id="returTrxBtn" onclick="closeReceiptMoreModal();openReturModal()">
+      <div class="da-ico">🔄</div>
+      <div class="da-lbl">Retur / Refund Item</div>
+      <div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" id="voidTrxBtn" onclick="closeReceiptMoreModal();voidTransaction()">
+      <div class="da-ico" style="color:var(--red)">🚫</div>
+      <div class="da-lbl" style="color:var(--red)">Batalkan Transaksi</div>
+      <div class="da-chev">›</div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeReceiptMoreModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -1495,7 +1520,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
     <div class="modal-title">⚙️ Pengaturan Lanjutan</div>
-    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Fitur & pengaturan yang jarang dibuka sehari-hari, dikumpulkan di sini agar Profil tetap ringkas.</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Kumpulan pengaturan tambahan aplikasi.</div>
     <div class="da-row-flat ripple-container" onclick="closeAdvMenuModal();openSocialModal()">
       <div class="da-ico">🧾</div>
       <div class="da-lbl">Struk & Identitas Toko</div>
@@ -3330,9 +3355,9 @@ function showReceipt(trx){
   document.getElementById('receiptBox').innerHTML=lines.join('');
   document.getElementById('receiptModalTitle').textContent=trx.voided?'🚫 Transaksi Dibatalkan':'✅ Transaksi Berhasil';
   document.getElementById('voidStatusNotice').innerHTML=trx.voided?`<div class="void-notice">🚫 Transaksi ini sudah dibatalkan${trx.voidedAt?' pada '+new Date(trx.voidedAt).toLocaleString('id-ID'):''}. Stok telah dikembalikan.</div>`:(trx.totalRefunded>0?`<div class="void-notice" style="background:rgba(var(--accent-tint-rgb),.1);border-color:rgba(var(--accent-tint-rgb),.3);color:var(--amber)">🔄 Sebagian/seluruh item pada transaksi ini sudah diretur senilai ${rp(trx.totalRefunded)}.</div>`:'');
-  document.getElementById('voidTrxBtn').style.display=trx.voided?'none':'block';
+  document.getElementById('voidTrxBtn').style.display=trx.voided?'none':'flex';
   const fullyReturned=trx.items.every(it=>(it.returnedQty||0)>=it.qty);
-  document.getElementById('returTrxBtn').style.display=(trx.voided||fullyReturned)?'none':'block';
+  document.getElementById('returTrxBtn').style.display=(trx.voided||fullyReturned)?'none':'flex';
   document.getElementById('receiptModal').classList.add('open');
 }
 function voidTransaction(){
@@ -3480,6 +3505,8 @@ function closeReceiptModal(){
   document.getElementById('receiptModal').classList.remove('open');
   renderProducts();
 }
+function openReceiptMoreModal(){document.getElementById('receiptMoreModal').classList.add('open');}
+function closeReceiptMoreModal(){document.getElementById('receiptMoreModal').classList.remove('open');}
 async function downloadReceiptPDF(){
   if(!lastReceiptTrx){toast('Tidak ada struk untuk diunduh');return;}
   if(typeof window.jspdf==='undefined'){toast('⚠️ Modul PDF belum siap, coba lagi');return;}
