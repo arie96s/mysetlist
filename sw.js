@@ -12,7 +12,7 @@ const CACHE_RUNTIME = `pimapika-runtime-v${SW_VERSION}`;
 /* Ganti 'index.html' jika nama file HTML utama kamu berbeda saat deploy */
 const APP_SHELL = [
   './',
-  './index.html',
+  './PIMAPIKA-Pro-v3_3_1.html',
   './manifest.json',
   './PMPK.webp'
 ];
@@ -59,7 +59,7 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
         .catch(() =>
-          caches.match(request).then((cached) => cached || caches.match('./index.html'))
+          caches.match(request).then((cached) => cached || caches.match('./PIMAPIKA-Pro-v3_3_1.html'))
         )
     );
     return;

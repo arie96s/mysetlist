@@ -2,8 +2,8 @@
   "name": "PIMAPIKA.ID — Manajemen Keuangan",
   "short_name": "PIMAPIKA",
   "description": "Aplikasi manajemen keuangan pribadi cerdas — Pitih Masuak Pitih Kalua.",
-  "id": "/",
-  "start_url": "./index.html",
+  "id": "./PIMAPIKA-Pro-v3_3_1.html",
+  "start_url": "./PIMAPIKA-Pro-v3_3_1.html",
   "scope": "./",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
@@ -39,7 +39,7 @@
       "name": "Tambah Transaksi",
       "short_name": "Tambah",
       "description": "Buka PIMAPIKA dan langsung tambah transaksi baru",
-      "url": "./index.html?action=add",
+      "url": "./PIMAPIKA-Pro-v3_3_1.html?action=add",
       "icons": [{ "src": "PMPK.webp", "sizes": "192x192", "type": "image/webp" }]
     }
   ]
