@@ -1,0 +1,8 @@
+# PIMAPOS — robots.txt
+# Izinkan semua crawler mesin pencari mengakses & mengindeks seluruh halaman.
+
+User-agent: *
+Allow: /
+
+# Lokasi sitemap untuk mempercepat & melengkapi proses indexing
+Sitemap: https://arie96s.github.io/PIMAPOS/sitemap.xml
