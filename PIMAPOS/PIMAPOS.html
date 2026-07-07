@@ -369,7 +369,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 
 /* PRODUCT GRID */
 .prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-.prod-stack{position:relative}
+.prod-stack{position:relative;isolation:isolate}
 .prod-stack::before,.prod-stack::after{
   content:'';position:absolute;inset:0;border-radius:var(--rlg);
   background:var(--glass);border:1px solid var(--gb);pointer-events:none;
