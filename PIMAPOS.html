@@ -2,17 +2,152 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+
+<!-- ══════════════════════════════════════════════════════
+     SEO — META TAGS DASAR
+     Ganti https://arie96s.github.io/PIMAPOS/ di bawah dengan
+     URL final tempat PIMAPOS di-deploy (canonical & OG:url).
+════════════════════════════════════════════════════════ -->
+<title>PIMAPOS — Aplikasi Kasir Digital & POS Offline Gratis untuk HP, iPhone, iPad</title>
+<meta name="description" content="PIMAPOS adalah aplikasi kasir (POS) digital gratis berbasis web — bisa dipakai offline di HP Android, iPhone, iPad, maupun komputer. Fitur lengkap: manajemen produk & stok, laporan omzet & profit, retur/refund, split payment, cetak struk Bluetooth, hingga backup Google Drive. Tanpa instalasi, tanpa server, data tersimpan aman di perangkat Anda.">
+<meta name="keywords" content="aplikasi kasir, aplikasi kasir gratis, kasir online, kasir offline, POS system, sistem kasir digital, kasir HP, kasir Android, kasir iPhone, kasir iPad, aplikasi toko, aplikasi kasir toko, kasir modern, inventory management, manajemen stok, PWA POS, aplikasi kasir tanpa internet, software kasir, kasir warung, kasir UMKM, point of sale indonesia">
+<meta name="author" content="Fajri Salam (@arie96s)">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="googlebot" content="index, follow">
+<meta name="revisit-after" content="3 days">
+<meta name="language" content="Indonesian">
+<meta http-equiv="content-language" content="id">
+<link rel="canonical" href="https://arie96s.github.io/PIMAPOS/">
+
+<!-- Identitas PWA / app metadata -->
+<meta name="application-name" content="PIMAPOS">
+<meta name="apple-mobile-web-app-title" content="PIMAPOS">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#020817">
-<title>PIMAPOS — Ekosistem PIMAPIKA</title>
+<meta name="msapplication-TileColor" content="#020817">
+<meta name="msapplication-tap-highlight" content="no">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+
+<!-- ══════════════════════════════════════════════════════
+     OPEN GRAPH — Facebook, WhatsApp, Telegram, Discord
+     og:image disarankan 1200×630px (rasio 1.91:1), JPG/PNG < 1MB.
+     Ganti og:image dengan URL absolut gambar cover PIMAPOS Anda.
+════════════════════════════════════════════════════════ -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PIMAPOS">
+<meta property="og:title" content="PIMAPOS — Aplikasi Kasir Digital & POS Offline Gratis">
+<meta property="og:description" content="Kasir digital gratis, bisa offline, langsung jalan di browser HP/iPhone/iPad tanpa instalasi. Kelola produk, stok, laporan omzet, retur, split payment, hingga cetak struk Bluetooth.">
+<meta property="og:image" content="https://arie96s.github.io/PIMAPOS/PIMAPOS-logo.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Logo dan tampilan aplikasi kasir PIMAPOS">
+<meta property="og:url" content="https://arie96s.github.io/PIMAPOS/">
+<meta property="og:locale" content="id_ID">
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PIMAPOS — Aplikasi Kasir Digital & POS Offline Gratis">
+<meta name="twitter:description" content="Kasir digital gratis & offline untuk HP, iPhone, iPad, dan komputer — produk, stok, laporan, retur, split payment, struk Bluetooth, semua dalam satu aplikasi ringan.">
+<meta name="twitter:image" content="https://arie96s.github.io/PIMAPOS/PIMAPOS-logo.png">
+<meta name="twitter:image:alt" content="Logo aplikasi kasir PIMAPOS">
+
+<!-- ══════════════════════════════════════════════════════
+     ICON / MANIFEST — lihat berkas manifest.json, robots.txt,
+     dan sitemap.xml terpisah yang disertakan bersama file ini.
+     Favicon & apple-touch-icon memakai PIMAPOS-logo.png yang
+     sama dengan logo di splash/sidebar (fallback aman jika
+     file belum ada, tidak akan error).
+════════════════════════════════════════════════════════ -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="PIMAPOS-logo.png">
+<link rel="icon" type="image/png" sizes="32x32" href="PIMAPOS-logo.png">
+<link rel="apple-touch-icon" sizes="180x180" href="PIMAPOS-logo.png">
+<link rel="shortcut icon" href="PIMAPOS-logo.png">
+
+<!-- Preconnect ke domain eksternal — mempercepat font & CDN -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="dns-prefetch" href="https://accounts.google.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] jsPDF gagal dimuat')"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Chart.js gagal dimuat — grafik laporan tidak akan tampil')"></script>
-<script src="https://accounts.google.com/gsi/client" async defer onerror="console.warn('[PIMAPOS] Google Identity Services gagal dimuat — Cloud Backup tidak akan tersedia')"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Modul QR code gagal dimuat — QR toko tidak akan tampil')"></script>
+
+<!-- Script pihak-ketiga: defer supaya tidak render-blocking (Lighthouse Performance) -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] jsPDF gagal dimuat')"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Chart.js gagal dimuat — grafik laporan tidak akan tampil')"></script>
+<script async defer src="https://accounts.google.com/gsi/client" onerror="console.warn('[PIMAPOS] Google Identity Services gagal dimuat — Cloud Backup tidak akan tersedia')"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Modul QR code gagal dimuat — QR toko tidak akan tampil')"></script>
+
+<!-- ══════════════════════════════════════════════════════
+     STRUCTURED DATA (JSON-LD) — schema.org, untuk Google
+     Rich Results. Isi placeholder alamat/kontak/rating di
+     bagian LocalBusiness & AggregateRating sesuai data asli
+     sebelum go-live (jangan biarkan data dummy tayang lama).
+════════════════════════════════════════════════════════ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "PIMAPOS",
+      "alternateName": "PIMAPOS Kasir Digital",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Point of Sale",
+      "operatingSystem": "Any (Web/PWA — Android, iOS, Windows, macOS)",
+      "url": "https://arie96s.github.io/PIMAPOS/",
+      "description": "Aplikasi kasir (POS) digital gratis, bisa dipakai offline, dengan fitur manajemen produk & stok, laporan omzet & profit, retur/refund, split payment, cetak struk Bluetooth, dan cloud backup.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "IDR",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "10",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "author": { "@type": "Person", "name": "Fajri Salam" },
+      "publisher": { "@type": "Organization", "name": "PIMAPIKA" }
+    },
+    {
+      "@type": "WebApplication",
+      "name": "PIMAPOS",
+      "url": "https://arie96s.github.io/PIMAPOS/",
+      "browserRequirements": "Membutuhkan browser modern dengan dukungan JavaScript (Chrome, Safari, Edge, Firefox)",
+      "applicationCategory": "BusinessApplication"
+    },
+    {
+      "@type": "Organization",
+      "name": "PIMAPIKA",
+      "url": "https://arie96s.github.io/PIMAPOS/",
+      "logo": "https://arie96s.github.io/PIMAPOS/PIMAPOS-logo.png",
+      "sameAs": []
+    },
+    {
+      "@type": "LocalBusiness",
+      "name": "GANTI: Nama Toko/Bisnis Anda",
+      "image": "https://arie96s.github.io/PIMAPOS/PIMAPOS-logo.png",
+      "telephone": "GANTI: +62-8xx-xxxx-xxxx",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "GANTI: Nama Jalan, No.",
+        "addressLocality": "GANTI: Kota",
+        "addressRegion": "GANTI: Provinsi",
+        "postalCode": "GANTI: Kode Pos",
+        "addressCountry": "ID"
+      },
+      "openingHours": "Mo-Su 08:00-21:00"
+    }
+  ]
+}
+</script>
+
 <style>
 :root {
   --bg0:#020817; --bg1:#050f24; --bg2:#071330;
@@ -138,6 +273,8 @@ button,input,select,textarea{font-family:var(--font-sf);}
 @keyframes orbF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(24px,-36px) scale(1.06)}66%{transform:translate(-18px,22px) scale(.94)}}
 
 #app{max-width:480px;margin:0 auto;min-height:100dvh;position:relative;display:flex;flex-direction:column}
+/* SEO/aksesibilitas: sembunyikan visual tapi tetap terbaca screen reader & crawler */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .status-bar{height:var(--safe-t);flex-shrink:0}
 
 .page{display:none;flex:1;padding:0 16px calc(var(--navh) + var(--safe-b) + 24px);position:relative;z-index:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -577,10 +714,8 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 
 .receipt-box{background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.18);border-radius:var(--rmd);padding:18px 16px;font-family:'Courier Prime','JetBrains Mono',monospace;font-size:11.5px;line-height:1.65;margin-bottom:14px;color:var(--t1)}
 .receipt-center{text-align:center}
-.receipt-sub2{text-align:center;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);margin:8px 0 2px}
 .receipt-item-name{display:block}
 .receipt-item-sub{display:flex;justify-content:space-between;padding-left:10px;color:var(--t2)}
-.receipt-qr-wrap{text-align:center;margin-top:8px;background:#fff;border-radius:8px;padding:10px 8px}
 .receipt-box .rline{display:flex;justify-content:space-between}
 .receipt-box hr{border:none;border-top:1px dashed rgba(255,255,255,.15);margin:8px 0}
 
@@ -651,9 +786,31 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 </head>
 <body data-theme="dark">
 
+<!-- ══════════════════════════════════════════════════════
+     SEO — konten pengantar untuk mesin pencari & pembaca
+     layar. Disembunyikan secara visual (bukan display:none)
+     supaya tetap terindeks Google dan terbaca screen reader,
+     tanpa mengubah tampilan aplikasi sama sekali.
+════════════════════════════════════════════════════════ -->
+<div class="sr-only">
+  <h1>PIMAPOS — Aplikasi Kasir Digital &amp; Sistem POS Offline Gratis</h1>
+  <p>PIMAPOS adalah aplikasi kasir (Point of Sale) digital gratis yang berjalan langsung di browser HP Android, iPhone, iPad, maupun komputer — tanpa instalasi, tanpa server, dan tetap bisa dipakai offline. Cocok untuk kasir warung, toko retail, kafe, restoran, dan UMKM yang butuh sistem kasir modern namun ringan.</p>
+  <h2>Fitur Utama Aplikasi Kasir PIMAPOS</h2>
+  <ul>
+    <li>Kasir cepat dengan pembayaran Tunai, QRIS, Kartu, dan Split Payment</li>
+    <li>Manajemen produk, stok, dan Stock Opname otomatis</li>
+    <li>Laporan omzet, profit, dan grafik penjualan harian</li>
+    <li>Retur &amp; refund transaksi dengan kebijakan per produk</li>
+    <li>Cetak struk thermal via Bluetooth dan unduh PDF</li>
+    <li>Backup data otomatis ke Google Drive</li>
+    <li>Kustomisasi tema tampilan dan logo struk toko</li>
+    <li>Keamanan PIN terenkripsi SHA-256 untuk transaksi sensitif</li>
+  </ul>
+</div>
+
 <div id="splashScreen">
   <div class="splash-logo" id="splashLogoWrap">
-    <img src="PIMAPOS-logo.png" alt="" id="splashLogoImg" onerror="this.style.display='none'" onload="document.getElementById('splashLogoWrap').classList.add('has-img')">
+    <img src="PIMAPOS-logo.png" alt="Logo PIMAPOS - Aplikasi Kasir Digital" id="splashLogoImg" onerror="this.style.display='none'" onload="document.getElementById('splashLogoWrap').classList.add('has-img')">
     <span id="splashLogoFallback">P</span>
   </div>
   <div class="splash-name">PIMAPOS</div>
@@ -726,13 +883,13 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <p class="kasir-clock" id="kasirClock"></p>
     </div>
     <div class="ph-right">
-      <div class="icon-btn ripple-container" onclick="openCustomerModal()" title="Pelanggan">
+      <div class="icon-btn ripple-container" onclick="openCustomerModal()" title="Pelanggan" aria-label="Pelanggan" role="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
-      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageRiwayat')" title="Riwayat">
+      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageRiwayat')" title="Riwayat" aria-label="Riwayat" role="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
       </div>
-      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageProfil')" title="Profil">
+      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageProfil')" title="Profil" aria-label="Profil" role="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
       </div>
     </div>
@@ -774,13 +931,13 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <p id="prodCountLbl">0 produk</p>
     </div>
     <div class="ph-right">
-      <div class="icon-btn ripple-container" onclick="openCatModal()" title="Kategori">
+      <div class="icon-btn ripple-container" onclick="openCatModal()" title="Kategori" aria-label="Kategori" role="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg>
       </div>
-      <div class="icon-btn ripple-container" onclick="openSOModal()" title="Stock Opname">
+      <div class="icon-btn ripple-container" onclick="openSOModal()" title="Stock Opname" aria-label="Stock Opname" role="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       </div>
-      <div class="icon-btn ripple-container" onclick="openProdModal()" title="Tambah Produk">
+      <div class="icon-btn ripple-container" onclick="openProdModal()" title="Tambah Produk" aria-label="Tambah Produk" role="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </div>
     </div>
@@ -796,7 +953,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <p id="riwayatSub">Semua transaksi</p>
     </div>
     <div class="ph-right">
-      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageLaporan')" title="Laporan">
+      <div class="icon-btn ripple-container nav-shortcut" onclick="showPage('pageLaporan')" title="Laporan" aria-label="Laporan" role="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       </div>
     </div>
@@ -898,13 +1055,13 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 <div class="page" id="pageProfil">
   <div class="ph"><div class="ph-left"><h1>Profil</h1><p>Pengaturan PIMAPOS</p></div>
     <div class="ph-right">
-      <div class="icon-btn ripple-container" onclick="openAdvMenuModal()" title="Pengaturan Lanjutan">
+      <div class="icon-btn ripple-container" onclick="openAdvMenuModal()" title="Pengaturan Lanjutan" aria-label="Pengaturan Lanjutan" role="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
       </div>
     </div>
   </div>
   <div class="profile-hero">
-    <div class="profile-av" id="profAv" onclick="document.getElementById('logoFileInput').click()" title="Ganti logo toko">
+    <div class="profile-av" id="profAv" onclick="document.getElementById('logoFileInput').click()" title="Ganti logo toko" aria-label="Ganti logo toko">
       <span id="profAvLetter">T</span>
       <img id="profAvImg" alt="Logo Toko">
       <div class="av-edit-badge">📷</div>
@@ -1047,7 +1204,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 
     <div class="slabel" style="display:flex;align-items:center;justify-content:space-between">
       <span>Media Sosial & QR Toko</span>
-      <button class="icon-btn ripple-container" style="width:30px;height:30px" onclick="openAddSocialMenu()" title="Tambah Platform">
+      <button class="icon-btn ripple-container" style="width:30px;height:30px" onclick="openAddSocialMenu()" title="Tambah Platform" aria-label="Tambah Platform">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
       </button>
     </div>
@@ -1191,7 +1348,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="cart-modal-header">
       <div class="cart-modal-header-spacer"></div>
       <div class="modal-title">🛒 Keranjang</div>
-      <div class="cart-pin-btn ripple-container" onclick="openHoldPickModal()" title="Tahan / Booking Produk">📌</div>
+      <div class="cart-pin-btn ripple-container" onclick="openHoldPickModal()" title="Tahan / Booking Produk" aria-label="Tahan / Booking Produk" role="button">📌</div>
     </div>
     <div id="cartItemsWrap"></div>
     <div id="cartEmptyMsg" class="empty-state" style="display:none;padding:20px">
@@ -1266,7 +1423,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
     <div style="position:relative">
-      <button class="icon-btn ripple-container" style="position:absolute;right:0;top:-4px" onclick="openReceiptMoreModal()" title="Opsi Lainnya">
+      <button class="icon-btn ripple-container" style="position:absolute;right:0;top:-4px" onclick="openReceiptMoreModal()" title="Opsi Lainnya" aria-label="Opsi Lainnya">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
       </button>
       <div class="modal-title" id="receiptModalTitle">✅ Transaksi Berhasil</div>
@@ -1439,7 +1596,12 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   <div class="modal-sheet">
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
-    <div class="modal-title">🏪 Info Toko</div>
+    <div style="position:relative">
+      <button class="icon-btn ripple-container" style="position:absolute;right:0;top:-4px" onclick="openBranchCodeModal()" title="Kode Toko/Cabang" aria-label="Kode Toko/Cabang" role="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+      </button>
+      <div class="modal-title">🏪 Info Toko</div>
+    </div>
     <div class="field"><label>Nama Toko</label><input type="text" id="storeName" placeholder="Toko Saya"></div>
     <div class="field"><label>Alamat (opsional)</label><input type="text" id="storeAddr" placeholder="Jl. Contoh No. 1"></div>
     <div class="field">
@@ -1448,6 +1610,20 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     </div>
     <button class="sbtn ripple-container" onclick="saveStore()">Simpan</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeStoreModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: KODE TOKO/CABANG (opsional, untuk toko dengan banyak cabang) ══════════ -->
+<div class="modal-ov" id="branchCodeModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🏷️ Kode Toko/Cabang</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:16px;line-height:1.6">Opsional — berguna untuk toko dengan beberapa cabang. Kode ini ikut tampil kecil di struk untuk membedakan asal transaksi.</div>
+    <div class="field"><label>Kode Toko/Cabang</label><input type="text" id="storeBranchCodeVal" placeholder="Mis. PMPK-01, Cabang Bandung"></div>
+    <button class="sbtn ripple-container" onclick="saveBranchCode()">Simpan</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeBranchCodeModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -1591,6 +1767,21 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="field-row" style="margin-top:14px" id="taxDetailWrap">
       <div class="field"><label>Label</label><input type="text" id="taxLabel" placeholder="PPN" oninput="saveTaxSettings()"></div>
       <div class="field"><label>Persentase (%)</label><input type="number" id="taxPct" placeholder="10" min="0" max="100" oninput="saveTaxSettings()"></div>
+    </div>
+    <div class="toggle-row" style="margin-top:16px">
+      <div>
+        <div style="font-size:13.5px;font-weight:600">Pembulatan Total (Tunai)</div>
+        <div style="font-size:11.5px;color:var(--t3);margin-top:2px">Bulatkan total ke kelipatan terdekat, hanya untuk pembayaran Tunai</div>
+      </div>
+      <div class="switch" id="roundingToggle" onclick="toggleRounding()"><div class="switch-knob"></div></div>
+    </div>
+    <div class="field" id="roundingDetailWrap" style="margin-top:10px">
+      <label>Bulatkan ke Kelipatan</label>
+      <select id="roundingNearest" onchange="saveTaxSettings()">
+        <option value="100">Rp 100</option>
+        <option value="500">Rp 500</option>
+        <option value="1000">Rp 1.000</option>
+      </select>
     </div>
     <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeTaxModal()">Tutup</button>
     </div>
@@ -2026,6 +2217,24 @@ const RETAIL_LIKE_CATS=['Retail/Toko','Fashion/Clothing','Distro','Elektronik','
 /* Kategori F&B & jasa — biasanya tidak punya barcode kemasan, jadi pakai kode artikel internal otomatis */
 const FNB_LIKE_CATS=['F&B','Cafe','Restoran','Laundry','Jasa/Servis','Lainnya'];
 const CATEGORY_DEFAULT_ICON={'Retail/Toko':'📦','Fashion/Clothing':'👕','Distro':'👟','Elektronik':'📱','Kecantikan':'💄','Otomotif/Bengkel':'🔧','Kesehatan/Apotek':'💊','Grosir/Sembako':'🧺','F&B':'🍔','Cafe':'☕','Restoran':'🍽️','Laundry':'🧺','Jasa/Servis':'🛠️','Lainnya':'🏷️'};
+/* Detail struk otomatis menyesuaikan kategori toko — melanjutkan pola
+   kustomisasi per-kategori yang sama seperti CATEGORY_DEFAULT_ICON. */
+const CATEGORY_CUSTOMER_LABEL={'F&B':'Nama Tamu','Cafe':'Nama Tamu','Restoran':'Nama Tamu','Kecantikan':'Nama Klien','Jasa/Servis':'Nama Klien','Otomotif/Bengkel':'Nama Klien','Kesehatan/Apotek':'Nama Pasien','Laundry':'Nama Pelanggan'};
+const CATEGORY_RECEIPT_FOOTER={
+  'F&B':'Selamat menikmati! Kami tunggu kunjungan berikutnya 😊',
+  'Cafe':'Selamat menikmati! Kami tunggu kunjungan berikutnya ☕',
+  'Restoran':'Selamat menikmati! Kami tunggu kunjungan berikutnya 🍽️',
+  'Retail/Toko':'Terima kasih telah berbelanja 🛍️',
+  'Fashion/Clothing':'Terima kasih telah berbelanja 🛍️',
+  'Distro':'Terima kasih telah berbelanja 🛍️',
+  'Elektronik':'Terima kasih atas kepercayaan Anda 🙏',
+  'Kecantikan':'Terima kasih atas kunjungan Anda, sampai jumpa lagi 💫',
+  'Otomotif/Bengkel':'Terima kasih, hati-hati di jalan 🙏',
+  'Kesehatan/Apotek':'Semoga lekas sembuh, terima kasih 🙏',
+  'Laundry':'Terima kasih, pakaian Anda dalam perawatan terbaik 👕',
+  'Jasa/Servis':'Terima kasih atas kepercayaan Anda 🙏',
+  'Grosir/Sembako':'Terima kasih telah berbelanja 🛍️',
+};
 const SOCIAL_PLATFORMS=[
   {k:'whatsapp',l:'WhatsApp',ic:'💬'},
   {k:'instagram',l:'Instagram',ic:'📸'},
@@ -2211,6 +2420,7 @@ function defState(){
     storeCategory:'F&B',
     storeLogo:'',
     receiptLogo:'',
+    storeBranchCode:'',
     security:{pinEnabled:false,pinHash:'',pinFailCount:0,pinLockedUntil:null,pinChangeFailCount:0,pinChangeLockedUntil:null,actionPinEnabled:false,actionPinHash:'',actionPinFailCount:0,actionPinLockedUntil:null},
     notif:{enabled:false},
     socials:{whatsapp:'',instagram:'',tiktok:'',facebook:'',shopee:'',tokopedia:'',website:''},
@@ -2228,7 +2438,7 @@ function defState(){
     transactions:[],
     customers:[],
     holds:[],
-    tax:{enabled:false,pct:10,label:'PPN'},
+    tax:{enabled:false,pct:10,label:'PPN',roundingEnabled:false,roundingNearest:100},
     shifts:[],
     activeShift:null,
     stockOpnames:[],
@@ -2277,11 +2487,23 @@ function showPage(id){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
   document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
   moveCapsule();
+  updatePageTitle(id);
   if(id==='pageProduk')renderProductList();
   if(id==='pageRiwayat')renderRiwayat();
   if(id==='pageLaporan')renderLaporan();
   if(id==='pageProfil'){renderProfil();renderPinToggleUI();renderNotifToggleUI();renderTaxUI();}
   if(id==='pageKasir'){renderCategoryChips();renderProducts();renderShiftBanner();renderKasirCustChip();renderHoldCapsule();}
+}
+/* SEO — judul tab browser menyesuaikan halaman aktif (technical SEO: dynamic title) */
+function updatePageTitle(id){
+  const titles={
+    pageKasir:'Kasir — PIMAPOS Aplikasi Kasir Digital',
+    pageProduk:'Produk & Stok — PIMAPOS',
+    pageRiwayat:'Riwayat Transaksi — PIMAPOS',
+    pageLaporan:'Laporan Omzet & Profit — PIMAPOS',
+    pageProfil:'Profil & Pengaturan — PIMAPOS',
+  };
+  document.title=titles[id]||'PIMAPOS — Aplikasi Kasir Digital & POS Offline';
 }
 function moveCapsule(){
   const active=document.querySelector('.nav-btn.active');
@@ -2651,7 +2873,7 @@ function renderThemePresets(){
   const wrap=document.getElementById('themePresetScroll');
   const cur1=(S.themeCustom&&S.themeCustom.color1)||'';
   const cur2=(S.themeCustom&&S.themeCustom.color2)||'';
-  wrap.innerHTML=THEME_PRESETS.map(p=>`<div class="theme-preset-chip ${p.color1===cur1&&p.color2===cur2?'active':''}" style="background:linear-gradient(135deg,${p.color1},${p.color2})" onclick="applyThemePreset('${p.color1}','${p.color2}')" title="${p.label}"></div>`).join('');
+  wrap.innerHTML=THEME_PRESETS.map(p=>`<div class="theme-preset-chip ${p.color1===cur1&&p.color2===cur2?'active':''}" style="background:linear-gradient(135deg,${p.color1},${p.color2})" onclick="applyThemePreset('${p.color1}','${p.color2}')" title="${p.label}" aria-label="${p.label}"></div>`).join('');
 }
 function applyThemePreset(color1,color2){
   S.themeCustom=S.themeCustom||{enabled:false,sat:100,bri:100,con:100};
@@ -2817,6 +3039,12 @@ function calcTax(baseAmt){
   const t=getTaxConfig();
   if(!t.enabled||!t.pct)return 0;
   return Math.round(baseAmt*t.pct/100);
+}
+function calcRounding(total){
+  if(!S.tax.roundingEnabled)return 0;
+  const nearest=S.tax.roundingNearest||100;
+  const rounded=Math.round(total/nearest)*nearest;
+  return rounded-total;
 }
 function calcCartTotals(){
   const sub=cartTotalAmt();
@@ -3266,7 +3494,8 @@ function openPaymentModal(){
   document.getElementById('cashReceived').value='';
   document.getElementById('payNote').value='';
   const {total}=calcCartTotals();
-  document.getElementById('payTotalLbl').textContent=rp(total);
+  const rounding=calcRounding(total);
+  document.getElementById('payTotalLbl').textContent=rp(total+rounding)+(rounding?` (dibulatkan dari ${rp(total)})`:'');
   renderCashPresets(total);
   renderPayCustInfo();
   document.getElementById('payModal').classList.add('open');
@@ -3298,8 +3527,10 @@ function selectPM(el){
   document.getElementById('cashFieldWrap').style.display=selectedPM==='Tunai'?'block':'none';
   document.getElementById('changeRow').style.display='none';
   document.getElementById('splitWrap').style.display=selectedPM==='Split'?'block':'none';
+  const {total}=calcCartTotals();
+  const rounding=selectedPM==='Tunai'?calcRounding(total):0;
+  document.getElementById('payTotalLbl').textContent=rp(total+rounding)+(rounding?` (dibulatkan dari ${rp(total)})`:'');
   if(selectedPM==='Split'&&splitPayments.length===0){
-    const {total}=calcCartTotals();
     splitPayments=[{method:'Tunai',amount:0},{method:'QRIS',amount:total}];
     renderSplitRows();
   }
@@ -3344,8 +3575,10 @@ function calcChange(){
 function completeTransaction(){
   if(cart.length===0){toast('Keranjang kosong');return;}
   if(!S.activeShift){toast('⚠️ Buka shift (BOD) terlebih dahulu');closePaymentModal();showPage('pageKasir');openBodModal();return;}
-  const {sub,disk,tax,total}=calcCartTotals();
+  const {sub,disk,tax,total:rawTotal}=calcCartTotals();
   const taxCfg=getTaxConfig();
+  const rounding=selectedPM==='Tunai'?calcRounding(rawTotal):0;
+  const total=rawTotal+rounding;
   let cash=0,change=0,paymentsSnapshot=null;
   if(selectedPM==='Split'){
     const paid=splitPayments.reduce((s,p)=>s+(p.amount||0),0);
@@ -3371,7 +3604,8 @@ function completeTransaction(){
       const p=S.products.find(x=>x.id===c.id);
       return {id:c.id,name:c.name,emoji:c.emoji,price:c.price,cost:(p&&p.cost)||0,qty:c.qty,variant:c.variant||''};
     }),
-    subtotal:sub,diskon:disk,tax,taxLabel:tax>0?taxCfg.label:'',taxPct:tax>0?taxCfg.pct:0,total,
+    subtotal:sub,diskon:disk,tax,taxLabel:tax>0?taxCfg.label:'',taxPct:tax>0?taxCfg.pct:0,
+    rounding,total,
     method:selectedPM,payments:paymentsSnapshot,
     cash:selectedPM==='Tunai'?cash:(selectedPM==='Split'?cash:total),
     change,
@@ -3408,15 +3642,16 @@ function showReceipt(trx){
   if(S.receiptLogo){
     lines.push(`<div class="receipt-center" style="margin-bottom:4px"><img src="${S.receiptLogo}" alt="${S.storeName||'Toko'}" style="max-width:140px;max-height:70px;object-fit:contain;background:#fff;border-radius:6px;padding:4px"></div>`);
   }else{
-    lines.push(`<div class="receipt-center" style="font-weight:700;font-size:13.5px;letter-spacing:.02em">${S.storeName||'Toko Saya'}</div>`);
+    lines.push(`<div class="receipt-center" style="font-weight:700;font-size:13.5px;letter-spacing:.02em">${S.storeName||'Toko Saya'}${S.storeBranchCode?' <span style="font-weight:500;opacity:.6;font-size:10.5px">('+S.storeBranchCode+')</span>':''}</div>`);
   }
   if(S.storeCategory)lines.push(`<div class="receipt-center" style="opacity:.7">${S.storeCategory}</div>`);
   if(S.storeAddr)lines.push(`<div class="receipt-center">${S.storeAddr}</div>`);
   lines.push(`<div class="receipt-center">${new Date(trx.ts).toLocaleString('id-ID')}</div>`);
   lines.push(`<div class="receipt-center" style="opacity:.6">No. Struk: ${trx.id.toUpperCase()}</div>`);
+  if(trx.cashier)lines.push(`<div class="receipt-center" style="opacity:.45;font-size:9px">${trx.cashier}</div>`);
   if(trx.customerName){
-    lines.push(`<div class="receipt-center" style="margin-top:2px">Pelanggan: ${trx.customerName}</div>`);
-    if(trx.customerPhone)lines.push(`<div class="receipt-center" style="opacity:.7">No. HP: ${trx.customerPhone}</div>`);
+    const custLabel=CATEGORY_CUSTOMER_LABEL[S.storeCategory]||'Pelanggan';
+    lines.push(`<div class="receipt-center" style="margin-top:2px">${custLabel}: ${trx.customerName}</div>`);
   }
   lines.push('<hr>');
   trx.items.forEach(it=>{
@@ -3427,7 +3662,14 @@ function showReceipt(trx){
   lines.push(`<div class="rline"><span>Subtotal</span><span>${rpNum(trx.subtotal)}</span></div>`);
   if(trx.diskon>0)lines.push(`<div class="rline"><span>Diskon</span><span>-${rpNum(trx.diskon)}</span></div>`);
   if(trx.tax>0)lines.push(`<div class="rline"><span>${trx.taxLabel||'Pajak'} (${trx.taxPct}%)</span><span>${rpNum(trx.tax)}</span></div>`);
-  lines.push(`<div class="rline" style="font-weight:700;font-size:13px;margin-top:2px"><span>TOTAL</span><span>${rpNum(trx.total)}</span></div>`);
+  if(trx.rounding){
+    const billAmt=trx.total-trx.rounding;
+    lines.push(`<div class="rline" style="margin-top:2px"><span>Bill</span><span>${rpNum(billAmt)}</span></div>`);
+    lines.push(`<div class="rline"><span>Pembulatan</span><span>${trx.rounding>0?'+':''}${rpNum(trx.rounding)}</span></div>`);
+    lines.push(`<div class="rline" style="font-weight:700;font-size:13px"><span>GRAND TOTAL</span><span>${rpNum(trx.total)}</span></div>`);
+  }else{
+    lines.push(`<div class="rline" style="font-weight:700;font-size:13px;margin-top:2px"><span>TOTAL</span><span>${rpNum(trx.total)}</span></div>`);
+  }
   if(trx.method==='Split'&&Array.isArray(trx.payments)){
     lines.push(`<div class="rline" style="opacity:.7"><span>Pembayaran (Split)</span><span></span></div>`);
     trx.payments.forEach(p=>lines.push(`<div class="rline"><span>&nbsp;&nbsp;${p.method}</span><span>${rpNum(p.amount)}</span></div>`));
@@ -3442,25 +3684,17 @@ function showReceipt(trx){
   }
   if(trx.note)lines.push(`<div style="margin-top:6px">Catatan: ${trx.note}</div>`);
   lines.push('<hr>');
-  lines.push('<div class="receipt-center">Terima kasih atas kunjungan Anda 🙏</div>');
+  lines.push(`<div class="receipt-center">${CATEGORY_RECEIPT_FOOTER[S.storeCategory]||'Terima kasih atas kunjungan Anda 🙏'}</div>`);
   const socs=filledSocials().slice(0,3);
-  if(socs.length){
-    lines.push('<div class="receipt-sub2">Hubungi & Ikuti Kami</div>');
-    socs.forEach(s=>{
-      lines.push(`<div class="receipt-center" style="font-size:10.5px;padding:2px 0">${s.val}</div>`);
-    });
-    const primary=socs[0];
-    if(primary.url){
-      const qrLocal=qrDataUrl(primary.url,150);
-      if(qrLocal){
-        lines.push(`<div class="receipt-qr-wrap">
-          <img src="${qrLocal}" alt="QR" style="width:84px;height:84px">
-          <div style="font-size:8.5px;letter-spacing:.1em;color:#333;margin-top:4px">SCAN ${primary.l.toUpperCase()}</div>
-        </div>`);
-      }
+  const primary=socs.find(s=>s.url)||null;
+  if(primary&&primary.url){
+    const qrLocal=qrDataUrl(primary.url,150);
+    if(qrLocal){
+      lines.push(`<div class="receipt-center" style="margin-top:10px"><img src="${qrLocal}" alt="QR ${primary.l}" style="width:76px;height:76px;border-radius:6px"></div>`);
+      lines.push(`<div class="receipt-center" style="font-size:8.5px;letter-spacing:.08em;opacity:.6;margin-top:4px">SCAN & FOLLOW ${primary.l.toUpperCase()}</div>`);
     }
   }
-  lines.push(`<div class="receipt-center" style="margin-top:10px;font-size:9px;opacity:.55">${S.storeName||'Toko Saya'}</div>`);
+  lines.push(`<div class="receipt-center" style="margin-top:8px;font-size:9px;opacity:.55">${S.storeName||'Toko Saya'}</div>`);
   document.getElementById('receiptBox').innerHTML=lines.join('');
   document.getElementById('receiptModalTitle').textContent=trx.voided?'🚫 Transaksi Dibatalkan':'✅ Transaksi Berhasil';
   document.getElementById('voidStatusNotice').innerHTML=trx.voided?`<div class="void-notice">🚫 Transaksi ini sudah dibatalkan${trx.voidedAt?' pada '+new Date(trx.voidedAt).toLocaleString('id-ID'):''}. Stok telah dikembalikan.</div>`:(trx.totalRefunded>0?`<div class="void-notice" style="background:rgba(var(--accent-tint-rgb),.1);border-color:rgba(var(--accent-tint-rgb),.3);color:var(--amber)">🔄 Sebagian/seluruh item pada transaksi ini sudah diretur senilai ${rp(trx.totalRefunded)}.</div>`:'');
@@ -3632,8 +3866,8 @@ async function downloadReceiptPDF(){
   const W=72; // mm, thermal-receipt-like width
   const lineH=4.6;
   const socs=filledSocials().slice(0,3);
-  const hasQr=!!(socs.length&&socs[0].url);
-  let estLines=10+trx.items.length*2+(trx.diskon>0?1:0)+(trx.tax>0?1:0)+(trx.note?1:0)+2+(socs.length?socs.length+1:0)+(hasQr?9:0)+(trx.customerName?2:0);
+  const hasQr=socs.some(s=>s.url);
+  let estLines=10+trx.items.length*2+(trx.diskon>0?1:0)+(trx.tax>0?1:0)+(trx.note?1:0)+2+(hasQr?7:0)+(trx.customerName?1:0)+(trx.cashier?1:0)+(trx.rounding?2:0);
   const H=Math.max(95,estLines*lineH+30);
   const doc=new jsPDF({unit:'mm',format:[W,H]});
   const cx=W/2;
@@ -3663,7 +3897,7 @@ async function downloadReceiptPDF(){
     }
   }else{
     doc.setFont('courier','bold');doc.setFontSize(11);
-    doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});y+=5;
+    doc.text((S.storeName||'Toko Saya')+(S.storeBranchCode?' ('+S.storeBranchCode+')':''),cx,y,{align:'center'});y+=5;
   }
   doc.setFont('courier','normal');doc.setFontSize(7.5);
   if(S.storeCategory){doc.text(S.storeCategory,cx,y,{align:'center'});y+=4;}
@@ -3671,10 +3905,11 @@ async function downloadReceiptPDF(){
   doc.text(new Date(trx.ts).toLocaleString('id-ID'),cx,y,{align:'center'});y+=4;
   doc.setFontSize(6.8);
   doc.text('No. Struk: '+trx.id.toUpperCase(),cx,y,{align:'center'});y+=4.5;
+  if(trx.cashier){doc.setTextColor(140,140,140);doc.setFontSize(6.2);doc.text(trx.cashier,cx,y,{align:'center'});doc.setTextColor(0,0,0);y+=3.6;}
   if(trx.customerName){
     doc.setFontSize(7);
-    doc.text('Pelanggan: '+trx.customerName,cx,y,{align:'center'});y+=3.6;
-    if(trx.customerPhone){doc.setFontSize(6.8);doc.text('No. HP: '+trx.customerPhone,cx,y,{align:'center'});y+=4;}
+    const custLabel=CATEGORY_CUSTOMER_LABEL[S.storeCategory]||'Pelanggan';
+    doc.text(custLabel+': '+trx.customerName,cx,y,{align:'center'});y+=4;
   }
   doc.setLineDashPattern([0.6,0.6],0);
   doc.line(4,y,W-4,y);y+=4.5;
@@ -3690,7 +3925,16 @@ async function downloadReceiptPDF(){
   if(trx.diskon>0){doc.text('Diskon',4,y);doc.text('-'+rpNum(trx.diskon),W-4,y,{align:'right'});y+=lineH;}
   if(trx.tax>0){doc.text((trx.taxLabel||'Pajak')+' ('+trx.taxPct+'%)',4,y);doc.text(rpNum(trx.tax),W-4,y,{align:'right'});y+=lineH;}
   doc.setFont('courier','bold');doc.setFontSize(9);
-  doc.text('TOTAL',4,y);doc.text(rpNum(trx.total),W-4,y,{align:'right'});y+=lineH;
+  if(trx.rounding){
+    const billAmt=trx.total-trx.rounding;
+    doc.setFont('courier','normal');doc.setFontSize(8);
+    doc.text('Bill',4,y);doc.text(rpNum(billAmt),W-4,y,{align:'right'});y+=lineH;
+    doc.text('Pembulatan',4,y);doc.text((trx.rounding>0?'+':'')+rpNum(trx.rounding),W-4,y,{align:'right'});y+=lineH;
+    doc.setFont('courier','bold');doc.setFontSize(9);
+    doc.text('GRAND TOTAL',4,y);doc.text(rpNum(trx.total),W-4,y,{align:'right'});y+=lineH;
+  }else{
+    doc.text('TOTAL',4,y);doc.text(rpNum(trx.total),W-4,y,{align:'right'});y+=lineH;
+  }
   doc.setFont('courier','normal');doc.setFontSize(8);
   doc.text(trx.method,4,y);
   if(trx.method==='Tunai')doc.text(rpNum(trx.cash),W-4,y,{align:'right'});
@@ -3699,26 +3943,20 @@ async function downloadReceiptPDF(){
   if(trx.note){doc.setFontSize(7);doc.text('Catatan: '+trx.note,4,y);y+=lineH;}
   y+=2;doc.line(4,y,W-4,y);y+=5;
   doc.setFont('courier','normal');doc.setFontSize(8);
-  doc.text('Terima kasih atas kunjungan Anda',cx,y,{align:'center'});y+=5;
+  const footerMsg=(CATEGORY_RECEIPT_FOOTER[S.storeCategory]||'Terima kasih atas kunjungan Anda').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').trim();
+  doc.text(footerMsg,cx,y,{align:'center'});y+=5;
 
-  if(socs.length){
-    doc.setFont('courier','bold');doc.setFontSize(6.8);
-    doc.text('HUBUNGI & IKUTI KAMI',cx,y,{align:'center'});y+=4;
-    doc.setFont('courier','normal');doc.setFontSize(7);
-    socs.forEach(s=>{doc.text(s.val,cx,y,{align:'center'});y+=3.6;});
-    y+=1;
-    if(hasQr){
-      try{
-        const dataUrl=qrDataUrl(socs[0].url,300);
-        if(!dataUrl)throw new Error('modul QR belum siap');
-        const qSize=26;
-        doc.setFillColor(255,255,255);doc.rect(cx-qSize/2-2,y,qSize+4,qSize+8,'F');
-        doc.addImage(dataUrl,'PNG',cx-qSize/2,y+2,qSize,qSize);y+=qSize+6;
-        doc.setTextColor(60,60,60);doc.setFontSize(6.2);
-        doc.text('SCAN '+socs[0].l.toUpperCase(),cx,y,{align:'center'});y+=5;
-        doc.setTextColor(0,0,0);
-      }catch(e){console.warn('[PIMAPOS] QR gagal disisipkan ke PDF',e);}
-    }
+  const primary=socs.find(s=>s.url)||null;
+  if(primary&&primary.url){
+    try{
+      const dataUrl=qrDataUrl(primary.url,300);
+      if(!dataUrl)throw new Error('modul QR belum siap');
+      const qSize=24;
+      doc.addImage(dataUrl,'PNG',cx-qSize/2,y,qSize,qSize);y+=qSize+3;
+      doc.setTextColor(90,90,90);doc.setFontSize(6.2);
+      doc.text('SCAN & FOLLOW '+primary.l.toUpperCase(),cx,y,{align:'center'});y+=5;
+      doc.setTextColor(0,0,0);
+    }catch(e){console.warn('[PIMAPOS] QR gagal disisipkan ke PDF',e);}
   }
   doc.setFont('courier','normal');doc.setFontSize(6.5);doc.setTextColor(110,110,110);
   doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});
@@ -3765,7 +4003,7 @@ function renderProdArtikelField(){
         <div class="field-row">
           <div class="artikel-icon-prev" id="prodIconPrev">${letter}</div>
           <input type="text" id="prodArtikel" placeholder="Scan atau ketik kode SKU/Barcode">
-          <button type="button" class="scan-btn ripple-container" onclick="openScanModal()" title="Scan Barcode">📷</button>
+          <button type="button" class="scan-btn ripple-container" onclick="openScanModal()" title="Scan Barcode" aria-label="Scan Barcode">📷</button>
         </div>
         <div class="scan-hint">Mode Retail/Fashion — scan barcode kemasan produk dengan kamera, atau isi manual.</div>
       </div>`;
@@ -3776,7 +4014,7 @@ function renderProdArtikelField(){
         <div class="field-row">
           <div class="artikel-icon-prev" id="prodIconPrev">${letter}</div>
           <input type="text" id="prodArtikel" placeholder="Contoh: MN-01" readonly>
-          <button type="button" class="scan-btn ripple-container" onclick="generateAutoArtikel()" title="Buat Kode Otomatis">🔢</button>
+          <button type="button" class="scan-btn ripple-container" onclick="generateAutoArtikel()" title="Buat Kode Otomatis" aria-label="Buat Kode Otomatis">🔢</button>
         </div>
         <div class="scan-hint">Mode F&B/Jasa — produk biasanya tanpa barcode kemasan, jadi kode artikel dibuat otomatis.</div>
       </div>`;
@@ -4978,7 +5216,7 @@ function compressImageToMaxSize(file,maxBytes){
         const canvas=document.createElement('canvas');
         const ctx=canvas.getContext('2d');
         canvas.width=w;canvas.height=h;
-        const draw=()=>{canvas.width=w;canvas.height=h;ctx.clearRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);};
+        const draw=()=>{canvas.width=w;canvas.height=h;ctx.clearRect(0,0,w,h);ctx.fillStyle='#ffffff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);};
         draw();
         const approxBytes=du=>Math.round((du.length-du.indexOf(',')-1)*0.75);
         let quality=0.92,dataUrl=canvas.toDataURL('image/jpeg',quality),tries=0;
@@ -5151,17 +5389,28 @@ function renderTaxUI(){
   document.getElementById('taxDetailWrap').style.pointerEvents=t.enabled?'auto':'none';
   document.getElementById('taxLabel').value=t.label||'PPN';
   document.getElementById('taxPct').value=t.pct||0;
+  document.getElementById('roundingToggle').classList.toggle('active',!!t.roundingEnabled);
+  document.getElementById('roundingDetailWrap').style.opacity=t.roundingEnabled?'1':'.45';
+  document.getElementById('roundingDetailWrap').style.pointerEvents=t.roundingEnabled?'auto':'none';
+  document.getElementById('roundingNearest').value=t.roundingNearest||100;
 }
 function toggleTax(){
-  S.tax=S.tax||{enabled:false,pct:10,label:'PPN'};
+  S.tax=S.tax||{enabled:false,pct:10,label:'PPN',roundingEnabled:false,roundingNearest:100};
   S.tax.enabled=!S.tax.enabled;
   save();renderTaxUI();
   toast(S.tax.enabled?'✅ Pajak/Service Charge diaktifkan':'🔕 Pajak/Service Charge dimatikan');
 }
+function toggleRounding(){
+  S.tax=S.tax||{enabled:false,pct:10,label:'PPN',roundingEnabled:false,roundingNearest:100};
+  S.tax.roundingEnabled=!S.tax.roundingEnabled;
+  save();renderTaxUI();
+  toast(S.tax.roundingEnabled?'✅ Pembulatan total diaktifkan (Tunai)':'🔕 Pembulatan total dimatikan');
+}
 function saveTaxSettings(){
-  S.tax=S.tax||{enabled:false,pct:10,label:'PPN'};
+  S.tax=S.tax||{enabled:false,pct:10,label:'PPN',roundingEnabled:false,roundingNearest:100};
   S.tax.label=document.getElementById('taxLabel').value.trim()||'PPN';
   S.tax.pct=Math.max(0,Math.min(100,Number(document.getElementById('taxPct').value||0)));
+  S.tax.roundingNearest=Number(document.getElementById('roundingNearest').value||100);
   save();
 }
 function renderPinToggleUI(){
@@ -5477,6 +5726,17 @@ function checkBodReminder(){
 }
 function closeBodReminderModal(){document.getElementById('bodReminderModal').classList.remove('open');}
 function closeStoreModal(){document.getElementById('storeModal').classList.remove('open');}
+function openBranchCodeModal(){
+  document.getElementById('storeBranchCodeVal').value=S.storeBranchCode||'';
+  document.getElementById('branchCodeModal').classList.add('open');
+}
+function closeBranchCodeModal(){document.getElementById('branchCodeModal').classList.remove('open');}
+function saveBranchCode(){
+  S.storeBranchCode=document.getElementById('storeBranchCodeVal').value.trim();
+  save();
+  closeBranchCodeModal();
+  toast(S.storeBranchCode?'✅ Kode toko/cabang disimpan':'Kode toko/cabang dikosongkan');
+}
 function renderStoreCatChips(){
   document.getElementById('storeCatWrap').innerHTML=STORE_CATEGORIES.map(c=>
     `<div class="storecat-chip ${S.storeCategory===c?'active':''}" data-storecat="${c}" onclick="setStoreCategory('${c.replace(/'/g,"\\'")}')">${c}</div>`).join('');
@@ -5597,6 +5857,7 @@ function renderSocialAccordionList(){
           <button class="sbtn ripple-container" onclick="saveSocialAccordion('${p.k}')">Simpan</button>
           <button class="sbtn ghost ripple-container" onclick="downloadSocialQR('${p.k}')">⬇️ Unduh QR</button>
         </div>
+        <button class="sbtn ghost ripple-container" style="margin-top:8px;color:var(--red)" onclick="deleteSocialAccordion('${p.k}')">🗑️ Hapus ${p.l}</button>
       </div>
     </div>`;
   }).join('');
@@ -5624,10 +5885,27 @@ function updateSocialAccordionQR(key){renderAccordionQR(key);}
 function saveSocialAccordion(key){
   const input=document.getElementById('socInput_'+key);
   if(!input)return;
-  S.socials[key]=input.value.trim();
+  const val=input.value.trim();
+  S.socials[key]=val;
   save();
-  toast('✅ Akun sosial disimpan');
-  renderAccordionQR(key);
+  if(!val){
+    // dikosongkan & disimpan = dianggap dihapus, jangan sampai "hidup lagi" saat modal dibuka ulang
+    openSocialAccordions.delete(key);
+    renderSocialAccordionList();
+  }else{
+    toast('✅ Akun sosial disimpan');
+    renderAccordionQR(key);
+  }
+}
+function deleteSocialAccordion(key){
+  const p=SOCIAL_PLATFORMS.find(x=>x.k===key);
+  appConfirm(`Hapus akun ${p?p.l:''} dari struk?`,()=>{
+    S.socials[key]='';
+    save();
+    openSocialAccordions.delete(key);
+    renderSocialAccordionList();
+    toast('🗑️ Akun dihapus');
+  },'Hapus Akun');
 }
 function downloadSocialQR(key){
   const input=document.getElementById('socInput_'+key);
