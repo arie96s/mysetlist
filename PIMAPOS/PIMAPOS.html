@@ -422,7 +422,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 
 
 /* CART FLOATING BAR */
-#cartBar{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 6px);left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;z-index:90;display:none}
+#cartBar{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 6px);left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;z-index:90;display:none;border:1px solid transparent;transition:padding .48s var(--spring),border-radius .48s var(--spring),background-color .3s ease,border-color .3s ease}
 #cartBar.show{display:block;animation:cartIn .35s var(--spring) both}
 @keyframes cartIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .cart-bar-inner{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:var(--rxl);background:var(--grad-gold);box-shadow:0 14px 40px rgba(var(--accent-shadow-rgb),.45),inset 0 1px 0 rgba(255,255,255,.25);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring)}
@@ -431,7 +431,44 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .cart-bar-info{flex:1;color:#fff}
 .cart-bar-lbl{font-size:11px;opacity:.85;font-weight:600}
 .cart-bar-amt{font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace}
-.cart-bar-arrow{color:#fff;width:18px;height:18px;flex-shrink:0}
+.cart-bar-arrow{color:#fff;width:18px;height:18px;flex-shrink:0;transition:transform .5s var(--spring)}
+
+/* ── Expanding Cart Capsule (spring) ── */
+#cartExpandScrim{position:fixed;inset:0;z-index:89;background:rgba(4,8,18,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s ease,visibility 0s linear .3s;transform:translateZ(0)}
+#cartExpandScrim.show{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .3s ease,visibility 0s}
+#cartBar.expanded{background:var(--modal-bg);border-radius:var(--rxxl);border-color:rgba(255,255,255,.09);padding:0 8px 8px;box-shadow:0 -10px 24px rgba(0,0,0,.25),0 24px 70px rgba(0,0,0,.5)}
+#cartBar.expanded .cart-bar-inner{box-shadow:0 -6px 22px rgba(var(--accent-shadow-rgb),.3),inset 0 1px 0 rgba(255,255,255,.25)}
+#cartBar.expanded .cart-bar-arrow{transform:rotate(90deg)}
+#cartExpandPanel{height:0;overflow:hidden;transition:height .58s var(--spring)}
+#cartBar.expanded #cartExpandPanel,#cartBar.collapsing #cartExpandPanel{will-change:height}
+#cartBar.collapsing #cartExpandPanel{transition:height .46s cubic-bezier(.3,.85,.3,1)}
+#cartBar.collapsing .cart-bar-inner{animation:cartBarSettle .55s var(--spring) .12s both}
+@keyframes cartBarSettle{0%{transform:scale(1)}45%{transform:scale(.96,.87)}100%{transform:scale(1)}}
+.cart-exp-scroll{max-height:52vh;overflow-y:auto;padding:16px 14px 6px;opacity:0;transform:translateY(14px) translateZ(0);transition:opacity .3s ease,transform .5s var(--spring)}
+#cartBar.expanded .cart-exp-scroll{opacity:1;transform:translateZ(0)}
+.cart-exp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 10px}
+.cart-exp-title{font-size:12px;font-weight:800;color:var(--t3);letter-spacing:.4px;text-transform:uppercase}
+.cart-exp-hold{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:var(--t2);font-size:16px;font-weight:800;line-height:1;flex-shrink:0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring)}
+.cart-exp-hold:active{transform:scale(.92)}
+.cart-exp-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--rmd);background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);margin-bottom:7px;color:var(--t1)}
+.cart-exp-info{flex:1;min-width:0}
+.cart-exp-name{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-exp-price{font-size:10.5px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.cart-exp-qty{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.cart-exp-qbtn{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:var(--t1);font-size:15px;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring)}
+.cart-exp-qbtn:active{transform:scale(.85)}
+.cart-exp-qnum{font-size:12.5px;font-weight:800;font-family:'JetBrains Mono',monospace;min-width:16px;text-align:center}
+.cart-exp-sub{font-size:11.5px;font-weight:800;font-family:'JetBrains Mono',monospace;flex-shrink:0;min-width:62px;text-align:right}
+.cart-exp-diskon{display:flex;align-items:center;gap:8px;margin:11px 2px 4px;color:var(--t2)}
+.cart-exp-diskon label{font-size:11px;font-weight:700;flex-shrink:0}
+.cart-exp-diskon input{flex:1;min-width:0;padding:8px 11px;border-radius:var(--rmd);border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t1);font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;outline:none}
+.cart-exp-diskon input::placeholder{color:var(--t4)}
+.cart-exp-diskon input:focus{border-color:rgba(var(--accent-tint-rgb),.5)}
+.cart-exp-row{display:flex;justify-content:space-between;align-items:center;color:var(--t2);font-size:12px;font-weight:600;padding:4px 2px}
+.cart-exp-row .v{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--t1)}
+.cart-exp-row.tot{border-top:1px solid rgba(255,255,255,.12);margin-top:6px;padding-top:9px;font-size:13.5px;font-weight:800;color:var(--t1)}
+.cart-exp-pay{width:100%;margin:12px 0 4px;padding:13px;border-radius:var(--rmd);border:none;background:var(--grad-gold);color:#fff;font-size:13.5px;font-weight:800;box-shadow:0 8px 26px rgba(var(--accent-shadow-rgb),.35);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring)}
+.cart-exp-pay:active{transform:scale(.97)}
 
 /* CART SHEET / CHECKOUT */
 .modal-ov{position:fixed;inset:0;background:rgba(2,8,23,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s var(--ease);padding:0 12px calc(var(--safe-b) + 14px)}
@@ -1225,8 +1262,27 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 </div>
 
 <!-- FLOATING CART BAR -->
+<div id="cartExpandScrim" onclick="collapseCartExpand()"></div>
 <div id="cartBar">
-  <div class="cart-bar-inner" onclick="openCartModal()">
+  <div id="cartExpandPanel">
+    <div class="cart-exp-scroll">
+      <div class="cart-exp-head">
+        <div class="cart-exp-title">🛒 Keranjang</div>
+        <div class="cart-exp-hold" role="button" aria-label="Tahan / Booking Produk" title="Tahan / Booking Produk" onclick="cartExpandHold()">⋯</div>
+      </div>
+      <div id="cartExpItems"></div>
+      <div class="cart-exp-diskon">
+        <label>Diskon Rp</label>
+        <input type="number" id="cartExpDiskon" placeholder="0" min="0" inputmode="numeric" oninput="cartExpDiskonInput(this.value)">
+      </div>
+      <div class="cart-exp-row"><span>Subtotal</span><span class="v" id="cartExpSubtotal">Rp 0</span></div>
+      <div class="cart-exp-row" id="cartExpDiskonRow" style="display:none"><span>Diskon</span><span class="v" id="cartExpDiskonVal">-Rp 0</span></div>
+      <div class="cart-exp-row" id="cartExpTaxRow" style="display:none"><span id="cartExpTaxLbl">Pajak</span><span class="v" id="cartExpTaxVal">Rp 0</span></div>
+      <div class="cart-exp-row tot"><span>Total</span><span class="v" id="cartExpTotal">Rp 0</span></div>
+      <button class="cart-exp-pay" onclick="cartExpandPay()">Lanjut ke Pembayaran</button>
+    </div>
+  </div>
+  <div class="cart-bar-inner" onclick="toggleCartExpand()">
     <div class="cart-bar-count" id="cartBarCount">0</div>
     <div class="cart-bar-info">
       <div class="cart-bar-lbl">Lihat Keranjang</div>
@@ -1418,7 +1474,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div id="cartCustRow"></div>
       <div class="field" style="margin-top:14px">
         <label>Diskon (Rp)</label>
-        <div class="amt-wrap"><span class="amt-pre">Rp</span><input type="number" id="cartDiskon" placeholder="0" oninput="renderCartModal()"></div>
+        <div class="amt-wrap"><span class="amt-pre">Rp</span><input type="number" id="cartDiskon" placeholder="0" min="0" oninput="renderCartModal()"></div>
       </div>
       <div class="summary-row"><span class="l">Subtotal</span><span class="v" id="cartSubtotal">Rp 0</span></div>
       <div class="summary-row"><span class="l">Diskon</span><span class="v" id="cartDiskonVal" style="color:var(--red)">-Rp 0</span></div>
@@ -3128,6 +3184,30 @@ function renderProducts(){
   }).join('');
   initRipples();
 }
+/* Surgical card update — mutates badge/stock/out-state on the EXISTING node.
+   Grid rebuild (renderProducts) is reserved for list-composition changes only;
+   rebuilding on every tap destroyed & recreated the glass stack → visible blink. */
+function updateProductCard(id){
+  const stack=document.querySelector('.prod-stack[data-pid="'+id+'"]');
+  const p=S.products.find(x=>x.id===id);
+  if(!stack||!p){renderProducts();return;} // card off-screen (filter/search) → safe fallback
+  const card=stack.querySelector('.prod-card');
+  if(!card){renderProducts();return;}
+  const inCart=cart.find(c=>c.id===id);
+  const qty=inCart?inCart.qty:0;
+  const held=holdQtyFor(id);
+  const avail=availableStock(p);
+  const out=avail<=0;
+  card.classList.toggle('out',out);
+  let badge=card.querySelector('.prod-badge');
+  if(qty>0){
+    if(!badge){badge=document.createElement('div');badge.className='prod-badge';card.prepend(badge);}
+    badge.textContent=qty;
+  }else if(badge){badge.remove();}
+  const unitTxt=p.unit&&p.unit!=='pcs'?' '+p.unit:'';
+  const stockEl=card.querySelector('.prod-stock');
+  if(stockEl)stockEl.innerHTML=(out&&held>0?'📌 Semua ditahan':out?'Stok habis':'Stok: '+avail+unitTxt)+(held>0&&!out?' <span style="color:var(--amber)">· '+held+' ditahan</span>':'');
+}
 function quickAdd(id,evt){
   const p=S.products.find(x=>x.id===id);if(!p)return;
   const avail=availableStock(p);
@@ -3141,9 +3221,9 @@ function quickAdd(id,evt){
   else cart.push({id:p.id,name:p.name,emoji:p.emoji,price:p.price,qty:1,variant:p.variant||''});
   updateCartBar();
   if(cardEl)flyToCart(cardEl,p.price);
-  renderProducts();
-  const freshStack=document.querySelector('.prod-stack[data-pid="'+id+'"]');
-  if(freshStack)pulseStackRefill(freshStack);
+  updateProductCard(id);
+  const stack=document.querySelector('.prod-stack[data-pid="'+id+'"]');
+  if(stack)pulseStackRefill(stack);
 }
 /* Single-use "ghost" that flies from the tapped card to the cart price capsule,
    then removes itself — no persistent nodes, no listeners left behind. */
@@ -3179,7 +3259,7 @@ function pulseStackRefill(stackEl){
   stackEl.classList.remove('stack-refill');
   void stackEl.offsetWidth; // force reflow so the animation can re-trigger
   stackEl.classList.add('stack-refill');
-  stackEl.addEventListener('animationend',()=>stackEl.classList.remove('stack-refill'),{once:true});
+  stackEl.onanimationend=()=>{stackEl.classList.remove('stack-refill');stackEl.onanimationend=null;};
 }
 
 /* ════════════════════════════════════════════════════
@@ -3200,7 +3280,7 @@ function calcRounding(total){
 }
 function calcCartTotals(){
   const sub=cartTotalAmt();
-  const disk=Math.min(Number(document.getElementById('cartDiskon')?.value||0),sub);
+  const disk=Math.min(Math.max(0,Number(document.getElementById('cartDiskon')?.value||0)),sub);
   const taxBase=sub-disk;
   const tax=calcTax(taxBase);
   return {sub,disk,tax,total:taxBase+tax};
@@ -3210,9 +3290,104 @@ function updateCartBar(){
   document.getElementById('cartBar').classList.toggle('show',count>0);
   document.getElementById('cartBarCount').textContent=count;
   document.getElementById('cartBarAmt').textContent=rp(cartTotalAmt());
+  if(cartExpanded){
+    if(count===0){
+      collapseCartExpand();
+      clearTimeout(cartCollapseTimer);
+      const b=document.getElementById('cartBar');
+      b.classList.remove('expanded','collapsing');
+      b.style.padding='';b.style.borderRadius='';
+      document.getElementById('cartExpandPanel').style.height='0px';
+    }
+    else{renderCartExpand();syncCartExpandHeight();}
+  }
 }
 function openCartModal(){renderCartModal();document.getElementById('cartModal').classList.add('open');}
 function closeCartModal(){document.getElementById('cartModal').classList.remove('open');}
+
+/* ── Expanding Cart Capsule ── */
+let cartExpanded=false,cartCollapseTimer=null;
+function toggleCartExpand(){cartExpanded?collapseCartExpand():expandCartExpand();}
+function expandCartExpand(){
+  if(cart.length===0){openCartModal();return;}
+  cartExpanded=true;
+  clearTimeout(cartCollapseTimer);
+  const bar=document.getElementById('cartBar');
+  bar.classList.remove('collapsing');
+  bar.style.padding='';
+  bar.style.borderRadius='';
+  bar.classList.add('expanded');
+  const d=document.getElementById('cartDiskon');
+  document.getElementById('cartExpDiskon').value=d?d.value:'';
+  renderCartExpand();
+  document.getElementById('cartExpandScrim').classList.add('show');
+  syncCartExpandHeight();
+}
+function collapseCartExpand(){
+  if(!cartExpanded)return;
+  cartExpanded=false;
+  const bar=document.getElementById('cartBar');
+  bar.classList.add('collapsing');
+  bar.style.padding='0px';
+  bar.style.borderRadius='var(--rxl)';
+  document.getElementById('cartExpandPanel').style.height='0px';
+  document.getElementById('cartExpandScrim').classList.remove('show');
+  clearTimeout(cartCollapseTimer);
+  cartCollapseTimer=setTimeout(()=>{
+    bar.classList.remove('expanded','collapsing');
+    bar.style.padding='';
+    bar.style.borderRadius='';
+  },560);
+}
+function syncCartExpandHeight(){
+  const panel=document.getElementById('cartExpandPanel');
+  panel.style.height=panel.scrollHeight+'px';
+}
+function renderCartExpand(){
+  const wrap=document.getElementById('cartExpItems');
+  wrap.innerHTML=cart.map(c=>`
+    <div class="cart-exp-item">
+      <div class="cart-exp-info">
+        <div class="cart-exp-name">${escapeHtml(c.name)}${c.variant?' ('+escapeHtml(c.variant)+')':''}</div>
+        <div class="cart-exp-price">${rp(c.price)}</div>
+      </div>
+      <div class="cart-exp-qty">
+        <button class="cart-exp-qbtn" onclick="cartQtyChange('${c.id}',-1)">−</button>
+        <div class="cart-exp-qnum">${c.qty}</div>
+        <button class="cart-exp-qbtn" onclick="cartQtyChange('${c.id}',1)">+</button>
+      </div>
+      <div class="cart-exp-sub">${rp(c.price*c.qty)}</div>
+    </div>`).join('');
+  renderCartExpandTotals();
+}
+function renderCartExpandTotals(){
+  const {sub,disk,tax,total}=calcCartTotals();
+  const taxCfg=getTaxConfig();
+  document.getElementById('cartExpSubtotal').textContent=rp(sub);
+  document.getElementById('cartExpDiskonRow').style.display=disk>0?'flex':'none';
+  document.getElementById('cartExpDiskonVal').textContent='-'+rp(disk);
+  document.getElementById('cartExpTaxRow').style.display=tax>0?'flex':'none';
+  if(tax>0){
+    document.getElementById('cartExpTaxLbl').textContent=`${taxCfg.label||'Pajak'} (${taxCfg.pct}%)`;
+    document.getElementById('cartExpTaxVal').textContent=rp(tax);
+  }
+  document.getElementById('cartExpTotal').textContent=rp(total);
+}
+function cartExpDiskonInput(v){
+  const d=document.getElementById('cartDiskon');
+  if(d)d.value=v;
+  renderCartExpandTotals();
+  if(cartExpanded)syncCartExpandHeight();
+}
+function cartExpandPay(){
+  collapseCartExpand();
+  proceedToPayment();
+}
+function cartExpandHold(){
+  collapseCartExpand();
+  openHoldPickModal();
+}
+window.addEventListener('resize',()=>{if(cartExpanded)syncCartExpandHeight();});
 function renderCartModal(){
   const wrap=document.getElementById('cartItemsWrap');
   const hasItems=cart.length>0;
@@ -3222,7 +3397,7 @@ function renderCartModal(){
     <div class="cart-item">
       <div class="ci-emoji">${prodLetter(c.name)}</div>
       <div class="ci-info">
-        <div class="ci-name">${c.name}${c.variant?' <span style="opacity:.6;font-weight:500">('+c.variant+')</span>':''}</div>
+        <div class="ci-name">${escapeHtml(c.name)}${c.variant?' <span style="opacity:.6;font-weight:500">('+escapeHtml(c.variant)+')</span>':''}</div>
         <div class="ci-price">${rp(c.price)}</div>
       </div>
       <div class="ci-qty">
@@ -3252,7 +3427,7 @@ function cartQtyChange(id,d){
   if(newQty<=0){cart=cart.filter(c=>c.id!==id);}
   else if(prod&&newQty>availableStock(prod)){toast('⚠️ Stok tidak cukup (sebagian sedang ditahan)');return;}
   else item.qty=newQty;
-  updateCartBar();renderCartModal();renderProducts();
+  updateCartBar();renderCartModal();updateProductCard(id);
 }
 
 /* ════════════════════════════════════════════════════
@@ -3469,7 +3644,7 @@ function openHoldPickModal(){
   document.getElementById('holdCustPhone').value=selectedCustomer?selectedCustomer.phone:'';
   document.getElementById('holdNote').value='';
   // Show cart item summary in preview
-  const items=cart.map(c=>`${prodLetter(c.name)} ${c.name} ×${c.qty}`).join(', ');
+  const items=cart.map(c=>`${prodLetter(c.name)} ${escapeHtml(c.name)} ×${c.qty}`).join(', ');
   document.getElementById('holdProdPreview').innerHTML=`
     <div class="cust-row-av" style="background:rgba(var(--accent-tint-rgb),.14);color:var(--amber);font-size:18px">📌</div>
     <div class="cust-row-info">
@@ -3492,7 +3667,7 @@ function renderHoldPickList(){
     return `<div class="cust-row ${avail<=0?'' :''}" onclick="${avail<=0?'':`selectProductForHold('${p.id}')`}" style="${avail<=0?'opacity:.45;cursor:default':''}">
       <div class="cust-row-av" style="background:rgba(var(--accent-tint-rgb),.14);color:var(--amber)">${prodLetter(p.name)}</div>
       <div class="cust-row-info">
-        <div class="cust-row-name">${p.name}${p.variant?' ('+p.variant+')':''}</div>
+        <div class="cust-row-name">${escapeHtml(p.name)}${p.variant?' ('+escapeHtml(p.variant)+')':''}</div>
         <div class="cust-row-sub">Tersedia: ${avail}${held>0?' · '+held+' sudah ditahan':''}</div>
       </div>
     </div>`;
@@ -3512,7 +3687,7 @@ function openHoldFormModal(productId){
   document.getElementById('holdProdPreview').innerHTML=`
     <div class="cust-row-av" style="background:rgba(var(--accent-tint-rgb),.14);color:var(--amber)">${prodLetter(p.name)}</div>
     <div class="cust-row-info">
-      <div class="cust-row-name">${p.name}${p.variant?' ('+p.variant+')':''}</div>
+      <div class="cust-row-name">${escapeHtml(p.name)}${p.variant?' ('+escapeHtml(p.variant)+')':''}</div>
       <div class="cust-row-sub">Tersedia untuk ditahan: ${avail}${p.unit&&p.unit!=='pcs'?' '+p.unit:''}</div>
     </div>`;
   document.getElementById('holdQty').value=1;
@@ -3593,7 +3768,7 @@ function renderHoldList(){
       <div class="cust-row-av" style="background:rgba(var(--accent-tint-rgb),.14);color:var(--amber)">📌</div>
       <div class="cust-row-info">
         <div class="cust-row-name">${h.productName} <span class="tier-badge" style="background:rgba(var(--accent-tint-rgb),.16);color:var(--amber)">x${h.qty}</span></div>
-        <div class="cust-row-sub">${h.custName}${h.custPhone?' · '+h.custPhone:''}${h.expiry?' · s/d '+h.expiry:''}${h.note?' · '+h.note:''}</div>
+        <div class="cust-row-sub">${escapeHtml(h.custName)}${h.custPhone?' · '+escapeHtml(h.custPhone):''}${h.expiry?' · s/d '+escapeHtml(h.expiry):''}${h.note?' · '+escapeHtml(h.note):''}</div>
         <div style="display:flex;gap:8px;margin-top:8px">
           <span class="ripple-container" style="font-size:11px;font-weight:700;color:var(--green);cursor:pointer" onclick="convertHoldToSale('${h.id}')">🛒 Jual Sekarang</span>
           <span class="ripple-container" style="font-size:11px;font-weight:700;color:var(--red);cursor:pointer" onclick="releaseHold('${h.id}')">✕ Batalkan</span>
@@ -3620,7 +3795,7 @@ function qtyPadConfirm(){
   if(curQty+qtyPadVal>availableStock(p)){toast('⚠️ Stok tidak cukup (sebagian sedang ditahan)');return;}
   if(existing)existing.qty+=qtyPadVal;
   else cart.push({id:p.id,name:p.name,emoji:p.emoji,price:p.price,qty:qtyPadVal,variant:p.variant||''});
-  closeQtyModal();updateCartBar();renderProducts();
+  closeQtyModal();updateCartBar();updateProductCard(p.id);
 }
 function closeQtyModal(){document.getElementById('qtyModal').classList.remove('open');}
 
@@ -3946,7 +4121,7 @@ function renderReturList(trx){
     const showCond=elig.ok&&maxQty>0&&cur>0;
     return `<div class="card-list" style="cursor:default;flex-wrap:wrap">
       <div class="tx-icon" style="background:rgba(var(--accent-tint-rgb),.12);border-radius:50%;color:var(--amber);font-weight:800">${prodLetter(it.name)}</div>
-      <div class="tx-info"><div class="tx-name">${it.name}${it.variant?' ('+it.variant+')':''}</div><div class="tx-cat">Dibeli ${it.qty}${already?', sudah retur '+already:''}</div></div>
+      <div class="tx-info"><div class="tx-name">${escapeHtml(it.name)}${it.variant?' ('+escapeHtml(it.variant)+')':''}</div><div class="tx-cat">Dibeli ${it.qty}${already?', sudah retur '+already:''}</div></div>
       ${bodyHtml}
       ${showCond?`<div class="field" style="width:100%;margin:8px 0 0"><label style="font-size:10.5px">Kondisi Barang</label>
         <select onchange="setReturCond(${idx},this.value)" style="font-size:12.5px">
@@ -4424,7 +4599,7 @@ function renderLogList(){
     const dateLbl=d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'})+' · '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
     return `<div class="card-list" style="cursor:default">
       <div class="tx-icon">📝</div>
-      <div class="tx-info"><div class="tx-name">${l.action}${l.cashier?' · '+l.cashier:''}</div><div class="tx-cat">${dateLbl}${l.detail?' · '+l.detail:''}</div></div>
+      <div class="tx-info"><div class="tx-name">${l.action}${l.cashier?' · '+escapeHtml(l.cashier):''}</div><div class="tx-cat">${dateLbl}${l.detail?' · '+escapeHtml(l.detail):''}</div></div>
     </div>`;
   }).join('');
 }
@@ -4479,7 +4654,7 @@ function renderSOList(){
       const unitTxt=p.unit&&p.unit!=='pcs'?' '+p.unit:'';
       html+=`<div class="card-list" style="cursor:default">
         <div class="tx-icon" style="background:rgba(var(--accent-tint-rgb),.12);border-radius:50%;color:var(--amber);font-weight:800">${prodLetter(p.name)}</div>
-        <div class="tx-info"><div class="tx-name">${p.name}${p.variant?' <span style="opacity:.6;font-weight:500">('+p.variant+')</span>':''}</div><div class="tx-cat">Sistem: ${p.stock}${unitTxt}</div></div>
+        <div class="tx-info"><div class="tx-name">${escapeHtml(p.name)}${p.variant?' <span style="opacity:.6;font-weight:500">('+escapeHtml(p.variant)+')</span>':''}</div><div class="tx-cat">Sistem: ${p.stock}${unitTxt}</div></div>
         <input type="number" class="so-input" data-id="${p.id}" data-orig="${p.stock}" value="${p.stock}" oninput="soRowInput(this)">
         <div class="so-diff zero" id="soDiff_${p.id}">0</div>
       </div>`;
@@ -4557,7 +4732,7 @@ function renderSORiwayat(){
     const diffColor=l.totalDiff>0?'var(--green)':l.totalDiff<0?'var(--red)':'var(--t2)';
     return `<div class="card-list ripple-container" onclick="openSODetail('${l.id}')">
       <div class="tx-icon" style="background:rgba(var(--accent-tint-rgb),.12);border-radius:50%;color:var(--amber);font-weight:800">📋</div>
-      <div class="tx-info"><div class="tx-name">${dateLbl}</div><div class="tx-cat">${l.totalItems} produk disesuaikan${l.note?' · '+l.note:''}</div></div>
+      <div class="tx-info"><div class="tx-name">${dateLbl}</div><div class="tx-cat">${l.totalItems} produk disesuaikan${l.note?' · '+escapeHtml(l.note):''}</div></div>
       <div class="tx-amt" style="color:${diffColor}">${l.totalDiff>0?'+':''}${l.totalDiff}</div>
     </div>`;
   }).join('');
@@ -4572,14 +4747,14 @@ function openSODetail(id){
   document.getElementById('soDetailMeta').innerHTML=`
     <div class="summary-row"><span class="l">Tanggal</span><span class="v">${dateLbl}</span></div>
     <div class="summary-row"><span class="l">Produk Disesuaikan</span><span class="v">${l.totalItems}</span></div>
-    ${l.note?`<div class="summary-row"><span class="l">Catatan</span><span class="v">${l.note}</span></div>`:''}
+    ${l.note?`<div class="summary-row"><span class="l">Catatan</span><span class="v">${escapeHtml(l.note)}</span></div>`:''}
     <div class="summary-row tot"><span class="l">Total Selisih</span><span class="v" style="color:${diffColor}">${l.totalDiff>0?'+':''}${l.totalDiff}</span></div>`;
   document.getElementById('soDetailWrap').innerHTML=l.items.map(it=>{
     const dc=it.diff>0?'var(--green)':it.diff<0?'var(--red)':'var(--t2)';
     const unitTxt=it.unit&&it.unit!=='pcs'?' '+it.unit:'';
     return `<div class="card-list" style="cursor:default">
       <div class="tx-icon" style="background:rgba(var(--accent-tint-rgb),.12);border-radius:50%;color:var(--amber);font-weight:800">${prodLetter(it.name)}</div>
-      <div class="tx-info"><div class="tx-name">${it.name}</div><div class="tx-cat">${it.cat} · ${it.before}${unitTxt} → ${it.after}${unitTxt}</div></div>
+      <div class="tx-info"><div class="tx-name">${escapeHtml(it.name)}</div><div class="tx-cat">${escapeHtml(it.cat)} · ${it.before}${unitTxt} → ${it.after}${unitTxt}</div></div>
       <div class="tx-amt" style="color:${dc}">${it.diff>0?'+':''}${it.diff}</div>
     </div>`;
   }).join('');
@@ -4701,7 +4876,7 @@ function renderLaporan(){
   const maxQty=topArr.length?topArr[0][1].qty:1;
   document.getElementById('lapTopProd').innerHTML=topArr.length?topArr.map(([name,d])=>`
     <div class="bar-row">
-      <div class="bar-row-top"><span class="n">${name}</span><span class="v">${d.qty} terjual</span></div>
+      <div class="bar-row-top"><span class="n">${escapeHtml(name)}</span><span class="v">${d.qty} terjual</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${(d.qty/maxQty*100)}%"></div></div>
     </div>`).join(''):'<div class="empty-state" style="padding:16px"><div class="empty-desc">Belum ada data penjualan.</div></div>';
 
@@ -4728,7 +4903,7 @@ function renderLaporan(){
   const low=S.products.filter(p=>p.stock<=5).sort((a,b)=>a.stock-b.stock);
   document.getElementById('lapLowStock').innerHTML=low.length?low.map(p=>`
     <div class="card-list" onclick="openProdModal('${p.id}')"><div class="tx-icon" style="background:rgba(248,113,113,.12);border-radius:50%;color:var(--red);font-weight:800">${prodLetter(p.name)}</div>
-    <div class="tx-info"><div class="tx-name">${p.name}</div></div><div class="tx-amt" style="color:var(--red)">Stok: ${p.stock}</div></div>`).join(''):
+    <div class="tx-info"><div class="tx-name">${escapeHtml(p.name)}</div></div><div class="tx-amt" style="color:var(--red)">Stok: ${p.stock}</div></div>`).join(''):
     '<div class="empty-state" style="padding:16px"><div class="empty-desc">Semua stok aman 👍</div></div>';
 
   // member / pelanggan
@@ -4740,10 +4915,10 @@ function renderLaporan(){
   document.getElementById('lapTopCust').innerHTML=topCust.length?topCust.map(c=>{
     const t=getTier(c.totalSpend);
     return `<div class="cust-row" onclick="openCustomerFormModal('${c.id}')">
-      <div class="cust-row-av">${c.name.charAt(0).toUpperCase()}</div>
+      <div class="cust-row-av">${escapeHtml(c.name.charAt(0).toUpperCase())}</div>
       <div class="cust-row-info">
-        <div class="cust-row-name">${c.name} ${tierBadgeHTML(c.totalSpend)}</div>
-        <div class="cust-row-sub">${c.phone||'-'} · ${c.totalTrx||0}x transaksi</div>
+        <div class="cust-row-name">${escapeHtml(c.name)} ${tierBadgeHTML(c.totalSpend)}</div>
+        <div class="cust-row-sub">${escapeHtml(c.phone||'-')} · ${c.totalTrx||0}x transaksi</div>
       </div>
       <div class="tx-amt" style="color:var(--amber)">${rp(c.totalSpend||0)}</div>
     </div>`;
@@ -4787,14 +4962,14 @@ function openReturReportModal(){
   wrap.innerHTML=all.length?all.map(r=>{
     const d=new Date(r.date);
     const dateLbl=d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-    const itemsTxt=r.items.map(it=>`${it.name} x${it.qty} (${it.condition==='rusak'?'Rusak':'Baik'})`).join(', ');
+    const itemsTxt=r.items.map(it=>`${escapeHtml(it.name)} x${it.qty} (${it.condition==='rusak'?'Rusak':'Baik'})`).join(', ');
     return `<div class="card-list" style="cursor:default;flex-direction:column;align-items:flex-start;gap:4px">
       <div style="display:flex;justify-content:space-between;width:100%;gap:8px">
         <div class="tx-name">Trx ${r.trxId.toUpperCase()}</div>
         <div class="tx-amt" style="color:var(--red);flex-shrink:0">-${rp(r.totalRefund)}</div>
       </div>
       <div class="tx-cat">${itemsTxt}</div>
-      <div class="tx-cat" style="opacity:.7">${dateLbl} · ${r.method||'-'}${r.cashier?' · '+r.cashier:''}${r.reason?' · "'+r.reason+'"':''}</div>
+      <div class="tx-cat" style="opacity:.7">${dateLbl} · ${r.method||'-'}${r.cashier?' · '+escapeHtml(r.cashier):''}${r.reason?' · "'+escapeHtml(r.reason)+'"':''}</div>
     </div>`;
   }).join(''):'<div class="empty-state" style="padding:16px"><div class="empty-icon">📋</div><div class="empty-title">Belum Ada Retur</div><div class="empty-desc">Riwayat retur/refund akan tercatat di sini.</div></div>';
   document.getElementById('returReportModal').classList.add('open');
