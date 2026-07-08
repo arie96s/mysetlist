@@ -376,17 +376,19 @@ button,input,select,textarea{font-family:var(--font-sf);}
 /* PRODUCT GRID */
 .prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;padding-top:9px}
 .prod-stack{position:relative;isolation:isolate;min-width:0}
-/* Pseudo-elements instead of real DOM nodes — much cheaper for a grid that gets
-   fully re-rendered on every tap/search (no extra nodes, no transitions, so
-   nothing "animates in from scratch" and causes the flicker on re-render). */
-.prod-stack::before,.prod-stack::after{
-  content:'';position:absolute;left:5%;right:5%;top:0;height:100%;
-  border-radius:var(--rlg);pointer-events:none;
-}
-.prod-stack::before{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);transform:translateY(-5px) scale(.965);z-index:0}
-.prod-stack::after{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);transform:translateY(-9px) scale(.925);opacity:.8;z-index:-1}
+/* ── Wallet Card: 3 kartu nyata di dalam "saku" di puncak kartu produk.
+   Transform + spring saja (tanpa blur/layout) — GPU-composited, anti-kedip. ── */
 .prod-stack .prod-card{position:relative;z-index:1}
-.prod-card{border-radius:var(--rlg);padding:12px;background:var(--glass);border:1px solid var(--gb);box-shadow:var(--gshadow-card);backdrop-filter:var(--gblur);-webkit-backdrop-filter:var(--gblur);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring);position:relative;overflow:hidden}
+.wallet-pocket{position:relative;height:46px;margin:-12px -12px 10px;overflow:hidden;pointer-events:none}
+.wcard{position:absolute;left:14px;right:14px;top:0;height:40px;border-radius:9px;box-shadow:inset 0 1px 0 rgba(255,255,255,.28);transition:transform .5s var(--spring),filter .3s ease;will-change:transform}
+.wcard.p0{transform:translateY(14px);z-index:3}
+.wcard.p1{transform:translateY(7px) scaleX(.93);filter:brightness(.72);z-index:2}
+.wcard.p2{transform:translateY(2px) scaleX(.86);filter:brightness(.5);z-index:1}
+.wcard.c1{background:var(--grad-gold)}
+.wcard.c2{background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,.14))}
+.wcard.c3{background:linear-gradient(135deg,rgba(var(--accent-tint-rgb),.55),rgba(var(--accent-tint-rgb),.2))}
+.wallet-lip{position:absolute;left:-2px;right:-2px;bottom:-1px;height:13px;background:linear-gradient(var(--glass),var(--glass)),var(--bg1);border-top:1px solid var(--gb-hi);border-radius:12px 12px 0 0;z-index:4}
+.prod-card{border-radius:var(--rlg);padding:12px;background:linear-gradient(var(--glass),var(--glass)),var(--bg1);border:1px solid var(--gb);box-shadow:var(--gshadow-card);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring);position:relative;overflow:hidden}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   /* Devices with zero backdrop-filter support (old/budget Android WebViews)
      would otherwise render this card almost fully see-through, letting the
@@ -402,18 +404,13 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .prod-subcard{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:9px 10px}
 .prod-price{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--amber)}
 .prod-stock{font-size:10px;color:var(--t3);margin-top:3px}
-.prod-badge{position:absolute;top:8px;right:8px;background:var(--grad-gold);color:#fff;font-size:10px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(var(--accent-shadow-rgb),.5);z-index:2}
+.prod-badge{position:absolute;top:8px;right:8px;background:var(--grad-gold);color:#fff;font-size:10px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(var(--accent-shadow-rgb),.5);z-index:6}
 
 /* STACK REFILL BOUNCE (after a card flies to cart) — only ever runs via a
    JS-added class right after render, never on initial insert, so it can't
    cause the "animate in from scratch" flicker. */
-@keyframes stackRefill{
-  0%{transform:scale(.9)}
-  50%{transform:scale(1.045)}
-  75%{transform:scale(.985)}
-  100%{transform:scale(1)}
-}
-.stack-refill{animation:stackRefill .48s var(--spring)}
+@keyframes badgePop{0%{transform:scale(.5)}55%{transform:scale(1.28)}100%{transform:scale(1)}}
+.prod-badge.pop{animation:badgePop .38s var(--spring)}
 
 /* FLY-TO-CART GHOST (single-use, removed right after animating) */
 .fly-ghost{position:fixed;z-index:9999;pointer-events:none;padding:7px 14px;border-radius:var(--rpill);background:var(--grad-gold);color:#fff;font-size:12px;font-weight:800;font-family:'JetBrains Mono',monospace;box-shadow:0 8px 22px rgba(var(--accent-shadow-rgb),.5);white-space:nowrap;will-change:transform,opacity}
@@ -422,7 +419,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 
 
 /* CART FLOATING BAR */
-#cartBar{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 6px);left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;z-index:90;display:none;border:1px solid transparent;transition:padding .48s var(--spring),border-radius .48s var(--spring),background-color .3s ease,border-color .3s ease}
+#cartBar{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 6px);left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;z-index:90;display:none;border:1px solid transparent;transition:padding .48s var(--spring),border-radius .48s var(--spring),background-color .3s ease,border-color .3s ease,box-shadow .4s ease}
 #cartBar.show{display:block;animation:cartIn .35s var(--spring) both}
 @keyframes cartIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .cart-bar-inner{display:flex;align-items:center;gap:12px;padding:13px 16px;border-radius:var(--rxl);background:var(--grad-gold);box-shadow:0 14px 40px rgba(var(--accent-shadow-rgb),.45),inset 0 1px 0 rgba(255,255,255,.25);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring)}
@@ -442,6 +439,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 #cartExpandPanel{height:0;overflow:hidden;transition:height .58s var(--spring)}
 #cartBar.expanded #cartExpandPanel,#cartBar.collapsing #cartExpandPanel{will-change:height}
 #cartBar.collapsing #cartExpandPanel{transition:height .46s cubic-bezier(.3,.85,.3,1)}
+#cartBar.expanded.collapsing{border-color:transparent;box-shadow:0 -10px 24px rgba(0,0,0,0),0 24px 70px rgba(0,0,0,0)}
 #cartBar.collapsing .cart-bar-inner{animation:cartBarSettle .55s var(--spring) .12s both}
 @keyframes cartBarSettle{0%{transform:scale(1)}45%{transform:scale(.96,.87)}100%{transform:scale(1)}}
 .cart-exp-scroll{max-height:52vh;overflow-y:auto;padding:16px 14px 6px;opacity:0;transform:translateY(14px) translateZ(0);transition:opacity .3s ease,transform .5s var(--spring)}
@@ -531,6 +529,18 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .app-info-logo{width:56px;height:56px;border-radius:var(--rxl);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px;box-shadow:0 10px 28px rgba(var(--accent-shadow-rgb),.35),inset 0 1px 0 rgba(255,255,255,.25)}
 .app-info-name{font-size:16px;font-weight:800;letter-spacing:-.01em}
 .app-info-version{display:inline-block;margin-top:5px;padding:3px 11px;border-radius:var(--rpill);background:rgba(var(--accent-tint-rgb),.14);border:1px solid rgba(var(--accent-tint-rgb),.3);color:var(--amber);font-size:11px;font-weight:700;letter-spacing:.03em}
+/* ── Label Pesanan (F&B) — stiker putih simple ala coffee shop ── */
+.order-label{background:#fff;color:#111827;border-radius:10px;padding:12px 14px;margin:0 auto 12px;max-width:250px;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+.olabel-head{text-align:center;margin-bottom:6px}
+.olabel-head img{max-width:96px;max-height:34px;object-fit:contain}
+.olabel-store{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-align:center}
+.olabel-dash{border-top:1.5px dashed rgba(0,0,0,.25);margin:7px 0}
+.olabel-cust{font-size:16px;font-weight:800;text-align:center;letter-spacing:.01em;word-break:break-word}
+.olabel-note{font-size:11px;font-weight:800;text-align:center;color:#111827;background:rgba(0,0,0,.07);border-radius:7px;padding:3px 10px;margin:6px auto 0;display:table;letter-spacing:.02em}
+.olabel-item{font-size:12px;font-weight:600;text-align:center;margin-top:3px;color:#374151;word-break:break-word}
+.olabel-idx{font-size:10px;font-weight:700;text-align:center;margin-top:5px;color:#6b7280;font-family:'JetBrains Mono',monospace}
+.olabel-meta{font-size:8.5px;text-align:center;color:#9ca3af;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+.app-info-eco{font-size:10px;color:var(--t4);opacity:.7;text-align:center;margin-top:5px;letter-spacing:.02em}
 .app-info-tagline{font-size:11.5px;color:var(--t3);margin-top:10px;line-height:1.7}
 .app-info-grid{margin-top:16px;border-top:1px solid rgba(255,255,255,.07);padding-top:4px}
 .app-info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:12.5px}
@@ -1226,7 +1236,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     </div>
     <div class="da-row-flat ripple-container" onclick="openInfoModal()">
       <div class="da-ico">🧾</div>
-      <div class="da-lbl">Info App · PIMAPOS v3.1.0</div>
+      <div class="da-lbl" id="infoAppRowLbl">Info App · PIMAPOS</div>
       <div class="da-chev">›</div>
     </div>
   </div>
@@ -1314,6 +1324,12 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     </div>
     <input type="file" id="receiptLogoFileInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleReceiptLogoUpload(event)">
     <div class="scan-hint" style="margin-top:8px;text-align:left;line-height:1.6">📐 <b>Ketentuan ukuran:</b> disarankan persegi 300×300px atau landscape 300×150px, format PNG latar putih/transparan, gambar hitam-putih kontras tinggi (bukan foto berwarna) agar tetap jelas saat dicetak di printer thermal. Jika logo diisi, struk akan menampilkan logo ini menggantikan tulisan nama toko di bagian atas.</div>
+
+    <div class="slabel">Pesan di Bawah Struk</div>
+    <div class="field">
+      <input type="text" id="receiptFooterMsgInput" maxlength="90" placeholder="cth: Terima kasih telah berbelanja" oninput="saveReceiptFooterMsg(this.value)">
+    </div>
+    <div class="scan-hint" style="margin-top:6px;text-align:left">Tampil di bagian bawah struk (layar, PDF & printer). Kosongkan untuk memakai pesan bawaan sesuai kategori toko.</div>
 
     <div class="slabel" style="display:flex;align-items:center;justify-content:space-between">
       <span>Media Sosial & QR Toko</span>
@@ -1424,8 +1440,9 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div style="text-align:center;padding:8px 0 4px">
       <div class="app-info-logo">🧾</div>
       <div class="app-info-name">PIMAPOS</div>
-      <div class="app-info-version">v3.1.0</div>
-      <div class="app-info-tagline">Bagian dari Ekosistem PIMAPIKA<br>Pitih Masuak Pitih Kalua</div>
+      <div class="app-info-version" id="appInfoVersionBadge">v—</div>
+      <div class="app-info-tagline">Aplikasi Kasir Digital &amp; POS Offline Gratis</div>
+      <div class="app-info-eco">Bagian dari Ekosistem PIMAPIKA · Pitih Masuak Pitih Kalua</div>
       <div class="app-info-grid">
         <div class="app-info-row"><span class="ai-k">Developer</span><span class="ai-v">@arie96s</span></div>
         <div class="app-info-row"><span class="ai-k">Platform</span><span class="ai-v">Web App (PWA)</span></div>
@@ -1437,14 +1454,14 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="whatsnew-card">
       <div class="whatsnew-card-head">
         <span class="whatsnew-badge">BARU</span>
-        <span class="whatsnew-card-title" id="infoWhatsNewTitle">Fitur di v3.1.0</span>
+        <span class="whatsnew-card-title" id="infoWhatsNewTitle">Fitur Terbaru</span>
       </div>
       <div id="infoWhatsNewList"></div>
       <button class="sbtn ripple-container" style="margin-top:12px;padding:11px;font-size:12.5px" onclick="closeInfoModal();openTourModal()">▶ Mulai Tur Fitur</button>
     </div>
 
     <div style="text-align:center">
-      <a class="feedback-pill ripple-container" href="mailto:fajrisalam96@gmail.com?subject=%5BPIMAPOS%20v3.1%5D%20Feedback%20%2F%20Bug%20Report&amp;body=Halo%20Fajri%2C%0A%0ASaya%20ingin%20menyampaikan%20masukan%2Flaporan%20bug%20berikut%3A%0A%0A%0A---%0AVersi%20App%3A%20v3.1.0%0ANama%20Toko%3A%20">
+      <a class="feedback-pill ripple-container" id="feedbackMailLink" href="#">
         💬 Feedback &amp; Report Bugs
       </a>
     </div>
@@ -1557,6 +1574,11 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="modal-handle"></div>
     <div class="modal-title">⋯ Opsi Lainnya</div>
     <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Perlu koreksi transaksi ini? Pilih tindakan yang sesuai di bawah.</div>
+    <div class="da-row-flat ripple-container" id="labelPesananBtn" onclick="closeReceiptMoreModal();openLabelPesananModal()">
+      <div class="da-ico">🏷️</div>
+      <div class="da-lbl">Label Pesanan</div>
+      <div class="da-chev">›</div>
+    </div>
     <div class="da-row-flat ripple-container" id="returTrxBtn" onclick="closeReceiptMoreModal();openReturModal()">
       <div class="da-ico">🔄</div>
       <div class="da-lbl">Retur / Refund Item</div>
@@ -1568,6 +1590,23 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="da-chev">›</div>
     </div>
     <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeReceiptMoreModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: LABEL PESANAN (F&B) ══════════ -->
+<div class="modal-ov" id="labelPesananModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🏷️ Label Pesanan</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Satu label per porsi/gelas — tempel di kemasan pesanan.</div>
+    <div class="field" style="margin-bottom:12px"><label>No. Meja / Catatan (opsional)</label>
+      <input type="text" id="labelMejaNote" maxlength="40" placeholder="cth: Meja 5 · Take Away · Less Sugar" oninput="renderLabelPreview()">
+    </div>
+    <div id="labelPreviewWrap" style="max-height:48vh;overflow-y:auto;padding:2px"></div>
+    <button class="sbtn ripple-container" onclick="printOrderLabels()">🖨️ Cetak Label (Thermal)</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeLabelPesananModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -2331,8 +2370,13 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.1.0';
+const APP_VERSION='3.2.0';
 const WHATS_NEW_FEATURES=[
+  {icon:'🏷️',title:'Label Pesanan (F&B)',desc:'Label ala coffee shop per gelas/porsi — logo brand, nama tamu & item. Buka dari menu ⋯ di struk (kategori F&B, Cafe, Restoran).'},
+  {icon:'🛒',title:'Kapsul Keranjang Baru',desc:'Kapsul mengembang kenyal jadi panel belanja — qty, diskon, bayar, dan Tahan (⋯) langsung dari kapsul.'},
+  {icon:'🪪',title:'Wallet Card Produk',desc:'Kartu produk bergaya dompet — kartu di dalamnya bergiliran ke belakang tiap item ditambahkan. Ringan, mulus, anti-kedip.'},
+  {icon:'✍️',title:'Pesan di Bawah Struk',desc:'Teks penutup struk kini bisa dikustom lewat "Struk & Identitas Toko".'},
+  {icon:'🕐',title:'Format Waktu Struk Baru',desc:'Tanggal & jam struk lebih ringkas: 9 Jul 2026 | 00:03 — seragam di layar, PDF & printer.'},
   {icon:'🧾',title:'Logo Custom di Struk',desc:'Unggah logo toko untuk tampil di struk (layar & PDF), menggantikan tulisan nama toko — atur lewat "Struk & Identitas Toko".'},
   {icon:'🔄',title:'Retur & Refund Lengkap',desc:'Kebijakan retur per produk, kondisi barang (baik/rusak), metode refund, plus Laporan Barang Retur & statistiknya.'},
   {icon:'📊',title:'Grafik Laporan',desc:'Grafik omzet & transaksi harian, serta komposisi metode pembayaran — langsung di halaman Laporan.'},
@@ -2341,6 +2385,14 @@ const WHATS_NEW_FEATURES=[
   {icon:'💻',title:'Tampilan Desktop & iPad',desc:'Sidebar navigasi, popup terpusat, dan tata letak yang menyesuaikan otomatis di layar lebar.'},
   {icon:'⚙️',title:'Pengaturan Lanjutan',desc:'Pajak, Keamanan, Notifikasi, Printer & Cloud Backup kini terkumpul rapi lewat menu titik-3 di Profil.'},
 ];
+document.addEventListener('DOMContentLoaded',()=>{
+  const b=document.getElementById('appInfoVersionBadge');
+  if(b)b.textContent='v'+APP_VERSION;
+  const r=document.getElementById('infoAppRowLbl');
+  if(r)r.textContent='Info App · PIMAPOS v'+APP_VERSION;
+  const m=document.getElementById('feedbackMailLink');
+  if(m)m.href='mailto:fajrisalam96@gmail.com?subject='+encodeURIComponent('[PIMAPOS v'+APP_VERSION+'] Feedback / Bug Report')+'&body='+encodeURIComponent('Halo Fajri,\n\nSaya ingin menyampaikan masukan/laporan bug berikut:\n\n\n---\nVersi App: v'+APP_VERSION+'\nNama Toko: ');
+});
 const TOUR_STEPS=[
   {page:'pageKasir',selectors:['.nav-btn[data-page="pageKasir"]','.sidebar-btn[data-page="pageKasir"]'],icon:'🧾',title:'Kasir Cepat',desc:'Tambah produk ke keranjang lalu bayar Tunai, QRIS, Kartu — atau pilih "Split" saat checkout untuk menggabungkan beberapa metode sekaligus.'},
   {page:'pageProduk',selectors:['.icon-btn[onclick="openSOModal()"]'],icon:'📋',title:'Stock Opname',desc:'Ketuk ikon ini kapan saja untuk mencocokkan stok sistem dengan hasil hitung fisik, di semua kategori produk sekaligus.'},
@@ -2750,6 +2802,17 @@ function toggleAccordion(id){
   body.style.maxHeight=isOpen?body.scrollHeight+'px':'0px';
 }
 function rp(n){return 'Rp '+Math.round(n||0).toLocaleString('id-ID');}
+function receiptDateLbl(ts){
+  const d=new Date(ts);
+  const tgl=d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+  const jam=d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}).replace(/\./g,':');
+  return tgl+' | '+jam;
+}
+function receiptFooterText(){
+  const custom=(S.receiptFooterMsg||'').trim();
+  const base=custom||CATEGORY_RECEIPT_FOOTER[S.storeCategory]||'Terima kasih atas kunjungan Anda';
+  return base.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').trim();
+}
 function prodLetter(name){return (name||'?').trim().charAt(0).toUpperCase()||'?';}
 function rpNum(n){return Math.round(n||0).toLocaleString('id-ID');}
 function uid(){return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
@@ -2964,9 +3027,11 @@ const THEME_DYNAMIC_VARS=['--bg0','--bg1','--bg2','--orb1','--orb2','--orb3','--
 function openSocialModal(){
   renderSocialAccordionList();
   renderReceiptLogoPreview();
+  document.getElementById('receiptFooterMsgInput').value=S.receiptFooterMsg||'';
   document.getElementById('socialModal').classList.add('open');
 }
 function closeSocialModal(){document.getElementById('socialModal').classList.remove('open');}
+const saveReceiptFooterMsg=debounce(v=>{S.receiptFooterMsg=v.trim();save();},300);
 function renderReceiptLogoPreview(){
   const img=document.getElementById('receiptLogoPreview');
   const empty=document.getElementById('receiptLogoPreviewEmpty');
@@ -3172,6 +3237,12 @@ function renderProducts(){
     return `<div class="prod-stack" data-pid="${p.id}">
       <div class="prod-card ripple-container ${out?'out':''}" onclick="quickAdd('${p.id}',event)">
       ${qty>0?`<div class="prod-badge">${qty}</div>`:''}
+      <div class="wallet-pocket" aria-hidden="true">
+        <div class="wcard c3 p2" data-p="2"></div>
+        <div class="wcard c2 p1" data-p="1"></div>
+        <div class="wcard c1 p0" data-p="0"></div>
+        <div class="wallet-lip"></div>
+      </div>
       <div class="prod-top">
         <div class="prod-emoji">${prodLetter(p.name)}</div>
         <div class="prod-name">${escapeHtml(p.name)}${p.variant?' <span style="opacity:.55;font-weight:500">('+escapeHtml(p.variant)+')</span>':''}</div>
@@ -3200,9 +3271,15 @@ function updateProductCard(id){
   const out=avail<=0;
   card.classList.toggle('out',out);
   let badge=card.querySelector('.prod-badge');
+  const prevQty=badge?badge.textContent:'';
   if(qty>0){
     if(!badge){badge=document.createElement('div');badge.className='prod-badge';card.prepend(badge);}
     badge.textContent=qty;
+    if(String(qty)!==prevQty){
+      badge.classList.remove('pop');void badge.offsetWidth;
+      badge.classList.add('pop');
+      badge.onanimationend=()=>{badge.classList.remove('pop');badge.onanimationend=null;};
+    }
   }else if(badge){badge.remove();}
   const unitTxt=p.unit&&p.unit!=='pcs'?' '+p.unit:'';
   const stockEl=card.querySelector('.prod-stock');
@@ -3222,8 +3299,18 @@ function quickAdd(id,evt){
   updateCartBar();
   if(cardEl)flyToCart(cardEl,p.price);
   updateProductCard(id);
-  const stack=document.querySelector('.prod-stack[data-pid="'+id+'"]');
-  if(stack)pulseStackRefill(stack);
+  const wst=document.querySelector('.prod-stack[data-pid="'+id+'"]');
+  if(wst)cycleWalletCards(wst);
+}
+/* Kartu depan menyelam ke slot belakang, dua lainnya maju satu slot.
+   Murni pertukaran class posisi — transisi transform ditangani compositor. */
+function cycleWalletCards(stackEl){
+  stackEl.querySelectorAll('.wcard').forEach(c=>{
+    const np=(+c.dataset.p+2)%3;
+    c.dataset.p=np;
+    c.classList.remove('p0','p1','p2');
+    c.classList.add('p'+np);
+  });
 }
 /* Single-use "ghost" that flies from the tapped card to the cart price capsule,
    then removes itself — no persistent nodes, no listeners left behind. */
@@ -3255,13 +3342,6 @@ function flyToCart(sourceEl,price){
 }
 /* Bounces the (freshly re-rendered) stack back into place, simulating the
    deck "refilling" itself right after the top card flew off to checkout. */
-function pulseStackRefill(stackEl){
-  stackEl.classList.remove('stack-refill');
-  void stackEl.offsetWidth; // force reflow so the animation can re-trigger
-  stackEl.classList.add('stack-refill');
-  stackEl.onanimationend=()=>{stackEl.classList.remove('stack-refill');stackEl.onanimationend=null;};
-}
-
 /* ════════════════════════════════════════════════════
    CART BAR + MODAL
 ════════════════════════════════════════════════════ */
@@ -3539,6 +3619,7 @@ function useGuestCustomer(){
   selectedCustomer=null;
   closeCustomerModal();
   renderCustCartRow();
+  toast('🧍 Mode Guest — transaksi tanpa pelanggan');
 }
 function openCustomerFormModal(id,prefillName){
   document.getElementById('custEditId').value=id||'';
@@ -3978,9 +4059,9 @@ function showReceipt(trx){
   }
   if(S.storeCategory)lines.push(`<div class="receipt-center" style="opacity:.7">${escapeHtml(S.storeCategory)}</div>`);
   if(S.storeAddr)lines.push(`<div class="receipt-center">${escapeHtml(S.storeAddr)}</div>`);
-  lines.push(`<div class="receipt-center">${new Date(trx.ts).toLocaleString('id-ID')}</div>`);
+  lines.push(`<div class="receipt-center">${receiptDateLbl(trx.ts)}</div>`);
+  if(trx.cashier)lines.push(`<div class="receipt-center" style="opacity:.75">Kasir: ${escapeHtml(trx.cashier)}</div>`);
   lines.push(`<div class="receipt-center" style="opacity:.6">No. Struk: ${trx.id.toUpperCase()}</div>`);
-  if(trx.cashier)lines.push(`<div class="receipt-center" style="opacity:.45;font-size:9px">${escapeHtml(trx.cashier)}</div>`);
   if(trx.customerName){
     const custLabel=CATEGORY_CUSTOMER_LABEL[S.storeCategory]||'Pelanggan';
     lines.push(`<div class="receipt-center" style="margin-top:2px">${custLabel}: ${escapeHtml(trx.customerName)}</div>`);
@@ -4016,7 +4097,7 @@ function showReceipt(trx){
   }
   if(trx.note)lines.push(`<div style="margin-top:6px">Catatan: ${escapeHtml(trx.note)}</div>`);
   lines.push('<hr>');
-  lines.push(`<div class="receipt-center">${CATEGORY_RECEIPT_FOOTER[S.storeCategory]||'Terima kasih atas kunjungan Anda 🙏'}</div>`);
+  lines.push(`<div class="receipt-center">${escapeHtml(receiptFooterText())}</div>`);
   const socs=filledSocials().slice(0,3);
   const primary=socs.find(s=>s.url)||null;
   if(primary&&primary.url){
@@ -4188,7 +4269,66 @@ function closeReceiptModal(){
   document.getElementById('receiptModal').classList.remove('open');
   renderProducts();
 }
-function openReceiptMoreModal(){document.getElementById('receiptMoreModal').classList.add('open');}
+const LABEL_ORDER_CATS=['F&B','Cafe','Restoran'];
+function openReceiptMoreModal(){
+  const show=LABEL_ORDER_CATS.includes(S.storeCategory)&&lastReceiptTrx&&!lastReceiptTrx.voided;
+  document.getElementById('labelPesananBtn').style.display=show?'flex':'none';
+  document.getElementById('receiptMoreModal').classList.add('open');
+}
+function openLabelPesananModal(){
+  if(!lastReceiptTrx){toast('Tidak ada transaksi untuk dibuatkan label');return;}
+  document.getElementById('labelMejaNote').value='';
+  renderLabelPreview();
+  document.getElementById('labelPesananModal').classList.add('open');
+}
+function renderLabelPreview(){
+  const trx=lastReceiptTrx;
+  if(!trx)return;
+  const note=(document.getElementById('labelMejaNote').value||'').trim();
+  const cust=trx.customerName||'Guest';
+  const shortId='#'+trx.id.slice(-6).toUpperCase();
+  const head=S.receiptLogo
+    ?`<div class="olabel-head"><img src="${S.receiptLogo}" alt="${escapeHtml(S.storeName||'Brand')}"></div>`
+    :`<div class="olabel-store">${escapeHtml(S.storeName||'Toko Saya')}</div>`;
+  const units=[];
+  trx.items.forEach(it=>{for(let i=1;i<=it.qty;i++)units.push({it,i});});
+  const total=units.length;
+  document.getElementById('labelPreviewWrap').innerHTML=units.map((u,idx)=>`
+    <div class="order-label">
+      ${head}
+      <div class="olabel-dash"></div>
+      <div class="olabel-cust">${escapeHtml(cust)}</div>
+      ${note?`<div class="olabel-note">${escapeHtml(note)}</div>`:''}
+      <div class="olabel-item">${escapeHtml(u.it.name)}${u.it.variant?' ('+escapeHtml(u.it.variant)+')':''}</div>
+      <div class="olabel-idx">${idx+1} dari ${total}</div>
+      <div class="olabel-dash"></div>
+      <div class="olabel-meta">${shortId} · ${receiptDateLbl(trx.ts)}</div>
+    </div>`).join('');
+}
+function closeLabelPesananModal(){document.getElementById('labelPesananModal').classList.remove('open');}
+async function printOrderLabels(){
+  const trx=lastReceiptTrx;
+  if(!trx)return;
+  const cust=trx.customerName||'Guest';
+  const shortId='#'+trx.id.slice(-6).toUpperCase();
+  const note=(document.getElementById('labelMejaNote').value||'').trim();
+  const units=[];
+  trx.items.forEach(it=>{for(let i=1;i<=it.qty;i++)units.push(it);});
+  const lines=[];
+  units.forEach((it,idx)=>{
+    lines.push({text:'================================'});
+    lines.push({text:S.storeName||'Toko Saya',center:true});
+    lines.push({text:cust,center:true});
+    if(note)lines.push({text:'['+note+']',center:true});
+    lines.push({text:it.name+(it.variant?' ('+it.variant+')':''),center:true});
+    lines.push({text:(idx+1)+' dari '+units.length,center:true});
+    lines.push({text:shortId+' | '+receiptDateLbl(trx.ts),center:true});
+    lines.push({text:'================================'});
+    lines.push({text:''});
+  });
+  const ok=await printerWrite(escposBytes(lines));
+  if(ok)toast('🖨️ '+units.length+' label terkirim ke printer');
+}
 function closeReceiptMoreModal(){document.getElementById('receiptMoreModal').classList.remove('open');}
 async function downloadReceiptPDF(){
   if(!lastReceiptTrx){toast('Tidak ada struk untuk diunduh');return;}
@@ -4234,10 +4374,10 @@ async function downloadReceiptPDF(){
   doc.setFont('courier','normal');doc.setFontSize(7.5);
   if(S.storeCategory){doc.text(S.storeCategory,cx,y,{align:'center'});y+=4;}
   if(S.storeAddr){doc.text(S.storeAddr,cx,y,{align:'center'});y+=4;}
-  doc.text(new Date(trx.ts).toLocaleString('id-ID'),cx,y,{align:'center'});y+=4;
+  doc.text(receiptDateLbl(trx.ts),cx,y,{align:'center'});y+=4;
+  if(trx.cashier){doc.text('Kasir: '+trx.cashier,cx,y,{align:'center'});y+=4;}
   doc.setFontSize(6.8);
   doc.text('No. Struk: '+trx.id.toUpperCase(),cx,y,{align:'center'});y+=4.5;
-  if(trx.cashier){doc.setTextColor(140,140,140);doc.setFontSize(6.2);doc.text(trx.cashier,cx,y,{align:'center'});doc.setTextColor(0,0,0);y+=3.6;}
   if(trx.customerName){
     doc.setFontSize(7);
     const custLabel=CATEGORY_CUSTOMER_LABEL[S.storeCategory]||'Pelanggan';
@@ -4275,8 +4415,8 @@ async function downloadReceiptPDF(){
   if(trx.note){doc.setFontSize(7);doc.text('Catatan: '+trx.note,4,y);y+=lineH;}
   y+=2;doc.line(4,y,W-4,y);y+=5;
   doc.setFont('courier','normal');doc.setFontSize(8);
-  const footerMsg=(CATEGORY_RECEIPT_FOOTER[S.storeCategory]||'Terima kasih atas kunjungan Anda').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').trim();
-  doc.text(footerMsg,cx,y,{align:'center'});y+=5;
+  const footerLines=doc.splitTextToSize(receiptFooterText(),W-10);
+  footerLines.forEach(fl=>{doc.text(fl,cx,y,{align:'center'});y+=3.8;});y+=1.2;
 
   const primary=socs.find(s=>s.url)||null;
   if(primary&&primary.url){
@@ -5084,7 +5224,8 @@ async function printReceiptBluetooth(){
   const lines=[];
   lines.push({text:S.storeName||'Toko Saya',bold:true,center:true});
   if(S.storeAddr)lines.push({text:S.storeAddr,center:true});
-  lines.push({text:new Date(trx.ts).toLocaleString('id-ID'),center:true});
+  lines.push({text:receiptDateLbl(trx.ts),center:true});
+  if(trx.cashier)lines.push({text:'Kasir: '+trx.cashier,center:true});
   lines.push({text:'No: '+trx.id.toUpperCase(),center:true});
   lines.push({text:'--------------------------------'});
   trx.items.forEach(it=>{
@@ -5104,7 +5245,7 @@ async function printReceiptBluetooth(){
   }
   if(trx.totalRefunded>0)lines.push({text:pad('Retur/Refund','-'+rpNum(trx.totalRefunded))});
   lines.push({text:''});
-  lines.push({text:'Terima kasih atas kunjungan Anda',center:true});
+  lines.push({text:receiptFooterText(),center:true});
   lines.push({text:S.storeName||'',center:true});
   const ok=await printerWrite(escposBytes(lines));
   if(ok)toast('🖨️ Struk terkirim ke printer');
@@ -5269,8 +5410,24 @@ window.addEventListener('offline',()=>cloudSetStatus('offline'));
    fungsi ini keluar tanpa error (elemen tetap kosong).
 ════════════════════════════════════════════════════ */
 let _pimaCharts={omzet:null,trx:null,pm:null};
+let _chartLibLoading=false;
+function ensureChartLib(onReady){
+  if(typeof Chart!=='undefined'){onReady();return;}
+  if(_chartLibLoading)return;
+  _chartLibLoading=true;
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js';
+  s.onload=()=>{_chartLibLoading=false;onReady();};
+  s.onerror=()=>{_chartLibLoading=false;console.warn('[PIMAPOS] Chart.js gagal dimuat — akan dicoba lagi saat Laporan dibuka');};
+  document.head.appendChild(s);
+}
 function renderLaporanCharts(pmMap){
-  if(typeof Chart==='undefined')return;
+  if(typeof Chart==='undefined'){
+    ensureChartLib(()=>{
+      if(document.getElementById('pageLaporan').classList.contains('active'))renderLaporan();
+    });
+    return;
+  }
   const cs=getComputedStyle(document.documentElement);
   const accentRgb=(cs.getPropertyValue('--accent-tint-rgb')||'251,191,36').trim();
   const accentRgb2=(cs.getPropertyValue('--accent-shadow-rgb')||'217,119,6').trim();
