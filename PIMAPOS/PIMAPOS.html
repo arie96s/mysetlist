@@ -368,23 +368,35 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .so-diff.neg{color:var(--red);background:rgba(248,113,113,.14)}
 
 /* PRODUCT GRID */
-.prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;padding-top:9px}
 .prod-stack{position:relative;isolation:isolate}
-.prod-stack::before,.prod-stack::after{
-  content:'';position:absolute;inset:0;border-radius:var(--rlg);
-  background:var(--glass);border:1px solid var(--gb);pointer-events:none;
-}
-.prod-stack::before{transform:translate(3px,4px) scale(.97);opacity:.5;z-index:0}
-.prod-stack::after{transform:translate(6px,8px) scale(.94);opacity:.25;z-index:-1}
+.prod-stack-layer{position:absolute;left:5%;right:5%;top:0;height:100%;border-radius:var(--rlg);pointer-events:none;box-shadow:0 3px 7px rgba(0,0,0,.22);transition:transform .35s var(--spring),opacity .35s var(--ease)}
+.prod-stack-layer.l1{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);transform:translateY(-5px) scale(.965);z-index:0}
+.prod-stack-layer.l2{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);transform:translateY(-9px) scale(.925);opacity:.8;z-index:-1}
 .prod-stack .prod-card{position:relative;z-index:1}
-.prod-card{border-radius:var(--rlg);padding:14px;background:var(--glass);border:1px solid var(--gb);box-shadow:var(--gshadow-card);backdrop-filter:var(--gblur);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring);position:relative;overflow:hidden}
+.prod-card{border-radius:var(--rlg);padding:12px;background:var(--glass);border:1px solid var(--gb);box-shadow:var(--gshadow-card);backdrop-filter:var(--gblur);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring);position:relative;overflow:hidden}
 .prod-card:active{transform:scale(.96)}
 .prod-card.out{opacity:.45;pointer-events:none}
-.prod-emoji{width:44px;height:44px;border-radius:50%;background:rgba(var(--accent-tint-rgb),.14);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--amber);margin-bottom:10px}
-.prod-name{font-size:13.5px;font-weight:600;line-height:1.3;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.prod-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.prod-emoji{width:28px;height:28px;border-radius:50%;background:rgba(var(--accent-tint-rgb),.14);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--amber);flex-shrink:0}
+.prod-name{font-size:13px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:left}
+.prod-subcard{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:9px 10px}
 .prod-price{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--amber)}
 .prod-stock{font-size:10px;color:var(--t3);margin-top:3px}
-.prod-badge{position:absolute;top:8px;right:8px;background:var(--grad-gold);color:#fff;font-size:10px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(var(--accent-shadow-rgb),.5)}
+.prod-badge{position:absolute;top:8px;right:8px;background:var(--grad-gold);color:#fff;font-size:10px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(var(--accent-shadow-rgb),.5);z-index:2}
+
+/* STACK REFILL BOUNCE (after a card flies to cart) */
+@keyframes stackRefill{
+  0%{transform:scale(.9)}
+  50%{transform:scale(1.045)}
+  75%{transform:scale(.985)}
+  100%{transform:scale(1)}
+}
+.stack-refill{animation:stackRefill .48s var(--spring)}
+
+/* FLY-TO-CART GHOST (single-use, removed right after animating) */
+.fly-ghost{position:fixed;z-index:9999;pointer-events:none;padding:7px 14px;border-radius:var(--rpill);background:var(--grad-gold);color:#fff;font-size:12px;font-weight:800;font-family:'JetBrains Mono',monospace;box-shadow:0 8px 22px rgba(var(--accent-shadow-rgb),.5);white-space:nowrap;will-change:transform,opacity}
+
 
 /* CART FLOATING BAR */
 #cartBar{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 6px);left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;z-index:90;display:none}
@@ -3078,17 +3090,24 @@ function renderProducts(){
     const avail=availableStock(p);
     const out=avail<=0;
     const unitTxt=p.unit&&p.unit!=='pcs'?' '+p.unit:'';
-    return `<div class="prod-stack"><div class="prod-card ripple-container ${out?'out':''}" onclick="quickAdd('${p.id}')">
+    return `<div class="prod-stack" data-pid="${p.id}">
+      <div class="prod-stack-layer l2"></div>
+      <div class="prod-stack-layer l1"></div>
+      <div class="prod-card ripple-container ${out?'out':''}" onclick="quickAdd('${p.id}',event)">
       ${qty>0?`<div class="prod-badge">${qty}</div>`:''}
-      <div class="prod-emoji">${prodLetter(p.name)}</div>
-      <div class="prod-name">${escapeHtml(p.name)}${p.variant?' <span style="opacity:.55;font-weight:500">('+escapeHtml(p.variant)+')</span>':''}</div>
-      <div class="prod-price">${rp(p.price)}</div>
-      <div class="prod-stock">${out&&held>0?'📌 Semua ditahan':out?'Stok habis':'Stok: '+avail+unitTxt}${held>0&&!out?' <span style="color:var(--amber)">· '+held+' ditahan</span>':''}</div>
+      <div class="prod-top">
+        <div class="prod-emoji">${prodLetter(p.name)}</div>
+        <div class="prod-name">${escapeHtml(p.name)}${p.variant?' <span style="opacity:.55;font-weight:500">('+escapeHtml(p.variant)+')</span>':''}</div>
+      </div>
+      <div class="prod-subcard">
+        <div class="prod-price">${rp(p.price)}</div>
+        <div class="prod-stock">${out&&held>0?'📌 Semua ditahan':out?'Stok habis':'Stok: '+avail+unitTxt}${held>0&&!out?' <span style="color:var(--amber)">· '+held+' ditahan</span>':''}</div>
+      </div>
     </div></div>`;
   }).join('');
   initRipples();
 }
-function quickAdd(id){
+function quickAdd(id,evt){
   const p=S.products.find(x=>x.id===id);if(!p)return;
   const avail=availableStock(p);
   if(avail<=0){toast(holdQtyFor(id)>0?'⚠️ Stok sedang ditahan/booking':'⚠️ Stok habis');return;}
@@ -3096,9 +3115,50 @@ function quickAdd(id){
   const existing=cart.find(c=>c.id===id);
   const curQty=existing?existing.qty:0;
   if(curQty+1>avail){toast('⚠️ Stok tidak cukup (sebagian sedang ditahan)');return;}
+  const cardEl=evt&&evt.currentTarget;
   if(existing)existing.qty++;
   else cart.push({id:p.id,name:p.name,emoji:p.emoji,price:p.price,qty:1,variant:p.variant||''});
-  updateCartBar();renderProducts();
+  updateCartBar();
+  if(cardEl)flyToCart(cardEl,p.price);
+  renderProducts();
+  const freshStack=document.querySelector('.prod-stack[data-pid="'+id+'"]');
+  if(freshStack)pulseStackRefill(freshStack);
+}
+/* Single-use "ghost" that flies from the tapped card to the cart price capsule,
+   then removes itself — no persistent nodes, no listeners left behind. */
+function flyToCart(sourceEl,price){
+  try{
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const target=document.getElementById('cartBarCount');
+    if(!sourceEl||!target)return;
+    const sRect=sourceEl.getBoundingClientRect();
+    const tRect=target.getBoundingClientRect();
+    const ghost=document.createElement('div');
+    ghost.className='fly-ghost';
+    ghost.textContent=rp(price);
+    ghost.style.left=(sRect.left+sRect.width/2-30)+'px';
+    ghost.style.top=(sRect.top+sRect.height/2-14)+'px';
+    document.body.appendChild(ghost);
+    const dx=(tRect.left+tRect.width/2)-(sRect.left+sRect.width/2);
+    const dy=(tRect.top+tRect.height/2)-(sRect.top+sRect.height/2);
+    const anim=ghost.animate([
+      {transform:'translate(0,0) scale(1)',opacity:1,offset:0},
+      {transform:`translate(${dx*0.5}px, ${dy*0.4-26}px) scale(.82)`,opacity:1,offset:.55},
+      {transform:`translate(${dx}px, ${dy}px) scale(.3)`,opacity:0,offset:1}
+    ],{duration:520,easing:'cubic-bezier(.34,1.56,.64,1)'});
+    let done=false;
+    const cleanup=()=>{if(done)return;done=true;ghost.remove();};
+    anim.onfinish=cleanup;anim.oncancel=cleanup;
+    setTimeout(cleanup,900); // safety net in case animation events don't fire
+  }catch(e){/* purely cosmetic — never block the sale on animation failure */}
+}
+/* Bounces the (freshly re-rendered) stack back into place, simulating the
+   deck "refilling" itself right after the top card flew off to checkout. */
+function pulseStackRefill(stackEl){
+  stackEl.classList.remove('stack-refill');
+  void stackEl.offsetWidth; // force reflow so the animation can re-trigger
+  stackEl.classList.add('stack-refill');
+  stackEl.addEventListener('animationend',()=>stackEl.classList.remove('stack-refill'),{once:true});
 }
 
 /* ════════════════════════════════════════════════════
