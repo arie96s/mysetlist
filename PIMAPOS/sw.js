@@ -1,16 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════
-   PIMAPOS — Service Worker (v3.3.0)
+   PIMAPOS — Service Worker (v3.4.1)
    Strategi: App Shell caching + network-first untuk HTML,
              cache-first untuk asset statis, stale-while-revalidate
              untuk font/CDN eksternal.
-   BARU v3.3.0: sinkron dengan PIMAPOS v3.3.0 —
-   • Chart.js kini LAZY-LOAD dari app (bukan <script defer> lagi);
-     tetap di-precache di sini agar grafik popup Laporan langsung
-     berfungsi walau pertama kali dibuka dalam kondisi offline.
-   • Guard res.ok sebelum menyimpan respons navigasi ke cache.
+   BARU v3.4.1: sinkron dengan PIMAPOS v3.4.1 —
+   • Bump versi cache: grafik jendela mengambang, PIN 2 lapis,
+     cabang & kasir di struk, pesan promo struk, What's New baru.
+   • Chart.js tetap lazy-load dari app + precache di sini agar
+     grafik langsung berfungsi walau pertama dibuka saat offline.
    ═══════════════════════════════════════════════════════════════════ */
 
-const SW_VERSION   = '3.3.0';
+const SW_VERSION   = '3.4.1';
 const CACHE_STATIC = `pimapos-static-v${SW_VERSION}`;
 const CACHE_RUNTIME = `pimapos-runtime-v${SW_VERSION}`;
 

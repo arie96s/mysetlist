@@ -470,6 +470,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 /* CART SHEET / CHECKOUT */
 .modal-ov{position:fixed;inset:0;background:rgba(2,8,23,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s var(--ease);padding:0 12px calc(var(--safe-b) + 14px)}
 #confirmModal{z-index:10000}
+#whatsNewModal{z-index:220} /* di atas infoModal (200) — dibuka dari dalam Info App */
 #scanModal{z-index:230}
 .modal-ov.open{opacity:1;pointer-events:all}
 .modal-sheet{width:100%;max-width:480px;margin:0 auto;border-radius:var(--rxl);transform-origin:50% 100%;transform:translateY(48px) scale(.7);opacity:0;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .42s var(--ease),background .5s var(--ease);background:var(--modal-bg);border:1px solid rgba(255,255,255,.09);box-shadow:0 -10px 24px rgba(0,0,0,.25),0 24px 70px rgba(0,0,0,.5);max-height:84vh;position:relative;overflow:hidden}
@@ -816,6 +817,8 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .whatsnew-item-ic{font-size:16px;flex-shrink:0;width:22px;text-align:center;line-height:1.4}
 .whatsnew-item-txt{font-size:11.5px;color:var(--t2);line-height:1.5}
 .whatsnew-item-txt b{color:var(--t1);font-size:12.5px;display:block;margin-bottom:1px}
+.whatsnew-readmore{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--blue-hi);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
+.whatsnew-readmore:active{opacity:.6}
 .tour-overlay{position:fixed;inset:0;z-index:9997;display:none}
 .tour-overlay.open{display:block}
 .tour-spotlight{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(2,8,23,.8);border:2px solid rgba(var(--accent-tint-rgb),.85);pointer-events:none;transition:top .5s var(--ease),left .5s var(--ease),width .5s var(--ease),height .5s var(--ease),opacity .3s;opacity:0}
@@ -1352,6 +1355,15 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="scan-hint" style="margin-top:6px;text-align:left">Tampil di bagian bawah struk (layar, PDF & printer). Kosongkan untuk memakai pesan bawaan sesuai kategori toko.</div>
 
     <div class="slabel" style="display:flex;align-items:center;justify-content:space-between">
+      <span>🎁 Pesan Promo di Struk</span>
+      <button class="icon-btn ripple-container" id="promoEditBtn" style="display:none;font-size:18px;font-weight:800" onclick="openPromoEditModal()" title="Edit pesan promo" aria-label="Edit pesan promo">⋯</button>
+    </div>
+    <div class="field">
+      <select id="receiptPromoTemplateSel" onchange="applyReceiptPromoTemplate(this.value)"></select>
+    </div>
+    <div class="scan-hint" style="margin-top:6px;text-align:left">Tampil paling bawah struk sebagai pesan penutup — ajakan agar pelanggan kembali. Pilih template, lalu ketuk <b>⋯</b> untuk mengubah teksnya sesukamu. Pilih "Nonaktif" untuk mematikan.</div>
+
+    <div class="slabel" style="display:flex;align-items:center;justify-content:space-between">
       <span>Media Sosial & QR Toko</span>
       <button class="icon-btn ripple-container" style="width:30px;height:30px" onclick="openAddSocialMenu()" title="Tambah Platform" aria-label="Tambah Platform">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
@@ -1453,6 +1465,19 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 </div>
 
 <!-- ══════════ MODAL: INFO APP ══════════ -->
+<!-- ══════════ MODAL: WHAT'S NEW LENGKAP (Read more) ══════════ -->
+<div class="modal-ov" id="whatsNewModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="whatsNewModalTitle">🆕 What's New</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:12px;line-height:1.6">Semua pembaruan & fitur terbaru PIMAPOS.</div>
+    <div id="whatsNewFullList"></div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeWhatsNewModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-ov" id="infoModal">
   <div class="modal-sheet">
     <div class="modal-sheet-scroll">
@@ -1832,6 +1857,20 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   </div>
 </div>
 
+<!-- ══════════ MODAL: EDIT PESAN PROMO STRUK ══════════ -->
+<div class="modal-ov" id="promoEditModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Edit Pesan Promo</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Ubah teks promo sesukamu — hasil edit tetap tampil paling bawah struk.</div>
+    <div class="field"><label>Pesan Promo (maks 120 karakter)</label><input type="text" id="promoEditVal" maxlength="120" placeholder="cth: Tunjukkan struk ini besok, dapat diskon 10%!" onkeydown="if(event.key==='Enter')savePromoEdit()"></div>
+    <button class="sbtn ripple-container" onclick="savePromoEdit()">Simpan</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closePromoEditModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ MODAL: KODE TOKO/CABANG (opsional, untuk toko dengan banyak cabang) ══════════ -->
 <div class="modal-ov" id="branchCodeModal">
   <div class="modal-sheet">
@@ -1854,6 +1893,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="modal-title">🌅 Begin of Day (BOD)</div>
     <div style="font-size:12.5px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Mulai shift kasir dengan mencatat kas awal di laci kasir sebelum mulai melayani transaksi.</div>
     <div class="field"><label>Kasir Bertugas</label><select id="bodCashier"></select></div>
+    <div id="bodCashierHint" style="display:none;font-size:11px;color:var(--t3);margin:-6px 0 12px;line-height:1.55">💡 Belum ada daftar kasir — nama kasir hanya tampil di struk jika dipilih di sini. Tambahkan lewat <b>Profil → Multi-Kasir &amp; Peran</b>.</div>
     <div class="field"><label>Kas Awal</label><div class="amt-wrap"><span class="amt-pre">Rp</span><input type="number" id="bodCash" placeholder="0"></div></div>
     <div class="field"><label>Catatan (opsional)</label><input type="text" id="bodNote" placeholder="Kasir: …"></div>
     <button class="sbtn ripple-container" onclick="startShift()">🚀 Mulai Shift (BOD)</button>
@@ -2436,8 +2476,12 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.3.1';
+const APP_VERSION='3.4.1';
 const WHATS_NEW_FEATURES=[
+  {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
+  {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
+  {icon:'🔐',title:'PIN Keamanan 2 Lapis',desc:'Menonaktifkan PIN Keamanan Transaksi kini wajib verifikasi PIN + konfirmasi — tidak bisa lagi dimatikan sembarang orang. Tercatat di Log Aktivitas.'},
+  {icon:'🏷️',title:'Cabang & Kasir di Struk',desc:'Kode toko/cabang kini selalu tampil di struk (walau pakai logo) di layar, PDF & printer. Nama kasir dari shift aktif ikut tercetak.'},
   {icon:'📏',title:'Stok per Ukuran (Fashion)',desc:'Toko Fashion/Distro kini wajib atur stok per size — S (10), M (12), dst. Kasir memilih ukuran lewat pop-up, chips size tampil di kartu produk.'},
   {icon:'🏷️',title:'Label Pesanan (F&B)',desc:'Label ala coffee shop per gelas/porsi — logo brand, nama tamu & item. Buka dari menu ⋯ di struk (kategori F&B, Cafe, Restoran).'},
   {icon:'🛒',title:'Kapsul Keranjang Baru',desc:'Kapsul mengembang kenyal jadi panel belanja — qty, diskon, bayar, dan Tahan (⋯) langsung dari kapsul.'},
@@ -2446,7 +2490,6 @@ const WHATS_NEW_FEATURES=[
   {icon:'🕐',title:'Format Waktu Struk Baru',desc:'Tanggal & jam struk lebih ringkas: 9 Jul 2026 | 00:03 — seragam di layar, PDF & printer.'},
   {icon:'🧾',title:'Logo Custom di Struk',desc:'Unggah logo toko untuk tampil di struk (layar & PDF), menggantikan tulisan nama toko — atur lewat "Struk & Identitas Toko".'},
   {icon:'🔄',title:'Retur & Refund Lengkap',desc:'Kebijakan retur per produk, kondisi barang (baik/rusak), metode refund, plus Laporan Barang Retur & statistiknya.'},
-  {icon:'📊',title:'Grafik Laporan',desc:'Grafik omzet & transaksi harian, serta komposisi metode pembayaran — langsung di halaman Laporan.'},
   {icon:'🖨️',title:'Printer Thermal Bluetooth',desc:'Cetak struk langsung ke printer thermal 58mm via Bluetooth (Chrome/Edge Android & Desktop).'},
   {icon:'☁️',title:'Cloud Backup Google Drive',desc:'Backup & pulihkan data ke Google Drive milik sendiri — opsional, data lokal tetap prioritas.'},
   {icon:'💻',title:'Tampilan Desktop & iPad',desc:'Sidebar navigasi, popup terpusat, dan tata letak yang menyesuaikan otomatis di layar lebar.'},
@@ -2707,6 +2750,7 @@ function defState(){
     storeLogo:'',
     receiptLogo:'',
     storeBranchCode:'',
+    receiptPromoMsg:'',
     security:{pinEnabled:false,pinHash:'',pinFailCount:0,pinLockedUntil:null,pinChangeFailCount:0,pinChangeLockedUntil:null,actionPinEnabled:false,actionPinHash:'',actionPinFailCount:0,actionPinLockedUntil:null,idleLockEnabled:false,idleLockMinutes:5},
     notif:{enabled:false},
     socials:{whatsapp:'',instagram:'',tiktok:'',facebook:'',shopee:'',tokopedia:'',website:''},
@@ -3123,10 +3167,56 @@ function openSocialModal(){
   renderSocialAccordionList();
   renderReceiptLogoPreview();
   document.getElementById('receiptFooterMsgInput').value=S.receiptFooterMsg||'';
+  renderPromoSelect();
   document.getElementById('socialModal').classList.add('open');
 }
 function closeSocialModal(){document.getElementById('socialModal').classList.remove('open');}
 const saveReceiptFooterMsg=debounce(v=>{S.receiptFooterMsg=v.trim();save();},300);
+/* ── Pesan Promo di Struk: template marketing + custom.
+     Psikologi repeat-order: pesan penutup paling bawah struk. ── */
+const RECEIPT_PROMO_TEMPLATES=[
+  'Tunjukkan struk ini besok & dapatkan diskon 10%!',
+  'Kembali lagi besok — ada kejutan spesial untuk Anda!',
+  'Kumpulkan 5 struk & tukarkan dengan 1 produk GRATIS!',
+  'Promo minggu ini: beli 2 GRATIS 1. Jangan sampai kehabisan!',
+  'Follow media sosial kami untuk info promo eksklusif!'
+];
+function receiptPromoText(){
+  /* Emoji dibuang — font courier PDF & printer thermal tidak punya glyph emoji */
+  return (S.receiptPromoMsg||'').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').trim();
+}
+function renderPromoSelect(){
+  const sel=document.getElementById('receiptPromoTemplateSel');
+  if(!sel)return;
+  const cur=(S.receiptPromoMsg||'').trim();
+  const isTemplate=RECEIPT_PROMO_TEMPLATES.includes(cur);
+  let html='<option value="">— Nonaktif —</option>'+RECEIPT_PROMO_TEMPLATES.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+  /* Teks hasil edit (custom) ikut tampil sebagai opsi terpilih */
+  if(cur&&!isTemplate)html+=`<option value="${escapeHtml(cur)}">✏️ ${escapeHtml(cur)}</option>`;
+  sel.innerHTML=html;
+  sel.value=cur;
+  const btn=document.getElementById('promoEditBtn');
+  if(btn)btn.style.display=cur?'flex':'none';
+}
+function applyReceiptPromoTemplate(v){
+  S.receiptPromoMsg=(v||'').trim();
+  save();
+  renderPromoSelect();
+  toast(S.receiptPromoMsg?'✅ Pesan promo diterapkan':'Pesan promo dinonaktifkan');
+}
+function openPromoEditModal(){
+  document.getElementById('promoEditVal').value=S.receiptPromoMsg||'';
+  document.getElementById('promoEditModal').classList.add('open');
+  setTimeout(()=>{const el=document.getElementById('promoEditVal');if(el)el.focus();},300);
+}
+function closePromoEditModal(){document.getElementById('promoEditModal').classList.remove('open');}
+function savePromoEdit(){
+  S.receiptPromoMsg=document.getElementById('promoEditVal').value.trim();
+  save();
+  closePromoEditModal();
+  renderPromoSelect();
+  toast(S.receiptPromoMsg?'✅ Pesan promo disimpan':'Pesan promo dinonaktifkan');
+}
 function renderReceiptLogoPreview(){
   const img=document.getElementById('receiptLogoPreview');
   const empty=document.getElementById('receiptLogoPreviewEmpty');
@@ -3182,14 +3272,25 @@ function openInfoModal(){
   S.lastSeenVersion=APP_VERSION;save();
 }
 function closeInfoModal(){document.getElementById('infoModal').classList.remove('open');}
-function renderInfoWhatsNew(){
-  document.getElementById('infoWhatsNewTitle').textContent='Fitur di v'+APP_VERSION;
-  document.getElementById('infoWhatsNewList').innerHTML=WHATS_NEW_FEATURES.map(f=>`
-    <div class="whatsnew-item">
+function whatsNewItemHTML(f){
+  return `<div class="whatsnew-item">
       <div class="whatsnew-item-ic">${f.icon}</div>
       <div class="whatsnew-item-txt"><b>${f.title}</b>${f.desc}</div>
-    </div>`).join('');
+    </div>`;
 }
+function renderInfoWhatsNew(){
+  document.getElementById('infoWhatsNewTitle').textContent='Baru di v'+APP_VERSION;
+  /* 3 highlight teratas saja — selengkapnya lewat Read more */
+  document.getElementById('infoWhatsNewList').innerHTML=
+    WHATS_NEW_FEATURES.slice(0,3).map(whatsNewItemHTML).join('')+
+    `<span class="whatsnew-readmore" role="button" tabindex="0" onclick="openWhatsNewModal()" onkeydown="if(event.key==='Enter')openWhatsNewModal()">Read more ›</span>`;
+}
+function openWhatsNewModal(){
+  document.getElementById('whatsNewFullList').innerHTML=WHATS_NEW_FEATURES.map(whatsNewItemHTML).join('');
+  document.getElementById('whatsNewModalTitle').textContent='🆕 What\'s New — v'+APP_VERSION;
+  document.getElementById('whatsNewModal').classList.add('open');
+}
+function closeWhatsNewModal(){document.getElementById('whatsNewModal').classList.remove('open');}
 
 function renderThemePresets(){
   const wrap=document.getElementById('themePresetScroll');
@@ -4203,9 +4304,10 @@ function showReceipt(trx){
   if(S.receiptLogo){
     lines.push(`<div class="receipt-center" style="margin-bottom:4px"><img src="${S.receiptLogo}" alt="${escapeHtml(S.storeName||'Toko')}" style="max-width:140px;max-height:70px;object-fit:contain;background:#fff;border-radius:6px;padding:4px"></div>`);
   }else{
-    lines.push(`<div class="receipt-center" style="font-weight:700;font-size:13.5px;letter-spacing:.02em">${escapeHtml(S.storeName||'Toko Saya')}${S.storeBranchCode?' <span style="font-weight:500;opacity:.6;font-size:10.5px">('+escapeHtml(S.storeBranchCode)+')</span>':''}</div>`);
+    lines.push(`<div class="receipt-center" style="font-weight:700;font-size:13.5px;letter-spacing:.02em">${escapeHtml(S.storeName||'Toko Saya')}</div>`);
   }
-  if(S.storeCategory)lines.push(`<div class="receipt-center" style="opacity:.7">${escapeHtml(S.storeCategory)}</div>`);
+  /* Kode toko/cabang: baris tersendiri — tetap tampil walau pakai logo struk */
+  if(S.storeBranchCode)lines.push(`<div class="receipt-center" style="font-weight:600;font-size:10.5px;opacity:.7;letter-spacing:.04em">Cabang: ${escapeHtml(S.storeBranchCode)}</div>`);
   if(S.storeAddr)lines.push(`<div class="receipt-center">${escapeHtml(S.storeAddr)}</div>`);
   lines.push(`<div class="receipt-center">${receiptDateLbl(trx.ts)}</div>`);
   if(trx.cashier)lines.push(`<div class="receipt-center" style="opacity:.75">Kasir: ${escapeHtml(trx.cashier)}</div>`);
@@ -4255,6 +4357,8 @@ function showReceipt(trx){
       lines.push(`<div class="receipt-center" style="font-size:8.5px;letter-spacing:.08em;opacity:.6;margin-top:4px">SCAN & FOLLOW ${primary.l.toUpperCase()}</div>`);
     }
   }
+  const promoTxt=receiptPromoText();
+  if(promoTxt)lines.push(`<div class="receipt-center" style="margin-top:10px;padding:7px 4px;border-top:1px dashed #999;border-bottom:1px dashed #999;font-weight:700;font-size:11px;letter-spacing:.02em">${escapeHtml(promoTxt)}</div>`);
   lines.push(`<div class="receipt-center" style="margin-top:8px;font-size:9px;opacity:.55">${S.storeName||'Toko Saya'}</div>`);
   document.getElementById('receiptBox').innerHTML=lines.join('');
   document.getElementById('receiptModalTitle').textContent=trx.voided?'🚫 Transaksi Dibatalkan':'✅ Transaksi Berhasil';
@@ -4493,7 +4597,7 @@ async function downloadReceiptPDF(){
   const lineH=4.6;
   const socs=filledSocials().slice(0,3);
   const hasQr=socs.some(s=>s.url);
-  let estLines=10+trx.items.length*2+(trx.diskon>0?1:0)+(trx.tax>0?1:0)+(trx.note?1:0)+2+(hasQr?7:0)+(trx.customerName?1:0)+(trx.cashier?1:0)+(trx.rounding?2:0);
+  let estLines=10+trx.items.length*2+(trx.diskon>0?1:0)+(trx.tax>0?1:0)+(trx.note?1:0)+2+(hasQr?7:0)+(trx.customerName?1:0)+(trx.cashier?1:0)+(trx.rounding?2:0)+(receiptPromoText()?4:0);
   const H=Math.max(95,estLines*lineH+30);
   const doc=new jsPDF({unit:'mm',format:[W,H]});
   const cx=W/2;
@@ -4523,10 +4627,10 @@ async function downloadReceiptPDF(){
     }
   }else{
     doc.setFont('courier','bold');doc.setFontSize(11);
-    doc.text((S.storeName||'Toko Saya')+(S.storeBranchCode?' ('+S.storeBranchCode+')':''),cx,y,{align:'center'});y+=5;
+    doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});y+=5;
   }
   doc.setFont('courier','normal');doc.setFontSize(7.5);
-  if(S.storeCategory){doc.text(S.storeCategory,cx,y,{align:'center'});y+=4;}
+  if(S.storeBranchCode){doc.text('Cabang: '+S.storeBranchCode,cx,y,{align:'center'});y+=4;}
   if(S.storeAddr){doc.text(S.storeAddr,cx,y,{align:'center'});y+=4;}
   doc.text(receiptDateLbl(trx.ts),cx,y,{align:'center'});y+=4;
   if(trx.cashier){doc.text('Kasir: '+trx.cashier,cx,y,{align:'center'});y+=4;}
@@ -4583,6 +4687,14 @@ async function downloadReceiptPDF(){
       doc.text('SCAN & FOLLOW '+primary.l.toUpperCase(),cx,y,{align:'center'});y+=5;
       doc.setTextColor(0,0,0);
     }catch(e){console.warn('[PIMAPOS] QR gagal disisipkan ke PDF',e);}
+  }
+  const promoTxt=receiptPromoText();
+  if(promoTxt){
+    doc.setFont('courier','bold');doc.setFontSize(7.5);doc.setTextColor(0,0,0);
+    doc.setLineDashPattern([0.6,0.6],0);doc.line(4,y,W-4,y);y+=4;
+    doc.splitTextToSize(promoTxt,W-10).forEach(pl=>{doc.text(pl,cx,y,{align:'center'});y+=3.8;});
+    doc.line(4,y,W-4,y);y+=5;
+    doc.setLineDashPattern([],0);
   }
   doc.setFont('courier','normal');doc.setFontSize(6.5);doc.setTextColor(110,110,110);
   doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});
@@ -5430,6 +5542,7 @@ async function printReceiptBluetooth(){
   const pad=(l,r)=>{const w=32-r.length;return (l.length>w?l.slice(0,w):l.padEnd(w))+r;};
   const lines=[];
   lines.push({text:S.storeName||'Toko Saya',bold:true,center:true});
+  if(S.storeBranchCode)lines.push({text:'Cabang: '+S.storeBranchCode,center:true});
   if(S.storeAddr)lines.push({text:S.storeAddr,center:true});
   lines.push({text:receiptDateLbl(trx.ts),center:true});
   if(trx.cashier)lines.push({text:'Kasir: '+trx.cashier,center:true});
@@ -5453,6 +5566,12 @@ async function printReceiptBluetooth(){
   if(trx.totalRefunded>0)lines.push({text:pad('Retur/Refund','-'+rpNum(trx.totalRefunded))});
   lines.push({text:''});
   lines.push({text:receiptFooterText(),center:true});
+  const promoTxt=receiptPromoText();
+  if(promoTxt){
+    lines.push({text:'--------------------------------'});
+    lines.push({text:promoTxt,center:true,bold:true});
+    lines.push({text:'--------------------------------'});
+  }
   lines.push({text:S.storeName||'',center:true});
   const ok=await printerWrite(escposBytes(lines));
   if(ok)toast('🖨️ Struk terkirim ke printer');
@@ -6834,6 +6953,10 @@ function populateBodCashierSelect(){
   const sel=document.getElementById('bodCashier');
   const staff=S.staff||[];
   sel.innerHTML='<option value="">Umum / Tidak diisi</option>'+staff.map(s=>`<option value="${escapeHtml(s.name)}" data-role="${s.role||'kasir'}">${escapeHtml(s.name)}${s.role?' ('+(ROLE_LABEL[s.role]||s.role)+')':''}</option>`).join('');
+  /* Prapilih kasir terakhir yang bertugas — kurangi risiko lupa memilih */
+  if(S._lastBodCashier&&staff.some(s=>s.name===S._lastBodCashier))sel.value=S._lastBodCashier;
+  const hint=document.getElementById('bodCashierHint');
+  if(hint)hint.style.display=staff.length?'none':'block';
 }
 function closeBodModal(){document.getElementById('bodModal').classList.remove('open');}
 function startShift(){
@@ -6854,6 +6977,7 @@ function startShift(){
     cashier,cashierRole,
     note:document.getElementById('bodNote').value||''
   };
+  if(cashier)S._lastBodCashier=cashier;
   save();closeBodModal();renderShiftBanner();
   logActivity('🌅 Shift Dibuka (BOD)',`Kas awal ${rp(cash)}`);
   toast('🚀 Shift dibuka — selamat berjualan!');
