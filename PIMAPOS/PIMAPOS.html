@@ -3474,8 +3474,13 @@ function calcHintUpdate(v){
   const el=document.getElementById('calcHint');
   if(!el)return;
   const s=String(v||'').trim();
-  if(!s.startsWith('=')){el.classList.remove('on');el.textContent='';return;}
-  const res=safeCalc(s.slice(1));
+  /* Deteksi otomatis: awalan "=" ATAU ekspresi murni dengan operator hitung.
+     Angka polos (barcode/harga) tetap dianggap pencarian biasa. */
+  const isEq=s.startsWith('=');
+  const expr=isEq?s.slice(1):s;
+  const looksMath=isEq||(/[+*/]|\d-|\)-/.test(expr)&&/^[\d+\-*/().,\s]+$/.test(expr));
+  const res=looksMath?safeCalc(expr):null;
+  if(res===null&&!isEq){el.classList.remove('on');el.textContent='';return;}
   el.textContent=res===null?'🧮 …':'🧮 = Rp '+Math.round(res).toLocaleString('id-ID');
   el.classList.add('on');
 }
