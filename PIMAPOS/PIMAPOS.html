@@ -536,6 +536,22 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .olabel-store{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-align:center}
 .olabel-dash{border-top:1.5px dashed rgba(0,0,0,.25);margin:7px 0}
 .olabel-cust{font-size:16px;font-weight:800;text-align:center;letter-spacing:.01em;word-break:break-word}
+.size-pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 16px}
+.size-pick-chip{padding:13px 8px;border-radius:var(--rmd);background:linear-gradient(var(--glass),var(--glass)),var(--bg1);border:1px solid var(--gb);text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring),border-color .2s ease;position:relative;overflow:hidden}
+.size-pick-chip:active{transform:scale(.93);border-color:rgba(var(--accent-tint-rgb),.6)}
+.size-pick-chip.disabled{opacity:.32;pointer-events:none;filter:grayscale(1)}
+.spc-s{font-size:17px;font-weight:800;color:var(--t1)}
+.spc-q{font-size:10px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.size-dot-row{display:inline-flex;gap:4px;flex-wrap:wrap;vertical-align:middle}
+.size-dot{min-width:17px;height:17px;padding:0 4px;border-radius:6px;background:rgba(var(--accent-tint-rgb),.15);border:1px solid rgba(var(--accent-tint-rgb),.32);color:var(--amber);font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace}
+.size-dot.empty{opacity:.32;text-decoration:line-through;filter:grayscale(1)}
+.size-inp-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.size-inp-row .siz-lbl{min-width:64px;font-size:12px;font-weight:800;color:var(--amber);font-family:'JetBrains Mono',monospace}
+.size-inp-row input{flex:1}
+.size-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.size-chip{padding:7px 14px;border-radius:var(--rpill);background:rgba(255,255,255,.06);border:1px solid var(--gb);font-size:12px;font-weight:800;color:var(--t2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .2s var(--spring)}
+.size-chip:active{transform:scale(.92)}
+.size-chip.on{background:rgba(var(--accent-tint-rgb),.16);border-color:rgba(var(--accent-tint-rgb),.5);color:var(--amber)}
 .olabel-note{font-size:11px;font-weight:800;text-align:center;color:#111827;background:rgba(0,0,0,.07);border-radius:7px;padding:3px 10px;margin:6px auto 0;display:table;letter-spacing:.02em}
 .olabel-item{font-size:12px;font-weight:600;text-align:center;margin-top:3px;color:#374151;word-break:break-word}
 .olabel-idx{font-size:10px;font-weight:700;text-align:center;margin-top:5px;color:#6b7280;font-family:'JetBrains Mono',monospace}
@@ -1594,6 +1610,19 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   </div>
 </div>
 
+<!-- ══════════ MODAL: PILIH UKURAN (Fashion) ══════════ -->
+<div class="modal-ov" id="sizePickModal">
+  <div class="modal-sheet" style="max-width:400px">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">👕 Pilih Ukuran</div>
+    <div id="sizePickName" style="font-size:13px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:4px"></div>
+    <div id="sizePickGrid" class="size-pick-grid"></div>
+    <button class="sbtn ghost ripple-container" onclick="closeSizePickModal()">Selesai</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ MODAL: LABEL PESANAN (F&B) ══════════ -->
 <div class="modal-ov" id="labelPesananModal">
   <div class="modal-sheet">
@@ -1650,7 +1679,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="field"><label>Harga Modal / HPP (opsional)</label><div class="amt-wrap"><span class="amt-pre">Rp</span><input type="number" id="prodCost" placeholder="0" oninput="updateProdMarginPreview()"></div></div>
     <div id="prodMarginPreview" style="display:none;font-size:11.5px;color:var(--t3);margin:-6px 0 12px;text-align:right"></div>
     <div class="field-row">
-      <div class="field"><label>Stok</label><input type="number" id="prodStock" placeholder="50"></div>
+      <div class="field" id="prodStockField"><label>Stok</label><input type="number" id="prodStock" placeholder="50"></div>
       <div class="field"><label>Satuan</label>
         <select id="prodUnit">
           <option value="pcs">Pcs</option>
@@ -1664,7 +1693,13 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
         </select>
       </div>
     </div>
-    <div class="field"><label id="prodVariantLabel">Varian (opsional)</label><input type="text" id="prodVariant" placeholder="Warna / Rasa / dll"></div>
+    <div class="field" id="prodVariantField"><label id="prodVariantLabel">Varian (opsional)</label><input type="text" id="prodVariant" placeholder="Warna / Rasa / dll"></div>
+    <div class="field" id="prodSizesField" style="display:none">
+      <label>Ukuran &amp; Stok per Size <span style="color:var(--red)">*wajib</span></label>
+      <div class="size-chip-row" id="prodSizeChips"></div>
+      <div id="prodSizeInputs"></div>
+      <div class="scan-hint" style="text-align:left;margin-top:2px">Total stok: <b id="prodSizeTotal" style="color:var(--amber)">0</b> — dihitung otomatis dari semua size.</div>
+    </div>
     <div class="toggle-row">
       <div>
         <div style="font-size:13.5px;font-weight:600">Bisa Diretur/Refund</div>
@@ -2372,6 +2407,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 const LSKEY='pimapos_v1';
 const APP_VERSION='3.2.0';
 const WHATS_NEW_FEATURES=[
+  {icon:'📏',title:'Stok per Ukuran (Fashion)',desc:'Toko Fashion/Distro kini wajib atur stok per size — S (10), M (12), dst. Kasir memilih ukuran lewat pop-up, chips size tampil di kartu produk.'},
   {icon:'🏷️',title:'Label Pesanan (F&B)',desc:'Label ala coffee shop per gelas/porsi — logo brand, nama tamu & item. Buka dari menu ⋯ di struk (kategori F&B, Cafe, Restoran).'},
   {icon:'🛒',title:'Kapsul Keranjang Baru',desc:'Kapsul mengembang kenyal jadi panel belanja — qty, diskon, bayar, dan Tahan (⋯) langsung dari kapsul.'},
   {icon:'🪪',title:'Wallet Card Produk',desc:'Kartu produk bergaya dompet — kartu di dalamnya bergiliran ke belakang tiap item ditambahkan. Ringan, mulus, anti-kedip.'},
@@ -2474,6 +2510,34 @@ function holdQtyFor(productId){
 function availableStock(p){
   return Math.max(0,p.stock-holdQtyFor(p.id));
 }
+/* ── Stok per-Size (kategori fashion) ── */
+const FASHION_SIZE_CATS=['Fashion/Clothing','Distro'];
+function isFashionStore(){return FASHION_SIZE_CATS.includes(S.storeCategory);}
+function hasSizes(p){return !!(p&&p.sizes&&p.sizes.length);}
+function sizeSum(p){return (p.sizes||[]).reduce((a,x)=>a+Math.max(0,Number(x.q)||0),0);}
+function sizeQty(p,s){const sz=(p.sizes||[]).find(x=>x.s===s);return sz?Math.max(0,Number(sz.q)||0):0;}
+function adjustSizeQty(p,s,d){
+  if(!hasSizes(p)||!s)return;
+  const sz=p.sizes.find(x=>x.s===s);
+  if(sz)sz.q=Math.max(0,(Number(sz.q)||0)+d);
+}
+/* Jaga sum(sizes)===stock bila total diubah langsung (mis. Stock Opname):
+   selisih dialokasikan ke size berstok terbesar dulu, tanpa pernah negatif. */
+function reconcileSizes(p){
+  if(!hasSizes(p))return;
+  let diff=p.stock-sizeSum(p);
+  if(!diff)return;
+  const sorted=[...p.sizes].sort((a,b)=>(Number(b.q)||0)-(Number(a.q)||0));
+  for(const sz of sorted){
+    if(!diff)break;
+    const cur=Number(sz.q)||0;
+    const take=diff>0?diff:-Math.min(cur,-diff);
+    sz.q=cur+take;diff-=take;
+  }
+}
+function cartQtyOf(id,size){
+  return cart.filter(c=>c.id===id&&(size===undefined||(c.variant||'')===size)).reduce((a,c)=>a+c.qty,0);
+}
 const CATEGORY_TEMPLATES={
   'F&B':{categories:['Makanan','Minuman','Snack','Lainnya'],products:[
     {name:'Nasi Goreng',emoji:'🍛',cat:'Makanan',price:18000,stock:30},
@@ -2508,12 +2572,12 @@ const CATEGORY_TEMPLATES={
     {name:'Air Mineral',emoji:'💧',cat:'Lainnya',price:4000,stock:60},
   ]},
   'Fashion/Clothing':{categories:['Atasan','Bawahan','Outerwear','Aksesoris'],products:[
-    {name:'Kaos Polos',emoji:'👕',cat:'Atasan',price:45000,stock:40},
-    {name:'Kemeja',emoji:'👔',cat:'Atasan',price:95000,stock:25},
-    {name:'Celana Jeans',emoji:'👖',cat:'Bawahan',price:150000,stock:20},
-    {name:'Jaket',emoji:'🧥',cat:'Outerwear',price:180000,stock:15},
-    {name:'Topi',emoji:'🧢',cat:'Aksesoris',price:35000,stock:30},
-    {name:'Tas Selempang',emoji:'👜',cat:'Aksesoris',price:120000,stock:15},
+    {name:'Kaos Polos',emoji:'👕',cat:'Atasan',price:45000,stock:40,sizes:[{s:'S',q:10},{s:'M',q:12},{s:'L',q:12},{s:'XL',q:6}]},
+    {name:'Kemeja',emoji:'👔',cat:'Atasan',price:95000,stock:25,sizes:[{s:'M',q:9},{s:'L',q:10},{s:'XL',q:6}]},
+    {name:'Celana Jeans',emoji:'👖',cat:'Bawahan',price:150000,stock:20,sizes:[{s:'28',q:5},{s:'30',q:8},{s:'32',q:7}]},
+    {name:'Jaket',emoji:'🧥',cat:'Outerwear',price:180000,stock:15,sizes:[{s:'M',q:5},{s:'L',q:6},{s:'XL',q:4}]},
+    {name:'Topi',emoji:'🧢',cat:'Aksesoris',price:35000,stock:30,sizes:[{s:'All Size',q:30}]},
+    {name:'Tas Selempang',emoji:'👜',cat:'Aksesoris',price:120000,stock:15,sizes:[{s:'All Size',q:15}]},
   ]},
   'Distro':{categories:['Kaos','Hoodie','Topi & Aksesoris','Sepatu'],products:[
     {name:'Kaos Distro',emoji:'👕',cat:'Kaos',price:95000,stock:30},
@@ -3249,7 +3313,7 @@ function renderProducts(){
       </div>
       <div class="prod-subcard">
         <div class="prod-price">${rp(p.price)}</div>
-        <div class="prod-stock">${out&&held>0?'📌 Semua ditahan':out?'Stok habis':'Stok: '+avail+unitTxt}${held>0&&!out?' <span style="color:var(--amber)">· '+held+' ditahan</span>':''}</div>
+        <div class="prod-stock">${prodStockHTML(p,avail,held,out,unitTxt)}</div>
       </div>
     </div></div>`;
   }).join('');
@@ -3258,14 +3322,21 @@ function renderProducts(){
 /* Surgical card update — mutates badge/stock/out-state on the EXISTING node.
    Grid rebuild (renderProducts) is reserved for list-composition changes only;
    rebuilding on every tap destroyed & recreated the glass stack → visible blink. */
+function prodStockHTML(p,avail,held,out,unitTxt){
+  if(hasSizes(p)){
+    if(out&&held>0)return '📌 Semua ditahan';
+    const chips=p.sizes.map(sz=>`<span class="size-dot${(Number(sz.q)||0)<=0?' empty':''}">${escapeHtml(sz.s)}</span>`).join('');
+    return `<span class="size-dot-row">${chips}</span>`+(held>0&&!out?' <span style="color:var(--amber)">· '+held+'📌</span>':'');
+  }
+  return (out&&held>0?'📌 Semua ditahan':out?'Stok habis':'Stok: '+avail+unitTxt)+(held>0&&!out?' <span style="color:var(--amber)">· '+held+' ditahan</span>':'');
+}
 function updateProductCard(id){
   const stack=document.querySelector('.prod-stack[data-pid="'+id+'"]');
   const p=S.products.find(x=>x.id===id);
   if(!stack||!p){renderProducts();return;} // card off-screen (filter/search) → safe fallback
   const card=stack.querySelector('.prod-card');
   if(!card){renderProducts();return;}
-  const inCart=cart.find(c=>c.id===id);
-  const qty=inCart?inCart.qty:0;
+  const qty=cartQtyOf(id);
   const held=holdQtyFor(id);
   const avail=availableStock(p);
   const out=avail<=0;
@@ -3283,13 +3354,14 @@ function updateProductCard(id){
   }else if(badge){badge.remove();}
   const unitTxt=p.unit&&p.unit!=='pcs'?' '+p.unit:'';
   const stockEl=card.querySelector('.prod-stock');
-  if(stockEl)stockEl.innerHTML=(out&&held>0?'📌 Semua ditahan':out?'Stok habis':'Stok: '+avail+unitTxt)+(held>0&&!out?' <span style="color:var(--amber)">· '+held+' ditahan</span>':'');
+  if(stockEl)stockEl.innerHTML=prodStockHTML(p,avail,held,out,unitTxt);
 }
 function quickAdd(id,evt){
   const p=S.products.find(x=>x.id===id);if(!p)return;
   const avail=availableStock(p);
   if(avail<=0){toast(holdQtyFor(id)>0?'⚠️ Stok sedang ditahan/booking':'⚠️ Stok habis');return;}
   if(!S.activeShift){toast('⚠️ Mulai shift (BOD) dulu sebelum jualan');openBodModal();return;}
+  if(hasSizes(p)){openSizePickModal(id);return;}
   const existing=cart.find(c=>c.id===id);
   const curQty=existing?existing.qty:0;
   if(curQty+1>avail){toast('⚠️ Stok tidak cukup (sebagian sedang ditahan)');return;}
@@ -3304,6 +3376,44 @@ function quickAdd(id,evt){
 }
 /* Kartu depan menyelam ke slot belakang, dua lainnya maju satu slot.
    Murni pertukaran class posisi — transisi transform ditangani compositor. */
+let _sizePickPid=null;
+function openSizePickModal(pid){
+  _sizePickPid=pid;
+  renderSizePickChips();
+  document.getElementById('sizePickModal').classList.add('open');
+}
+function closeSizePickModal(){document.getElementById('sizePickModal').classList.remove('open');_sizePickPid=null;}
+function renderSizePickChips(){
+  const p=S.products.find(x=>x.id===_sizePickPid);
+  if(!p)return;
+  document.getElementById('sizePickName').textContent=p.name;
+  const totalAvail=availableStock(p);
+  const inCartTotal=cartQtyOf(p.id);
+  document.getElementById('sizePickGrid').innerHTML=(p.sizes||[]).map(sz=>{
+    const left=Math.max(0,sizeQty(p,sz.s)-cartQtyOf(p.id,sz.s));
+    const capOk=inCartTotal<totalAvail;
+    const dis=left<=0||!capOk;
+    return `<div class="size-pick-chip ripple-container${dis?' disabled':''}" onclick="addSizedToCart('${sz.s.replace(/'/g,"\\'")}')">
+      <div class="spc-s">${escapeHtml(sz.s)}</div>
+      <div class="spc-q">(${left})</div>
+    </div>`;
+  }).join('');
+}
+function addSizedToCart(size){
+  const p=S.products.find(x=>x.id===_sizePickPid);
+  if(!p)return;
+  const left=sizeQty(p,size)-cartQtyOf(p.id,size);
+  if(left<=0){toast('⚠️ Stok size '+size+' habis');return;}
+  if(cartQtyOf(p.id)+1>availableStock(p)){toast('⚠️ Stok tidak cukup (sebagian sedang ditahan)');return;}
+  const existing=cart.find(c=>c.id===p.id&&(c.variant||'')===size);
+  if(existing)existing.qty++;
+  else cart.push({id:p.id,name:p.name,emoji:p.emoji,price:p.price,qty:1,variant:size});
+  updateCartBar();
+  updateProductCard(p.id);
+  const wst=document.querySelector('.prod-stack[data-pid="'+p.id+'"]');
+  if(wst)cycleWalletCards(wst);
+  renderSizePickChips();
+}
 function cycleWalletCards(stackEl){
   stackEl.querySelectorAll('.wcard').forEach(c=>{
     const np=(+c.dataset.p+2)%3;
@@ -3432,9 +3542,9 @@ function renderCartExpand(){
         <div class="cart-exp-price">${rp(c.price)}</div>
       </div>
       <div class="cart-exp-qty">
-        <button class="cart-exp-qbtn" onclick="cartQtyChange('${c.id}',-1)">−</button>
+        <button class="cart-exp-qbtn" onclick="cartQtyChange('${c.id}',-1,'${encodeURIComponent(c.variant||'')}')">−</button>
         <div class="cart-exp-qnum">${c.qty}</div>
-        <button class="cart-exp-qbtn" onclick="cartQtyChange('${c.id}',1)">+</button>
+        <button class="cart-exp-qbtn" onclick="cartQtyChange('${c.id}',1,'${encodeURIComponent(c.variant||'')}')">+</button>
       </div>
       <div class="cart-exp-sub">${rp(c.price*c.qty)}</div>
     </div>`).join('');
@@ -3481,9 +3591,9 @@ function renderCartModal(){
         <div class="ci-price">${rp(c.price)}</div>
       </div>
       <div class="ci-qty">
-        <button class="qty-btn" onclick="cartQtyChange('${c.id}',-1)">−</button>
+        <button class="qty-btn" onclick="cartQtyChange('${c.id}',-1,'${encodeURIComponent(c.variant||'')}')">−</button>
         <div class="qty-num">${c.qty}</div>
-        <button class="qty-btn" onclick="cartQtyChange('${c.id}',1)">+</button>
+        <button class="qty-btn" onclick="cartQtyChange('${c.id}',1,'${encodeURIComponent(c.variant||'')}')">+</button>
       </div>
       <div class="ci-sub">${rp(c.price*c.qty)}</div>
     </div>`).join('');
@@ -3500,12 +3610,15 @@ function renderCartModal(){
   renderCustCartRow();
   initRipples();
 }
-function cartQtyChange(id,d){
-  const item=cart.find(c=>c.id===id);if(!item)return;
+function cartQtyChange(id,d,ev){
+  const v=ev===undefined?undefined:decodeURIComponent(ev);
+  const item=cart.find(c=>c.id===id&&(v===undefined||(c.variant||'')===v));
+  if(!item)return;
   const prod=S.products.find(p=>p.id===id);
   const newQty=item.qty+d;
-  if(newQty<=0){cart=cart.filter(c=>c.id!==id);}
-  else if(prod&&newQty>availableStock(prod)){toast('⚠️ Stok tidak cukup (sebagian sedang ditahan)');return;}
+  if(newQty<=0){cart=cart.filter(c=>c!==item);}
+  else if(prod&&hasSizes(prod)&&d>0&&newQty>sizeQty(prod,item.variant||'')){toast('⚠️ Stok size '+item.variant+' tidak cukup');return;}
+  else if(prod&&d>0&&cartQtyOf(id)+d>availableStock(prod)){toast('⚠️ Stok tidak cukup (sebagian sedang ditahan)');return;}
   else item.qty=newQty;
   updateCartBar();renderCartModal();updateProductCard(id);
 }
@@ -3873,6 +3986,7 @@ function qtyPadConfirm(){
   const p=qtyPadProduct;if(!p)return;
   const existing=cart.find(c=>c.id===p.id);
   const curQty=existing?existing.qty:0;
+  if(hasSizes(p)){closeQtyModal();openSizePickModal(p.id);return;}
   if(curQty+qtyPadVal>availableStock(p)){toast('⚠️ Stok tidak cukup (sebagian sedang ditahan)');return;}
   if(existing)existing.qty+=qtyPadVal;
   else cart.push({id:p.id,name:p.name,emoji:p.emoji,price:p.price,qty:qtyPadVal,variant:p.variant||''});
@@ -4007,7 +4121,10 @@ function completeTransaction(){
   // deduct stock
   cart.forEach(c=>{
     const p=S.products.find(x=>x.id===c.id);
-    if(p)p.stock=Math.max(0,p.stock-c.qty);
+    if(p){
+      p.stock=Math.max(0,p.stock-c.qty);
+      adjustSizeQty(p,c.variant||'',-c.qty);
+    }
   });
   const trx={
     id:uid(),ts:new Date().toISOString(),
@@ -4132,7 +4249,10 @@ function doVoidTransaction(){
     trx.items.forEach(it=>{
       const p=S.products.find(x=>x.id===it.id);
       const remainingQty=Math.max(0,it.qty-(it.returnedQty||0));
-      if(p)p.stock+=remainingQty;
+      if(p){
+        p.stock+=remainingQty;
+        adjustSizeQty(p,it.variant||'',remainingQty);
+      }
     });
     if(trx.customerId){
       const c=S.customers.find(x=>x.id===trx.customerId);
@@ -4244,7 +4364,10 @@ function processRetur(){
       it.returnedQty=(it.returnedQty||0)+q;
       if(condition==='baik'){
         const p=S.products.find(x=>x.id===it.id);
-        if(p)p.stock+=q;
+        if(p){
+          p.stock+=q;
+          adjustSizeQty(p,it.variant||'',q);
+        }
       }
     }
   });
@@ -4542,12 +4665,54 @@ function populateCatSelect(){
   const sel=document.getElementById('prodCat');
   sel.innerHTML=S.categories.map(c=>`<option value="${c}">${c}</option>`).join('');
 }
+const SIZE_PRESETS=['S','M','L','XL','XXL','All Size'];
+let _prodSizes=[];
+function renderProdSizesUI(){
+  const chipsEl=document.getElementById('prodSizeChips');
+  const customs=_prodSizes.filter(x=>!SIZE_PRESETS.includes(x.s)).map(x=>x.s);
+  const all=[...SIZE_PRESETS,...customs];
+  chipsEl.innerHTML=all.map(s=>{
+    const on=_prodSizes.some(x=>x.s===s);
+    return `<div class="size-chip${on?' on':''}" onclick="toggleProdSize('${s.replace(/'/g,"\\'")}')">${escapeHtml(s)}</div>`;
+  }).join('')+`<div class="size-chip" onclick="addCustomProdSize()">✚ Custom</div>`;
+  document.getElementById('prodSizeInputs').innerHTML=_prodSizes.map((x,i)=>`
+    <div class="size-inp-row">
+      <span class="siz-lbl">${escapeHtml(x.s)}</span>
+      <input type="number" min="0" placeholder="0" value="${Number(x.q)||0}" oninput="setProdSizeQty(${i},this.value)">
+    </div>`).join('');
+  updateProdSizeTotal();
+}
+function toggleProdSize(s){
+  const i=_prodSizes.findIndex(x=>x.s===s);
+  if(i>=0)_prodSizes.splice(i,1);
+  else _prodSizes.push({s,q:0});
+  renderProdSizesUI();
+}
+function setProdSizeQty(i,v){
+  if(_prodSizes[i])_prodSizes[i].q=Math.max(0,Number(v)||0);
+  updateProdSizeTotal();
+}
+function updateProdSizeTotal(){
+  const t=document.getElementById('prodSizeTotal');
+  if(t)t.textContent=_prodSizes.reduce((a,x)=>a+Math.max(0,Number(x.q)||0),0);
+}
+function addCustomProdSize(){
+  const s=(prompt('Nama ukuran custom (cth: 27, 28, 3XL):')||'').trim().slice(0,10);
+  if(!s)return;
+  if(_prodSizes.some(x=>x.s===s)){toast('⚠️ Ukuran itu sudah ada');return;}
+  _prodSizes.push({s,q:0});
+  renderProdSizesUI();
+}
 function variantLabelForStore(){
   const fashionLike=['Fashion/Clothing','Distro'].includes(S.storeCategory);
   return fashionLike?{label:'Ukuran (opsional)',placeholder:'S / M / L / XL / All Size'}:{label:'Varian (opsional)',placeholder:'Warna / Rasa / dll'};
 }
 function openProdModal(id){
   populateCatSelect();
+  const fashion=isFashionStore();
+  document.getElementById('prodSizesField').style.display=fashion?'block':'none';
+  document.getElementById('prodStockField').style.display=fashion?'none':'block';
+  document.getElementById('prodVariantField').style.display=fashion?'none':'block';
   const vl=variantLabelForStore();
   document.getElementById('prodVariantLabel').textContent=vl.label;
   document.getElementById('prodVariant').placeholder=vl.placeholder;
@@ -4563,6 +4728,8 @@ function openProdModal(id){
     document.getElementById('prodStock').value=p.stock;
     document.getElementById('prodUnit').value=p.unit||'pcs';
     document.getElementById('prodVariant').value=p.variant||'';
+    _prodSizes=(p.sizes||[]).map(x=>({s:x.s,q:Number(x.q)||0}));
+    if(isFashionStore())renderProdSizesUI();
     const canRefund=p.can_refund!==false;
     document.getElementById('prodCanRefundToggle').classList.toggle('active',canRefund);
     document.getElementById('prodRefundPeriodWrap').style.display=canRefund?'block':'none';
@@ -4580,6 +4747,8 @@ function openProdModal(id){
     document.getElementById('prodStock').value='';
     document.getElementById('prodUnit').value='pcs';
     document.getElementById('prodVariant').value='';
+    _prodSizes=[];
+    if(isFashionStore())renderProdSizesUI();
     document.getElementById('prodCanRefundToggle').classList.add('active');
     document.getElementById('prodRefundPeriodWrap').style.display='block';
     document.getElementById('prodRefundPeriod').value='';
@@ -4612,8 +4781,14 @@ function saveProduct(){
   const name=document.getElementById('prodName').value.trim();
   const price=Number(document.getElementById('prodPrice').value||0);
   const cost=Number(document.getElementById('prodCost').value||0);
-  const stock=Number(document.getElementById('prodStock').value||0);
+  let stock=Number(document.getElementById('prodStock').value||0);
   if(!name||price<=0){toast('⚠️ Nama dan harga wajib diisi');return;}
+  let sizes;
+  if(isFashionStore()){
+    if(!_prodSizes.length){toast('⚠️ Pilih minimal 1 ukuran (S/M/L/dll) — wajib untuk toko fashion');return;}
+    sizes=_prodSizes.map(x=>({s:x.s,q:Math.max(0,Number(x.q)||0)}));
+    stock=sizes.reduce((a,x)=>a+x.q,0);
+  }
   const id=document.getElementById('prodEditId').value;
   const artikel=(document.getElementById('prodArtikel')?.value||'').trim();
   const emoji=document.getElementById('prodEmoji').value||CATEGORY_DEFAULT_ICON[S.storeCategory]||'📦';
@@ -4621,7 +4796,8 @@ function saveProduct(){
   const variant=document.getElementById('prodVariant').value.trim();
   const can_refund=document.getElementById('prodCanRefundToggle').classList.contains('active');
   const refund_period_days=document.getElementById('prodRefundPeriod').value?Number(document.getElementById('prodRefundPeriod').value):null;
-  const data={name,emoji,artikel,cat:document.getElementById('prodCat').value,price,cost,stock,unit,variant,can_refund,refund_period_days};
+  const data={name,emoji,artikel,cat:document.getElementById('prodCat').value,price,cost,stock,unit,variant:isFashionStore()?'':variant,can_refund,refund_period_days};
+  if(sizes)data.sizes=sizes;
   if(id){
     const p=S.products.find(x=>x.id===id);Object.assign(p,data);
   }else{
@@ -4847,7 +5023,7 @@ function applyStockOpname(){
   appConfirm(`Terapkan hasil SO untuk ${changed.length} produk (selisih total ${totalDiff>0?'+':''}${totalDiff} unit)? Stok sistem akan diperbarui sesuai hasil hitung fisik.`,()=>{
     changed.forEach(c=>{
       const p=S.products.find(x=>x.id===c.productId);
-      if(p)p.stock=c.after;
+      if(p){p.stock=c.after;reconcileSizes(p);}
     });
     const note=(document.getElementById('soNote').value||'').trim();
     S.stockOpnames=S.stockOpnames||[];
