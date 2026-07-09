@@ -79,14 +79,15 @@
 <!-- ══════════════════════════════════════════════════════
      ICON / MANIFEST — lihat berkas manifest.json, robots.txt,
      dan sitemap.xml terpisah yang disertakan bersama file ini.
-     Favicon & apple-touch-icon memakai PIMAPOS-logo.png yang
+     Favicon utama: pimapos-icon.svg (vektor, tajam di semua ukuran).
+     PIMAPOS-logo.png (512px) tetap dipakai untuk OG/JSON-LD & fallback yang
      sama dengan logo di splash/sidebar (fallback aman jika
      file belum ada, tidak akan error).
 ════════════════════════════════════════════════════════ -->
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="PIMAPOS-logo.png">
-<link rel="icon" type="image/png" sizes="32x32" href="PIMAPOS-logo.png">
-<link rel="apple-touch-icon" sizes="180x180" href="PIMAPOS-logo.png">
+<link rel="icon" type="image/svg+xml" href="pimapos-icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="shortcut icon" href="PIMAPOS-logo.png">
 
 <!-- Preconnect ke domain eksternal — mempercepat font & CDN -->
