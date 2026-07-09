@@ -2436,7 +2436,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.3.0';
+const APP_VERSION='3.3.1';
 const WHATS_NEW_FEATURES=[
   {icon:'📏',title:'Stok per Ukuran (Fashion)',desc:'Toko Fashion/Distro kini wajib atur stok per size — S (10), M (12), dst. Kasir memilih ukuran lewat pop-up, chips size tampil di kartu produk.'},
   {icon:'🏷️',title:'Label Pesanan (F&B)',desc:'Label ala coffee shop per gelas/porsi — logo brand, nama tamu & item. Buka dari menu ⋯ di struk (kategori F&B, Cafe, Restoran).'},
@@ -6080,15 +6080,20 @@ function toggleActionPin(){
     closeActionPinSetupModal();
     openSetActionPinModal(true);
   }else{
-    appConfirm('Nonaktifkan PIN Keamanan Transaksi? Diskon, pembatalan, dan retur tidak akan lagi meminta PIN.',()=>{
-      S.security.actionPinEnabled=false;
-      S.security.actionPinHash='';
-      S.security.actionPinFailCount=0;
-      S.security.actionPinLockedUntil=null;
-      save();
-      openActionPinSetupModal();
-      toast('🔓 PIN Keamanan Transaksi dinonaktifkan');
-    },'Nonaktifkan PIN Keamanan');
+    /* 2 lapis: verifikasi PIN dulu (dengan limit percobaan & lockout),
+       baru konfirmasi — sama seperti pola Kunci PIN Aplikasi. */
+    requireActionPin('Nonaktifkan PIN Keamanan',()=>{
+      appConfirm('PIN terverifikasi. Yakin ingin menonaktifkan PIN Keamanan Transaksi? Diskon, pembatalan, dan retur tidak akan lagi meminta PIN.',()=>{
+        S.security.actionPinEnabled=false;
+        S.security.actionPinHash='';
+        S.security.actionPinFailCount=0;
+        S.security.actionPinLockedUntil=null;
+        save();
+        openActionPinSetupModal();
+        logActivity('🔓 PIN Keamanan Transaksi Dinonaktifkan');
+        toast('🔓 PIN Keamanan Transaksi dinonaktifkan');
+      },'Nonaktifkan PIN Keamanan');
+    });
   }
 }
 function openSetActionPinModal(firstSetup){
