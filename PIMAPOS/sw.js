@@ -1,13 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════
-   PIMAPOS — Service Worker (v3.2.0)
+   PIMAPOS — Service Worker (v3.3.0)
    Strategi: App Shell caching + network-first untuk HTML,
              cache-first untuk asset statis, stale-while-revalidate
              untuk font/CDN eksternal.
-   BARU v3.2.0: CDN kritis (Chart.js, jsPDF, QR) di-precache saat
-   install — grafik & PDF berfungsi offline sejak kunjungan pertama.
+   BARU v3.3.0: sinkron dengan PIMAPOS v3.3.0 —
+   • Chart.js kini LAZY-LOAD dari app (bukan <script defer> lagi);
+     tetap di-precache di sini agar grafik popup Laporan langsung
+     berfungsi walau pertama kali dibuka dalam kondisi offline.
+   • Guard res.ok sebelum menyimpan respons navigasi ke cache.
    ═══════════════════════════════════════════════════════════════════ */
 
-const SW_VERSION   = '3.2.0';
+const SW_VERSION   = '3.3.0';
 const CACHE_STATIC = `pimapos-static-v${SW_VERSION}`;
 const CACHE_RUNTIME = `pimapos-runtime-v${SW_VERSION}`;
 
@@ -21,9 +24,9 @@ const APP_SHELL = [
   './manifest.json'
 ];
 
-/* CDN kritis — dimuat PIMAPOS via <script defer>. Precache di install
-   supaya tersedia offline SEBELUM pernah dipakai (fix: grafik laporan
-   tidak tampil saat pertama kali offline). */
+/* CDN kritis. Chart.js dimuat lazy oleh app saat popup grafik pertama
+   dibuka (hemat ±200KB di startup) — precache di sini memastikan
+   pemuatan lazy itu tetap sukses saat offline. */
 const CDN_PRECACHE = [
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
@@ -76,8 +79,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE_STATIC).then((cache) => cache.put(request, clone));
+          if (res && res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE_STATIC).then((cache) => cache.put(request, clone));
+          }
           return res;
         })
         .catch(() =>

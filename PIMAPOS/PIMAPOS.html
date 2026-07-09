@@ -98,7 +98,6 @@
 
 <!-- Script pihak-ketiga: defer supaya tidak render-blocking (Lighthouse Performance) -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] jsPDF gagal dimuat')"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Chart.js gagal dimuat — grafik laporan tidak akan tampil')"></script>
 <script async defer src="https://accounts.google.com/gsi/client" onerror="console.warn('[PIMAPOS] Google Identity Services gagal dimuat — Cloud Backup tidak akan tersedia')"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" crossorigin="anonymous" onerror="console.warn('[PIMAPOS] Modul QR code gagal dimuat — QR toko tidak akan tampil')"></script>
 
@@ -737,8 +736,21 @@ button,input,select,textarea{font-family:var(--font-sf);}
 
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
 .metrics-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px}
-.chart-card{border-radius:var(--rlg);padding:14px 12px 8px;background:var(--glass);border:1px solid var(--gb);box-shadow:var(--gshadow-card);backdrop-filter:var(--gblur);-webkit-backdrop-filter:var(--gblur);margin-bottom:16px;position:relative}
-.chart-card canvas{max-width:100%}
+ /* ── Jendela grafik mengambang (Laporan) ── */
+.chart-pop{position:fixed;border-radius:var(--rxl);background:var(--modal-bg);border:1px solid var(--gb);box-shadow:var(--gshadow-lg);overflow:hidden;opacity:0;transform:translateY(14px) scale(.92);transition:transform .45s cubic-bezier(.34,1.56,.64,1),opacity .3s var(--ease)}
+.chart-pop.in{opacity:1;transform:translateY(0) scale(1)}
+.chart-pop.dragging{transition:none;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+.chart-pop-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px 10px;border-bottom:1px solid rgba(255,255,255,.07);user-select:none;-webkit-user-select:none}
+.chart-pop-head.draggable{cursor:grab;touch-action:none}
+.chart-pop.dragging .chart-pop-head{cursor:grabbing}
+.chart-pop-ttl{display:flex;align-items:center;gap:9px;min-width:0}
+.chart-pop-ttl .ic{font-size:17px}
+.chart-pop-ttl .t{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-pop-ttl .s{font-size:10px;color:var(--t3)}
+.chart-pop-x{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:1px solid var(--gb);background:rgba(255,255,255,.05);color:var(--t2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;-webkit-tap-highlight-color:transparent}
+.chart-pop-x:hover{background:rgba(248,113,113,.15);color:var(--red)}
+.chart-pop-body{padding:10px 12px 14px;position:relative}
+.chart-pop-body canvas{width:100%!important;height:100%!important}
 .metrics-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px}
 .metrics-grid4 .mv{font-size:16px}
 .metrics-grid4 .ml{font-size:9.5px}
@@ -1089,6 +1101,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <h1>Laporan</h1>
       <p id="laporanSub">Ringkasan penjualan</p>
     </div>
+    <button class="icon-btn ripple-container" onclick="openChartMenuModal()" title="Grafik & Analisis" aria-label="Grafik & Analisis" style="font-size:18px;font-weight:800">⋯</button>
   </div>
 
   <div class="card-primary ripple-container">
@@ -1113,15 +1126,6 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="mc"><div class="mv" id="lapMargin" style="font-size:13px">0%</div><div class="ml">Margin</div></div>
   </div>
   <div style="font-size:10.5px;color:var(--t3);text-align:center;margin:-6px 0 14px;line-height:1.5">Dihitung dari Harga Modal (HPP) tiap produk yang diisi di halaman Produk. Isi HPP untuk hasil yang akurat.</div>
-
-  <div class="slabel">📈 Grafik Omzet (14 Hari Terakhir)</div>
-  <div class="chart-card"><canvas id="chartOmzet" height="180"></canvas></div>
-
-  <div class="slabel">📊 Grafik Transaksi Harian</div>
-  <div class="chart-card"><canvas id="chartTrx" height="180"></canvas></div>
-
-  <div class="slabel">🍩 Komposisi Metode Pembayaran</div>
-  <div class="chart-card"><canvas id="chartPM" height="200"></canvas></div>
 
   <div class="slabel">Produk Terlaris</div>
   <div id="lapTopProd"></div>
@@ -1579,6 +1583,33 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <button class="sbtn ripple-container" onclick="downloadReceiptPDF()">⬇️ Unduh Struk PDF</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="printReceiptBluetooth()">🖨️ Cetak Struk (Bluetooth)</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeReceiptModal()">Transaksi Baru</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MENU GRAFIK LAPORAN (titik-3) ══════════ -->
+<div class="modal-ov" id="chartMenuModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Grafik &amp; Analisis</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Grafik terbuka sebagai jendela mengambang. Di desktop &amp; iPad, seret bagian atas jendela ke segala arah untuk membandingkan beberapa grafik sekaligus.</div>
+    <div class="da-row-flat ripple-container" onclick="closeChartMenuModal();openChartPop('omzet')">
+      <div class="da-ico">📈</div>
+      <div class="da-lbl">Grafik Omzet (14 Hari)</div>
+      <div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" onclick="closeChartMenuModal();openChartPop('trx')">
+      <div class="da-ico">📊</div>
+      <div class="da-lbl">Grafik Transaksi Harian</div>
+      <div class="da-chev">›</div>
+    </div>
+    <div class="da-row-flat ripple-container" onclick="closeChartMenuModal();openChartPop('pm')">
+      <div class="da-ico">🍩</div>
+      <div class="da-lbl">Komposisi Metode Pembayaran</div>
+      <div class="da-chev">›</div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:14px" onclick="closeChartMenuModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -2405,7 +2436,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.2.0';
+const APP_VERSION='3.3.0';
 const WHATS_NEW_FEATURES=[
   {icon:'📏',title:'Stok per Ukuran (Fashion)',desc:'Toko Fashion/Distro kini wajib atur stok per size — S (10), M (12), dst. Kasir memilih ukuran lewat pop-up, chips size tampil di kartu produk.'},
   {icon:'🏷️',title:'Label Pesanan (F&B)',desc:'Label ala coffee shop per gelas/porsi — logo brand, nama tamu & item. Buka dari menu ⋯ di struk (kategori F&B, Cafe, Restoran).'},
@@ -5594,69 +5625,188 @@ function ensureChartLib(onReady){
   const s=document.createElement('script');
   s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js';
   s.onload=()=>{_chartLibLoading=false;onReady();};
-  s.onerror=()=>{_chartLibLoading=false;console.warn('[PIMAPOS] Chart.js gagal dimuat — akan dicoba lagi saat Laporan dibuka');};
+  s.onerror=()=>{_chartLibLoading=false;toast('Gagal memuat pustaka grafik. Cek koneksi internet.');console.warn('[PIMAPOS] Chart.js gagal dimuat.');};
   document.head.appendChild(s);
 }
-function renderLaporanCharts(pmMap){
-  if(typeof Chart==='undefined'){
-    ensureChartLib(()=>{
-      if(document.getElementById('pageLaporan').classList.contains('active'))renderLaporan();
-    });
-    return;
-  }
-  const cs=getComputedStyle(document.documentElement);
-  const accentRgb=(cs.getPropertyValue('--accent-tint-rgb')||'251,191,36').trim();
-  const accentRgb2=(cs.getPropertyValue('--accent-shadow-rgb')||'217,119,6').trim();
-  const textColor=(cs.getPropertyValue('--t2')||'rgba(255,255,255,.6)').trim()||'rgba(255,255,255,.6)';
-  const gridColor='rgba(255,255,255,.08)';
 
+/* ── Data helpers ── */
+let _lapPmMap=null;
+function computePmMap(){
+  const pmMap={};
+  filteredTrx().filter(t=>!t.voided).forEach(t=>{
+    const net=trxNet(t);if(net<=0)return;
+    if(t.method==='Split'&&Array.isArray(t.payments)&&t.total>0){
+      const ratio=net/t.total;
+      t.payments.forEach(p=>{pmMap[p.method]=(pmMap[p.method]||0)+Math.round((p.amount||0)*ratio);});
+    }else{pmMap[t.method]=(pmMap[t.method]||0)+net;}
+  });
+  return pmMap;
+}
+function _chartTheme(){
+  const cs=getComputedStyle(document.documentElement);
+  return{
+    a:(cs.getPropertyValue('--accent-tint-rgb')||'251,191,36').trim(),
+    a2:(cs.getPropertyValue('--accent-shadow-rgb')||'217,119,6').trim(),
+    txt:(cs.getPropertyValue('--t2')||'rgba(255,255,255,.6)').trim()||'rgba(255,255,255,.6)',
+    grid:'rgba(255,255,255,.08)'
+  };
+}
+function _chartScales(th){
+  return{
+    x:{ticks:{color:th.txt,font:{size:9}},grid:{display:false}},
+    y:{ticks:{color:th.txt,font:{size:9}},grid:{color:th.grid},beginAtZero:true}
+  };
+}
+function _localDayKey(d){const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+function _chartDaily(){
   const days=[];
   for(let i=13;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);days.push(d);}
-  const dayKey=d=>d.toISOString().slice(0,10);
   const omzetMap={},trxMap={};
-  days.forEach(d=>{omzetMap[dayKey(d)]=0;trxMap[dayKey(d)]=0;});
+  days.forEach(d=>{const k=_localDayKey(d);omzetMap[k]=0;trxMap[k]=0;});
   S.transactions.forEach(t=>{
     if(t.voided)return;
-    const key=new Date(t.ts).toISOString().slice(0,10);
-    if(key in omzetMap){omzetMap[key]+=trxNet(t);trxMap[key]+=1;}
+    const k=_localDayKey(new Date(t.ts));
+    if(k in omzetMap){omzetMap[k]+=trxNet(t);trxMap[k]+=1;}
   });
-  const labels=days.map(d=>d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}));
-  const omzetData=days.map(d=>omzetMap[dayKey(d)]);
-  const trxData=days.map(d=>trxMap[dayKey(d)]);
-  const baseScales={
-    x:{ticks:{color:textColor,font:{size:9}},grid:{display:false}},
-    y:{ticks:{color:textColor,font:{size:9}},grid:{color:gridColor},beginAtZero:true}
+  return{
+    labels:days.map(d=>d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'})),
+    omzet:days.map(d=>omzetMap[_localDayKey(d)]),
+    trx:days.map(d=>trxMap[_localDayKey(d)])
   };
+}
 
-  if(_pimaCharts.omzet)_pimaCharts.omzet.destroy();
-  const ctxOmzet=document.getElementById('chartOmzet');
-  if(ctxOmzet){
-    _pimaCharts.omzet=new Chart(ctxOmzet,{
-      type:'line',
-      data:{labels,datasets:[{data:omzetData,borderColor:`rgb(${accentRgb})`,backgroundColor:`rgba(${accentRgb},.18)`,fill:true,tension:.35,pointRadius:0,borderWidth:2.5}]},
-      options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' Rp'+c.parsed.y.toLocaleString('id-ID')}}},scales:baseScales}
-    });
+/* ── Chart builders (render hanya saat popup terbuka & visible) ── */
+const _chartBuilders={
+  omzet(cv){
+    const th=_chartTheme(),d=_chartDaily();
+    return new Chart(cv,{type:'line',
+      data:{labels:d.labels,datasets:[{data:d.omzet,borderColor:`rgb(${th.a})`,backgroundColor:`rgba(${th.a},.18)`,fill:true,tension:.35,pointRadius:0,borderWidth:2.5}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' Rp'+c.parsed.y.toLocaleString('id-ID')}}},scales:_chartScales(th)}});
+  },
+  trx(cv){
+    const th=_chartTheme(),d=_chartDaily();
+    return new Chart(cv,{type:'bar',
+      data:{labels:d.labels,datasets:[{data:d.trx,backgroundColor:`rgba(${th.a2},.75)`,borderRadius:5,maxBarThickness:18}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:_chartScales(th)}});
+  },
+  pm(cv){
+    const th=_chartTheme();
+    const entries=Object.entries(_lapPmMap||computePmMap());
+    const palette=[`rgb(${th.a})`,`rgb(${th.a2})`,'rgba(148,163,184,.85)','rgba(52,211,153,.85)'];
+    return new Chart(cv,{type:'doughnut',
+      data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:entries.map((_,i)=>palette[i%palette.length]),borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:th.txt,font:{size:10.5},boxWidth:10,padding:12}},tooltip:{callbacks:{label:c=>` ${c.label}: Rp${c.parsed.toLocaleString('id-ID')}`}}}}});
   }
-  if(_pimaCharts.trx)_pimaCharts.trx.destroy();
-  const ctxTrx=document.getElementById('chartTrx');
-  if(ctxTrx){
-    _pimaCharts.trx=new Chart(ctxTrx,{
-      type:'bar',
-      data:{labels,datasets:[{data:trxData,backgroundColor:`rgba(${accentRgb2},.75)`,borderRadius:5,maxBarThickness:18}]},
-      options:{plugins:{legend:{display:false}},scales:baseScales}
-    });
+};
+
+/* ── Jendela grafik mengambang ──
+   • Dibuat on-demand, dihapus dari DOM saat ditutup (nol residu).
+   • Chart di-destroy saat popup ditutup (nol memory leak).
+   • Drag via Pointer Events + setPointerCapture (mouse & sentuh iPad),
+     listener menempel pada elemen popup sehingga ikut ter-GC. */
+const CHART_POP_META={
+  omzet:{icon:'📈',title:'Grafik Omzet',sub:'14 hari terakhir',h:220},
+  trx:{icon:'📊',title:'Transaksi Harian',sub:'14 hari terakhir',h:220},
+  pm:{icon:'🍩',title:'Metode Pembayaran',sub:'mengikuti periode Laporan',h:250}
+};
+let _chartPopZ=150;
+function _chartPopDraggable(){return window.matchMedia('(min-width:744px)').matches;}
+function openChartMenuModal(){document.getElementById('chartMenuModal').classList.add('open');}
+function closeChartMenuModal(){document.getElementById('chartMenuModal').classList.remove('open');}
+function openChartPop(kind){
+  const meta=CHART_POP_META[kind];if(!meta)return;
+  let el=document.getElementById('chartPop-'+kind);
+  if(el){el.style.zIndex=++_chartPopZ;return;}
+  el=document.createElement('div');
+  el.className='chart-pop';
+  el.id='chartPop-'+kind;
+  el.style.zIndex=++_chartPopZ;
+  el.innerHTML=`
+    <div class="chart-pop-head">
+      <div class="chart-pop-ttl"><span class="ic">${meta.icon}</span><div><div class="t">${meta.title}</div><div class="s">${meta.sub}</div></div></div>
+      <button class="chart-pop-x" onclick="closeChartPop('${kind}')" aria-label="Tutup grafik">✕</button>
+    </div>
+    <div class="chart-pop-body" style="height:${meta.h}px"><canvas id="chartPopCanvas-${kind}"></canvas></div>`;
+  document.body.appendChild(el);
+  const others=document.querySelectorAll('.chart-pop').length-1;
+  const W=Math.min(430,window.innerWidth-20);
+  el.style.width=W+'px';
+  const x=Math.min(Math.max(10,(window.innerWidth-W)/2+others*32),Math.max(10,window.innerWidth-W-10));
+  const y=Math.min(Math.max(64,(window.innerHeight-(meta.h+64))/2-40+others*32),window.innerHeight-160);
+  el.style.left=x+'px';el.style.top=y+'px';
+  el.addEventListener('pointerdown',()=>{el.style.zIndex=++_chartPopZ;});
+  if(_chartPopDraggable())_bindChartPopDrag(el.querySelector('.chart-pop-head'),el);
+  requestAnimationFrame(()=>el.classList.add('in'));
+  ensureChartLib(()=>_renderChartPop(kind));
+  _chartPopKeySync();
+}
+function _renderChartPop(kind){
+  const el=document.getElementById('chartPop-'+kind);
+  if(!el||typeof Chart==='undefined')return;
+  if(_pimaCharts[kind]){_pimaCharts[kind].destroy();_pimaCharts[kind]=null;}
+  const body=el.querySelector('.chart-pop-body');
+  if(kind==='pm'&&!Object.keys(_lapPmMap||computePmMap()).length){
+    body.innerHTML='<div class="empty-state" style="padding:26px 12px"><div class="empty-desc">Belum ada data untuk periode ini.</div></div>';
+    return;
   }
-  if(_pimaCharts.pm)_pimaCharts.pm.destroy();
-  const ctxPM=document.getElementById('chartPM');
-  if(ctxPM){
-    const pmEntries=Object.entries(pmMap||{});
-    const palette=[`rgb(${accentRgb})`,`rgb(${accentRgb2})`,'rgba(148,163,184,.85)','rgba(52,211,153,.85)'];
-    _pimaCharts.pm=new Chart(ctxPM,{
-      type:'doughnut',
-      data:{labels:pmEntries.map(e=>e[0]),datasets:[{data:pmEntries.map(e=>e[1]),backgroundColor:pmEntries.map((_,i)=>palette[i%palette.length]),borderWidth:0}]},
-      options:{cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:textColor,font:{size:10.5},boxWidth:10,padding:12}},tooltip:{callbacks:{label:c=>` ${c.label}: Rp${c.parsed.toLocaleString('id-ID')}`}}}}
-    });
+  let cv=document.getElementById('chartPopCanvas-'+kind);
+  if(!cv){body.innerHTML=`<canvas id="chartPopCanvas-${kind}"></canvas>`;cv=body.firstElementChild;}
+  _pimaCharts[kind]=_chartBuilders[kind](cv);
+}
+function closeChartPop(kind){
+  const el=document.getElementById('chartPop-'+kind);
+  if(!el)return;
+  if(_pimaCharts[kind]){_pimaCharts[kind].destroy();_pimaCharts[kind]=null;}
+  el.classList.remove('in');
+  setTimeout(()=>{el.remove();_chartPopKeySync();},260);
+}
+function _bindChartPopDrag(head,el){
+  head.classList.add('draggable');
+  let pid=null,sx=0,sy=0,ox=0,oy=0;
+  head.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.chart-pop-x'))return;
+    pid=e.pointerId;
+    try{head.setPointerCapture(pid);}catch(_){}
+    sx=e.clientX;sy=e.clientY;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    el.classList.add('dragging');
+    e.preventDefault();
+  });
+  head.addEventListener('pointermove',e=>{
+    if(pid===null||e.pointerId!==pid)return;
+    const w=parseFloat(el.style.width)||el.offsetWidth||320;
+    el.style.left=Math.min(Math.max(ox+e.clientX-sx,80-w),window.innerWidth-80)+'px';
+    el.style.top=Math.min(Math.max(oy+e.clientY-sy,0),window.innerHeight-56)+'px';
+  });
+  const up=e=>{
+    if(pid===null||e.pointerId!==pid)return;
+    try{head.releasePointerCapture(pid);}catch(_){}
+    pid=null;el.classList.remove('dragging');
+  };
+  head.addEventListener('pointerup',up);
+  head.addEventListener('pointercancel',up);
+}
+let _chartPopEscHandler=null;
+function _chartPopKeySync(){
+  const any=document.querySelector('.chart-pop');
+  if(any&&!_chartPopEscHandler){
+    _chartPopEscHandler=e=>{
+      if(e.key!=='Escape')return;
+      const pops=[...document.querySelectorAll('.chart-pop')].sort((a,b)=>(+b.style.zIndex||0)-(+a.style.zIndex||0));
+      if(pops[0])closeChartPop(pops[0].id.replace('chartPop-',''));
+    };
+    document.addEventListener('keydown',_chartPopEscHandler);
+  }else if(!any&&_chartPopEscHandler){
+    document.removeEventListener('keydown',_chartPopEscHandler);
+    _chartPopEscHandler=null;
   }
+}
+/* Dipanggil renderLaporan(): simpan pmMap terbaru & refresh popup yang terbuka saja.
+   Tidak ada lagi pembuatan chart di canvas tersembunyi (akar bug grafik blank). */
+function renderLaporanCharts(pmMap){
+  _lapPmMap=pmMap||null;
+  if(typeof Chart==='undefined')return;
+  ['omzet','trx','pm'].forEach(k=>{if(document.getElementById('chartPop-'+k))_renderChartPop(k);});
 }
 
 /* ════════════════════════════════════════════════════
