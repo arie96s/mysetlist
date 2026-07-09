@@ -819,6 +819,22 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .whatsnew-item-txt b{color:var(--t1);font-size:12.5px;display:block;margin-bottom:1px}
 .whatsnew-readmore{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--blue-hi);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
 .whatsnew-readmore:active{opacity:.6}
+/* ── Easter eggs: POS CORE, privasi, confetti, kalkulator ── */
+.core-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.core-stat{background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:var(--rlg);padding:10px 12px}
+.core-stat .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px}
+.core-stat .l{font-size:10px;color:var(--t3);margin-top:2px}
+.core-diag-row{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;color:var(--t2);line-height:1.5}
+.core-diag-row .ic{flex-shrink:0}
+.core-bar{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:4px}
+.core-bar>i{display:block;height:100%;border-radius:99px;background:var(--grad-gold)}
+.core-key{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-top:10px;font-family:'JetBrains Mono',monospace}
+body.privacy-on .pv-sensitive{filter:blur(9px);transition:filter .3s var(--ease);pointer-events:none;user-select:none}
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:9000;overflow:hidden}
+.confetti-wrap i{position:absolute;top:-4vh;width:9px;height:14px;border-radius:2px;opacity:.95;animation:confettiFall linear forwards}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(720deg);opacity:.7}}
+.calc-hint{display:none;margin-top:8px;padding:9px 13px;border-radius:var(--rlg);background:rgba(var(--accent-tint-rgb),.1);border:1px solid rgba(var(--accent-tint-rgb),.25);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700}
+.calc-hint.on{display:block}
 .tour-overlay{position:fixed;inset:0;z-index:9997;display:none}
 .tour-overlay.open{display:block}
 .tour-spotlight{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(2,8,23,.8);border:2px solid rgba(var(--accent-tint-rgb),.85);pointer-events:none;transition:top .5s var(--ease),left .5s var(--ease),width .5s var(--ease),height .5s var(--ease),opacity .3s;opacity:0}
@@ -1044,7 +1060,8 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 
   <div class="search-bar">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="prodSearch" placeholder="Cari produk…" oninput="debouncedRenderProducts()">
+    <input type="text" id="prodSearch" placeholder="Cari produk…" oninput="debouncedRenderProducts();calcHintUpdate(this.value)">
+    <div class="calc-hint" id="calcHint"></div>
   </div>
 
   <div class="cat-scroll" id="catScroll"></div>
@@ -1107,7 +1124,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <button class="icon-btn ripple-container" onclick="openChartMenuModal()" title="Grafik & Analisis" aria-label="Grafik & Analisis" style="font-size:18px;font-weight:800">⋯</button>
   </div>
 
-  <div class="card-primary ripple-container">
+  <div class="card-primary ripple-container pv-sensitive">
     <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Total Omzet</div>
     <div style="font-size:30px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-.5px"><span style="font-size:16px;color:var(--t2)">Rp</span> <span id="lapOmzet">0</span></div>
     <div style="font-size:12px;color:var(--t3);margin-top:4px" id="lapPeriodLbl">— pilih periode di Riwayat —</div>
@@ -1465,6 +1482,26 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 </div>
 
 <!-- ══════════ MODAL: INFO APP ══════════ -->
+<!-- ══════════ MODAL: POS CORE (easter egg — 5x tap badge versi) ══════════ -->
+<div class="modal-ov" id="posCoreModal" style="z-index:230">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ POS CORE</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Panel tersembunyi untuk power user. Semua modul berjalan on-demand — tidak membebani aplikasi.</div>
+    <div class="core-stat-grid" id="coreStatGrid"></div>
+    <button class="sbtn ripple-container" onclick="runCoreDiagnostics()">🔬 Jalankan Diagnostik Data</button>
+    <div id="coreDiagResult" style="margin:10px 0"></div>
+    <button class="sbtn ripple-container" onclick="runCoreStorage()">📦 Cek Penyimpanan</button>
+    <div id="coreStorageResult" style="margin:10px 0"></div>
+    <button class="sbtn ripple-container" id="corePrivacyBtn" onclick="togglePrivacyMode()">🕶️ Mode Privasi: OFF</button>
+    <div style="font-size:11px;color:var(--t3);margin:6px 2px 10px;line-height:1.5">Blur nominal omzet di Laporan — untuk saat layar terlihat pelanggan.</div>
+    <button class="sbtn ripple-container" onclick="fireConfetti()">🎉 Rayakan!</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:12px" onclick="closePosCoreModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ MODAL: WHAT'S NEW LENGKAP (Read more) ══════════ -->
 <div class="modal-ov" id="whatsNewModal">
   <div class="modal-sheet">
@@ -2476,7 +2513,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.4.1';
+const APP_VERSION='3.5.0';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
@@ -2496,6 +2533,7 @@ const WHATS_NEW_FEATURES=[
   {icon:'⚙️',title:'Pengaturan Lanjutan',desc:'Pajak, Keamanan, Notifikasi, Printer & Cloud Backup kini terkumpul rapi lewat menu titik-3 di Profil.'},
 ];
 document.addEventListener('DOMContentLoaded',()=>{
+  initEasterEggs();
   const b=document.getElementById('appInfoVersionBadge');
   if(b)b.textContent='v'+APP_VERSION;
   const r=document.getElementById('infoAppRowLbl');
@@ -3291,6 +3329,164 @@ function openWhatsNewModal(){
   document.getElementById('whatsNewModal').classList.add('open');
 }
 function closeWhatsNewModal(){document.getElementById('whatsNewModal').classList.remove('open');}
+
+/* ════════════════════════════════════════════════════
+   EASTER EGGS — semua on-demand, nol timer permanen,
+   elemen animasi self-destruct, tanpa eval (aman CSP).
+   ════════════════════════════════════════════════════ */
+const _eggSession={start:Date.now(),coreTaps:0,coreTapT:0,h1Taps:0,h1TapT:0,nightShown:false};
+
+/* ── #1 POS CORE: 5x tap badge versi ── */
+function _coreTapHandler(){
+  const now=Date.now();
+  if(now-_eggSession.coreTapT>2500)_eggSession.coreTaps=0;
+  _eggSession.coreTapT=now;
+  if(++_eggSession.coreTaps>=5){_eggSession.coreTaps=0;openPosCoreModal();}
+}
+function openPosCoreModal(){
+  const up=Math.floor((Date.now()-_eggSession.start)/60000);
+  const kb=Math.round(((localStorage.getItem(LSKEY)||'').length*2)/1024);
+  document.getElementById('coreStatGrid').innerHTML=[
+    {v:'v'+APP_VERSION,l:'Versi'},
+    {v:up<60?up+' mnt':Math.floor(up/60)+' jam',l:'Sesi berjalan'},
+    {v:S.products.length+' / '+S.transactions.length,l:'Produk / Transaksi'},
+    {v:kb.toLocaleString('id-ID')+' KB',l:'Data utama'}
+  ].map(s=>`<div class="core-stat"><div class="v">${s.v}</div><div class="l">${s.l}</div></div>`).join('');
+  document.getElementById('coreDiagResult').innerHTML='';
+  document.getElementById('coreStorageResult').innerHTML='';
+  document.getElementById('posCoreModal').classList.add('open');
+  logActivity('⚙️ POS CORE dibuka');
+}
+function closePosCoreModal(){document.getElementById('posCoreModal').classList.remove('open');}
+
+/* ── #2 Diagnostik integritas data ── */
+function runCoreDiagnostics(){
+  const R=[];
+  const ok=(m)=>R.push({ic:'✅',m}),warn=(m)=>R.push({ic:'⚠️',m});
+  try{JSON.parse(localStorage.getItem(LSKEY)||'{}');ok('Data utama valid (JSON sehat).');}
+  catch(_){warn('Data utama TIDAK valid — segera backup & pulihkan!');}
+  const pid=S.products.map(x=>x.id),tid=S.transactions.map(x=>x.id);
+  (new Set(pid)).size===pid.length?ok('ID produk unik ('+pid.length+').'):warn('Ada ID produk duplikat!');
+  (new Set(tid)).size===tid.length?ok('ID transaksi unik ('+tid.length+').'):warn('Ada ID transaksi duplikat!');
+  const negS=S.products.filter(x=>typeof x.stock==='number'&&x.stock<0).length;
+  negS?warn(negS+' produk stok negatif — cek Stock Opname.'):ok('Tidak ada stok negatif.');
+  const badT=S.transactions.filter(x=>!Array.isArray(x.items)||x.items.length===0||!(x.total>=0)).length;
+  badT?warn(badT+' transaksi datanya janggal (item kosong/total invalid).'):ok('Struktur semua transaksi sehat.');
+  const known=new Set(pid);
+  const orphan=S.transactions.reduce((n,x)=>n+((x.items||[]).some(i=>i.id&&!known.has(i.id))?1:0),0);
+  orphan?R.push({ic:'ℹ️',m:orphan+' transaksi memuat produk yang sudah dihapus (wajar, riwayat tetap utuh).'}):ok('Semua referensi produk utuh.');
+  document.getElementById('coreDiagResult').innerHTML=R.map(r=>`<div class="core-diag-row"><span class="ic">${r.ic}</span><span>${r.m}</span></div>`).join('');
+  logActivity('🔬 Diagnostik data dijalankan');
+}
+
+/* ── #3 Storage meter ── */
+function runCoreStorage(){
+  const rows=[];let total=0;
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i),b=((k.length+(localStorage.getItem(k)||'').length)*2);
+    total+=b;rows.push([k,b]);
+  }
+  rows.sort((a,b)=>b[1]-a[1]);
+  const LIMIT=5*1024*1024;
+  const fmt=b=>b>=1048576?(b/1048576).toFixed(2)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+  document.getElementById('coreStorageResult').innerHTML=
+    `<div class="core-key"><span>Total terpakai</span><span>${fmt(total)} / 5 MB</span></div>
+     <div class="core-bar"><i style="width:${Math.min(100,total/LIMIT*100).toFixed(1)}%"></i></div>`+
+    rows.slice(0,5).map(([k,b])=>`<div class="core-key"><span>${escapeHtml(k.length>26?k.slice(0,26)+'…':k)}</span><span>${fmt(b)}</span></div>
+     <div class="core-bar"><i style="width:${Math.min(100,b/total*100).toFixed(1)}%"></i></div>`).join('');
+}
+
+/* ── #4 Mode Privasi ── */
+function togglePrivacyMode(){
+  const on=document.body.classList.toggle('privacy-on');
+  const btn=document.getElementById('corePrivacyBtn');
+  if(btn)btn.textContent='🕶️ Mode Privasi: '+(on?'ON':'OFF');
+  toast(on?'🕶️ Nominal Laporan diburamkan':'👁️ Mode Privasi dimatikan');
+}
+
+/* ── #5 Confetti (7x tap judul halaman / tombol Rayakan) ── */
+function fireConfetti(){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){toast('🎉 Hore!');return;}
+  if(document.querySelector('.confetti-wrap'))return; /* satu salvo saja */
+  const wrap=document.createElement('div');wrap.className='confetti-wrap';
+  const cols=['#fbbf24','#f59e0b','#60a5fa','#34d399','#f87171','#a78bfa'];
+  let html='';
+  for(let i=0;i<26;i++){
+    html+=`<i style="left:${(Math.random()*100).toFixed(1)}vw;background:${cols[i%cols.length]};animation-duration:${(1.5+Math.random()).toFixed(2)}s;animation-delay:${(Math.random()*.5).toFixed(2)}s"></i>`;
+  }
+  wrap.innerHTML=html;
+  document.body.appendChild(wrap);
+  setTimeout(()=>wrap.remove(),3200); /* self-destruct — nol residu DOM */
+}
+function _h1TapHandler(e){
+  if(!e.target.closest('.ph h1'))return;
+  const now=Date.now();
+  if(now-_eggSession.h1TapT>3000)_eggSession.h1Taps=0;
+  _eggSession.h1TapT=now;
+  if(++_eggSession.h1Taps>=7){_eggSession.h1Taps=0;fireConfetti();toast('🎊 Terima kasih sudah memakai PIMAPOS!');}
+}
+
+/* ── #6 Sapaan larut malam (sekali per sesi) ── */
+function nightGreetingCheck(h){
+  if(_eggSession.nightShown)return false;
+  const hour=typeof h==='number'?h:new Date().getHours();
+  if(hour>=0&&hour<5){_eggSession.nightShown=true;return true;}
+  return false;
+}
+
+/* ── #7 Kalkulator kasir: "=" di pencarian produk (tanpa eval, aman CSP) ── */
+function safeCalc(raw){
+  const expr=String(raw||'').replace(/,/g,'.').replace(/\s+/g,'');
+  if(!expr||!/^[\d+\-*/().]+$/.test(expr))return null;
+  let i=0;
+  function num(){
+    const m=/^\d+(?:\.\d+)?/.exec(expr.slice(i));
+    if(!m)return NaN;
+    i+=m[0].length;return parseFloat(m[0]);
+  }
+  function factor(){
+    if(expr[i]==='('){i++;const v=addsub();if(expr[i]!==')')return NaN;i++;return v;}
+    if(expr[i]==='-'){i++;return -factor();}
+    return num();
+  }
+  function muldiv(){
+    let v=factor();
+    while(expr[i]==='*'||expr[i]==='/'){
+      const op=expr[i++];const r=factor();
+      if(isNaN(r))return NaN;
+      v=op==='*'?v*r:v/r;
+    }
+    return v;
+  }
+  function addsub(){
+    let v=muldiv();
+    while(expr[i]==='+'||expr[i]==='-'){
+      const op=expr[i++];const r=muldiv();
+      if(isNaN(r))return NaN;
+      v=op==='+'?v+r:v-r;
+    }
+    return v;
+  }
+  const out=addsub();
+  return (i===expr.length&&isFinite(out)&&!isNaN(out))?out:null;
+}
+function calcHintUpdate(v){
+  const el=document.getElementById('calcHint');
+  if(!el)return;
+  const s=String(v||'').trim();
+  if(!s.startsWith('=')){el.classList.remove('on');el.textContent='';return;}
+  const res=safeCalc(s.slice(1));
+  el.textContent=res===null?'🧮 …':'🧮 = Rp '+Math.round(res).toLocaleString('id-ID');
+  el.classList.add('on');
+}
+
+/* ── Pemasangan listener egg: SEKALI saat boot (elemen statis + delegasi) ── */
+function initEasterEggs(){
+  const badge=document.getElementById('appInfoVersionBadge');
+  if(badge)badge.addEventListener('click',_coreTapHandler);
+  document.addEventListener('click',_h1TapHandler);
+  if(nightGreetingCheck())setTimeout(()=>toast('🌙 Masih semangat jam segini! Jangan lupa istirahat, bos.'),1800);
+}
 
 function renderThemePresets(){
   const wrap=document.getElementById('themePresetScroll');
