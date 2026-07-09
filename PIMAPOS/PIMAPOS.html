@@ -820,6 +820,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .whatsnew-item-txt b{color:var(--t1);font-size:12.5px;display:block;margin-bottom:1px}
 .whatsnew-readmore{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--blue-hi);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
 .whatsnew-readmore:active{opacity:.6}
+.brand-mark{width:48px;height:48px;display:block;filter:drop-shadow(0 4px 12px rgba(var(--accent-shadow-rgb),.35))}
 /* ── Easter eggs: POS CORE, privasi, confetti, kalkulator ── */
 .core-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .core-stat{background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:var(--rlg);padding:10px 12px}
@@ -960,6 +961,18 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   </ul>
 </div>
 
+<!-- Logo mark inline (sekali definisi, dipakai via <use>) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="pimaGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBBF24"/><stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <symbol id="pimaposMark" viewBox="0 0 1254 1254">
+      <g transform="translate(0.000000,1254.000000) scale(0.100000,-0.100000)" fill="url(#pimaGold)"><path d="M6214 10036 c-65 -29 -101 -107 -84 -183 15 -63 -10 -531 -46 -873 -176 -1694 -748 -2789 -1839 -3517 -71 -48 -134 -90 -139 -95 -6 -4 973 -8 2174 -8 l2183 0 -124 83 c-718 476 -1206 1100 -1497 1913 -233 650 -394 1599 -407 2393 -3 221 -4 227 -67 274 -34 25 -113 32 -154 13z"/> <path d="M4000 8822 c-48 -25 -83 -93 -76 -147 109 -789 -74 -1852 -417 -2420 -263 -437 -742 -786 -1156 -844 -144 -19 -217 -140 -151 -248 45 -75 92 -86 294 -67 1028 94 2044 739 2655 1684 75 117 76 105 -16 183 -307 258 -590 666 -738 1062 -85 227 -165 550 -165 663 0 118 -123 190 -230 134z"/> <path d="M8389 8817 c-46 -30 -82 -101 -75 -147 3 -20 -7 -96 -24 -180 -122 -604 -431 -1148 -865 -1521 -102 -87 -103 -69 13 -240 634 -938 1622 -1543 2673 -1639 146 -13 207 8 243 84 53 112 -13 216 -150 235 -685 98 -1259 741 -1480 1659 -106 440 -162 1275 -105 1569 30 153 -109 261 -230 180z"/> <path d="M2417 7450 c-55 -30 -79 -73 -74 -135 37 -437 281 -1615 335 -1615 11 0 186 102 237 138 150 108 395 360 395 407 0 7 -33 39 -73 72 -268 220 -530 655 -587 973 -28 155 -122 220 -233 160z"/> <path d="M9990 7452 c-47 -23 -76 -70 -83 -134 -37 -306 -318 -779 -602 -1009 -79 -64 -79 -56 2 -159 164 -210 555 -503 576 -432 133 445 197 728 256 1127 17 116 40 266 51 335 25 158 25 180 -2 220 -45 65 -128 87 -198 52z"/> <path d="M4280 5029 c-149 -67 -184 -251 -71 -372 52 -57 70 -62 276 -67 l190 -5 5 -1278 5 -1279 24 -19 c57 -46 86 -32 217 112 207 228 179 226 384 24 209 -206 181 -206 390 0 203 201 175 201 391 -11 194 -191 173 -191 363 -7 77 76 145 144 151 151 42 52 76 34 244 -132 210 -207 182 -207 391 -1 207 204 168 210 415 -57 103 -111 139 -125 190 -73 l25 24 0 1276 0 1275 180 0 c197 0 229 7 283 58 127 120 80 342 -82 390 -81 25 -3917 16 -3971 -9z"/></g>
+    </symbol>
+  </defs>
+</svg>
+
 <div id="splashScreen">
   <div class="splash-logo" id="splashLogoWrap">
     <img src="PIMAPOS-logo.png" alt="Logo PIMAPOS - Aplikasi Kasir Digital" id="splashLogoImg" onerror="this.style.display='none'" onload="document.getElementById('splashLogoWrap').classList.add('has-img')">
@@ -984,9 +997,9 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 <!-- ══════════ SIDEBAR — tampil otomatis di layar lebar (desktop/iPad ≥880px) ══════════ -->
 <nav id="sidebarNav">
   <div class="sidebar-brand">
-    <div class="sidebar-logo" id="sidebarLogoWrap">
+    <div class="sidebar-logo" id="sidebarLogoWrap" style="background:#0B1220;border:1px solid rgba(251,191,36,.35)">
       <img src="PIMAPOS-logo.png" alt="" id="sidebarLogoImg" onerror="this.style.display='none'" onload="document.getElementById('sidebarLogoWrap').classList.add('has-img')">
-      <span id="sidebarLogoFallback">🧾</span>
+      <span id="sidebarLogoFallback" style="display:flex;align-items:center;justify-content:center"><svg style="width:26px;height:26px"><use href="#pimaposMark"/></svg></span>
     </div>
     <div style="min-width:0">
       <div class="sidebar-brand-name">PIMAPOS</div>
@@ -1030,7 +1043,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 <div class="page active" id="pageKasir">
   <div class="ph">
     <div class="ph-left">
-      <h1>PIMAPOS</h1>
+      <h1 aria-label="PIMAPOS" title="PIMAPOS" style="line-height:0"><svg class="brand-mark"><use href="#pimaposMark"/></svg></h1>
       <p id="kasirGreet">Siap melayani pelanggan</p>
       <p class="kasir-clock" id="kasirClock"></p>
     </div>
@@ -1521,7 +1534,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
     <div style="text-align:center;padding:8px 0 4px">
-      <div class="app-info-logo">🧾</div>
+      <div class="app-info-logo" style="background:#0B1220;border:1px solid rgba(251,191,36,.35)"><svg style="width:36px;height:36px;display:block"><use href="#pimaposMark"/></svg></div>
       <div class="app-info-name">PIMAPOS</div>
       <div class="app-info-version" id="appInfoVersionBadge">v—</div>
       <div class="app-info-tagline">Aplikasi Kasir Digital &amp; POS Offline Gratis</div>
@@ -2514,7 +2527,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.5.0';
+const APP_VERSION='3.5.1';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
