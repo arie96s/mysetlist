@@ -974,9 +974,8 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 </svg>
 
 <div id="splashScreen">
-  <div class="splash-logo" id="splashLogoWrap">
-    <img src="PIMAPOS-logo.png" alt="Logo PIMAPOS - Aplikasi Kasir Digital" id="splashLogoImg" onerror="this.style.display='none'" onload="document.getElementById('splashLogoWrap').classList.add('has-img')">
-    <span id="splashLogoFallback">P</span>
+  <div class="splash-logo" id="splashLogoWrap" style="background:#0B1220;border:1.5px solid rgba(251,191,36,.4)">
+    <svg style="width:62px;height:62px;display:block" aria-label="Logo PIMAPOS"><use href="#pimaposMark"/></svg>
   </div>
   <div class="splash-name">PIMAPOS</div>
   <div class="splash-tag">Ekosistem PIMAPIKA · Kasir Digital</div>
@@ -998,8 +997,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
 <nav id="sidebarNav">
   <div class="sidebar-brand">
     <div class="sidebar-logo" id="sidebarLogoWrap" style="background:#0B1220;border:1px solid rgba(251,191,36,.35)">
-      <img src="PIMAPOS-logo.png" alt="" id="sidebarLogoImg" onerror="this.style.display='none'" onload="document.getElementById('sidebarLogoWrap').classList.add('has-img')">
-      <span id="sidebarLogoFallback" style="display:flex;align-items:center;justify-content:center"><svg style="width:26px;height:26px"><use href="#pimaposMark"/></svg></span>
+      <svg style="width:28px;height:28px;display:block" aria-hidden="true"><use href="#pimaposMark"/></svg>
     </div>
     <div style="min-width:0">
       <div class="sidebar-brand-name">PIMAPOS</div>
@@ -2527,7 +2525,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.5.1';
+const APP_VERSION='3.5.2';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
