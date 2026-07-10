@@ -481,11 +481,11 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .cart-exp-pay:active{transform:scale(.97)}
 
 /* CART SHEET / CHECKOUT */
-.modal-ov{position:fixed;inset:0;background:rgba(2,8,23,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s var(--ease);padding:0 12px calc(var(--safe-b) + 14px)}
+.modal-ov{position:fixed;inset:0;background:rgba(2,8,23,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .5s var(--ease),visibility 0s linear .5s;padding:0 12px calc(var(--safe-b) + 14px)}
 #confirmModal{z-index:10000}
 #whatsNewModal{z-index:220} /* di atas infoModal (200) — dibuka dari dalam Info App */
 #scanModal{z-index:230}
-.modal-ov.open{opacity:1;pointer-events:all}
+.modal-ov.open{opacity:1;pointer-events:all;visibility:visible;transition:opacity .5s var(--ease),visibility 0s}
 .modal-sheet{width:100%;max-width:480px;margin:0 auto;border-radius:var(--rxl);transform-origin:50% 100%;transform:translateY(48px) scale(.7);opacity:0;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .42s var(--ease),background .5s var(--ease);background:var(--modal-bg);border:1px solid rgba(255,255,255,.09);box-shadow:0 -10px 24px rgba(0,0,0,.25),0 24px 70px rgba(0,0,0,.5);max-height:84vh;position:relative;overflow:hidden}
 .modal-ov.open .modal-sheet{transform:translateY(0) scale(1);opacity:1;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .4s var(--ease)}
 .modal-sheet-scroll{padding:14px 20px 26px;overflow-y:auto;max-height:84vh;overscroll-behavior:contain}
@@ -6664,12 +6664,15 @@ function renderTaxUI(){
   const t=getTaxConfig();
   document.getElementById('taxToggle').classList.toggle('active',!!t.enabled);
   document.getElementById('taxDetailWrap').style.opacity=t.enabled?'1':'.45';
-  document.getElementById('taxDetailWrap').style.pointerEvents=t.enabled?'auto':'none';
+  document.getElementById('taxLabel').disabled=!t.enabled;
+  document.getElementById('taxPct').disabled=!t.enabled;
   document.getElementById('taxLabel').value=t.label||'PPN';
   document.getElementById('taxPct').value=t.pct||0;
   document.getElementById('roundingToggle').classList.toggle('active',!!t.roundingEnabled);
   document.getElementById('roundingDetailWrap').style.opacity=t.roundingEnabled?'1':'.45';
-  document.getElementById('roundingDetailWrap').style.pointerEvents=t.roundingEnabled?'auto':'none';
+  /* JANGAN pakai inline pointer-events:auto di sini — anak dgn PE:auto tetap
+     bisa diklik walau modal induk tertutup (PE:none). Pakai disabled. */
+  document.getElementById('roundingNearest').disabled=!t.roundingEnabled;
   document.getElementById('roundingNearest').value=t.roundingNearest||100;
 }
 function toggleTax(){
