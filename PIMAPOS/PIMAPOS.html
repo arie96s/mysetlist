@@ -825,7 +825,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .whatsnew-item-txt b{color:var(--t1);font-size:12.5px;display:block;margin-bottom:1px}
 .whatsnew-readmore{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--blue-hi);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
 .whatsnew-readmore:active{opacity:.6}
-.brand-mark{width:48px;height:48px;display:block;filter:drop-shadow(0 4px 12px rgba(var(--accent-shadow-rgb),.35))}
+.brand-mark{width:58px;height:58px;display:block;filter:drop-shadow(0 4px 12px rgba(var(--accent-shadow-rgb),.35))}
 /* ── Paywall PIMAPOS Lifetime ── */
 .pw-hero{text-align:center;padding:6px 0 14px}
 .pw-price-old{font-size:15px;color:var(--t3);text-decoration:line-through;font-family:'JetBrains Mono',monospace}
@@ -2578,7 +2578,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.6.0';
+const APP_VERSION='3.6.1';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
@@ -2757,10 +2757,10 @@ const CATEGORY_TEMPLATES={
     {name:'Tas Selempang',emoji:'👜',cat:'Aksesoris',price:120000,stock:15,sizes:[{s:'All Size',q:15}]},
   ]},
   'Distro':{categories:['Kaos','Hoodie','Topi & Aksesoris','Sepatu'],products:[
-    {name:'Kaos Distro',emoji:'👕',cat:'Kaos',price:95000,stock:30},
-    {name:'Hoodie Oversize',emoji:'🧥',cat:'Hoodie',price:175000,stock:20},
+    {name:'Kaos Distro',emoji:'👕',cat:'Kaos',price:95000,stock:30,sizes:[{s:'S',q:8},{s:'M',q:10},{s:'L',q:8},{s:'XL',q:4}]},
+    {name:'Hoodie Oversize',emoji:'🧥',cat:'Hoodie',price:175000,stock:20,sizes:[{s:'M',q:7},{s:'L',q:8},{s:'XL',q:5}]},
     {name:'Topi Snapback',emoji:'🧢',cat:'Topi & Aksesoris',price:65000,stock:25},
-    {name:'Sneakers',emoji:'👟',cat:'Sepatu',price:250000,stock:12},
+    {name:'Sneakers',emoji:'👟',cat:'Sepatu',price:250000,stock:12,sizes:[{s:'39',q:2},{s:'40',q:3},{s:'41',q:3},{s:'42',q:2},{s:'43',q:2}]},
     {name:'Tote Bag',emoji:'👜',cat:'Topi & Aksesoris',price:55000,stock:20},
     {name:'Kaos Kaki',emoji:'🧦',cat:'Topi & Aksesoris',price:20000,stock:40},
   ]},
@@ -4849,20 +4849,36 @@ function openLabelPesananModal(){
   document.getElementById('labelMejaNote').value='';
   renderLabelPreview();
   document.getElementById('labelPesananModal').classList.add('open');
+  const wrap=document.getElementById('labelPreviewWrap');
+  if(wrap)wrap.scrollTop=0;
+  const sc=document.querySelector('#labelPesananModal .modal-sheet-scroll');
+  if(sc)sc.scrollTop=0;
+}
+function labelUnits(trx){
+  /* Sanitasi qty: data lama/aneh (undefined, desimal, 0) tetap hasilkan
+     minimal 1 label per item — akar bug "preview kosong". Batas aman 50. */
+  const units=[];
+  (trx.items||[]).forEach(it=>{
+    const q=Math.min(50,Math.max(1,Math.floor(Number(it.qty)||1)));
+    for(let i=1;i<=q;i++)units.push({it,i});
+  });
+  return units;
 }
 function renderLabelPreview(){
   const trx=lastReceiptTrx;
   if(!trx)return;
+  const wrap=document.getElementById('labelPreviewWrap');
+  try{
   const note=(document.getElementById('labelMejaNote').value||'').trim();
   const cust=trx.customerName||'Guest';
   const shortId='#'+trx.id.slice(-6).toUpperCase();
   const head=S.receiptLogo
     ?`<div class="olabel-head"><img src="${S.receiptLogo}" alt="${escapeHtml(S.storeName||'Brand')}"></div>`
     :`<div class="olabel-store">${escapeHtml(S.storeName||'Toko Saya')}</div>`;
-  const units=[];
-  trx.items.forEach(it=>{for(let i=1;i<=it.qty;i++)units.push({it,i});});
+  const units=labelUnits(trx);
   const total=units.length;
-  document.getElementById('labelPreviewWrap').innerHTML=units.map((u,idx)=>`
+  const summary=`<div style="font-size:11.5px;color:var(--t3);text-align:center;margin-bottom:8px">${total} label · 1 label per porsi/pcs (item × qty)</div>`;
+  wrap.innerHTML=summary+units.map((u,idx)=>`
     <div class="order-label">
       ${head}
       <div class="olabel-dash"></div>
@@ -4873,6 +4889,10 @@ function renderLabelPreview(){
       <div class="olabel-dash"></div>
       <div class="olabel-meta">${shortId} · ${receiptDateLbl(trx.ts)}</div>
     </div>`).join('');
+  }catch(e){
+    console.warn('[PIMAPOS] renderLabelPreview gagal:',e);
+    wrap.innerHTML='<div class="empty-state" style="padding:14px"><div class="empty-desc">Preview label tidak dapat dibuat untuk transaksi ini.</div></div>';
+  }
 }
 function closeLabelPesananModal(){document.getElementById('labelPesananModal').classList.remove('open');}
 async function printOrderLabels(){
@@ -4881,9 +4901,8 @@ async function printOrderLabels(){
   const cust=trx.customerName||'Guest';
   const shortId='#'+trx.id.slice(-6).toUpperCase();
   const note=(document.getElementById('labelMejaNote').value||'').trim();
-  const units=[];
-  trx.items.forEach(it=>{for(let i=1;i<=it.qty;i++)units.push(it);});
   const lines=[];
+  const units=labelUnits(trx).map(u=>u.it);
   units.forEach((it,idx)=>{
     lines.push({text:'================================'});
     lines.push({text:S.storeName||'Toko Saya',center:true});

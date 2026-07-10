@@ -1,16 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════
-   PIMAPOS — Service Worker (v3.6.0)
+   PIMAPOS — Service Worker (v3.6.1)
    Strategi: App Shell caching + network-first untuk HTML,
              cache-first untuk asset statis, stale-while-revalidate
              untuk font/CDN eksternal.
-   BARU v3.6.0: sinkron dengan PIMAPOS v3.6.0 —
+   BARU v3.6.1: sinkron dengan PIMAPOS v3.6.1 —
    • Bump versi cache: easter eggs: POS CORE, diagnostik data, mode privasi,
      kalkulator kasir, confetti — plus semua fitur 3.4.x.
    • Chart.js tetap lazy-load dari app + precache di sini agar
      grafik langsung berfungsi walau pertama dibuka saat offline.
    ═══════════════════════════════════════════════════════════════════ */
 
-const SW_VERSION   = '3.6.0';
+const SW_VERSION   = '3.6.1';
 const CACHE_STATIC = `pimapos-static-v${SW_VERSION}`;
 const CACHE_RUNTIME = `pimapos-runtime-v${SW_VERSION}`;
 
