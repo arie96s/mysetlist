@@ -31,8 +31,8 @@
      Ganti https://arie96s.github.io/PIMAPOS/ di bawah dengan
      URL final tempat PIMAPOS di-deploy (canonical & OG:url).
 ════════════════════════════════════════════════════════ -->
-<title>PIMAPOS — Aplikasi Kasir Digital & POS Offline Gratis untuk HP, iPhone, iPad</title>
-<meta name="description" content="PIMAPOS adalah aplikasi kasir (POS) digital gratis berbasis web — bisa dipakai offline di HP Android, iPhone, iPad, maupun komputer. Fitur lengkap: manajemen produk & stok, laporan omzet & profit, retur/refund, split payment, cetak struk Bluetooth, hingga backup Google Drive. Tanpa instalasi, tanpa server, data tersimpan aman di perangkat Anda.">
+<title>PIMAPOS — Aplikasi Kasir Digital & POS Offline Modern untuk HP, iPhone, iPad</title>
+<meta name="description" content="PIMAPOS adalah aplikasi kasir (POS) digital modern berbasis web — bisa dipakai offline di HP Android, iPhone, iPad, maupun komputer. Fitur lengkap: manajemen produk & stok, laporan omzet & profit, retur/refund, split payment, cetak struk Bluetooth, hingga backup Google Drive. Tanpa instalasi, tanpa server, data tersimpan aman di perangkat Anda.">
 <meta name="keywords" content="aplikasi kasir, aplikasi kasir gratis, kasir online, kasir offline, POS system, sistem kasir digital, kasir HP, kasir Android, kasir iPhone, kasir iPad, aplikasi toko, aplikasi kasir toko, kasir modern, inventory management, manajemen stok, PWA POS, aplikasi kasir tanpa internet, software kasir, kasir warung, kasir UMKM, point of sale indonesia">
 <meta name="author" content="Fajri Salam (@arie96s)">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -60,9 +60,14 @@
 ════════════════════════════════════════════════════════ -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="PIMAPOS">
-<meta property="og:title" content="PIMAPOS — Aplikasi Kasir Digital & POS Offline Gratis">
-<meta property="og:description" content="Kasir digital gratis, bisa offline, langsung jalan di browser HP/iPhone/iPad tanpa instalasi. Kelola produk, stok, laporan omzet, retur, split payment, hingga cetak struk Bluetooth.">
-<meta property="og:image" content="https://arie96s.github.io/PIMAPOS/PIMAPOS-logo.png">
+<meta property="og:title" content="PIMAPOS — Aplikasi Kasir Digital & POS Offline Modern">
+<meta property="og:description" content="Kasir digital modern, bisa offline, langsung jalan di browser HP/iPhone/iPad tanpa instalasi. Kelola produk, stok, laporan omzet, retur, split payment, hingga cetak struk Bluetooth.">
+<meta property="og:image" content="https://arie96s.github.io/PIMAPOS/og-image.jpg">
+<meta property="og:image:secure_url" content="https://arie96s.github.io/PIMAPOS/og-image.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PIMAPOS — Aplikasi Kasir Digital & POS Offline Modern">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Logo dan tampilan aplikasi kasir PIMAPOS">
@@ -70,10 +75,10 @@
 <meta property="og:locale" content="id_ID">
 
 <!-- Twitter / X Card -->
+<meta name="twitter:title" content="PIMAPOS — Aplikasi Kasir Digital & POS Offline Modern">
+<meta name="twitter:description" content="Kasir digital modern & offline untuk HP, iPhone, iPad, dan komputer — produk, stok, laporan, retur, split payment, struk Bluetooth, semua dalam satu aplikasi ringan.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PIMAPOS — Aplikasi Kasir Digital & POS Offline Gratis">
-<meta name="twitter:description" content="Kasir digital gratis & offline untuk HP, iPhone, iPad, dan komputer — produk, stok, laporan, retur, split payment, struk Bluetooth, semua dalam satu aplikasi ringan.">
-<meta name="twitter:image" content="https://arie96s.github.io/PIMAPOS/PIMAPOS-logo.png">
+<meta name="twitter:image" content="https://arie96s.github.io/PIMAPOS/og-image.jpg">
 <meta name="twitter:image:alt" content="Logo aplikasi kasir PIMAPOS">
 
 <!-- ══════════════════════════════════════════════════════
@@ -120,7 +125,7 @@
       "applicationSubCategory": "Point of Sale",
       "operatingSystem": "Any (Web/PWA — Android, iOS, Windows, macOS)",
       "url": "https://arie96s.github.io/PIMAPOS/",
-      "description": "Aplikasi kasir (POS) digital gratis, bisa dipakai offline, dengan fitur manajemen produk & stok, laporan omzet & profit, retur/refund, split payment, cetak struk Bluetooth, dan cloud backup.",
+      "description": "Aplikasi kasir (POS) digital modern, bisa dipakai offline, dengan fitur manajemen produk & stok, laporan omzet & profit, retur/refund, split payment, cetak struk Bluetooth, dan cloud backup.",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -821,6 +826,15 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .whatsnew-readmore{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--blue-hi);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .2s}
 .whatsnew-readmore:active{opacity:.6}
 .brand-mark{width:48px;height:48px;display:block;filter:drop-shadow(0 4px 12px rgba(var(--accent-shadow-rgb),.35))}
+/* ── Paywall PIMAPOS Lifetime ── */
+.pw-hero{text-align:center;padding:6px 0 14px}
+.pw-price-old{font-size:15px;color:var(--t3);text-decoration:line-through;font-family:'JetBrains Mono',monospace}
+.pw-price{font-size:38px;font-weight:800;font-family:'JetBrains Mono',monospace;background:var(--grad-gold);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-1px;line-height:1.15}
+.pw-price-sub{font-size:12px;color:var(--t3);margin-top:2px}
+.pw-benefit{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12.5px;color:var(--t2);line-height:1.55}
+.pw-benefit .ic{flex-shrink:0;font-size:15px}
+.pw-benefit b{color:var(--t1)}
+.pw-lic-active{text-align:center;padding:18px 8px;border:1px solid rgba(52,211,153,.35);border-radius:var(--rlg);background:rgba(52,211,153,.08);font-size:13px;color:var(--t1);line-height:1.7}
 /* ── Easter eggs: POS CORE, privasi, confetti, kalkulator ── */
 .core-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .core-stat{background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:var(--rlg);padding:10px 12px}
@@ -946,7 +960,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
      tanpa mengubah tampilan aplikasi sama sekali.
 ════════════════════════════════════════════════════════ -->
 <div class="sr-only">
-  <h1>PIMAPOS — Aplikasi Kasir Digital &amp; Sistem POS Offline Gratis</h1>
+  <h1>PIMAPOS — Aplikasi Kasir Digital &amp; Sistem POS Offline Modern</h1>
   <p>PIMAPOS adalah aplikasi kasir (Point of Sale) digital gratis yang berjalan langsung di browser HP Android, iPhone, iPad, maupun komputer — tanpa instalasi, tanpa server, dan tetap bisa dipakai offline. Cocok untuk kasir warung, toko retail, kafe, restoran, dan UMKM yang butuh sistem kasir modern namun ringan.</p>
   <h2>Fitur Utama Aplikasi Kasir PIMAPOS</h2>
   <ul>
@@ -1286,6 +1300,11 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="da-lbl">Data & Backup</div>
       <div class="da-chev">›</div>
     </div>
+    <div class="da-row-flat ripple-container" onclick="openLifetimeModal()">
+      <div class="da-ico">👑</div>
+      <div class="da-lbl">PIMAPOS Lifetime <span id="lifetimeRowBadge" style="display:none;font-size:10px;font-weight:800;color:#0B1220;background:var(--grad-gold);border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:middle">AKTIF</span></div>
+      <div class="da-chev">›</div>
+    </div>
     <div class="da-row-flat ripple-container" onclick="openInfoModal()">
       <div class="da-ico">🧾</div>
       <div class="da-lbl" id="infoAppRowLbl">Info App · PIMAPOS</div>
@@ -1535,7 +1554,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="app-info-logo" style="background:#0B1220;border:1px solid rgba(251,191,36,.35)"><svg style="width:36px;height:36px;display:block"><use href="#pimaposMark"/></svg></div>
       <div class="app-info-name">PIMAPOS</div>
       <div class="app-info-version" id="appInfoVersionBadge">v—</div>
-      <div class="app-info-tagline">Aplikasi Kasir Digital &amp; POS Offline Gratis</div>
+      <div class="app-info-tagline">Aplikasi Kasir Digital &amp; POS Offline Modern</div>
       <div class="app-info-eco">Bagian dari Ekosistem PIMAPIKA · Pitih Masuak Pitih Kalua</div>
       <div class="app-info-grid">
         <div class="app-info-row"><span class="ai-k">Developer</span><span class="ai-v">@arie96s</span></div>
@@ -1902,6 +1921,40 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     </div>
     <button class="sbtn ripple-container" onclick="saveStore()">Simpan</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeStoreModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: PIMAPOS LIFETIME (paywall — mode preview, belum menggerbang fitur) ══════════ -->
+<div class="modal-ov" id="lifetimeModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="pw-hero">
+      <svg style="width:54px;height:54px;display:inline-block;filter:drop-shadow(0 6px 18px rgba(var(--accent-shadow-rgb),.45))"><use href="#pimaposMark"/></svg>
+      <div class="modal-title" style="margin:8px 0 2px">PIMAPOS Lifetime</div>
+      <div style="font-size:12.5px;color:var(--t3)">Sekali Bayar, Milik Selamanya</div>
+    </div>
+    <div id="pwBody">
+      <div style="text-align:center;margin-bottom:14px">
+        <span class="pw-price-old">Rp 499.000</span>
+        <div class="pw-price">Rp 299.000</div>
+        <div class="pw-price-sub">sekali bayar · bukan langganan · tanpa biaya bulanan</div>
+      </div>
+      <div class="pw-benefit"><span class="ic">✅</span><span><b>Semua fitur, selamanya</b> — kasir, stok, laporan, retur, split payment, printer Bluetooth, multi-kasir.</span></div>
+      <div class="pw-benefit"><span class="ic">🔄</span><span><b>Update gratis selamanya</b> — setiap fitur baru langsung jadi milikmu.</span></div>
+      <div class="pw-benefit"><span class="ic">📴</span><span><b>100% offline & data milikmu</b> — tersimpan di perangkat, tanpa server, tanpa biaya tersembunyi.</span></div>
+      <div class="pw-benefit"><span class="ic">💬</span><span><b>Dukungan prioritas</b> — bantuan langsung dari developer.</span></div>
+      <div style="font-size:11px;color:var(--t3);text-align:center;margin:12px 0 4px;line-height:1.6">Bandingkan: aplikasi kasir lain Rp 129rb–299rb <i>per bulan</i>.<br>PIMAPOS Lifetime = sekali bayar, lebih hemat dalam 3 bulan.</div>
+      <button class="sbtn ripple-container" onclick="contactLifetime()">👑 Dapatkan Lisensi Lifetime</button>
+      <div class="slabel" style="margin-top:16px">Sudah punya kode lisensi?</div>
+      <div class="field"><input type="text" id="licenseKeyVal" placeholder="PIMA-XXXX-XXXX-XXXX" autocapitalize="characters" onkeydown="if(event.key==='Enter')activateLicense()"></div>
+      <button class="sbtn ghost ripple-container" onclick="activateLicense()">🔑 Aktivasi Lisensi</button>
+    </div>
+    <div id="pwActive" style="display:none">
+      <div class="pw-lic-active">👑 <b>Lisensi Lifetime Aktif</b><br><span id="pwActiveInfo" style="font-size:11.5px;color:var(--t3)"></span><br>Terima kasih telah mendukung PIMAPOS!</div>
+    </div>
+    <button class="sbtn ghost ripple-container" style="margin-top:12px" onclick="closeLifetimeModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -2525,7 +2578,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.5.2';
+const APP_VERSION='3.6.0';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
@@ -2894,7 +2947,7 @@ function showPage(id){
   if(id==='pageProduk')renderProductList();
   if(id==='pageRiwayat')renderRiwayat();
   if(id==='pageLaporan')renderLaporan();
-  if(id==='pageProfil'){renderProfil();renderPinToggleUI();renderNotifToggleUI();renderTaxUI();}
+  if(id==='pageProfil'){renderProfil();renderPinToggleUI();renderNotifToggleUI();renderTaxUI();renderLifetimeState();}
   if(id==='pageKasir'){renderCategoryChips();renderProducts();renderShiftBanner();renderKasirCustChip();renderHoldCapsule();}
 }
 /* SEO — judul tab browser menyesuaikan halaman aktif (technical SEO: dynamic title) */
@@ -3341,6 +3394,51 @@ function openWhatsNewModal(){
   document.getElementById('whatsNewModal').classList.add('open');
 }
 function closeWhatsNewModal(){document.getElementById('whatsNewModal').classList.remove('open');}
+
+/* ════════════════════════════════════════════════════
+   PIMAPOS LIFETIME — paywall (mode PREVIEW: belum ada fitur
+   yang digerbang; gunakan isLicensed() saat siap gating).
+   Aktivasi offline: SHA-256 kode dicocokkan ke daftar hash.
+   ════════════════════════════════════════════════════ */
+const LICENSE_HASHES=[
+  '5c05fe0abd2403c1a02fba29855fedbdd4874d23974fb486360d43f0889af5b7',
+  '167623eea0734aa5a877664f0f2a83e7f06395409b0386d30b60b2a1a09c0974',
+  'cc41847671e9282b02037d26c6a6eb8314472748ac9c340c349766a12222d5c9'
+];
+const LIFETIME_CONTACT='mailto:fajrisalam96@gmail.com?subject=Lisensi%20PIMAPOS%20Lifetime'; /* ganti ke https://wa.me/62xxxx saat siap */
+function isLicensed(){return !!(S.license&&S.license.key);}
+function openLifetimeModal(){
+  renderLifetimeState();
+  document.getElementById('lifetimeModal').classList.add('open');
+}
+function closeLifetimeModal(){document.getElementById('lifetimeModal').classList.remove('open');}
+function renderLifetimeState(){
+  const on=isLicensed();
+  document.getElementById('pwBody').style.display=on?'none':'block';
+  document.getElementById('pwActive').style.display=on?'block':'none';
+  const badge=document.getElementById('lifetimeRowBadge');
+  if(badge)badge.style.display=on?'inline-block':'none';
+  if(on){
+    const d=new Date(S.license.activatedAt);
+    document.getElementById('pwActiveInfo').textContent='Kode '+S.license.key.slice(0,9)+'•••• · aktif sejak '+d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  }
+}
+function contactLifetime(){window.open(LIFETIME_CONTACT,'_blank');}
+async function activateLicense(){
+  const inp=document.getElementById('licenseKeyVal');
+  const key=(inp.value||'').trim().toUpperCase();
+  if(!/^PIMA(-[0-9A-F]{4}){3}$/.test(key)){toast('⚠️ Format kode tidak valid');return;}
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key));
+  const hash=[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(!LICENSE_HASHES.includes(hash)){toast('❌ Kode lisensi tidak dikenal');return;}
+  S.license={key,activatedAt:new Date().toISOString()};
+  save();
+  inp.value='';
+  renderLifetimeState();
+  logActivity('👑 Lisensi Lifetime diaktifkan');
+  if(typeof fireConfetti==='function')fireConfetti();
+  toast('👑 Lisensi Lifetime aktif — terima kasih!');
+}
 
 /* ════════════════════════════════════════════════════
    EASTER EGGS — semua on-demand, nol timer permanen,
