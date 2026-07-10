@@ -484,6 +484,10 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .modal-ov{position:fixed;inset:0;background:rgba(2,8,23,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .5s var(--ease),visibility 0s linear .5s;padding:0 12px calc(var(--safe-b) + 14px)}
 #confirmModal{z-index:10000}
 #whatsNewModal{z-index:220} /* di atas infoModal (200) — dibuka dari dalam Info App */
+/* Rantai Lupa PIN harus DI ATAS layar kunci (z 9999) */
+#forgotPinModal,#resetNewPinModal,#recoveryCodeModal{z-index:10010}
+#plNormalView{display:flex;flex-direction:column;align-items:center;text-align:center}
+.recovery-code-box{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;letter-spacing:.14em;text-align:center;padding:16px 10px;border-radius:var(--rlg);background:rgba(var(--accent-tint-rgb),.1);border:1.5px dashed rgba(var(--accent-tint-rgb),.45);color:var(--amber);margin:12px 0;user-select:all;-webkit-user-select:all}
 #scanModal{z-index:230}
 .modal-ov.open{opacity:1;pointer-events:all;visibility:visible;transition:opacity .5s var(--ease),visibility 0s}
 .modal-sheet{width:100%;max-width:480px;margin:0 auto;border-radius:var(--rxl);transform-origin:50% 100%;transform:translateY(48px) scale(.7);opacity:0;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .42s var(--ease),background .5s var(--ease);background:var(--modal-bg);border:1px solid rgba(255,255,255,.09);box-shadow:0 -10px 24px rgba(0,0,0,.25),0 24px 70px rgba(0,0,0,.5);max-height:84vh;position:relative;overflow:hidden}
@@ -2179,6 +2183,9 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="da-row-flat ripple-container" id="pinChangeRow" style="display:none" onclick="requestChangeAppPin()">
       <div class="da-ico">🔑</div><div class="da-lbl">Ubah PIN Keamanan</div><div class="da-chev">›</div>
     </div>
+    <div class="da-row-flat ripple-container" id="recoveryCodeRow" style="display:none" onclick="requestNewRecoveryCode()">
+      <div class="da-ico">🗝️</div><div class="da-lbl">Kode Pemulihan <span id="recoveryStatusBadge" style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:6px"></span></div><div class="da-chev">›</div>
+    </div>
     <div class="toggle-row" id="idleLockRow" style="display:none;margin-top:14px">
       <div>
         <div style="font-size:13.5px;font-weight:600">Kunci Otomatis Saat Tidak Aktif</div>
@@ -2356,13 +2363,49 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   <div class="modal-sheet">
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
-    <div class="modal-title" style="color:var(--red)">⚠️ Reset PIN Aplikasi</div>
-    <div class="pin-lock-box" style="text-align:left">
-      <div style="font-size:12.5px;color:var(--t2);line-height:1.7">PIMAPOS tidak memakai server, jadi PIN tidak bisa "dipulihkan" — hanya bisa direset. <b>Semua data toko tetap aman</b>, hanya kunci PIN yang dihapus. Tindakan ini tercatat di Log Aktivitas.</div>
+    <div class="modal-title">🔑 Lupa PIN</div>
+    <div id="fpRecoverySection">
+      <div style="font-size:12.5px;color:var(--t2);line-height:1.7;text-align:center;margin-bottom:12px">Masukkan <b>Kode Pemulihan</b> yang kamu simpan saat mengatur PIN untuk membuat PIN baru — <b>tanpa kehilangan data apa pun</b>.</div>
+      <div class="field"><label>Kode Pemulihan</label><input type="text" id="fpRecoveryVal" placeholder="XXXX-XXXX" autocapitalize="characters" autocomplete="off" style="font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-align:center"></div>
+      <div id="fpRecoveryLockMsg" style="display:none;font-size:12px;color:var(--red);text-align:center;margin-bottom:10px"></div>
+      <button class="sbtn ripple-container" onclick="verifyRecoveryCode()">Verifikasi Kode</button>
     </div>
-    <div class="field"><label>Ketik <b>RESET</b> untuk konfirmasi</label><input type="text" id="forgotPinConfirmVal" placeholder="RESET" autocapitalize="characters"></div>
-    <button class="sbtn danger ripple-container" onclick="confirmForgotPin()">Reset & Nonaktifkan PIN</button>
+    <div id="fpNoRecoverySection" style="display:none">
+      <div style="font-size:12.5px;color:var(--t2);line-height:1.7;text-align:center;margin-bottom:12px">PIN ini belum punya Kode Pemulihan, sehingga jalur pemulihan aman tidak tersedia.</div>
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,.08);margin:16px 0"></div>
+    <div style="font-size:11.5px;color:var(--t3);text-align:center;line-height:1.65;margin-bottom:10px">Tidak punya / lupa kode pemulihan? Satu-satunya jalan adalah <b style="color:var(--red)">Reset Total</b>: seluruh data aplikasi dihapus permanen (pulihkan dari backup setelahnya). Ini melindungi datamu dari orang lain yang memegang perangkat ini.</div>
+    <div class="field" id="fpWipeWrap" style="display:none"><label>Ketik <b>HAPUS SEMUA DATA</b> untuk konfirmasi</label><input type="text" id="fpWipeVal" placeholder="HAPUS SEMUA DATA" autocapitalize="characters" autocomplete="off"></div>
+    <button class="sbtn danger ripple-container" id="fpWipeBtn" onclick="fpWipeStep()">Reset Total (Hapus Semua Data)</button>
     <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeForgotPinModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: PIN BARU SETELAH KODE PEMULIHAN TERVERIFIKASI ══════════ -->
+<div class="modal-ov" id="resetNewPinModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔒 Buat PIN Baru</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Kode pemulihan benar. Buat PIN 6 digit yang baru.</div>
+    <div class="field"><label>PIN Baru (6 digit)</label><input type="password" inputmode="numeric" maxlength="6" id="rnpVal1" autocomplete="off"></div>
+    <div class="field"><label>Konfirmasi PIN Baru</label><input type="password" inputmode="numeric" maxlength="6" id="rnpVal2" autocomplete="off" onkeydown="if(event.key==='Enter')saveResetNewPin()"></div>
+    <button class="sbtn ripple-container" onclick="saveResetNewPin()">Simpan PIN Baru</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: TAMPILKAN KODE PEMULIHAN (sekali tampil) ══════════ -->
+<div class="modal-ov" id="recoveryCodeModal">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🗝️ Kode Pemulihan</div>
+    <div style="font-size:12.5px;color:var(--t2);text-align:center;line-height:1.7">Simpan kode ini di tempat aman (catatan fisik / password manager). Ini <b>satu-satunya</b> cara membuat PIN baru tanpa menghapus data jika kamu lupa PIN. Kode hanya ditampilkan sekali.</div>
+    <div class="recovery-code-box" id="recoveryCodeBox">····-····</div>
+    <button class="sbtn ripple-container" onclick="copyRecoveryCode()">📋 Salin Kode</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeRecoveryCodeModal()">Sudah Kusimpan</button>
     </div>
   </div>
 </div>
@@ -2861,7 +2904,7 @@ function defState(){
     receiptLogo:'',
     storeBranchCode:'',
     receiptPromoMsg:'',
-    security:{pinEnabled:false,pinHash:'',pinFailCount:0,pinLockedUntil:null,pinChangeFailCount:0,pinChangeLockedUntil:null,actionPinEnabled:false,actionPinHash:'',actionPinFailCount:0,actionPinLockedUntil:null,idleLockEnabled:false,idleLockMinutes:5},
+    security:{pinEnabled:false,pinHash:'',pinFailCount:0,pinLockedUntil:null,pinChangeFailCount:0,pinChangeLockedUntil:null,actionPinEnabled:false,actionPinHash:'',actionPinFailCount:0,actionPinLockedUntil:null,idleLockEnabled:false,idleLockMinutes:5,recoveryHash:'',recoveryFailCount:0,recoveryLockedUntil:null},
     notif:{enabled:false},
     socials:{whatsapp:'',instagram:'',tiktok:'',facebook:'',shopee:'',tokopedia:'',website:''},
     theme:'dark',
@@ -5370,7 +5413,7 @@ function openAdvMenuModal(){document.getElementById('advMenuModal').classList.ad
 function closeAdvMenuModal(){document.getElementById('advMenuModal').classList.remove('open');}
 function openTaxModal(){renderTaxUI();document.getElementById('taxModal').classList.add('open');}
 function closeTaxModal(){document.getElementById('taxModal').classList.remove('open');}
-function openSecurityModal(){renderPinToggleUI();document.getElementById('securityModal').classList.add('open');}
+function openSecurityModal(){renderPinToggleUI();renderRecoveryRow();document.getElementById('securityModal').classList.add('open');}
 function closeSecurityModal(){document.getElementById('securityModal').classList.remove('open');}
 function openNotifModal(){renderNotifToggleUI();document.getElementById('notifModal').classList.add('open');}
 function closeNotifModal(){document.getElementById('notifModal').classList.remove('open');}
@@ -6851,9 +6894,11 @@ async function saveNewPin(){
   const hash=await sha256Hex(p1);
   S.security.pinHash=hash;S.security.pinEnabled=true;save();
   document.getElementById('setPinModal').classList.remove('open');
-  renderPinToggleUI();
+  renderPinToggleUI();renderRecoveryRow();
   logActivity(_settingFirstPin?'🔒 PIN Aplikasi Diatur':'🔒 PIN Aplikasi Diubah');
   toast('✅ PIN keamanan disimpan');
+  /* Terbitkan kode pemulihan otomatis saat PIN pertama kali diatur */
+  if(!S.security.recoveryHash)setTimeout(()=>issueRecoveryCode('Dibuat (setup PIN)'),450);
 }
 let plEntry='';
 function renderPlNumpad(){
@@ -6940,22 +6985,138 @@ async function verifyPin(){
   }
 }
 function forgotPin(){
+  const has=!!S.security.recoveryHash;
+  document.getElementById('fpRecoverySection').style.display=has?'block':'none';
+  document.getElementById('fpNoRecoverySection').style.display=has?'none':'block';
+  document.getElementById('fpRecoveryVal').value='';
+  document.getElementById('fpRecoveryLockMsg').style.display='none';
+  document.getElementById('fpWipeWrap').style.display='none';
+  document.getElementById('fpWipeVal').value='';
+  document.getElementById('fpWipeBtn').textContent='Reset Total (Hapus Semua Data)';
+  _fpWipeArmed=false;
   if(checkPlLockState()){toast('⛔ Coba lagi setelah waktu tunggu selesai');return;}
-  document.getElementById('forgotPinConfirmVal').value='';
   document.getElementById('forgotPinModal').classList.add('open');
 }
 function closeForgotPinModal(){document.getElementById('forgotPinModal').classList.remove('open');}
-function confirmForgotPin(){
-  const val=(document.getElementById('forgotPinConfirmVal').value||'').trim().toUpperCase();
-  if(val!=='RESET'){toast('⚠️ Ketik "RESET" persis untuk melanjutkan');return;}
-  S.security.pinEnabled=false;S.security.pinHash='';
-  S.security.pinFailCount=0;S.security.pinLockedUntil=null;
+/* ════════════════════════════════════════════════════
+   KODE PEMULIHAN — jalur aman "lupa PIN" tanpa server.
+   • Kode acak 8 karakter (alfabet tanpa I/O/0/1), hash SHA-256.
+   • 5x salah → terkunci 5 menit (anti brute-force).
+   • Berhasil dipakai → kode dirotasi (sekali pakai).
+   • Fallback tanpa kode = RESET TOTAL (hapus semua data):
+     penyusup tidak mendapat apa pun, pemilik pulih dari backup.
+   ════════════════════════════════════════════════════ */
+const RECOVERY_ALPHABET='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function genRecoveryCode(){
+  const buf=new Uint8Array(8);crypto.getRandomValues(buf);
+  const s=[...buf].map(b=>RECOVERY_ALPHABET[b%RECOVERY_ALPHABET.length]).join('');
+  return s.slice(0,4)+'-'+s.slice(4);
+}
+let _pendingRecoveryCode='';
+async function issueRecoveryCode(reason){
+  const code=genRecoveryCode();
+  S.security.recoveryHash=await sha256Hex(code.replace('-',''));
+  S.security.recoveryFailCount=0;S.security.recoveryLockedUntil=null;
   save();
-  logActivity('⚠️ PIN Aplikasi Direset','via "Lupa PIN" di layar kunci');
-  document.getElementById('forgotPinModal').classList.remove('open');
+  _pendingRecoveryCode=code;
+  document.getElementById('recoveryCodeBox').textContent=code;
+  document.getElementById('recoveryCodeModal').classList.add('open');
+  logActivity('🗝️ Kode Pemulihan '+(reason||'Dibuat'));
+  renderRecoveryRow();
+}
+function closeRecoveryCodeModal(){
+  _pendingRecoveryCode='';
+  document.getElementById('recoveryCodeBox').textContent='····-····';
+  document.getElementById('recoveryCodeModal').classList.remove('open');
+}
+function copyRecoveryCode(){
+  const code=_pendingRecoveryCode;if(!code)return;
+  const done=()=>toast('📋 Kode disalin — simpan di tempat aman!');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(done).catch(()=>toast('⚠️ Gagal menyalin, catat manual'));}
+  else toast('⚠️ Salin manual: tekan lama pada kode');
+}
+function renderRecoveryRow(){
+  const row=document.getElementById('recoveryCodeRow');
+  const badge=document.getElementById('recoveryStatusBadge');
+  if(!row||!badge)return;
+  row.style.display=S.security.pinEnabled?'flex':'none';
+  const has=!!S.security.recoveryHash;
+  badge.textContent=has?'AKTIF':'BELUM ADA';
+  badge.style.background=has?'rgba(52,211,153,.15)':'rgba(248,113,113,.15)';
+  badge.style.color=has?'var(--green)':'var(--red)';
+}
+function requestNewRecoveryCode(){
+  requireAppPinVerify('Buat Kode Pemulihan',()=>issueRecoveryCode(S.security.recoveryHash?'Dibuat Ulang':'Dibuat'));
+}
+/* ── Alur Lupa PIN ── */
+function verifyRecoveryCode(){
+  const lockedUntil=S.security.recoveryLockedUntil?new Date(S.security.recoveryLockedUntil).getTime():0;
+  const msg=document.getElementById('fpRecoveryLockMsg');
+  if(lockedUntil>Date.now()){
+    msg.style.display='block';
+    msg.textContent='⛔ Terkunci '+Math.ceil((lockedUntil-Date.now())/60000)+' menit lagi (terlalu banyak percobaan).';
+    return;
+  }
+  const raw=(document.getElementById('fpRecoveryVal').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(raw.length!==8){toast('⚠️ Kode pemulihan 8 karakter (format XXXX-XXXX)');return;}
+  sha256Hex(raw).then(h=>{
+    if(h===S.security.recoveryHash){
+      S.security.recoveryFailCount=0;S.security.recoveryLockedUntil=null;save();
+      document.getElementById('forgotPinModal').classList.remove('open');
+      document.getElementById('rnpVal1').value='';document.getElementById('rnpVal2').value='';
+      document.getElementById('resetNewPinModal').classList.add('open');
+    }else{
+      S.security.recoveryFailCount=(S.security.recoveryFailCount||0)+1;
+      if(S.security.recoveryFailCount>=5){
+        S.security.recoveryLockedUntil=new Date(Date.now()+5*60*1000).toISOString();
+        S.security.recoveryFailCount=0;
+        msg.style.display='block';msg.textContent='⛔ 5x salah — terkunci 5 menit.';
+        logActivity('⛔ Kode Pemulihan Terkunci','5x percobaan salah di layar kunci');
+      }else{
+        msg.style.display='block';
+        msg.textContent='❌ Kode salah ('+S.security.recoveryFailCount+'/5).';
+      }
+      save();
+    }
+  });
+}
+async function saveResetNewPin(){
+  const p1=document.getElementById('rnpVal1').value.trim();
+  const p2=document.getElementById('rnpVal2').value.trim();
+  if(!/^\d{6}$/.test(p1)){toast('⚠️ PIN harus 6 digit angka');return;}
+  if(p1!==p2){toast('⚠️ Konfirmasi PIN tidak cocok');return;}
+  S.security.pinHash=await sha256Hex(p1);
+  S.security.pinEnabled=true;
+  S.security.pinFailCount=0;S.security.pinLockedUntil=null;
+  S.security.recoveryHash='';/* kode lama hangus (sekali pakai) */
+  save();
+  logActivity('🔑 PIN Aplikasi Dipulihkan','via Kode Pemulihan');
+  document.getElementById('resetNewPinModal').classList.remove('open');
   document.getElementById('pinLockScreen').style.display='none';
-  plEntry='';renderPlDots();renderPinToggleUI();
-  toast('🔓 PIN direset. Aktifkan kembali lewat Profil jika perlu.');
+  plEntry='';renderPlDots();renderPinToggleUI();renderRecoveryRow();
+  toast('✅ PIN baru tersimpan');
+  /* Rotasi: terbitkan kode pemulihan baru */
+  setTimeout(()=>issueRecoveryCode('Dirotasi (setelah dipakai)'),450);
+}
+/* ── Fallback destruktif: 2 langkah + ketik frasa ── */
+let _fpWipeArmed=false;
+function fpWipeStep(){
+  const wrap=document.getElementById('fpWipeWrap');
+  if(wrap.style.display==='none'){
+    wrap.style.display='block';
+    document.getElementById('fpWipeBtn').textContent='Konfirmasi Hapus Permanen';
+    return;
+  }
+  const val=(document.getElementById('fpWipeVal').value||'').trim().toUpperCase();
+  if(val!=='HAPUS SEMUA DATA'){toast('⚠️ Ketik "HAPUS SEMUA DATA" persis');return;}
+  if(!_fpWipeArmed){
+    _fpWipeArmed=true;
+    document.getElementById('fpWipeBtn').textContent='⚠️ Tekan Sekali Lagi (final)';
+    setTimeout(()=>{_fpWipeArmed=false;const b=document.getElementById('fpWipeBtn');if(b)b.textContent='Konfirmasi Hapus Permanen';},6000);
+    return;
+  }
+  try{localStorage.clear();}catch(_){}
+  location.reload();
 }
 function initPinLock(){
   if(S.security.pinEnabled&&S.security.pinHash){
