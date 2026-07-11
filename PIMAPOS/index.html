@@ -273,7 +273,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
   position:fixed;inset:0;z-index:9999;
   background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 50%,var(--bg0) 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  animation:splashOut .6s var(--ease) 2.4s both;
+  animation:splashOut .6s var(--ease) 9.4s both; /* total 10s — logo tampil penuh */
 }
 @keyframes splashOut{to{opacity:0;pointer-events:none;transform:scale(1.04)}}
 .splash-logo{
@@ -1398,9 +1398,9 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
         <span id="receiptLogoPreviewEmpty">🧾</span>
       </div>
       <div style="flex:1;min-width:0">
-        <div class="btn-row">
-          <button class="sbtn ripple-container" onclick="document.getElementById('receiptLogoFileInput').click()">🖼️ Unggah Logo</button>
-          <button class="sbtn ghost ripple-container" id="receiptLogoRemoveBtn" style="display:none" onclick="removeReceiptLogo()">Hapus</button>
+        <div class="btn-row" style="flex-wrap:wrap;gap:8px">
+          <button class="sbtn ripple-container" style="flex:1 1 auto;min-width:140px;white-space:nowrap" onclick="document.getElementById('receiptLogoFileInput').click()">🖼️ Unggah Logo</button>
+          <button class="sbtn ghost ripple-container" id="receiptLogoRemoveBtn" style="display:none;flex:0 1 auto;min-width:86px;white-space:nowrap" onclick="removeReceiptLogo()">Hapus</button>
         </div>
       </div>
     </div>
@@ -2656,7 +2656,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.7.3';
+const APP_VERSION='3.7.4';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
@@ -7824,7 +7824,9 @@ function removeSplash(onDone){
   // Dual safety: animationend event + hard timeout fallback
   // splashOut delay 2.4s + duration 0.6s = 3000ms total, +200ms buffer
   splash.addEventListener('animationend',done,{once:true});
-  setTimeout(done,3200);
+  setTimeout(done,10200);
+  /* Ketuk untuk lewati — kasir yang buru-buru tidak menunggu 10 detik */
+  splash.addEventListener('pointerdown',()=>{splash.style.animation='splashOut .4s var(--ease) both';},{once:true});
 }
 
 /* ════════════════════════════════════════════════════
