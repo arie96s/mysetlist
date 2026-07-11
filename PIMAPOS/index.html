@@ -1980,20 +1980,20 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   <div class="modal-sheet">
     <div class="modal-sheet-scroll">
     <div class="modal-handle"></div>
-    <div class="modal-title">📧 Kirim Struk via Email</div>
-    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:12px;line-height:1.6">Customer tidak butuh struk fisik? Minta emailnya, sisanya otomatis.</div>
-    <div class="field"><label>Email Customer (penerima)</label><input type="email" id="erCustomerEmail" placeholder="customer@email.com" autocomplete="off" inputmode="email"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-4px 2px 12px">
-      <div style="font-size:11.5px;color:var(--t3)">Pengirim: <b id="erSenderLabel" style="color:var(--t2)">—</b></div>
-      <button class="icon-btn ripple-container" style="width:28px;height:28px;font-size:12px" onclick="toggleSenderEdit()" title="Ubah email toko" aria-label="Ubah email toko">✎</button>
+    <div class="modal-title">📧 Struk Digital</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:16px;line-height:1.6">Kirim struk ke email atau aplikasi pesan customer.</div>
+    <div class="field"><label>Email Customer</label><input type="email" id="erCustomerEmail" placeholder="customer@email.com" autocomplete="off" inputmode="email"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;border-radius:var(--rlg);background:rgba(255,255,255,.04);border:1px solid var(--gb);margin:0 0 14px">
+      <div style="font-size:12px;color:var(--t3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Pengirim&nbsp;·&nbsp;<b id="erSenderLabel" style="color:var(--t2);font-weight:700">—</b></div>
+      <button class="icon-btn ripple-container" style="width:30px;height:30px;font-size:13px;flex-shrink:0" onclick="toggleSenderEdit()" title="Atur email toko" aria-label="Atur email toko">✎</button>
     </div>
-    <div class="field" id="erSenderEditWrap" style="display:none"><label>Email Toko (identitas pengirim &amp; tanda tangan)</label><input type="email" id="erStoreEmail" placeholder="toko@email.com" autocomplete="off" inputmode="email" onkeydown="if(event.key==='Enter')saveSenderEmail()"><button class="sbtn ripple-container" style="margin-top:8px;padding:10px" onclick="saveSenderEmail()">Simpan Email Toko</button></div>
-    <div class="field"><label>Pesan (template marketing — bisa diedit)</label><textarea id="erMessage" rows="7" style="width:100%;padding:12px;border-radius:var(--rlg);border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t1);font-size:12.5px;line-height:1.6;outline:none;resize:vertical;font-family:inherit"></textarea></div>
-    <button class="sbtn ripple-container" id="erShareBtn" style="display:none" onclick="shareReceiptEmail()">📎 Kirim + Lampiran PDF (Share)</button>
-    <button class="sbtn ripple-container" onclick="mailtoReceiptEmail()">✉️ Buka App Email (mailto)</button>
-    <div style="font-size:11px;color:var(--t3);margin:8px 2px 10px;line-height:1.55">Jalur <b>Share</b> melampirkan PDF otomatis — pilih Mail, Gmail, WhatsApp, atau app lain di share sheet. Jalur <b>mailto</b> mengisi penerima &amp; pesan (PDF dilampirkan manual — unduh di bawah). Email pengirim mengikuti akun mail di perangkat ini.</div>
-    <button class="sbtn ghost ripple-container" onclick="downloadReceiptPDF()">⬇️ Unduh PDF Struk</button>
-    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeEmailReceiptModal()">Tutup</button>
+    <div class="field" id="erSenderEditWrap" style="display:none"><label>Email Toko</label><input type="email" id="erStoreEmail" placeholder="toko@email.com" autocomplete="off" inputmode="email" onkeydown="if(event.key==='Enter')saveSenderEmail()"><button class="sbtn ripple-container" style="margin-top:10px;padding:10px" onclick="saveSenderEmail()">Simpan</button></div>
+    <div class="field"><label>Pesan <span style="font-weight:500;opacity:.65">— otomatis, bisa diedit</span></label><textarea id="erMessage" rows="6" style="width:100%;padding:12px;border-radius:var(--rlg);border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t1);font-size:12.5px;line-height:1.6;outline:none;resize:vertical;font-family:inherit"></textarea></div>
+    <button class="sbtn ripple-container" id="erShareBtn" style="display:none;margin-top:4px" onclick="shareReceiptEmail()">📤 PIMA Share</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:10px" onclick="mailtoReceiptEmail()">✉️ Via App Email</button>
+    <div style="font-size:11px;color:var(--t3);margin:12px 2px 14px;line-height:1.6"><b>PIMA Share</b> menyertakan PDF struk otomatis — pilih Mail, Gmail, WhatsApp, atau aplikasi lain. <b>Via App Email</b> hanya mengisi penerima &amp; pesan; lampirkan PDF secara manual.</div>
+    <button class="sbtn ghost ripple-container" onclick="downloadReceiptPDF()">⬇️ Unduh PDF</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:10px" onclick="closeEmailReceiptModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -2656,7 +2656,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.7.2';
+const APP_VERSION='3.7.3';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
