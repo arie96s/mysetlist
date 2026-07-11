@@ -529,20 +529,20 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .profile-av img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:none}
 .av-edit-badge{position:absolute;bottom:-2px;right:-2px;width:24px;height:24px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--bg2,#0b1530);box-shadow:0 4px 10px rgba(0,0,0,.35)}
 #pinLockScreen{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 0%,var(--bg2) 0%,var(--bg0) 70%);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px}
-.pl-logo{width:64px;height:64px;border-radius:var(--rxxl);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;margin-bottom:14px;box-shadow:0 10px 36px rgba(var(--accent-shadow-rgb),.45);overflow:hidden}
+.pl-logo{width:64px;height:64px;border-radius:var(--rxxl);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;margin:0 auto 14px;box-shadow:0 10px 36px rgba(var(--accent-shadow-rgb),.45);overflow:hidden}
 .pl-logo img{width:100%;height:100%;object-fit:cover}
-.pl-title{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px}
-.pl-sub{font-size:12px;color:var(--t3);margin-bottom:24px}
-.pl-dots{display:flex;gap:14px;margin-bottom:30px}
+.pl-title{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px;text-align:center}
+.pl-sub{font-size:12px;color:var(--t3);margin-bottom:24px;text-align:center}
+.pl-dots{display:flex;gap:14px;margin:0 auto 30px;justify-content:center}
 .pl-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.25);transition:all .18s var(--spring)}
 .pl-dot.filled{background:var(--amber);border-color:var(--amber);transform:scale(1.15)}
 .pl-dots.shake{animation:plshake .4s}
 @keyframes plshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
-.pl-numpad{display:grid;grid-template-columns:repeat(3,72px);gap:14px}
+.pl-numpad{display:grid;grid-template-columns:repeat(3,72px);gap:14px;margin:0 auto}
 .pl-key{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--t1);font-size:24px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .18s var(--spring)}
 .pl-key:active{transform:scale(.9);background:rgba(var(--accent-tint-rgb),.18)}
 .pl-key.empty{visibility:hidden;cursor:default}
-.pl-forgot{margin-top:22px;font-size:12px;color:var(--amber);cursor:pointer}
+.pl-forgot{margin-top:22px;font-size:12px;color:var(--amber);cursor:pointer;text-align:center}
 .app-info-logo{width:56px;height:56px;border-radius:var(--rxl);background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px;box-shadow:0 10px 28px rgba(var(--accent-shadow-rgb),.35),inset 0 1px 0 rgba(255,255,255,.25)}
 .app-info-name{font-size:16px;font-weight:800;letter-spacing:-.01em}
 .app-info-version{display:inline-block;margin-top:5px;padding:3px 11px;border-radius:var(--rpill);background:rgba(var(--accent-tint-rgb),.14);border:1px solid rgba(var(--accent-tint-rgb),.3);color:var(--amber);font-size:11px;font-weight:700;letter-spacing:.03em}
@@ -1725,6 +1725,11 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
     <div class="modal-handle"></div>
     <div class="modal-title">⋯ Opsi Lainnya</div>
     <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:14px;line-height:1.6">Perlu koreksi transaksi ini? Pilih tindakan yang sesuai di bawah.</div>
+    <div class="da-row-flat ripple-container" onclick="closeReceiptMoreModal();openEmailReceiptModal()">
+      <div class="da-ico">📧</div>
+      <div class="da-lbl">Kirim Struk via Email</div>
+      <div class="da-chev">›</div>
+    </div>
     <div class="da-row-flat ripple-container" id="labelPesananBtn" onclick="closeReceiptMoreModal();openLabelPesananModal()">
       <div class="da-ico">🏷️</div>
       <div class="da-lbl">Label Pesanan</div>
@@ -1966,6 +1971,29 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
       <div class="pw-lic-active">👑 <b>Lisensi Lifetime Aktif</b><br><span id="pwActiveInfo" style="font-size:11.5px;color:var(--t3)"></span><br>Terima kasih telah mendukung PIMAPOS!</div>
     </div>
     <button class="sbtn ghost ripple-container" style="margin-top:12px" onclick="closeLifetimeModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: KIRIM STRUK VIA EMAIL ══════════ -->
+<div class="modal-ov" id="emailReceiptModal" style="z-index:210">
+  <div class="modal-sheet">
+    <div class="modal-sheet-scroll">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📧 Kirim Struk via Email</div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:12px;line-height:1.6">Customer tidak butuh struk fisik? Minta emailnya, sisanya otomatis.</div>
+    <div class="field"><label>Email Customer (penerima)</label><input type="email" id="erCustomerEmail" placeholder="customer@email.com" autocomplete="off" inputmode="email"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-4px 2px 12px">
+      <div style="font-size:11.5px;color:var(--t3)">Pengirim: <b id="erSenderLabel" style="color:var(--t2)">—</b></div>
+      <button class="icon-btn ripple-container" style="width:28px;height:28px;font-size:12px" onclick="toggleSenderEdit()" title="Ubah email toko" aria-label="Ubah email toko">✎</button>
+    </div>
+    <div class="field" id="erSenderEditWrap" style="display:none"><label>Email Toko (identitas pengirim &amp; tanda tangan)</label><input type="email" id="erStoreEmail" placeholder="toko@email.com" autocomplete="off" inputmode="email" onkeydown="if(event.key==='Enter')saveSenderEmail()"><button class="sbtn ripple-container" style="margin-top:8px;padding:10px" onclick="saveSenderEmail()">Simpan Email Toko</button></div>
+    <div class="field"><label>Pesan (template marketing — bisa diedit)</label><textarea id="erMessage" rows="7" style="width:100%;padding:12px;border-radius:var(--rlg);border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:var(--t1);font-size:12.5px;line-height:1.6;outline:none;resize:vertical;font-family:inherit"></textarea></div>
+    <button class="sbtn ripple-container" id="erShareBtn" style="display:none" onclick="shareReceiptEmail()">📎 Kirim + Lampiran PDF (Share)</button>
+    <button class="sbtn ripple-container" onclick="mailtoReceiptEmail()">✉️ Buka App Email (mailto)</button>
+    <div style="font-size:11px;color:var(--t3);margin:8px 2px 10px;line-height:1.55">Jalur <b>Share</b> melampirkan PDF otomatis — pilih Mail, Gmail, WhatsApp, atau app lain di share sheet. Jalur <b>mailto</b> mengisi penerima &amp; pesan (PDF dilampirkan manual — unduh di bawah). Email pengirim mengikuti akun mail di perangkat ini.</div>
+    <button class="sbtn ghost ripple-container" onclick="downloadReceiptPDF()">⬇️ Unduh PDF Struk</button>
+    <button class="sbtn ghost ripple-container" style="margin-top:8px" onclick="closeEmailReceiptModal()">Tutup</button>
     </div>
   </div>
 </div>
@@ -2628,7 +2656,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.6.1';
+const APP_VERSION='3.7.2';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
@@ -2904,6 +2932,7 @@ function defState(){
     receiptLogo:'',
     storeBranchCode:'',
     receiptPromoMsg:'',
+    storeEmail:'',
     security:{pinEnabled:false,pinHash:'',pinFailCount:0,pinLockedUntil:null,pinChangeFailCount:0,pinChangeLockedUntil:null,actionPinEnabled:false,actionPinHash:'',actionPinFailCount:0,actionPinLockedUntil:null,idleLockEnabled:false,idleLockMinutes:5,recoveryHash:'',recoveryFailCount:0,recoveryLockedUntil:null},
     notif:{enabled:false},
     socials:{whatsapp:'',instagram:'',tiktok:'',facebook:'',shopee:'',tokopedia:'',website:''},
@@ -4136,9 +4165,9 @@ function renderCustCartRow(){
     const t=getTier(selectedCustomer.totalSpend);
     wrap.innerHTML=`
       <div class="cust-selected-chip ripple-container" onclick="openCustomerModal()">
-        <div class="cust-row-av" style="width:32px;height:32px;font-size:12px">${(selectedCustomer.name||'?').charAt(0).toUpperCase()}</div>
+        <div class="cust-row-av" style="width:32px;height:32px;font-size:12px">${escapeHtml((selectedCustomer.name||'?').charAt(0).toUpperCase())}</div>
         <div class="cust-row-info">
-          <div class="cust-row-name">${selectedCustomer.name} ${tierBadgeHTML(selectedCustomer.totalSpend)}</div>
+          <div class="cust-row-name">${escapeHtml(selectedCustomer.name)} ${tierBadgeHTML(selectedCustomer.totalSpend)}</div>
           <div class="cust-row-sub">${selectedCustomer.phone||''} · Ganti pelanggan</div>
         </div>
       </div>`;
@@ -4160,9 +4189,9 @@ function renderKasirCustChip(){
     const t=getTier(selectedCustomer.totalSpend);
     wrap.innerHTML=`
       <div class="cust-selected-chip ripple-container" onclick="openCustomerModal()" style="margin-bottom:14px">
-        <div class="cust-row-av" style="width:30px;height:30px;font-size:11px">${selectedCustomer.name.charAt(0).toUpperCase()}</div>
+        <div class="cust-row-av" style="width:30px;height:30px;font-size:11px">${escapeHtml(selectedCustomer.name.charAt(0).toUpperCase())}</div>
         <div class="cust-row-info">
-          <div class="cust-row-name">${selectedCustomer.name} ${tierBadgeHTML(selectedCustomer.totalSpend)}</div>
+          <div class="cust-row-name">${escapeHtml(selectedCustomer.name)} ${tierBadgeHTML(selectedCustomer.totalSpend)}</div>
           <div class="cust-row-sub">Pelanggan untuk transaksi ini · Ganti</div>
         </div>
       </div>`;
@@ -4299,9 +4328,9 @@ function renderPayCustInfo(){
   const t=getTier(selectedCustomer.totalSpend);
   wrap.innerHTML=`
     <div class="cust-selected-chip" style="cursor:default;margin-bottom:14px">
-      <div class="cust-row-av" style="width:32px;height:32px;font-size:12px">${selectedCustomer.name.charAt(0).toUpperCase()}</div>
+      <div class="cust-row-av" style="width:32px;height:32px;font-size:12px">${escapeHtml(selectedCustomer.name.charAt(0).toUpperCase())}</div>
       <div class="cust-row-info">
-        <div class="cust-row-name">${selectedCustomer.name} ${tierBadgeHTML(selectedCustomer.totalSpend)}</div>
+        <div class="cust-row-name">${escapeHtml(selectedCustomer.name)} ${tierBadgeHTML(selectedCustomer.totalSpend)}</div>
         <div class="cust-row-sub">${selectedCustomer.totalTrx||0}x transaksi sebelumnya</div>
       </div>
     </div>
@@ -4969,9 +4998,112 @@ async function printOrderLabels(){
   if(ok)toast('🖨️ '+units.length+' label terkirim ke printer');
 }
 function closeReceiptMoreModal(){document.getElementById('receiptMoreModal').classList.remove('open');}
+
+/* ════════════════════════════════════════════════════
+   KIRIM STRUK VIA EMAIL
+   • Share sheet (Web Share API level 2): PDF terlampir OTOMATIS.
+   • mailto: alamat + template terisi; PDF dilampirkan manual
+     (spesifikasi mailto memang tidak mendukung lampiran).
+   ════════════════════════════════════════════════════ */
+function buildReceiptEmailTemplate(trx){
+  const nm=S.storeName||'Toko Kami';
+  const br=S.storeBranchCode?` (${S.storeBranchCode})`:'';
+  const tgl=new Date(trx.ts).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const promo=receiptPromoText()||'Ditunggu kunjungan berikutnya!';
+  return `Halo${trx.customerName?' '+trx.customerName:''}! 👋
+
+Terima kasih telah berbelanja di ${nm}${br}. Berikut struk pembelian Anda${'' /* PDF terlampir bila via share */}.
+
+🧾 Struk #${trx.id}
+📅 ${tgl}
+💰 Total: Rp ${trxNet(trx).toLocaleString('id-ID')} — ${trx.method}
+
+${promo}
+
+Salam hangat,
+${nm}${S.storeAddr?'\n'+S.storeAddr:''}${S.storeEmail?'\n✉️ '+S.storeEmail:''}`;
+}
+function _emailValid(v){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);}
+function _canShareFiles(){
+  try{
+    const f=new File(['x'],'x.pdf',{type:'application/pdf'});
+    return !!(navigator.canShare&&navigator.canShare({files:[f]}));
+  }catch(_){return false;}
+}
+function _renderSenderLine(){
+  document.getElementById('erSenderLabel').textContent=S.storeEmail||'belum diatur';
+}
+function toggleSenderEdit(){
+  const w=document.getElementById('erSenderEditWrap');
+  const show=w.style.display==='none';
+  w.style.display=show?'block':'none';
+  if(show){document.getElementById('erStoreEmail').value=S.storeEmail||'';setTimeout(()=>document.getElementById('erStoreEmail').focus(),100);}
+}
+function saveSenderEmail(){
+  const se=document.getElementById('erStoreEmail').value.trim();
+  if(se&&!_emailValid(se)){toast('⚠️ Format email toko tidak valid');return;}
+  S.storeEmail=se;save();
+  _renderSenderLine();
+  document.getElementById('erSenderEditWrap').style.display='none';
+  /* Template ikut ter-update (tanda tangan) */
+  if(lastReceiptTrx)document.getElementById('erMessage').value=buildReceiptEmailTemplate(lastReceiptTrx);
+  toast(se?'✅ Email toko tersimpan':'Email toko dikosongkan');
+}
+function openEmailReceiptModal(){
+  if(!lastReceiptTrx){toast('Tidak ada struk untuk dikirim');return;}
+  document.getElementById('erCustomerEmail').value='';
+  document.getElementById('erSenderEditWrap').style.display='none';
+  _renderSenderLine();
+  document.getElementById('erMessage').value=buildReceiptEmailTemplate(lastReceiptTrx);
+  document.getElementById('erShareBtn').style.display=_canShareFiles()?'block':'none';
+  document.getElementById('emailReceiptModal').classList.add('open');
+  setTimeout(()=>document.getElementById('erCustomerEmail').focus(),300);
+}
+function closeEmailReceiptModal(){document.getElementById('emailReceiptModal').classList.remove('open');}
+
+function buildReceiptMailtoURL(){
+  const to=document.getElementById('erCustomerEmail').value.trim();
+  const trx=lastReceiptTrx;
+  const subject=`Struk Pembelian ${S.storeName||'PIMAPOS'} — #${trx.id}`;
+  const body=document.getElementById('erMessage').value;
+  /* Pengirim TIDAK bisa di-set via mailto/share — otomatis akun mail perangkat
+     (perangkat toko = email toko). Email toko menjadi tanda tangan di body. */
+  return `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+function mailtoReceiptEmail(){
+  if(!lastReceiptTrx)return;
+  const to=document.getElementById('erCustomerEmail').value.trim();
+  if(!_emailValid(to)){toast('⚠️ Email customer tidak valid');return;}
+  logActivity('📧 Struk Dikirim via Email (mailto)','#'+lastReceiptTrx.id);
+  try{window.location.href=buildReceiptMailtoURL();}catch(_){}
+  toast('✉️ App email terbuka — jangan lupa lampirkan PDF-nya');
+}
+async function shareReceiptEmail(){
+  if(!lastReceiptTrx)return;
+  const r=await buildReceiptPDF();
+  if(!r)return;
+  try{
+    const blob=r.doc.output('blob');
+    const file=new File([blob],r.fname,{type:'application/pdf'});
+    await navigator.share({
+      files:[file],
+      title:`Struk ${S.storeName||'PIMAPOS'} #${lastReceiptTrx.id}`,
+      text:document.getElementById('erMessage').value
+    });
+    logActivity('📧 Struk Dibagikan + PDF','#'+lastReceiptTrx.id);
+    toast('✅ Struk dibagikan');
+  }catch(e){
+    if(e&&e.name==='AbortError')return; /* user batal — bukan error */
+    toast('⚠️ Gagal share, gunakan jalur mailto + unduh PDF');
+  }
+}
 async function downloadReceiptPDF(){
-  if(!lastReceiptTrx){toast('Tidak ada struk untuk diunduh');return;}
-  if(typeof window.jspdf==='undefined'){toast('⚠️ Modul PDF belum siap, coba lagi');return;}
+  const r=await buildReceiptPDF();
+  if(r)r.doc.save(r.fname);
+}
+async function buildReceiptPDF(){
+  if(!lastReceiptTrx){toast('Tidak ada struk untuk diunduh');return null;}
+  if(typeof window.jspdf==='undefined'){toast('⚠️ Modul PDF belum siap, coba lagi');return null;}
   const trx=lastReceiptTrx;
   const { jsPDF }=window.jspdf;
   const W=72; // mm, thermal-receipt-like width
@@ -5080,7 +5212,7 @@ async function downloadReceiptPDF(){
   doc.setFont('courier','normal');doc.setFontSize(6.5);doc.setTextColor(110,110,110);
   doc.text(S.storeName||'Toko Saya',cx,y,{align:'center'});
 
-  doc.save(`Struk_${S.storeName||'PIMAPOS'}_${trx.id}.pdf`);
+  return {doc,fname:`Struk_${(S.storeName||'PIMAPOS').replace(/[^\w-]+/g,'_')}_${trx.id}.pdf`};
   toast('📄 Struk PDF berhasil diunduh!');
 }
 
