@@ -481,7 +481,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .cart-exp-pay:active{transform:scale(.97)}
 
 /* CART SHEET / CHECKOUT */
-.modal-ov{position:fixed;inset:0;background:rgba(2,8,23,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .5s var(--ease),visibility 0s linear .5s;padding:0 12px calc(var(--safe-b) + 14px)}
+.modal-ov{position:fixed;inset:0;background:rgba(2,8,23,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;visibility:hidden;transition:opacity .4s var(--ease),visibility 0s linear .42s;padding:0 12px calc(var(--safe-b) + 14px)}
 #confirmModal{z-index:10000}
 #whatsNewModal{z-index:220} /* di atas infoModal (200) — dibuka dari dalam Info App */
 /* Rantai Lupa PIN harus DI ATAS layar kunci (z 9999) */
@@ -490,7 +490,7 @@ button,input,select,textarea{font-family:var(--font-sf);}
 .recovery-code-box{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;letter-spacing:.14em;text-align:center;padding:16px 10px;border-radius:var(--rlg);background:rgba(var(--accent-tint-rgb),.1);border:1.5px dashed rgba(var(--accent-tint-rgb),.45);color:var(--amber);margin:12px 0;user-select:all;-webkit-user-select:all}
 #scanModal{z-index:230}
 .modal-ov.open{opacity:1;pointer-events:all;visibility:visible;transition:opacity .5s var(--ease),visibility 0s}
-.modal-sheet{width:100%;max-width:480px;margin:0 auto;border-radius:var(--rxl);transform-origin:50% 100%;transform:translateY(48px) scale(.7);opacity:0;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .42s var(--ease),background .5s var(--ease);background:var(--modal-bg);border:1px solid rgba(255,255,255,.09);box-shadow:0 -10px 24px rgba(0,0,0,.25),0 24px 70px rgba(0,0,0,.5);max-height:84vh;position:relative;overflow:hidden}
+.modal-sheet{width:100%;max-width:480px;margin:0 auto;border-radius:var(--rxl);transform-origin:50% 100%;transform:translateY(12%) scale(.96);opacity:0;transition:transform .38s cubic-bezier(.4,0,.68,.06),opacity .32s ease-in,background .5s var(--ease);background:var(--modal-bg);border:1px solid rgba(255,255,255,.09);box-shadow:0 -10px 24px rgba(0,0,0,.25),0 24px 70px rgba(0,0,0,.5);max-height:84vh;position:relative;overflow:hidden}
 .modal-ov.open .modal-sheet{transform:translateY(0) scale(1);opacity:1;transition:transform .5s cubic-bezier(.34,1.6,.4,1),opacity .4s var(--ease)}
 .modal-sheet-scroll{padding:14px 20px 26px;overflow-y:auto;max-height:84vh;overscroll-behavior:contain}
 .modal-handle{width:36px;height:4px;background:rgba(255,255,255,.14);border-radius:99px;margin:0 auto 18px}
@@ -880,7 +880,7 @@ body.privacy-on .pv-sensitive{filter:blur(9px);transition:filter .3s var(--ease)
 input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--grad-gold);box-shadow:0 2px 8px rgba(var(--accent-shadow-rgb),.5);cursor:pointer;border:2px solid #fff}
 input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--amber);box-shadow:0 2px 8px rgba(var(--accent-shadow-rgb),.5);cursor:pointer;border:2px solid #fff}
 
-#toast{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 70px);left:50%;transform:translateX(-50%) translateY(20px);background:rgba(20,20,28,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 20px;border-radius:var(--rpill);font-size:13px;font-weight:600;z-index:500;opacity:0;pointer-events:none;transition:all .35s var(--spring);box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:90%;text-align:center}
+#toast{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 70px);left:50%;transform:translateX(-50%) translateY(20px);background:rgba(20,20,28,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);color:#fff;padding:12px 20px;border-radius:var(--rpill);font-size:13px;font-weight:600;z-index:10050;opacity:0;pointer-events:none;transition:all .35s var(--spring);box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:90%;text-align:center}
 #floatWarnEl{position:fixed;bottom:calc(var(--navh) + var(--safe-b) + 120px);left:50%;transform:translateX(-50%) scale(.7);background:rgba(220,38,38,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);color:#fff;padding:13px 22px;border-radius:22px;font-size:13.5px;font-weight:700;z-index:600;opacity:0;pointer-events:none;transition:transform .55s cubic-bezier(.34,1.7,.42,1),opacity .3s ease;box-shadow:0 12px 36px rgba(220,38,38,.45);max-width:calc(100vw - 48px);width:max-content;text-align:center;white-space:normal;line-height:1.45}
 #floatWarnEl.show{opacity:1;transform:translateX(-50%) scale(1)}
 #floatWarnEl.shake{animation:warnShake .42s cubic-bezier(.36,.07,.19,.97)}
@@ -949,7 +949,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
   #holdFloatCapsule.show{transform:translateY(0) scale(1)}
   #holdFloatDot{right:40px;bottom:104px}
   .modal-ov{align-items:center;padding:24px}
-  .modal-sheet{max-width:500px;transform:scale(.92);transform-origin:50% 50%;border-radius:var(--rxl)}
+  .modal-sheet{max-width:500px;transform:translateY(2%) scale(.94);transform-origin:50% 60%;border-radius:var(--rxl)}
   .modal-sheet-scroll{max-height:78vh}
   .sbtn:hover,.sidebar-btn:not(.active):hover,.icon-btn:hover,.storecat-chip:not(.active):hover,.cat-chip:not(.active):hover{filter:brightness(1.12)}
   .sidebar-btn:not(.active):hover{background:rgba(255,255,255,.055);color:var(--t1)}
@@ -2656,7 +2656,7 @@ input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;b
    STATE
 ════════════════════════════════════════════════════ */
 const LSKEY='pimapos_v1';
-const APP_VERSION='3.7.4';
+const APP_VERSION='3.7.8';
 const WHATS_NEW_FEATURES=[
   {icon:'🎁',title:'Pesan Promo di Struk',desc:'Pesan penutup paling bawah struk untuk menarik pelanggan kembali — 5 template marketing siap pakai, bisa diedit lewat pop-up ⋯. Atur di "Struk & Identitas Toko".'},
   {icon:'📊',title:'Grafik Jendela Mengambang',desc:'Grafik Laporan kini terbuka lewat menu ⋯ sebagai jendela pop-up — di desktop & iPad bisa diseret ke segala arah untuk membandingkan beberapa grafik sekaligus. Startup juga lebih ringan.'},
@@ -3680,7 +3680,8 @@ function initEasterEggs(){
   const badge=document.getElementById('appInfoVersionBadge');
   if(badge)badge.addEventListener('click',_coreTapHandler);
   document.addEventListener('click',_h1TapHandler);
-  if(nightGreetingCheck())setTimeout(()=>toast('🌙 Masih semangat jam segini! Jangan lupa istirahat, bos.'),1800);
+  /* Tunggu splash selesai — toast di belakang splash tidak pernah terlihat */
+  if(nightGreetingCheck())setTimeout(()=>toast('🌙 Masih semangat jam segini! Jangan lupa istirahat, bos.'),SPLASH_TOTAL_MS+900);
 }
 
 function renderThemePresets(){
@@ -7812,6 +7813,7 @@ document.querySelectorAll('.modal-ov').forEach(ov=>{
 /* ════════════════════════════════════════════════════
    SPLASH REMOVE
 ════════════════════════════════════════════════════ */
+const SPLASH_TOTAL_MS=10200; /* selaras animasi CSS 9.4s+0.6s — satu sumber kebenaran */
 function removeSplash(onDone){
   const splash=document.getElementById('splashScreen');
   if(!splash){if(onDone)onDone();return;}
@@ -7824,7 +7826,7 @@ function removeSplash(onDone){
   // Dual safety: animationend event + hard timeout fallback
   // splashOut delay 2.4s + duration 0.6s = 3000ms total, +200ms buffer
   splash.addEventListener('animationend',done,{once:true});
-  setTimeout(done,10200);
+  setTimeout(done,SPLASH_TOTAL_MS);
   /* Ketuk untuk lewati — kasir yang buru-buru tidak menunggu 10 detik */
   splash.addEventListener('pointerdown',()=>{splash.style.animation='splashOut .4s var(--ease) both';},{once:true});
 }
